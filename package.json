@@ -34,7 +34,9 @@
     "supabase:migration:squash": "supabase migration squash",
     "test": "turbo test",
     "test:projects": "vitest run",
-    "test:projects:watch": "vitest --watch"
+    "test:projects:watch": "vitest --watch",
+    "docker:dev:up": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml up -d",
+    "docker:dev:down": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml down"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
