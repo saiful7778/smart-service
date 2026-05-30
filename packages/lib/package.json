@@ -17,7 +17,8 @@
   "exports": {
     "./types": "./src/types/index.ts",
     "./redis": "./src/services/redis/index.ts",
-    "./redis/mock": "./tests/redis.mock.ts"
+    "./redis/mock": "./tests/redis.mock.ts",
+    "./logger": "./src/services/logger/index.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -26,5 +27,9 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "zod": "catalog:"
+  },
+  "dependencies": {
+    "pino": "catalog:",
+    "pino-pretty": "catalog:"
   }
 }
