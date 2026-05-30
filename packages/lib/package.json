@@ -1,0 +1,30 @@
+{
+  "name": "@workspace/lib",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Saiful Islam <saiful.islam.rafi.88@gmail.com>",
+  "contributors": [
+    {
+      "name": "Saiful Islam",
+      "email": "saiful.islam.rafi.88@gmail.com"
+    }
+  ],
+  "scripts": {
+    "lint": "eslint",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./types": "./src/types/index.ts",
+    "./redis": "./src/services/redis/index.ts",
+    "./redis/mock": "./tests/redis.mock.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@upstash/redis": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "zod": "catalog:"
+  }
+}
