@@ -18,7 +18,20 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "supabase:status": "supabase status",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:studio": "supabase studio",
+    "supabase:db:pull": "supabase db pull",
+    "supabase:db:push": "supabase db push",
+    "supabase:db:reset": "supabase db reset",
+    "supabase:migration:up": "supabase migration up",
+    "supabase:migration:down": "supabase migration down",
+    "supabase:migration:new": "supabase migration new",
+    "supabase:migration:list": "supabase migration list",
+    "supabase:migration:repair": "supabase migration repair",
+    "supabase:migration:squash": "supabase migration squash"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
