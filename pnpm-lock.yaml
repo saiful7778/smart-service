@@ -86,9 +86,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@workspace/drizzle':
+        specifier: workspace:*
+        version: link:../../packages/drizzle
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@upstash/redis@1.38.0)(kysely@0.29.2)(postgres@3.4.9)
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.17.0(react@19.2.6)
       next:
         specifier: 'catalog:'
         version: 16.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

@@ -23,7 +23,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@workspace/drizzle": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "lucide-react": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",
     "react": "catalog:",
