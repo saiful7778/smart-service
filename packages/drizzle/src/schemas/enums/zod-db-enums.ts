@@ -13,6 +13,7 @@ import {
   NOTIFICATION_CATEGORY,
   NOTIFICATION_LEVEL,
   PERMISSION_LEVEL,
+  QSTASH_STATUS,
   RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
@@ -76,3 +77,6 @@ export const JobAssignmentRoleEnumSchema = z.enum(JOB_ASSIGNMENT_ROLE);
 export type JobAssignmentRoleEnumType = z.infer<
   typeof JobAssignmentRoleEnumSchema
 >;
+
+export const QstashStatusEnumSchema = z.enum(QSTASH_STATUS);
+export type QstashStatusEnumType = z.infer<typeof QstashStatusEnumSchema>;
