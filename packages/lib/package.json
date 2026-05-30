@@ -19,6 +19,7 @@
     "./redis": "./src/services/redis/index.ts",
     "./redis/mock": "./tests/redis.mock.ts",
     "./logger": "./src/services/logger/index.ts",
+    "./qstash": "./src/services/qstash/index.ts",
     "./utils": "./src/utils/index.ts"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@upstash/qstash": "catalog:",
     "pino": "catalog:",
     "pino-pretty": "catalog:"
   }
