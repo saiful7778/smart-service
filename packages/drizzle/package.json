@@ -18,6 +18,10 @@
       "import": "./src/drizzle-client.ts",
       "types": "./src/drizzle-client.ts"
     },
+    "./client/mock": {
+      "import": "./tests/drizzle-client.mock.ts",
+      "types": "./tests/drizzle-client.mock.ts"
+    },
     "./schemas": {
       "import": "./src/schemas/index.ts",
       "types": "./src/schemas/index.ts"
