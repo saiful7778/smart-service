@@ -47,21 +47,28 @@
     "db:generate-dbml": "tsx ./src/generators/dbml-generator.ts",
     "db:generate-sql": "tsx ./src/generators/sql-generator.ts",
     "db:generate-full": "pnpm run db:generate && pnpm run db:generate-dbml && pnpm run db:generate-sql",
-    "db:generate-seed-sql": "tsx ./src/generators/seed-sql-generator.ts"
+    "db:generate-seed-sql": "tsx ./src/generators/seed-sql-generator.ts",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "@types/node": "catalog:",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.4.6",
     "@upstash/redis": "catalog:",
     "better-auth": "catalog:",
     "drizzle-orm": "catalog:",

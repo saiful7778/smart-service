@@ -31,16 +31,21 @@
     "supabase:migration:new": "supabase migration new",
     "supabase:migration:list": "supabase migration list",
     "supabase:migration:repair": "supabase migration repair",
-    "supabase:migration:squash": "supabase migration squash"
+    "supabase:migration:squash": "supabase migration squash",
+    "test": "turbo test",
+    "test:projects": "vitest run",
+    "test:projects:watch": "vitest --watch"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "turbo": "^2.9.16",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "packageManager": "pnpm@10.33.4",
   "engines": {
