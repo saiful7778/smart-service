@@ -1,0 +1,32 @@
+import type { Table } from "@tanstack/react-table";
+
+import { DataTableFilterView } from "@workspace/ui/components/data-table/data-table-filter-view";
+import { DataTableViewOptions } from "@workspace/ui/components/data-table/data-table-view-options";
+import { cn } from "@workspace/ui/lib/utils";
+
+interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
+  table: Table<TData>;
+}
+
+export function DataTableToolbar<TData>({
+  table,
+  children,
+  className,
+  ...props
+}: DataTableToolbarProps<TData>) {
+  "use no memo";
+  return (
+    <div
+      role="toolbar"
+      aria-orientation="horizontal"
+      className={cn("flex w-full items-start justify-between gap-2", className)}
+      {...props}
+    >
+      <DataTableFilterView table={table} />
+      <div className="flex items-center gap-2">
+        {children}
+        <DataTableViewOptions table={table} />
+      </div>
+    </div>
+  );
+}

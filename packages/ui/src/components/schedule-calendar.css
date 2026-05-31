@@ -1,0 +1,77 @@
+.schedule-calendar-wrapper .fc {
+  --fc-border-color: var(--border);
+  --fc-daygrid-event-dot-width: 8px;
+  --fc-today-bg-color: var(--muted);
+
+  --fc-button-bg-color: var(--muted);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--input);
+
+  --fc-event-border-color: var(--accent);
+  --fc-event-bg-color: var(--accent);
+
+  --fc-page-bg-color: var(--muted);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.fc .fc-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  text-transform: capitalize;
+  transition: all 300ms;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  color: var(--accent-foreground);
+  background-color: var(--accent);
+  border-color: var(--input);
+  filter: brightness(100%);
+}
+
+.fc .fc-button-primary:hover {
+  filter: brightness(90%);
+}
+
+.fc .fc-col-header-cell {
+  padding-block: 0.5rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fc .fc-daygrid-day-number {
+  padding: 8px;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  font-weight: bold;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: var(--border);
+}
+
+.fc-timegrid-event .fc-event-main {
+  padding: 0;
+}
+
+.fc-h-event {
+  border-radius: calc(var(--radius) * 0.8) /* 0.2rem = 3.2px */;
+}
+
+.fc-v-event {
+  border-radius: calc(var(--radius) * 0.8) /* 0.2rem = 3.2px */;
+  padding: 0;
+}

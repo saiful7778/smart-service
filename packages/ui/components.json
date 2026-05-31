@@ -10,14 +10,19 @@
     "cssVariables": true
   },
   "iconLibrary": "lucide",
+  "rtl": true,
+  "menuColor": "default",
+  "menuAccent": "bold",
   "aliases": {
     "components": "@workspace/ui/components",
     "utils": "@workspace/ui/lib/utils",
-    "hooks": "@workspace/ui/hooks",
+    "ui": "@workspace/ui/components",
     "lib": "@workspace/ui/lib",
-    "ui": "@workspace/ui/components"
+    "hooks": "@workspace/ui/hooks"
   },
-  "rtl": true,
-  "menuColor": "default",
-  "menuAccent": "bold"
+  "registries": {
+    "@magicui": "https://magicui.design/r/{name}",
+    "@diceui": "https://diceui.com/r/{name}.json",
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
+  }
 }
