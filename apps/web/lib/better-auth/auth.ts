@@ -1,0 +1,442 @@
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { betterAuth, BetterAuthPlugin } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
+import { nextCookies } from "better-auth/next-js";
+import {
+  admin,
+  haveIBeenPwned,
+  oneTap,
+  organization,
+} from "better-auth/plugins";
+import { and, eq } from "drizzle-orm";
+import { UAParser } from "ua-parser-js";
+
+import {
+  AccountTable,
+  InvitationTable,
+  OrganizationMemberTable,
+  OrganizationTable,
+  OrgMemberRoleTable,
+  OrgTeamMemberTable,
+  OrgTeamTable,
+  RoleTable,
+  SessionTable,
+  UserRoleTable,
+  UserTable,
+  VerificationTable,
+} from "@workspace/drizzle/schemas";
+import { RoleEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { OrgRoleType } from "@workspace/lib/utils";
+
+import { ERROR_PAGE_PATH } from "@/constants";
+import { getFirstOrg } from "@/features/org/data/get-first-org";
+import { getFirstTeam } from "@/features/org/data/get-first-team";
+import { createUserActivity } from "@/features/user/data/create-user-activity";
+import { getIp } from "@/utils/getIp";
+
+import { db } from "../db";
+import { env } from "../env";
+import { mailProvider } from "../mail";
+import { orgAc, orgRoles } from "./accessControl.org";
+import { systemAc, systemRoles } from "./accessControl.system";
+import { redisSecondaryStorage } from "./secondaryStorage";
+
+function createBetterAuth() {
+  const defaultPlugins: Array<BetterAuthPlugin> = [];
+
+  if (env.NODE_ENV === "production") {
+    defaultPlugins.push(
+      haveIBeenPwned({
+        customPasswordCompromisedMessage:
+          "This password is compromised, choose a stronger one",
+      })
+    );
+  }
+
+  return betterAuth({
+    appName: env.NEXT_PUBLIC_SITE_NAME,
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema: {
+        user: UserTable,
+        session: SessionTable,
+        account: AccountTable,
+        verification: VerificationTable,
+        organization: OrganizationTable,
+        member: OrganizationMemberTable,
+        invitation: InvitationTable,
+        team: OrgTeamTable,
+        teamMember: OrgTeamMemberTable,
+      },
+    }),
+    secondaryStorage: redisSecondaryStorage,
+    rateLimit: {
+      storage: "secondary-storage",
+    },
+    telemetry: { enabled: true },
+    trustedOrigins: [env.NEXT_PUBLIC_SITE_URL],
+    advanced: {
+      database: {
+        generateId: false,
+      },
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            // 1. Find the default USER role
+            const [defaultRole] = await db
+              .select()
+              .from(RoleTable)
+              .where(
+                and(
+                  eq(RoleTable.roleName, "USER"),
+                  eq(RoleTable.type, "SYSTEM")
+                )
+              )
+              .limit(1);
+
+            if (!defaultRole) return;
+
+            // 2. Assign it in your user_roles join table
+            await db.insert(UserRoleTable).values({
+              userId: user.id,
+              roleId: defaultRole.id,
+            });
+          },
+        },
+        delete: {
+          after: async (user) => {
+            await db
+              .delete(UserRoleTable)
+              .where(eq(UserRoleTable.userId, user.id));
+          },
+        },
+      },
+      session: {
+        delete: {
+          before: async (session) => {
+            await createUserActivity({
+              userId: session.userId,
+              ipAddress: session.ipAddress,
+              userAgent: session.userAgent,
+              lastSeenAt: new Date(),
+              logoutAt: new Date(),
+            });
+          },
+        },
+        create: {
+          before: async (session) => {
+            const org = await getFirstOrg(session.userId, db);
+            const team = await getFirstTeam(session.userId, db);
+
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: org ? org.id : undefined,
+                activeTeamId: team ? team.id : undefined,
+              },
+            };
+          },
+          after: async (session) => {
+            await createUserActivity({
+              userId: session.userId,
+              ipAddress: session.ipAddress,
+              userAgent: session.userAgent,
+              lastSeenAt: new Date(),
+              loginAt: new Date(),
+            });
+          },
+        },
+      },
+    },
+    hooks: {
+      after: createAuthMiddleware(async (ctx) => {
+        // after sign in
+        if (ctx.path.startsWith("/sign-in")) {
+          const newSession = ctx.context.newSession;
+          const headers = ctx.headers ?? ctx.request?.headers;
+
+          if (newSession && headers) {
+            const currentUserAgent = headers.get("user-agent");
+            const currentIp = getIp(headers);
+
+            if (!currentIp || !currentUserAgent) return;
+
+            if (
+              newSession.session.userAgent !== currentUserAgent ||
+              newSession.session.ipAddress !== currentIp
+            ) {
+              ctx.context.runInBackgroundOrAwait(
+                (async () => {
+                  const { browser, device } = UAParser(currentUserAgent);
+                  const { success, error } =
+                    await mailProvider.sendNewDeviceLoginMail({
+                      to: newSession.user.email,
+                      userName: newSession.user.name,
+                      loginTimestamp: Date.now().toString(),
+                      deviceInfo: `${device.type} ${device.model}`,
+                      browser: `${browser.name} ${browser.version}`,
+                      ipAddress: currentIp,
+                      approximateLocation: "not available",
+                      secureAccountUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard/settings/reset-password`,
+                    });
+
+                  if (!success && error) {
+                    throw new APIError("INTERNAL_SERVER_ERROR", {
+                      message: error,
+                    });
+                  }
+                })()
+              );
+            }
+          }
+        }
+
+        // after password changed
+        if (ctx.path.startsWith("/change-password")) {
+          const session = ctx.context.session ?? ctx.context.newSession;
+          const headers = ctx.headers ?? ctx.request?.headers;
+
+          if (session && headers) {
+            const userAgent = headers.get("user-agent");
+            const ip = getIp(headers);
+
+            if (!userAgent) return;
+
+            ctx.context.runInBackgroundOrAwait(
+              (async () => {
+                const { device } = UAParser(userAgent);
+                const { success, error } =
+                  await mailProvider.sendPasswordChangedMail({
+                    to: session.user.email,
+                    userName: session.user.name,
+                    changeTimestamp: Date.now().toString(),
+                    ipAddress: ip,
+                    deviceInfo: `${device.type} ${device.model}`,
+                  });
+
+                if (!success && error) {
+                  throw new APIError("INTERNAL_SERVER_ERROR", {
+                    message: error,
+                  });
+                }
+              })()
+            );
+          }
+        }
+
+        // after user successfully sign up
+        if (ctx.path.startsWith("/sign-up")) {
+          const user = ctx.context.newSession?.user ?? {
+            name: ctx.body.name,
+            email: ctx.body.email,
+          };
+          if (user != null) {
+            ctx.context.runInBackgroundOrAwait(
+              (async () => {
+                const { success, error } =
+                  await mailProvider.sendWelcomeUserMail({
+                    to: user.email,
+                    userName: user.name,
+                    dashboardUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+                  });
+
+                if (!success && error) {
+                  throw new APIError("INTERNAL_SERVER_ERROR", {
+                    message: error,
+                  });
+                }
+              })()
+            );
+          }
+        }
+      }),
+    },
+    onAPIError: {
+      errorURL: ERROR_PAGE_PATH,
+    },
+    account: {
+      accountLinking: {
+        trustedProviders: ["google", "email-password"],
+      },
+    },
+    socialProviders: {
+      google: {
+        clientId: env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID,
+        clientSecret: env.GOOGLE_AUTH_CLIENT_SECRET,
+        redirectURI: `${env.NEXT_PUBLIC_SITE_URL}/api/auth/callback/google`,
+        accessType: "offline",
+        prompt: "select_account",
+      },
+    },
+    user: {
+      changeEmail: {
+        enabled: false,
+      },
+    },
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60, // Cache duration in seconds
+      },
+    },
+    emailVerification: {
+      sendOnSignUp: true,
+      expiresIn: 60 * 60,
+      autoSignInAfterVerification: true,
+      sendVerificationEmail: async ({ user, url }) => {
+        const { success, error } = await mailProvider.sendEmailVerificationMail(
+          {
+            to: user.email,
+            verifyUrl: url,
+            userName: user.name,
+          }
+        );
+
+        if (!success && error) {
+          throw error;
+        }
+      },
+    },
+    emailAndPassword: {
+      enabled: true,
+      minPasswordLength: 6,
+      maxPasswordLength: 20,
+      autoSignIn: false,
+      requireEmailVerification: true,
+      resetPasswordTokenExpiresIn: 60 * 60,
+      sendResetPassword: async ({ user, url }) => {
+        const { success, error } = await mailProvider.sendPasswordResetMail({
+          to: user.email,
+          resetUrl: url,
+          userName: user.name,
+        });
+
+        if (!success && error) {
+          throw error;
+        }
+      },
+    },
+    plugins: [
+      organization({
+        ac: orgAc,
+        roles: orgRoles,
+        invitationExpiresIn: 60 * 60 * 24 * 7, // 7 days
+        teams: {
+          enabled: true,
+        },
+        requireEmailVerificationOnInvitation: true,
+        cancelPendingInvitationsOnReInvite: true,
+        creatorRole: RoleEnumSchema.enum.OWNER,
+        sendInvitationEmail: async ({
+          id,
+          email,
+          inviter,
+          organization,
+          role,
+        }) => {
+          const [existUser] = await db
+            .select({ id: UserTable.id })
+            .from(UserTable)
+            .where(eq(UserTable.email, email))
+            .limit(1);
+
+          if (existUser) {
+            const { success, error } = await mailProvider.sendOrgInvitationMail(
+              {
+                to: email,
+                inviterName: inviter.user.name,
+                orgName: organization.name,
+                role: role as OrgRoleType,
+                inviteUrl: `${env.NEXT_PUBLIC_SITE_URL}/accept-invitation?invitationId=${id}`,
+                userEmail: email,
+              }
+            );
+            if (!success && error) {
+              throw error;
+            }
+          } else {
+            const { success, error } =
+              await mailProvider.sendUnAuthOrgInvitationMail({
+                to: email,
+                inviterName: inviter.user.name,
+                orgName: organization.name,
+                role: role as OrgRoleType,
+                registerUrl: `${env.NEXT_PUBLIC_SITE_URL}/register?invitationId=${id}`,
+                userEmail: email,
+              });
+            if (!success && error) {
+              throw error;
+            }
+          }
+        },
+        organizationHooks: {
+          afterCreateOrganization: async ({ member, organization }) => {
+            const [ownerRole] = await db
+              .select({ id: RoleTable.id })
+              .from(RoleTable)
+              .where(
+                and(eq(RoleTable.roleName, "OWNER"), eq(RoleTable.type, "ORG"))
+              )
+              .limit(1);
+
+            if (!ownerRole) {
+              throw new Error("Owner role not found");
+            }
+
+            await db
+              .insert(OrgMemberRoleTable)
+              .values({
+                orgId: organization.id,
+                roleId: ownerRole.id,
+                orgMemberId: member.id,
+              })
+              .onConflictDoNothing();
+          },
+          afterAcceptInvitation: async ({ member, organization }) => {
+            const [role] = await db
+              .select({ id: RoleTable.id })
+              .from(RoleTable)
+              .where(
+                and(
+                  eq(RoleTable.roleName, member.role as OrgRoleType),
+                  eq(RoleTable.type, "ORG")
+                )
+              )
+              .limit(1);
+
+            if (!role) {
+              throw new Error("Role not found");
+            }
+
+            await db
+              .insert(OrgMemberRoleTable)
+              .values({
+                orgId: organization.id,
+                roleId: role.id,
+                orgMemberId: member.id,
+              })
+              .onConflictDoNothing();
+          },
+        },
+      }),
+      admin({
+        ac: systemAc,
+        roles: systemRoles,
+        defaultRole: RoleEnumSchema.enum.USER,
+        adminRoles: [
+          RoleEnumSchema.enum.SUPER_ADMIN,
+          RoleEnumSchema.enum.SYSTEM_ADMIN,
+        ],
+        defaultBanExpiresIn: 60 * 60 * 24 * 10, // 10 day
+        bannedUserMessage: "Your account is currently banned",
+      }),
+      ...defaultPlugins,
+      oneTap(),
+      nextCookies(),
+    ],
+  });
+}
+
+export const auth = createBetterAuth();
