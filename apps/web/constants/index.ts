@@ -1,0 +1,46 @@
+import type { RoutePathType } from "@/types";
+
+export const DEFAULT_AUTH_PATH: RoutePathType = "/dashboard";
+export const DEFAULT_UNAUTH_PATH: RoutePathType = "/login";
+export const ACCEPT_INVITATION_PATH: RoutePathType = "/accept-invitation";
+export const CREATE_ORG_PATH: RoutePathType = "/organization/create";
+export const RESET_PASSWORD_PATH: RoutePathType = "/reset-password";
+export const ERROR_PAGE_PATH: RoutePathType = "/error";
+
+export const DEFAULT_ADMIN_PATH: RoutePathType = "/dashboard/admin";
+
+export const AUTH_ROUTES: Array<RoutePathType> = [
+  DEFAULT_UNAUTH_PATH,
+  "/register",
+  "/forget-password",
+  RESET_PASSWORD_PATH,
+];
+
+export const navItems: Array<{
+  name: string;
+  href: RoutePathType;
+}> = [
+  { name: "Home", href: "/" },
+  { name: "Features", href: "/features" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Contact", href: "/contact" },
+];
+
+export const footerContent = {
+  pages: [
+    { label: "Features", href: "/features" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Contact", href: "/contact" },
+  ],
+  legal: [
+    { label: "Privacy Policy", href: "#" },
+    { label: "Terms & Conditions", href: "#" },
+  ],
+};
+
+export const PUBLIC_ROUTES: Array<RoutePathType> = [
+  ...AUTH_ROUTES,
+  ...navItems.map((item) => item.href),
+];
+
+export const SUPPORTED_OAUTH_PROVIDERS = ["google"] as const;
