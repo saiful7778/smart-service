@@ -30,6 +30,10 @@ export const env = createEnv({
     SUPABASE_PRIVATE_STORAGE_BUCKET: z.string().min(1),
     GOOGLE_AUTH_CLIENT_SECRET: z.string().min(1),
     WEB_PUSH_PRIVATE_KEY: z.string().min(1),
+    QSTASH_URL: z.url().min(1),
+    QSTASH_TOKEN: z.string().min(1),
+    QSTASH_CURRENT_SIGNING_KEY: z.string().min(1),
+    QSTASH_NEXT_SIGNING_KEY: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_NODE_ENV: z
@@ -70,5 +74,9 @@ export const env = createEnv({
     NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY:
       process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY,
     WEB_PUSH_PRIVATE_KEY: process.env.WEB_PUSH_PRIVATE_KEY,
+    QSTASH_URL: process.env.QSTASH_URL,
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
+    QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
+    QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
   },
 });
