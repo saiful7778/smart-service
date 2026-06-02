@@ -1,6 +1,11 @@
 import { relations } from "drizzle-orm";
-import { boolean, pgTable, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import { varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  pgTable,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from "drizzle-orm/pg-core";
 import {
   createInsertSchema,
   createSelectSchema,
