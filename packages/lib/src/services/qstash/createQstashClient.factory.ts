@@ -1,20 +1,8 @@
-import { Client } from "@upstash/qstash";
+import { IQstashService, QstashService } from "./Qstash.service";
+import type { QstashServiceConfig } from "./types";
 
-import { QstashClient } from "./types";
-
-interface QstashClientConfig {
-  token: string;
-  baseUrl: string;
-}
-
-export function createQstashClient({
-  token,
-  baseUrl,
-}: QstashClientConfig): QstashClient {
-  const qstash = new Client({
-    token,
-    baseUrl,
-  });
-
-  return qstash;
+export function createQstashClient(
+  config: QstashServiceConfig
+): IQstashService {
+  return new QstashService(config);
 }

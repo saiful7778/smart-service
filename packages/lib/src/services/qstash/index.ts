@@ -1,2 +1,4 @@
 export * from "./createQstashClient.factory";
-export type { QstashClient } from "./types";
+export * from "./QstashError";
+export * from "./Qstash.service";
+export type { QstashServiceConfig } from "./types";

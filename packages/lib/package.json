@@ -18,6 +18,8 @@
     "./types": "./src/types/index.ts",
     "./redis": "./src/services/redis/index.ts",
     "./redis/mock": "./tests/redis.mock.ts",
+    "./rate-limit": "./src/services/rate-limit/index.ts",
+    "./rate-limit/mock": "./tests/rate-limit.mock.ts",
     "./logger": "./src/services/logger/index.ts",
     "./qstash": "./src/services/qstash/index.ts",
     "./utils": "./src/utils/index.ts"
@@ -32,6 +34,9 @@
   },
   "dependencies": {
     "@upstash/qstash": "catalog:",
+    "@upstash/ratelimit": "catalog:",
+    "@workspace/drizzle": "workspace:*",
+    "drizzle-orm": "catalog:",
     "pino": "catalog:",
     "pino-pretty": "catalog:"
   }
