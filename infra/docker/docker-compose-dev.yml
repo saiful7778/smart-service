@@ -27,6 +27,7 @@ services:
 
   redis-http:
     image: hiett/serverless-redis-http:latest
+    container_name: redis_http
     restart: unless-stopped
     ports:
       - "8079:80"
@@ -35,6 +36,16 @@ services:
       - ../../.env.development.local
     depends_on:
       - redis
+    networks:
+      - smart_service_network
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - smart_service_network
 
