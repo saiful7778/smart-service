@@ -326,6 +326,22 @@ function createBetterAuth() {
         teams: {
           enabled: true,
         },
+        schema: {
+          organization: {
+            additionalFields: {
+              email: {
+                type: "string",
+                input: true,
+                required: true,
+              },
+              phone: {
+                type: "string",
+                input: true,
+                required: false,
+              },
+            },
+          },
+        },
         requireEmailVerificationOnInvitation: true,
         cancelPendingInvitationsOnReInvite: true,
         creatorRole: RoleEnumSchema.enum.OWNER,
