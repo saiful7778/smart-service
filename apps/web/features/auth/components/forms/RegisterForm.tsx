@@ -48,6 +48,7 @@ export default function RegisterForm({
       callbackURL: redirectURL,
       fetchOptions: {
         onRequest: () => {
+          toast.loading("Registering...", { id: toastId });
           setIsLoading(true);
         },
         onSuccess: () => {

@@ -13,7 +13,7 @@ import { PasswordInputField } from "@workspace/ui/components/form-fields/Passwor
 
 import { authClient } from "@/lib/better-auth/auth-client";
 
-import { DEFAULT_UNAUTH_PATH } from "@/constant";
+import { DEFAULT_UNAUTH_PATH } from "@/constants";
 
 import { resetPasswordSchema, ResetPasswordType } from "../../auth.schema";
 
