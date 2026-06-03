@@ -1,7 +1,10 @@
 import type { RouteType } from "next/dist/lib/load-custom-routes";
 
+import { LucideIcon } from "lucide-react";
+
 import { PermissionDataModel, RoleDataModel } from "@workspace/drizzle/schemas";
 import { RoleTypeEnumType } from "@workspace/drizzle/zod-db-enums";
+import { OrgRoleType, SystemRoleType } from "@workspace/lib/utils";
 
 export type AuthUser = {
   id: string;
@@ -63,3 +66,23 @@ export interface PermissionWithContext extends Pick<
 }
 
 export type RoutePathType = __next_route_internal_types__.RouteImpl<RouteType>;
+
+export type SidebarMenuLink = {
+  title: string;
+  path: string;
+  pathRegex: RegExp;
+  icon?: LucideIcon | undefined;
+  items?: Array<SidebarMenuLink> | undefined;
+  roles?: Array<SystemRoleType | OrgRoleType>;
+};
+
+export type SidebarGroupMenuLink = {
+  groupName?: string;
+  items: Array<SidebarMenuLink>;
+};
+
+export type BreadcrumbRoute = {
+  title: string;
+  path: string;
+  children?: BreadcrumbRoute[];
+};
