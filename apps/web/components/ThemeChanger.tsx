@@ -18,14 +18,12 @@ export function ThemeChanger() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="secondary" size="icon">
-            <Sun className="dark:hidden inline-block" />
-            <Moon className="hidden dark:inline-block" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-        }
-      />
+        render={<Button variant="secondary" size="icon-lg" />}
+      >
+        <Sun className="dark:hidden inline-block" />
+        <Moon className="hidden dark:inline-block" />
+        <span className="sr-only">Toggle theme</span>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => setTheme("light")}>
