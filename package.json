@@ -32,6 +32,7 @@
     "supabase:migration:list": "supabase migration list",
     "supabase:migration:repair": "supabase migration repair",
     "supabase:migration:squash": "supabase migration squash",
+    "seed:storage": "tsx scripts/seed/storage.seed.ts",
     "test": "turbo test",
     "test:projects": "vitest run",
     "test:projects:watch": "vitest --watch",
@@ -39,12 +40,15 @@
     "docker:dev:down": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml down"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "catalog:",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*",
+    "dotenv": "catalog:",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "tsx": "catalog:",
     "turbo": "^2.9.16",
     "typescript": "catalog:",
     "vitest": "catalog:"
