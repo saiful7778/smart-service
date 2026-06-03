@@ -28,6 +28,7 @@ catalog:
   dotenv: ^17.4.2
   drizzle-orm: ^0.45.2
   eslint: 9.7.0
+  immer: ^11.1.8
   lucide-react: ^1.17.0
   motion: ^12.40.0
   next: 16.2.6
@@ -44,3 +45,4 @@ catalog:
   vite-tsconfig-paths: ^6.1.1
   vitest: ^4.1.7
   zod: ^4.4.3
+  zustand: ^5.0.14

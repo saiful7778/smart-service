@@ -66,6 +66,9 @@ catalogs:
     eslint:
       specifier: 9.7.0
       version: 9.7.0
+    immer:
+      specifier: ^11.1.8
+      version: 11.1.8
     lucide-react:
       specifier: ^1.17.0
       version: 1.17.0
@@ -114,6 +117,9 @@ catalogs:
     zod:
       specifier: ^4.4.3
       version: 4.4.3
+    zustand:
+      specifier: ^5.0.14
+      version: 5.0.14
 
 importers:
 
@@ -221,6 +227,9 @@ importers:
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@electric-sql/pglite@0.4.6)(@upstash/redis@1.38.0)(kysely@0.28.17)(postgres@3.4.9)
+      immer:
+        specifier: 'catalog:'
+        version: 11.1.8
       lucide-react:
         specifier: 'catalog:'
         version: 1.17.0(react@19.2.6)
@@ -251,6 +260,9 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.4.3
+      zustand:
+        specifier: 'catalog:'
+        version: 5.0.14(@types/react@19.2.15)(immer@11.1.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
     devDependencies:
       '@next/env':
         specifier: ^16.2.6
@@ -6812,6 +6824,24 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
+  zustand@5.0.14:
+    resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -12959,3 +12989,10 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.4.3: {}
+
+  zustand@5.0.14(@types/react@19.2.15)(immer@11.1.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6)):
+    optionalDependencies:
+      '@types/react': 19.2.15
+      immer: 11.1.8
+      react: 19.2.6
+      use-sync-external-store: 1.6.0(react@19.2.6)

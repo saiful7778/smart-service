@@ -44,6 +44,7 @@
     "better-auth": "catalog:",
     "date-fns": "^4.4.0",
     "drizzle-orm": "catalog:",
+    "immer": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "next": "catalog:",
@@ -53,7 +54,8 @@
     "react-hook-form": "catalog:",
     "react-hot-toast": "^2.6.0",
     "ua-parser-js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@next/env": "^16.2.6",
