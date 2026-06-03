@@ -1,3 +1,5 @@
+import "../server/orpc.server-client";
+
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 
 import { Toaster } from "react-hot-toast";
@@ -10,7 +12,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import { env } from "@/lib/env";
 
 import { DevPanel } from "@/components/dev-panel";
-import { ThemeProvider } from "@/components/theme-provider";
+import TanstackQueryProvider from "@/components/providers/tanstack-query-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
@@ -42,7 +45,7 @@ export default function RootLayout({
         <DirectionProvider direction="ltr">
           <TooltipProvider>
             <ThemeProvider>
-              {children}
+              <TanstackQueryProvider>{children}</TanstackQueryProvider>
               <Toaster
                 position="top-center"
                 reverseOrder={true}
