@@ -26,37 +26,36 @@ export async function seedOrgMember(
 
   const allowdUsers = users.filter(({ role }) => role && role === "USER");
 
-  const orgMembersData: Array<InsertOrgMember> = [];
+  const orgMembersData: Array<InsertOrgMember> = orgs.map((org) => {
+    const user = faker.helpers.arrayElement(allowdUsers);
+    const roleData = faker.helpers.arrayElement(allowdRoles);
 
-  for (const org of orgs) {
-    for (const user of allowdUsers) {
-      const roleData = faker.helpers.arrayElement(allowdRoles);
-
-      orgMembersData.push({
-        organizationId: org.id,
-        userId: user.id,
-        role: roleData.roleName,
-      } satisfies InsertOrgMember);
-    }
-  }
+    return {
+      organizationId: org.id,
+      userId: user.id,
+      role: roleData.roleName,
+    } satisfies InsertOrgMember;
+  });
 
   const orgMembers = await db
     .insert(OrganizationMemberTable)
     .values(orgMembersData)
     .returning();
 
-  await db.insert(OrgMemberRoleTable).values(
-    orgMembers.map(
-      (orgMember) =>
-        ({
-          orgMemberId: orgMember.id,
-          roleId: allowdRoles.find(
-            ({ roleName }) => roleName === orgMember.role
-          )!.id,
-          orgId: orgMember.organizationId,
-        }) satisfies InsertOrgMemberRole
-    )
+  const orgMemberRolesData: Array<InsertOrgMemberRole> = orgMembers.map(
+    (orgMember) => {
+      const roleData = allowdRoles.find(
+        (role) => role.roleName === orgMember.role
+      );
+      return {
+        orgMemberId: orgMember.id,
+        roleId: roleData!.id,
+        orgId: orgMember.organizationId,
+      } satisfies InsertOrgMemberRole;
+    }
   );
+
+  await db.insert(OrgMemberRoleTable).values(orgMemberRolesData);
 
   console.log(`✅ ${orgMembers.length} Organization members seeded`);
   return orgMembers;

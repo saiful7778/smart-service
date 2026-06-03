@@ -2,11 +2,14 @@ import { faker } from "@faker-js/faker";
 
 import { AddressDataModel, AddressTable, InsertAddress } from "../../schemas";
 import { db } from "../seed-db-client";
+import { seedConfigs } from "../seed.config";
 
 export async function seedAddress(): Promise<Array<AddressDataModel>> {
   console.log("🌱 Seeding address...");
 
-  const addressesData: Array<InsertAddress> = Array.from({ length: 50 }).map(
+  const addressesData: Array<InsertAddress> = Array.from({
+    length: seedConfigs.targets.addresses,
+  }).map(
     () =>
       ({
         line1: faker.location.streetAddress(),

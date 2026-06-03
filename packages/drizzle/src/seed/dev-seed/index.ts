@@ -33,7 +33,7 @@ async function main() {
 
   const addresses = await seedAddress();
 
-  const orgs = await seedOrganization();
+  const orgs = await seedOrganization(addresses);
   const orgMembers = await seedOrgMember(orgs, users, roles);
   const leadCategories = await seedLeadCategory(orgs, orgMembers);
 
