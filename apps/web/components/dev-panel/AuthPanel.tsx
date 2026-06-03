@@ -76,28 +76,24 @@ export function AuthPanel() {
     <div className="flex flex-col gap-2 p-2">
       <ButtonSpinner
         onClick={() => handleLogin("superadmin@mail.com")}
-        size="xs"
         isLoading={isLoading}
       >
         Super Admin Login
       </ButtonSpinner>
       <ButtonSpinner
         onClick={() => handleLogin("admin@mail.com")}
-        size="xs"
         isLoading={isLoading}
       >
         Admin Login
       </ButtonSpinner>
       <ButtonSpinner
         onClick={() => handleLogin("user@mail.com")}
-        size="xs"
         isLoading={isLoading}
       >
         User Login
       </ButtonSpinner>
       <ButtonSpinner
         onClick={() => handleLogout(true)}
-        size="xs"
         variant="destructive"
         isLoading={isLoading}
       >
