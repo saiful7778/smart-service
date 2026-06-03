@@ -1,7 +1,12 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { CreateOrgForm } from "@/features/org/components/forms/CreateOrgForm";
 import type { RoutePathType } from "@/types";
+
+export const metadata: Metadata = {
+  title: "Create Organization",
+};
 
 export default async function OrgCreatePage(
   props: PageProps<"/organization/create">

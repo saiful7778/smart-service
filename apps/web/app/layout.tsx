@@ -1,5 +1,6 @@
 import "../server/orpc.server-client";
 
+import { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 
 import { Toaster } from "react-hot-toast";
@@ -23,6 +24,61 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: `${env.NEXT_PUBLIC_SITE_NAME} - All in one service management platform`,
+    template: `%s | ${env.NEXT_PUBLIC_SITE_NAME} - Service management software`,
+  },
+  description:
+    "All-in-one field service management software for plumbers, cleaners, electricians and others. Manage leads, scheduling, employees, and invoicing.",
+  keywords: [
+    "field service management",
+    "plumbing business software",
+    "cleaning business software",
+    "electrical business software",
+    "service dispatch software",
+    "work order management",
+    "technician scheduling",
+    "customer management",
+    "invoice software",
+    "mobile workforce management",
+  ],
+
+  alternates: {
+    canonical: env.NEXT_PUBLIC_SITE_URL,
+  },
+
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
+
+  openGraph: {
+    title: `${env.NEXT_PUBLIC_SITE_NAME} - Field Service Management Software`,
+    description:
+      "Streamline your plumbing, cleaning, or electrical service business with our comprehensive management software.",
+    url: env.NEXT_PUBLIC_SITE_URL,
+    siteName: env.NEXT_PUBLIC_SITE_NAME,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${env.NEXT_PUBLIC_SITE_NAME} - Field Service Management Software`,
+    description:
+      "Streamline your plumbing, cleaning, or electrical service business with our comprehensive management software.",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 export default function RootLayout({
   children,
