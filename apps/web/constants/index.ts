@@ -1,4 +1,4 @@
-import type { RoutePathType } from "@/types";
+import type { BreadcrumbRoute, RoutePathType } from "@/types";
 
 export const DEFAULT_AUTH_PATH: RoutePathType = "/dashboard";
 export const DEFAULT_UNAUTH_PATH: RoutePathType = "/login";
@@ -44,3 +44,38 @@ export const PUBLIC_ROUTES: Array<RoutePathType> = [
 ];
 
 export const SUPPORTED_OAUTH_PROVIDERS = ["google"] as const;
+
+export const breadcrumbRoutes: Array<BreadcrumbRoute> = [
+  {
+    title: "Dashboard",
+    path: "/dashboard",
+    children: [
+      {
+        title: "All Users",
+        path: "/dashboard/admin/users",
+      },
+      {
+        title: "Settings",
+        path: "/dashboard/settings",
+        children: [
+          {
+            title: "Profile",
+            path: "/dashboard/settings/profile",
+          },
+          {
+            title: "Update Password",
+            path: "/dashboard/settings/update-password",
+          },
+          {
+            title: "Sessions",
+            path: "/dashboard/settings/sessions",
+          },
+          {
+            title: "Connected Apps",
+            path: "/dashboard/settings/connected-apps",
+          },
+        ],
+      },
+    ],
+  },
+];
