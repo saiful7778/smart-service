@@ -1,0 +1,146 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { getSessionCookie } from "better-auth/cookies";
+import { and, eq } from "drizzle-orm";
+
+import {
+  OrganizationMemberTable,
+  RoleTable,
+  UserRoleTable,
+} from "@workspace/drizzle/schemas";
+
+import { auth } from "@/lib/better-auth/auth";
+import { db } from "@/lib/db";
+
+import {
+  ACCEPT_INVITATION_PATH,
+  AUTH_ROUTES,
+  CREATE_ORG_PATH,
+  DEFAULT_ADMIN_PATH,
+  DEFAULT_AUTH_PATH,
+  DEFAULT_UNAUTH_PATH,
+  PUBLIC_ROUTES,
+} from "@/constants";
+import type { RoutePathType } from "@/types";
+import { isAdmin } from "@/utils/user-utils";
+
+async function getDbSession(headers: Headers) {
+  return auth.api.getSession({
+    headers,
+    query: {
+      disableCookieCache: true,
+    },
+  });
+}
+
+async function signOut(headers: Headers) {
+  return auth.api.signOut({ headers });
+}
+
+async function getUserRoles(userId: string) {
+  return await db
+    .select({ roleName: RoleTable.roleName, source: RoleTable.type })
+    .from(UserRoleTable)
+    .innerJoin(RoleTable, eq(RoleTable.id, UserRoleTable.roleId))
+    .where(and(eq(UserRoleTable.userId, userId), eq(RoleTable.type, "SYSTEM")));
+}
+
+async function getOrgs(userId: string) {
+  return await db
+    .select({ organizationId: OrganizationMemberTable.organizationId })
+    .from(OrganizationMemberTable)
+    .where(eq(OrganizationMemberTable.userId, userId));
+}
+
+export async function proxy(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname as RoutePathType);
+  const isAuthRoute = AUTH_ROUTES.includes(pathname as RoutePathType);
+
+  const sessionCookie = getSessionCookie(request);
+
+  try {
+    const session = sessionCookie ? await getDbSession(request.headers) : null;
+
+    // Invalid session cleanup
+    if (sessionCookie && !session) {
+      await signOut(request.headers);
+      return NextResponse.redirect(new URL(DEFAULT_UNAUTH_PATH, request.url));
+    }
+
+    // Not authenticated
+    if (!session && !isPublicRoute) {
+      await signOut(request.headers);
+      const loginUrl = new URL(DEFAULT_UNAUTH_PATH, request.url);
+      const invitationId = searchParams.get("invitationId");
+      if (pathname.includes(ACCEPT_INVITATION_PATH) && invitationId) {
+        loginUrl.searchParams.set("invitationId", invitationId);
+      }
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Auth user hitting auth pages
+    if (session && isAuthRoute) {
+      return NextResponse.redirect(new URL(DEFAULT_AUTH_PATH, request.url));
+    }
+
+    const roles = session ? await getUserRoles(session.user.id) : null;
+
+    const isSystemUser = roles
+      ? roles.some(
+          ({ roleName, source }) => roleName === "USER" && source === "SYSTEM"
+        )
+      : false;
+
+    const isAdminUser = roles ? isAdmin(roles) : false;
+
+    const orgs = isSystemUser && session ? await getOrgs(session.user.id) : [];
+
+    if (
+      !isAdminUser &&
+      orgs.length === 0 &&
+      !isPublicRoute &&
+      !pathname.startsWith(CREATE_ORG_PATH) &&
+      !pathname.startsWith(ACCEPT_INVITATION_PATH)
+    ) {
+      return NextResponse.redirect(new URL(CREATE_ORG_PATH, request.url));
+    }
+
+    // 🔒 Protect admin routes
+    if (pathname.startsWith(DEFAULT_ADMIN_PATH) && !isAdminUser) {
+      return NextResponse.redirect(new URL(DEFAULT_AUTH_PATH, request.url));
+    }
+
+    // 🔁 Redirect admin ONLY from base dashboard
+    if (isAdminUser && pathname === DEFAULT_AUTH_PATH) {
+      return NextResponse.redirect(new URL(DEFAULT_ADMIN_PATH, request.url));
+    }
+
+    // ✅ Allow shared routes (no redirect)
+    if (pathname.startsWith("/dashboard/settings")) {
+      return NextResponse.next();
+    }
+
+    return NextResponse.next();
+  } catch {
+    if (sessionCookie) {
+      await signOut(request.headers);
+    }
+    return NextResponse.redirect(new URL(DEFAULT_UNAUTH_PATH, request.url));
+  }
+}
+
+export const config = {
+  matcher: [
+    /**
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - orpc (orpc routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    "/((?!api|orpc|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.png$).*)",
+  ],
+};
