@@ -59,4 +59,14 @@ export const API_MESSAGES = {
       NOT_FOUND: "Role not found",
     },
   },
+  UPLOAD: {
+    GET_SIGNED_URL: "Signed URL fetched successfully",
+    GET_DOWNLOAD_URL: "Download URL fetched successfully",
+    BLOCK: "File uploading/downloading is blocked",
+    CONFIRM_UPLOAD: "File uploaded successfully",
+    NOT_CREATE: "File upload failed",
+    DELETE: "File deleted successfully",
+    NOT_FOUND: "File is not found",
+    ASSIGN_ENTITY: "File assigned to entity successfully",
+  },
 };
