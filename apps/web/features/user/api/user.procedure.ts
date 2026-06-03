@@ -23,6 +23,7 @@ import {
   UserRoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
+import { apiResponse } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import {
@@ -105,11 +106,7 @@ export const listUserProcedure = userImpl.list
 
     const meta = buildPaginationMeta(totalCount, users.length, page, limit);
 
-    return {
-      message: API_MESSAGES.USER.GET_ALL,
-      success: true,
-      data: { meta, data: users },
-    };
+    return apiResponse(API_MESSAGES.USER.GET_ALL, { meta, data: users });
   });
 
 function daysAgo(days: number) {
@@ -187,19 +184,15 @@ export const userStatsProcedure = userImpl.stats
     const mau = allData[5][0]!;
     const lastMau = allData[6][0]!;
 
-    return {
-      message: API_MESSAGES.USER.GET_STATS,
-      success: true,
-      data: {
-        totalUsers,
-        totalUsersGrowth: calcGrowth(lastMonthTotal, totalUsers),
-        activeNow: activeNow.count,
-        wau: wau.count,
-        wauGrowth: calcGrowth(lastWau.count, wau.count),
-        mau: mau.count,
-        mauGrowth: calcGrowth(lastMau.count, mau.count),
-      },
-    };
+    return apiResponse(API_MESSAGES.USER.GET_STATS, {
+      totalUsers,
+      totalUsersGrowth: calcGrowth(lastMonthTotal, totalUsers),
+      activeNow: activeNow.count,
+      wau: wau.count,
+      wauGrowth: calcGrowth(lastWau.count, wau.count),
+      mau: mau.count,
+      mauGrowth: calcGrowth(lastMau.count, mau.count),
+    });
   });
 
 export const updateUserProcedure = userImpl.update
@@ -217,7 +210,7 @@ export const updateUserProcedure = userImpl.update
       throw errors.NOT_FOUND();
     }
 
-    return { message: API_MESSAGES.USER.UPDATE, success: true, data: user };
+    return apiResponse(API_MESSAGES.USER.UPDATE, user);
   });
 
 export const updateUserRoleProcedure = userImpl.updateRole
@@ -241,7 +234,7 @@ export const updateUserRoleProcedure = userImpl.updateRole
       }))
     );
 
-    return { message: API_MESSAGES.USER.UPDATE, success: true, data: null };
+    return apiResponse(API_MESSAGES.USER.UPDATE, null);
   });
 
 export const userDetailsProcedure = userImpl.details
@@ -270,11 +263,10 @@ export const userDetailsProcedure = userImpl.details
       throw errors.NOT_FOUND();
     }
 
-    return {
-      message: API_MESSAGES.USER.GET_DETAILS,
-      success: true,
-      data: { ...user.user, lastLogin: user.lastLogin },
-    };
+    return apiResponse(API_MESSAGES.USER.GET_DETAILS, {
+      ...user.user,
+      lastLogin: user.lastLogin,
+    });
   });
 
 export const listRoleProcedure = userImpl.listRole
@@ -324,11 +316,7 @@ export const listRoleProcedure = userImpl.listRole
       )
       .groupBy(RoleTable.id);
 
-    return {
-      message: API_MESSAGES.USER.ROLE.GET_ALL,
-      success: true,
-      data: results,
-    };
+    return apiResponse(API_MESSAGES.USER.ROLE.GET_ALL, results);
   });
 
 export const setRolePermissionsProcedure = userImpl.setRolePermissions
@@ -357,9 +345,5 @@ export const setRolePermissionsProcedure = userImpl.setRolePermissions
       );
     });
 
-    return {
-      message: API_MESSAGES.USER.ROLE.SET_PERMISSIONS,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.USER.ROLE.SET_PERMISSIONS, null);
   });

@@ -1,5 +1,7 @@
 import { implement } from "@orpc/server";
 
+import { apiResponse } from "@workspace/lib/utils";
+
 import { auth } from "@/lib/better-auth/auth";
 
 import { RESET_PASSWORD_PATH } from "@/constants";
@@ -32,11 +34,7 @@ export const requestResetPasswordProcedure = authImpl.requestResetPassword
       headers: context.reqHeaders,
     });
 
-    return {
-      message: API_MESSAGES.AUTH.REQUEST_RESET_PASSWORD,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.AUTH.REQUEST_RESET_PASSWORD, null);
   });
 
 export const userBanProcedure = authImpl.ban
@@ -60,11 +58,7 @@ export const userBanProcedure = authImpl.ban
         headers: context.reqHeaders,
       });
 
-      return {
-        message: API_MESSAGES.USER.BAN,
-        success: true,
-        data: null,
-      };
+      return apiResponse(API_MESSAGES.USER.BAN, null);
     }
 
     await auth.api.unbanUser({
@@ -74,9 +68,5 @@ export const userBanProcedure = authImpl.ban
       headers: context.reqHeaders,
     });
 
-    return {
-      message: API_MESSAGES.USER.UNBAN,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.USER.UNBAN, null);
   });
