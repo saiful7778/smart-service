@@ -18,7 +18,6 @@ import { AccountTable } from "../account.table";
 import { AddressTable, UserAddressTable } from "../address";
 import { ContactSubmissionReplyTable } from "../contact";
 import { FileTable } from "../file.table";
-import { QstashLogTable } from "../log/qstashLog.table";
 import {
   NotificationSettingsTable,
   NotificationTable,
@@ -96,9 +95,6 @@ export const UserRelations = relations(UserTable, ({ one, many }) => ({
   }),
   pushSubscriptions: many(PushSubscriptionTable, {
     relationName: "PushSubscriptionToUser",
-  }),
-  qstashLogs: many(QstashLogTable, {
-    relationName: "QstashLogToCreatedBy",
   }),
 }));
 

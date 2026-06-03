@@ -15,6 +15,13 @@
       "when": 1780161838095,
       "tag": "0001_add_qstash_log",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780467374147,
+      "tag": "0002_remove_qstash_log",
+      "breakpoints": true
     }
   ]
 }
