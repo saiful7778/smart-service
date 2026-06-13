@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { mailProvider } from "@/lib/mail";
 
+import { formatApiError } from "@/utils/formatApiError";
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
 
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   if (!isValid) {
     return NextResponse.json(
-      { success: false, error: "Invalid signature" },
+      { success: false, message: "Invalid signature" },
       { status: 401 }
     );
   }
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
     payload = JSON.parse(body);
   } catch {
     return NextResponse.json(
-      { success: false, error: "Invalid JSON" },
+      { success: false, message: "Invalid JSON" },
       { status: 400 }
     );
   }
@@ -37,17 +39,16 @@ export async function POST(req: NextRequest) {
     await mailProvider.handleFailed(payload.sourceMessageId);
 
     return NextResponse.json(
-      {
-        success: true,
-      },
+      { success: true, message: "success" },
       { status: 200 }
     );
   } catch (err) {
+    const { message } = formatApiError(err);
+
     return NextResponse.json(
       {
         success: false,
-        error:
-          err instanceof Error ? err.message : "Failed to process callback",
+        message,
       },
       { status: 500 }
     );
