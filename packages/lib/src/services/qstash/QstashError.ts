@@ -13,7 +13,9 @@ export type QstashErrorCode =
   | "QSTASH_CONFIG_INVALID"
   | "QSTASH_RETRY_EXHAUSTED"
   | "QSTASH_RETRY_BODY_MISSING"
-  | "QSTASH_RETRY_INVALID_STATE";
+  | "QSTASH_RETRY_INVALID_STATE"
+  | "QSTASH_INVALID_PAYLOAD"
+  | "QSTASH_INVALID_MESSAGE_ID";
 
 export class QstashError extends ServiceError {
   constructor(

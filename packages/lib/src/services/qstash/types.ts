@@ -22,3 +22,13 @@ export interface QstashServiceConfig
   defaultTopic?: string;
   defaultQueue?: string;
 }
+
+export interface QstashReceiptPayload {
+  body: string;
+  messageId: string;
+  sourceMessageId: string;
+  sourceBody: string;
+  maxRetries: number;
+  notBefore: number;
+  createdAt: number;
+}
