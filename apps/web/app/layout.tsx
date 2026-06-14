@@ -3,6 +3,7 @@ import "../server/orpc.server-client";
 import { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "react-hot-toast";
 
 import { DirectionProvider } from "@workspace/ui/components/direction";
@@ -101,7 +102,9 @@ export default function RootLayout({
         <DirectionProvider direction="ltr">
           <TooltipProvider>
             <ThemeProvider>
-              <TanstackQueryProvider>{children}</TanstackQueryProvider>
+              <NuqsAdapter>
+                <TanstackQueryProvider>{children}</TanstackQueryProvider>
+              </NuqsAdapter>
               <Toaster
                 position="top-center"
                 reverseOrder={true}
