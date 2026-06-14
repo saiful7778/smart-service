@@ -3,6 +3,9 @@ import {
   isDefinedError,
   type ORPCError,
 } from "@orpc/client";
+import { QstashError } from "@upstash/qstash";
+
+import { MailError } from "@workspace/mail";
 
 import type { FieldError } from "@/types";
 
@@ -48,6 +51,20 @@ export function formatApiError<TFieldNames>(
     return {
       type: "general",
       message: error.message || "An error occurred",
+    };
+  }
+
+  if (error instanceof QstashError) {
+    return {
+      type: "general",
+      message: error.message,
+    };
+  }
+
+  if (error instanceof MailError) {
+    return {
+      type: "general",
+      message: error.message,
     };
   }
 
