@@ -32,7 +32,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">Let’s Get Started!</CardTitle>
+        <CardTitle className="text-xl">Let&apos;s Get Started!</CardTitle>
         <CardDescription>Sign up to explore amazing features.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

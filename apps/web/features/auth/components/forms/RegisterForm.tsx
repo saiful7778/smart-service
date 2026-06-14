@@ -18,21 +18,23 @@ import { registerSchema, RegisterType } from "../../auth.schema";
 export default function RegisterForm({
   redirect,
   invitationId,
+  email,
 }: {
   redirect: string;
   invitationId?: string | undefined;
+  email?: string | undefined;
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const redirectURL = invitationId
-    ? `/accept-invitation?invitationId=${invitationId}`
+    ? `/organization/accept-invitation?invitationId=${invitationId}`
     : redirect;
 
   const form = useForm<RegisterType>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: email ?? "",
       password: "",
       confirmPassword: "",
     },
@@ -78,14 +80,16 @@ export default function RegisterForm({
           disabled={isLoading}
           requiredField
         />
-        <InputField
-          control={form.control}
-          name="email"
-          label="Email"
-          placeholder="Email Password"
-          disabled={isLoading}
-          requiredField
-        />
+        {!email && (
+          <InputField
+            control={form.control}
+            name="email"
+            label="Email"
+            placeholder="Email Password"
+            disabled={isLoading}
+            requiredField
+          />
+        )}
         <PasswordInputField
           control={form.control}
           name="password"
