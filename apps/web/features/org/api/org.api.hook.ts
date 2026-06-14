@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
-import { formatApiError } from "@/utils/formatApiError";
+import { formatOrpcError } from "@/utils/formatOrpcError";
 
 export function useOrgCreate<TFieldNames>({
   toastId = "create_org_toast_message",
@@ -24,7 +24,7 @@ export function useOrgCreate<TFieldNames>({
       },
       onError: (error) => {
         const { message, type, fieldErrors } =
-          formatApiError<TFieldNames>(error);
+          formatOrpcError<TFieldNames>(error);
 
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
@@ -60,7 +60,7 @@ export function useInviteOrgMember<TFieldNames>({
       },
       onError: (error) => {
         const { message, type, fieldErrors } =
-          formatApiError<TFieldNames>(error);
+          formatOrpcError<TFieldNames>(error);
 
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
@@ -94,7 +94,7 @@ export function useAcceptOrRejectInvitation({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to process invitation", {
           id: toastId,

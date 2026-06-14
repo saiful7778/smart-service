@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
-import { formatApiError } from "@/utils/formatApiError";
+import { formatOrpcError } from "@/utils/formatOrpcError";
 
 export function useRequestPasswordReset({
   onRequestStart,
@@ -25,7 +25,7 @@ export function useRequestPasswordReset({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to send password reset email", {
           id: toastId,
@@ -64,7 +64,7 @@ export function useBanUnbannedUser<TFieldNames>({
       },
       onError: (error) => {
         const { message, type, fieldErrors } =
-          formatApiError<TFieldNames>(error);
+          formatOrpcError<TFieldNames>(error);
 
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);

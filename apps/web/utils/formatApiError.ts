@@ -1,82 +1,35 @@
-import {
-  type CommonORPCErrorCode,
-  isDefinedError,
-  type ORPCError,
-} from "@orpc/client";
-import { QstashError } from "@upstash/qstash";
-
+import { QstashError } from "@workspace/lib/qstash";
 import { MailError } from "@workspace/mail";
 
-import type { FieldError } from "@/types";
-
-export interface FormattedError<TFieldNames> {
-  type: "validation" | "general";
-  fieldErrors?: FieldError<TFieldNames>[];
+export interface FormattedError {
   message: string;
+  statusCode: number;
 }
 
-type AppORPCError =
-  | ORPCError<
-      "INPUT_VALIDATION_FAILED",
-      { fieldErrors: Record<string, string[]> }
-    >
-  | ORPCError<CommonORPCErrorCode, undefined>;
-
-function isAppORPCError(error: unknown): error is AppORPCError {
-  return isDefinedError(error as AppORPCError);
-}
-
-export function formatApiError<TFieldNames>(
-  error: unknown
-): FormattedError<TFieldNames> {
-  if (isAppORPCError(error)) {
-    if (error.code === "INPUT_VALIDATION_FAILED") {
-      const fieldErrors = Object.entries(error.data?.fieldErrors || {}).map(
-        ([fieldName, messages]) => ({
-          fieldName: fieldName as TFieldNames,
-          message:
-            Array.isArray(messages) && messages[0]
-              ? messages[0]
-              : "Input validation error",
-        })
-      );
-
-      return {
-        type: "validation",
-        message: "Input validation failed",
-        fieldErrors,
-      };
-    }
-
-    return {
-      type: "general",
-      message: error.message || "An error occurred",
-    };
-  }
-
+export function formatApiError(error: unknown): FormattedError {
   if (error instanceof QstashError) {
     return {
-      type: "general",
       message: error.message,
+      statusCode: error.statusCode,
     };
   }
 
   if (error instanceof MailError) {
     return {
-      type: "general",
       message: error.message,
+      statusCode: error.statusCode,
     };
   }
 
   if (error instanceof Error) {
     return {
-      type: "general",
       message: error.message,
+      statusCode: 500,
     };
   }
 
   return {
-    type: "general",
     message: "An unexpected error occurred",
+    statusCode: 500,
   };
 }

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
-import { formatApiError } from "@/utils/formatApiError";
+import { formatOrpcError } from "@/utils/formatOrpcError";
 
 export function useGetUploadUrl({
   onSuccess,
@@ -19,7 +19,7 @@ export function useGetUploadUrl({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
         onError?.(message);
       },
     })
@@ -40,7 +40,7 @@ export function useGetDownloadUrl({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
         onError?.(message);
       },
     })
@@ -61,7 +61,7 @@ export function useConfirmUpload({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
         onError?.(message);
       },
     })
@@ -86,7 +86,7 @@ export function useDeleteUpload({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
         toast.error(message ?? "Failed to delete file", {
           id: toastId,
         });
@@ -110,7 +110,7 @@ export function useAssignFileEntity({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
         onError?.(message);
       },
     })

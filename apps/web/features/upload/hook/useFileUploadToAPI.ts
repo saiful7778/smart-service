@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { IApiHookInput } from "@/types";
-import { formatApiError } from "@/utils/formatApiError";
+import { formatOrpcError } from "@/utils/formatOrpcError";
 
 import { useConfirmUpload, useGetUploadUrl } from "../api/upload.api.hook";
 import { ConfirmUploadOutput } from "../api/upload.contract";
@@ -84,7 +84,7 @@ export function useFileUploadToAPI({
       onSuccess?.(message);
     },
     onError: (error) => {
-      const { message } = formatApiError(error);
+      const { message } = formatOrpcError(error);
       onError?.(message);
     },
     onSettled: () => {

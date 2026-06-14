@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
-import { formatApiError } from "@/utils/formatApiError";
+import { formatOrpcError } from "@/utils/formatOrpcError";
 
 export function useUserUpdate<TFieldNames>({
   onRequestStart,
@@ -34,7 +34,7 @@ export function useUserUpdate<TFieldNames>({
       },
       onError: (error) => {
         const { message, type, fieldErrors } =
-          formatApiError<TFieldNames>(error);
+          formatOrpcError<TFieldNames>(error);
 
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
@@ -74,7 +74,7 @@ export function useRoleUpdate<TFieldNames>({
       },
       onError: (error) => {
         const { message, type, fieldErrors } =
-          formatApiError<TFieldNames>(error);
+          formatOrpcError<TFieldNames>(error);
 
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
@@ -111,7 +111,7 @@ export function useSetRolePermissions({
         onSuccess?.(message);
       },
       onError: (error) => {
-        const { message } = formatApiError(error);
+        const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to set role permissions", {
           id: toastId,
