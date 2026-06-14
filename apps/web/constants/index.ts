@@ -9,6 +9,10 @@ export const ERROR_PAGE_PATH: RoutePathType = "/error";
 
 export const DEFAULT_ADMIN_PATH: RoutePathType = "/dashboard/admin";
 
+export const ONE_DAY_IN_MILISECOND = 24 * 60 * 60 * 1000;
+export const UPLOAD_EXPIRED_TIME_IN_MILISECOND: number =
+  ONE_DAY_IN_MILISECOND * 7;
+
 export const AUTH_ROUTES: Array<RoutePathType> = [
   DEFAULT_UNAUTH_PATH,
   "/register",

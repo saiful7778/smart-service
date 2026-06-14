@@ -69,4 +69,7 @@ export const API_MESSAGES = {
     NOT_FOUND: "File is not found",
     ASSIGN_ENTITY: "File assigned to entity successfully",
   },
+  QSTASH: {
+    INVALID_SIGNATURE: "Invalid signature",
+  },
 };
