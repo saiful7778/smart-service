@@ -1,7 +1,7 @@
 import { createQstashClient, IQstashService } from "@workspace/lib/qstash";
 
-import { env } from "./env";
-import { redisClient } from "./redis-client";
+import { env } from "../env";
+import { redisClient } from "../redis-client";
 
 const globalForQstash = globalThis as unknown as {
   qstashClient?: IQstashService;
