@@ -1,59 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import { MailCallbackPayload } from "@workspace/mail";
 
+import { ApiResponseJson } from "@/lib/ApiResponseJson";
 import { mailProvider } from "@/lib/mail";
+import { getQstashPayload } from "@/lib/qstash/getQstashPayload";
+import { verifyQstashSignature } from "@/lib/qstash/verifyQstashSignature";
 
 import { formatApiError } from "@/utils/formatApiError";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.text();
+    const clonedReq = req.clone();
 
-    const signature = req.headers.get("upstash-signature") ?? "";
-    const isValid = await mailProvider.verifySignature(
-      body,
-      signature,
-      req.url
-    );
+    await verifyQstashSignature(req);
 
-    if (!isValid) {
-      return NextResponse.json(
-        { success: false, message: "Invalid signature" },
-        { status: 401 }
-      );
-    }
-
-    let payload: MailCallbackPayload;
-    try {
-      payload = JSON.parse(body);
-    } catch {
-      return NextResponse.json(
-        { success: false, message: "Invalid JSON" },
-        { status: 400 }
-      );
-    }
-
-    payload.messageId =
-      payload.messageId || req.headers.get("upstash-message-id") || "";
+    const payload = await getQstashPayload<MailCallbackPayload>(clonedReq);
 
     await mailProvider.processMailCallback(payload, {
       messageId: payload.messageId,
     });
 
-    return NextResponse.json(
-      { success: true, message: "success" },
-      { status: 200 }
-    );
+    return ApiResponseJson(true, "success");
   } catch (err) {
-    const { message } = formatApiError(err);
+    const { message, statusCode } = formatApiError(err);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      { status: 500 }
-    );
+    return ApiResponseJson(false, message, undefined, statusCode);
   }
 }
