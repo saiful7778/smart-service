@@ -135,6 +135,7 @@ export const listMemberProcedure = orgImpl.listMember
       .where(
         and(eq(OrganizationMemberTable.organizationId, context.org.id), where)
       )
+      .groupBy(UserTable.id, OrganizationMemberTable.id)
       .$dynamic();
 
     const [totalCount, members] = await Promise.all([

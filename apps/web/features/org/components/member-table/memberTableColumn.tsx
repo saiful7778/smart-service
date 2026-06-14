@@ -1,0 +1,61 @@
+import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
+import { Badge } from "@workspace/ui/components/badge";
+import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
+import type { ColumnType } from "@workspace/ui/types/data-table";
+
+import { UserAvatar } from "@/components/UserAvatar";
+
+import { ListMemberOutput } from "../../api/org.contract";
+
+type MemberTableRowDataType = ListMemberOutput["data"][number];
+
+export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
+  {
+    id: "name",
+    accessorKey: "name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} label="Full name" />
+    ),
+    cell: ({ row, getValue }) => (
+      <UserAvatar
+        userEmail={row.original?.email}
+        imageUrl={row.original?.image}
+        userName={getValue<MemberTableRowDataType["name"]>()}
+        showDetails
+      />
+    ),
+    enableHiding: false,
+    enableColumnFilter: false,
+    enableSorting: false,
+  },
+  {
+    id: "roles",
+    accessorKey: "roles",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} label="Organization Role" />
+    ),
+    cell: ({ getValue }) => {
+      const roles = getValue<MemberTableRowDataType["roles"]>();
+      return (
+        <div className="inline-flex items-center gap-1">
+          {roles.map((role, idx) => (
+            <Badge variant="secondary" key={idx}>
+              {role.customRoleName ?? formatEnumValue(role.roleName)}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
+    meta: {
+      label: "Organization Role",
+      variant: "select",
+      placeholder: "Role",
+      options: OrgRoleEnumSchema.options.map((value) => ({
+        value,
+        label: formatEnumValue(value),
+      })),
+    },
+    enableColumnFilter: true,
+    enableSorting: false,
+  },
+];

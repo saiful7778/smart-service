@@ -1,4 +1,4 @@
-import { House, Settings, User } from "lucide-react";
+import { House, Settings, User, UsersRound } from "lucide-react";
 
 import type { SidebarGroupMenuLink, SidebarMenuLink } from "@/types";
 
@@ -25,6 +25,17 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard",
         pathRegex: /^\/dashboard$/,
+      },
+    ],
+  },
+  {
+    groupName: "Admin",
+    items: [
+      {
+        title: "Members",
+        icon: UsersRound,
+        path: "/dashboard/organization/members",
+        pathRegex: /^\/dashboard\/organization\/members$/,
       },
     ],
   },
