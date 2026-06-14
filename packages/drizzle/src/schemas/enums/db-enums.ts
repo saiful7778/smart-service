@@ -13,7 +13,6 @@ import {
   NOTIFICATION_CATEGORY,
   NOTIFICATION_LEVEL,
   PERMISSION_LEVEL,
-  QSTASH_STATUS,
   RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
@@ -72,5 +71,3 @@ export const JobAssignmentRoleEnum = pgEnum(
   "JobAssignmentRoleEnum",
   JOB_ASSIGNMENT_ROLE
 );
-
-export const QstashStatusEnum = pgEnum("QstashStatusEnum", QSTASH_STATUS);

@@ -222,12 +222,3 @@ export const JOB_ASSIGNMENT_ROLE = [
   "supervisor", // Supervising employee
   "trainee", // Employee in training
 ] as const;
-
-export const QSTASH_STATUS = [
-  "pending",
-  "delivered",
-  "failed",
-  "retried",
-  "cancelled",
-  "scheduled",
-] as const;

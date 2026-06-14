@@ -145,15 +145,6 @@ enum PermissionLevelEnum {
   self
 }
 
-enum QstashStatusEnum {
-  pending
-  delivered
-  failed
-  retried
-  cancelled
-  scheduled
-}
-
 enum ResourceTypeEnum {
   user
   role
