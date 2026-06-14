@@ -58,33 +58,29 @@ export function DataTableColumnHeader<TData, TValue>({
       {...props}
     >
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="xs" variant="ghost">
-              <span>{label}</span>
-              {canSort &&
-                (isSorted === "desc" ? (
-                  columnMeta?.variant === "number" ? (
-                    <ArrowDown01 />
-                  ) : columnMeta?.variant === "date" ? (
-                    <ArrowDown01 />
-                  ) : (
-                    <ArrowDownAZ />
-                  )
-                ) : isSorted === "asc" ? (
-                  columnMeta?.variant === "number" ? (
-                    <ArrowUp01 />
-                  ) : columnMeta?.variant === "date" ? (
-                    <ArrowUp01 />
-                  ) : (
-                    <ArrowUpAZ />
-                  )
-                ) : (
-                  <ArrowUpDown />
-                ))}
-            </Button>
-          }
-        />
+        <DropdownMenuTrigger render={<Button variant="ghost" />}>
+          <span>{label}</span>
+          {canSort &&
+            (isSorted === "desc" ? (
+              columnMeta?.variant === "number" ? (
+                <ArrowDown01 />
+              ) : columnMeta?.variant === "date" ? (
+                <ArrowDown01 />
+              ) : (
+                <ArrowDownAZ />
+              )
+            ) : isSorted === "asc" ? (
+              columnMeta?.variant === "number" ? (
+                <ArrowUp01 />
+              ) : columnMeta?.variant === "date" ? (
+                <ArrowUp01 />
+              ) : (
+                <ArrowUpAZ />
+              )
+            ) : (
+              <ArrowUpDown />
+            ))}
+        </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-40">
           <DropdownMenuGroup>
             {canSort && (
