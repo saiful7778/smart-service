@@ -365,7 +365,7 @@ function createBetterAuth() {
                 inviterName: inviter.user.name,
                 orgName: organization.name,
                 role: role as OrgRoleType,
-                inviteUrl: `${env.NEXT_PUBLIC_SITE_URL}/accept-invitation?invitationId=${id}`,
+                inviteUrl: `${env.NEXT_PUBLIC_SITE_URL}/organization/accept-invitation?invitationId=${id}`,
                 userEmail: email,
               }
             );
@@ -379,7 +379,7 @@ function createBetterAuth() {
                 inviterName: inviter.user.name,
                 orgName: organization.name,
                 role: role as OrgRoleType,
-                registerUrl: `${env.NEXT_PUBLIC_SITE_URL}/register?invitationId=${id}`,
+                registerUrl: `${env.NEXT_PUBLIC_SITE_URL}/organization/register?invitationId=${id}`,
                 userEmail: email,
               });
             if (!success && error) {

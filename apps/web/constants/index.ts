@@ -1,8 +1,14 @@
+import {
+  DEFAULT_PAGE_INDEX as UI_DEFAULT_PAGE_INDEX,
+  DEFAULT_PAGE_SIZE as UI_DEFAULT_PAGE_SIZE,
+} from "@workspace/ui/hooks/use-data-table";
+
 import type { BreadcrumbRoute, RoutePathType } from "@/types";
 
 export const DEFAULT_AUTH_PATH: RoutePathType = "/dashboard";
 export const DEFAULT_UNAUTH_PATH: RoutePathType = "/login";
-export const ACCEPT_INVITATION_PATH: RoutePathType = "/accept-invitation";
+export const ACCEPT_INVITATION_PATH: RoutePathType =
+  "/organization/accept-invitation";
 export const CREATE_ORG_PATH: RoutePathType = "/organization/create";
 export const RESET_PASSWORD_PATH: RoutePathType = "/reset-password";
 export const ERROR_PAGE_PATH: RoutePathType = "/error";
@@ -16,6 +22,7 @@ export const UPLOAD_EXPIRED_TIME_IN_MILISECOND: number =
 export const AUTH_ROUTES: Array<RoutePathType> = [
   DEFAULT_UNAUTH_PATH,
   "/register",
+  "/organization/register",
   "/forget-password",
   RESET_PASSWORD_PATH,
 ];
@@ -83,3 +90,9 @@ export const breadcrumbRoutes: Array<BreadcrumbRoute> = [
     ],
   },
 ];
+
+export const DEFAULT_PAGE_INDEX = UI_DEFAULT_PAGE_INDEX;
+export const DEFAULT_PAGE_SIZE = UI_DEFAULT_PAGE_SIZE;
+
+export const DEFAULT_INFINITE_PAGE_START = 1;
+export const DEFAULT_INFINITE_PAGE_SIZE = 10;
