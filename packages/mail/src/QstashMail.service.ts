@@ -8,7 +8,7 @@ import {
   QstashServiceConfig,
 } from "@workspace/lib/qstash";
 
-import { MailServiceError } from "./MailError";
+import { MailError } from "./MailError";
 import type {
   MailCallbackPayload,
   MailSendResult,
@@ -101,7 +101,7 @@ export abstract class QstashMailService
 
     const firstFailure = [minute, hour].find((r) => !r.success);
     if (firstFailure) {
-      throw new MailServiceError(
+      throw new MailError(
         `Rate limit exceeded. Resets at ${new Date(
           firstFailure.reset * 1000
         ).toISOString()}`,
@@ -131,7 +131,7 @@ export abstract class QstashMailService
   private extractPrimaryRecipient(to: SendMailOption["to"]): string {
     const recipient = Array.isArray(to) ? to[0] : to;
     if (!recipient) {
-      throw new MailServiceError(
+      throw new MailError(
         "No valid recipient provided",
         "MAIL_RECIPIENT_INVALID",
         400
@@ -156,7 +156,7 @@ export abstract class QstashMailService
   ): Promise<QstashMailResult> {
     try {
       if (!options.html && !options.text) {
-        throw new MailServiceError(
+        throw new MailError(
           "Either 'html' or 'text' must be provided",
           "MAIL_INVALID_PAYLOAD",
           400
@@ -171,7 +171,7 @@ export abstract class QstashMailService
       const isDuplicate = await this.isDuplicate(dedupKey);
 
       if (isDuplicate) {
-        throw new MailServiceError(
+        throw new MailError(
           "Duplicate email suppressed within dedup window.",
           "MAIL_DUPLICATE_SUPPRESSED",
           409
@@ -202,8 +202,7 @@ export abstract class QstashMailService
 
       return { success: true, messageId, deduplicationId };
     } catch (err) {
-      if (err instanceof MailServiceError || err instanceof QstashError)
-        throw err;
+      if (err instanceof MailError || err instanceof QstashError) throw err;
 
       return {
         success: false,
@@ -220,7 +219,7 @@ export abstract class QstashMailService
       await this.sendDirectMail(payload);
       return { success: true };
     } catch (error) {
-      throw new MailServiceError(
+      throw new MailError(
         error instanceof Error ? error.message : "Unknown error occurred",
         "MAIL_TRANSPORT_FAILED",
         500,
@@ -249,7 +248,7 @@ export abstract class QstashMailService
       if (err instanceof QstashError || err instanceof QstashError) {
         throw err;
       }
-      throw new MailServiceError(
+      throw new MailError(
         err instanceof Error ? err.message : "Unknown error occurred",
         "MAIL_TRANSPORT_FAILED",
         500,

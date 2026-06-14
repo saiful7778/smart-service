@@ -1,6 +1,6 @@
 import { ServiceError } from "@workspace/lib/utils";
 
-export class MailServiceError extends ServiceError {
+export class MailError extends ServiceError {
   constructor(
     message: string,
     code: MailErrorCode,
