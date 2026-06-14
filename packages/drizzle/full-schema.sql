@@ -1,4 +1,4 @@
-◇ injected env (4) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -515,37 +515,6 @@ CREATE TABLE "user_roles" (
 	"assigned_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
-CREATE TABLE "qstash_logs" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"message_id" text NOT NULL,
-	"deduplication_id" text,
-	"state" "QstashStatusEnum" DEFAULT 'pending' NOT NULL,
-	"retries" integer DEFAULT 0 NOT NULL,
-	"max_retries" integer DEFAULT 3,
-	"error" text,
-	"last_error" text,
-	"callback" text,
-	"topic" text,
-	"queue" text,
-	"is_dead_letter" boolean DEFAULT false NOT NULL,
-	"raw_payload" jsonb,
-	"url" text NOT NULL,
-	"method" varchar(10) DEFAULT 'POST' NOT NULL,
-	"headers" jsonb,
-	"body" text,
-	"response_status" integer,
-	"response_body" text,
-	"response_headers" jsonb,
-	"created_by" uuid,
-	"ip_address" varchar(50),
-	"user_agent" text,
-	"scheduled_at" timestamp (3) with time zone,
-	"delivered_at" timestamp (3) with time zone,
-	"next_retry_at" timestamp (3) with time zone,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE "schedules" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"org_id" uuid NOT NULL,
@@ -670,7 +639,6 @@ ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_role_fkey" FOREIG
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_permission_fkey" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "qstash_logs" ADD CONSTRAINT "fk_qstash_logs_created_by" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
@@ -842,14 +810,6 @@ CREATE INDEX "role_permission_permission_idx" ON "role_permissions" USING btree 
 CREATE INDEX "user_role_unique" ON "user_roles" USING btree ("user_id","role_id");
 CREATE INDEX "user_role_role_id_idx" ON "user_roles" USING btree ("role_id");
 CREATE INDEX "user_role_user_id_idx" ON "user_roles" USING btree ("user_id");
-CREATE INDEX "idx_q_msg_id" ON "qstash_logs" USING btree ("message_id");
-CREATE INDEX "idx_q_topic" ON "qstash_logs" USING btree ("topic");
-CREATE INDEX "idx_q_queue" ON "qstash_logs" USING btree ("queue");
-CREATE INDEX "idx_q_state" ON "qstash_logs" USING btree ("state");
-CREATE INDEX "idx_q_created_at" ON "qstash_logs" USING btree ("created_at");
-CREATE INDEX "idx_q_delivered_at" ON "qstash_logs" USING btree ("delivered_at");
-CREATE INDEX "idx_q_next_retry_at" ON "qstash_logs" USING btree ("next_retry_at");
-CREATE INDEX "idx_q_state_created_at" ON "qstash_logs" USING btree ("state","created_at");
 CREATE INDEX "schedules_org_id_idx" ON "schedules" USING btree ("org_id");
 CREATE INDEX "schedules_job_id_idx" ON "schedules" USING btree ("job_id");
 CREATE INDEX "schedules_start_at_idx" ON "schedules" USING btree ("start_at");
