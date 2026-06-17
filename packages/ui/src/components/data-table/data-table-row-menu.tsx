@@ -30,14 +30,12 @@ export default function DataTableRowMenu({
         <TooltipTrigger
           render={
             <DropdownMenuTrigger
-              render={
-                <Button size="icon-sm" variant="outline">
-                  <EllipsisVertical />
-                </Button>
-              }
+              render={<Button size="icon" variant="outline" />}
             />
           }
-        />
+        >
+          <EllipsisVertical />
+        </TooltipTrigger>
         <TooltipContent>
           <p>Row Actions</p>
         </TooltipContent>
