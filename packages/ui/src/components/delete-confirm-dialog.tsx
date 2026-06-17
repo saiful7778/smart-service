@@ -53,7 +53,6 @@ export function DeleteConfirmDialog({
             render={
               <Button
                 variant="outline"
-                size="sm"
                 disabled={isLoading}
                 aria-disabled={isLoading}
               />
@@ -68,7 +67,6 @@ export function DeleteConfirmDialog({
             }}
             disabled={isLoading}
             variant="destructive"
-            size="sm"
             render={<ButtonSpinner isLoading={isLoading} />}
           >
             {confirmText}
