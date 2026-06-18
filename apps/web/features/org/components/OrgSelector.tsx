@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronsUpDown } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -30,6 +31,8 @@ import { resolveImagePath } from "@/utils/resolveImagePath";
 
 export function OrgSelector() {
   const { isMobile } = useSidebar();
+  const queryClient = useQueryClient();
+
   const orgs = useOrgStore((state) => state.organizations);
   const activeOrg = useOrgStore((state) => state.activeOrg);
   const setActiveOrg = useOrgStore((state) => state.setActiveOrg);
@@ -54,6 +57,9 @@ export function OrgSelector() {
         },
         onSuccess: async () => {
           setIsLoading(false);
+
+          await queryClient.resetQueries();
+
           toast.success("Organization loaded", {
             id: toastId,
           });
