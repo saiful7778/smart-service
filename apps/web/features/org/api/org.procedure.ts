@@ -291,7 +291,10 @@ export const listInvitationProcedure = orgImpl.listInvitation
       .innerJoin(UserTable, eq(InvitationTable.inviterId, UserTable.id))
       .innerJoin(
         OrganizationMemberTable,
-        eq(OrganizationMemberTable.userId, UserTable.id)
+        and(
+          eq(OrganizationMemberTable.userId, UserTable.id),
+          eq(OrganizationMemberTable.organizationId, context.org.id)
+        )
       )
       .innerJoin(
         OrgMemberRoleTable,
