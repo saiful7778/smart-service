@@ -17,10 +17,12 @@ import { InvitationTableRowAction } from "./InvitationTableRowAction";
 type InvitationTableRowDataType = ListInvitationOutput["data"][number];
 
 const statusColors: Record<InvitationStatusEnumType, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  accepted: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
-  canceled: "bg-gray-100 text-gray-800",
+  pending:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  accepted:
+    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  canceled: "bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
 export const invitationTableColumn: ColumnType<InvitationTableRowDataType> = [
