@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
@@ -46,6 +46,7 @@ export function useInviteOrgMember<TFieldNames>({
   onError,
   onValidationErrors,
 }: IApiHookInput<TFieldNames> = {}) {
+  const queryClient = useQueryClient();
   const toastId = "invite_org_member_toast_message";
 
   return useMutation(
@@ -54,8 +55,14 @@ export function useInviteOrgMember<TFieldNames>({
         toast.loading("Inviting member...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: ({ message }) => {
+      onSuccess: async ({ message }) => {
         toast.success(message, { id: toastId });
+
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.org.listInvitation.queryKey({ input: {} }),
+          exact: false,
+        });
+
         onSuccess?.(message);
       },
       onError: (error) => {
@@ -101,6 +108,47 @@ export function useAcceptOrRejectInvitation({
         });
 
         onError?.(message);
+      },
+    })
+  );
+}
+
+export function useDeleteInvitation({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors"> = {}) {
+  const queryClient = useQueryClient();
+  const toastId = "delete_invitation_toast_message";
+
+  return useMutation(
+    orpcTQClient.org.deleteInvitation.mutationOptions({
+      onMutate: () => {
+        toast.loading("Deleting invitation...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.org.listInvitation.queryKey({ input: {} }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete invitation", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
       },
     })
   );

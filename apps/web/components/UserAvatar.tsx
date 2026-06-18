@@ -1,6 +1,9 @@
 import { getImageProps } from "next/image";
 
-import { RoleEnumType } from "@workspace/drizzle/zod-db-enums";
+import {
+  RoleEnumType,
+  RoleTypeEnumType,
+} from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import {
   Avatar,
@@ -47,8 +50,12 @@ interface UserAvatarProps {
   imageUrl?: string | null | undefined;
   userName: string;
   userEmail: string;
-  userRoles?: Array<RoleEnumType>;
-  userCustomRoleName?: string;
+  userRoles?: Array<{
+    id: string;
+    type: RoleTypeEnumType;
+    roleName: RoleEnumType;
+    customRoleName: string | null;
+  }>;
   showRoleDetails?: boolean;
   showDetails?: boolean;
   isActive?: boolean;
@@ -61,7 +68,6 @@ export function UserAvatar({
   userName,
   userEmail,
   userRoles,
-  userCustomRoleName,
   showRoleDetails = false,
   showDetails = false,
   isActive = false,
@@ -89,13 +95,18 @@ export function UserAvatar({
       {showDetails && (
         <div className="grid flex-1 text-left leading-tight">
           <div className="text-sm font-medium">{userName}</div>
-          <div className="truncate text-xs">
+          <div className="truncate text-xs text-muted-foreground">
             {showRoleDetails
-              ? userCustomRoleName
-                ? userCustomRoleName
-                : userRoles && userRoles?.length > 0
-                  ? userRoles.map((role) => formatEnumValue(role)).join(", ")
-                  : userEmail
+              ? userRoles && userRoles?.length > 0
+                ? userRoles
+                    .map((role) =>
+                      role.type === "ORG"
+                        ? (role.customRoleName ??
+                          formatEnumValue(role.roleName))
+                        : formatEnumValue(role.roleName)
+                    )
+                    .join(", ")
+                : userEmail
               : userEmail}
           </div>
         </div>

@@ -1,4 +1,11 @@
-import { House, Settings, ShieldUser, User, UsersRound } from "lucide-react";
+import {
+  House,
+  Mails,
+  Settings,
+  ShieldUser,
+  User,
+  UsersRound,
+} from "lucide-react";
 
 import type { SidebarGroupMenuLink, SidebarMenuLink } from "@/types";
 
@@ -44,6 +51,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         roles: ["ORG_ADMIN", "OWNER"],
         path: "/dashboard/organization/members",
         pathRegex: /^\/dashboard\/organization\/members$/,
+      },
+      {
+        title: "Invitations",
+        icon: Mails,
+        roles: ["ORG_ADMIN", "OWNER"],
+        path: "/dashboard/organization/invitations",
+        pathRegex: /^\/dashboard\/organization\/invitations$/,
       },
       {
         title: "Roles & Permissions",

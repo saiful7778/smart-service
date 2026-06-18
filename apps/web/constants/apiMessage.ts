@@ -26,8 +26,11 @@ export const API_MESSAGES = {
     GET_BOOKINGS: "Bookings fetched successfully",
     GET_SCHEDULE: "Schedule fetched successfully",
     INVITATION: {
+      GET_ALL: "Invitations fetched successfully",
+      NOT_FOUND: "Invitation not found",
       ACCEPT: "Invitation accepted successfully",
       REJECT: "Invitation rejected successfully",
+      DELETE: "Invitation deleted successfully",
     },
   },
   USER: {

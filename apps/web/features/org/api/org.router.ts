@@ -1,7 +1,9 @@
 import {
   acceptOrRejectInvitationProcedure,
   createOrgProcedure,
+  deleteInvitationProcedure,
   inviteMemberProcedure,
+  listInvitationProcedure,
   listMemberForSearchProcedure,
   listMemberProcedure,
   orgImpl,
@@ -13,4 +15,6 @@ export const orgRouter = orgImpl.router({
   inviteMember: inviteMemberProcedure,
   acceptOrRejectInvitation: acceptOrRejectInvitationProcedure,
   listMemberForSearch: listMemberForSearchProcedure,
+  listInvitation: listInvitationProcedure,
+  deleteInvitation: deleteInvitationProcedure,
 });

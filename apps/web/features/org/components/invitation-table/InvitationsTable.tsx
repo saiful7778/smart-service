@@ -5,20 +5,25 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { ListMemberOutput } from "../../api/org.contract";
-import { memberTableColumn } from "./memberTableColumn";
+import { ListInvitationOutput } from "../../api/org.contract";
+import InviteMemberDialog from "../InviteMemberDialog";
+import { invitationTableColumn } from "./invitationTableColumn";
 
-interface MembersTableProps {
-  data: ListMemberOutput;
+interface InvitationsTableProps {
+  data: ListInvitationOutput;
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }
 
-export function MembersTable({ data, filters, setFilters }: MembersTableProps) {
+export function InvitationsTable({
+  data,
+  filters,
+  setFilters,
+}: InvitationsTableProps) {
   "use no memo";
   const table = useDataTable({
     data: data.data,
-    columns: memberTableColumn,
+    columns: invitationTableColumn,
     pageCount: data.meta.pageCount,
     filters,
     setFilters,
@@ -31,7 +36,9 @@ export function MembersTable({ data, filters, setFilters }: MembersTableProps) {
 
   return (
     <DataTable table={table}>
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table}>
+        <InviteMemberDialog />
+      </DataTableToolbar>
     </DataTable>
   );
 }

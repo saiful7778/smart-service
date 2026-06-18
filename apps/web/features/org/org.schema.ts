@@ -1,3 +1,4 @@
+import { InvitationStatus } from "better-auth/plugins";
 import z from "zod";
 
 import { OrgRoleEnumSchema } from "@workspace/lib/utils";
@@ -36,3 +37,11 @@ export const inviteOrgMemberSchema = z.object({
   organizationId: z.uuid(),
 });
 export type InviteOrgMemberType = z.infer<typeof inviteOrgMemberSchema>;
+
+export const invitationStatusEnum = z.enum([
+  "pending",
+  "accepted",
+  "rejected",
+  "canceled",
+] as InvitationStatus[]);
+export type InvitationStatusEnumType = z.infer<typeof invitationStatusEnum>;

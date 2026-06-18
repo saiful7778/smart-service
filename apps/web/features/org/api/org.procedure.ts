@@ -9,6 +9,7 @@ import {
   AddressTable,
   InsertAddress,
   InsertOrgAddress,
+  InvitationTable,
   OrgAddressTable,
   OrganizationMemberTable,
   OrgMemberRoleTable,
@@ -255,4 +256,105 @@ export const listMemberForSearchProcedure = orgImpl.listMemberForSearch
       );
 
     return apiResponse(API_MESSAGES.ORG.LIST_MEMBERS_FOR_SEARCH, members);
+  });
+
+export const listInvitationProcedure = orgImpl.listInvitation
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.invitation.manage",
+      "org.invitation.list",
+    ])
+  )
+  .handler(async ({ input, context }) => {
+    const { where, orderBy, limit, offset, page } = buildPaginateOptions(
+      {
+        email: InvitationTable.email,
+        role: InvitationTable.role,
+        status: InvitationTable.status,
+        createdAt: InvitationTable.createdAt,
+      },
+      input
+    );
+
+    const baseQuery = context.db
+      .select({
+        id: InvitationTable.id,
+        email: InvitationTable.email,
+        teamId: InvitationTable.teamId,
+        role: InvitationTable.role,
+        status: InvitationTable.status,
+        createdAt: InvitationTable.createdAt,
+        expiresAt: InvitationTable.expiresAt,
+        inviter: userProfileColumns,
+      })
+      .from(InvitationTable)
+      .innerJoin(UserTable, eq(InvitationTable.inviterId, UserTable.id))
+      .innerJoin(
+        OrganizationMemberTable,
+        eq(OrganizationMemberTable.userId, UserTable.id)
+      )
+      .innerJoin(
+        OrgMemberRoleTable,
+        eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
+      )
+      .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
+      .where(and(eq(InvitationTable.organizationId, context.org.id), where))
+      .groupBy(InvitationTable.id, UserTable.id, OrganizationMemberTable.id)
+      .$dynamic();
+
+    const [totalCount, invitations] = await Promise.all([
+      context.db.$count(
+        context.db
+          .select({ id: InvitationTable.id })
+          .from(InvitationTable)
+          .where(eq(InvitationTable.organizationId, context.org.id))
+      ),
+      baseQuery.orderBy(orderBy).limit(limit).offset(offset),
+    ]);
+
+    const meta = buildPaginationMeta(
+      totalCount,
+      invitations.length,
+      page,
+      limit
+    );
+
+    return apiResponse(API_MESSAGES.ORG.INVITATION.GET_ALL, {
+      meta,
+      data: invitations,
+    });
+  });
+
+export const deleteInvitationProcedure = orgImpl.deleteInvitation
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.invitation.manage",
+      "org.invitation.delete",
+    ])
+  )
+  .handler(async ({ input, context }) => {
+    const [invitation] = await context.db
+      .select({
+        id: InvitationTable.id,
+      })
+      .from(InvitationTable)
+      .where(
+        and(
+          eq(InvitationTable.id, input.invitationId),
+          eq(InvitationTable.organizationId, context.org.id)
+        )
+      )
+      .limit(1);
+
+    if (!invitation) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.ORG.INVITATION.NOT_FOUND,
+      });
+    }
+
+    await context.db
+      .delete(InvitationTable)
+      .where(eq(InvitationTable.id, invitation.id));
+
+    return apiResponse(API_MESSAGES.ORG.INVITATION.DELETE, null);
   });
