@@ -86,8 +86,11 @@ export const rolesAndPermissionData: Array<{
       // Full system control (manage bypasses specific actions)
       "system.user.manage",
       "system.org.manage",
-      "system.role.manage",
-      "system.permission.manage",
+      "system.role.read",
+      "system.role.list",
+      "system.role.update",
+      "system.permission.read",
+      "system.permission.list",
       "system.invoice.manage",
       "system.payment.manage",
       "system.billing.manage",
