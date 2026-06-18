@@ -37,6 +37,10 @@
     "./paginate-query": {
       "import": "./src/paginate-query/index.ts",
       "types": "./src/paginate-query/index.ts"
+    },
+    "./sql-helpers": {
+      "import": "./src/sql-helpers.ts",
+      "types": "./src/sql-helpers.ts"
     }
   },
   "scripts": {
