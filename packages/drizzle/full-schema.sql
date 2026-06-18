@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ◈ encrypted .env [www.dotenvx.com]
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -491,8 +491,9 @@ CREATE TABLE "permissions" (
 
 CREATE TABLE "roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"role_name" "RoleEnum" DEFAULT 'USER' NOT NULL,
+	"org_id" uuid,
 	"type" "RoleTypeEnum" DEFAULT 'SYSTEM' NOT NULL,
+	"role_name" "RoleEnum" DEFAULT 'USER' NOT NULL,
 	"custom_role_name" varchar(255),
 	"description" varchar(255),
 	"metadata" jsonb,
@@ -634,6 +635,7 @@ ALTER TABLE "org_team_members" ADD CONSTRAINT "orgTeamMember_user_fkey" FOREIGN 
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_id" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_member_id" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "roles" ADD CONSTRAINT "role_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_role_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_permission_fkey" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
@@ -799,10 +801,11 @@ CREATE UNIQUE INDEX "permission_level_resource_action_key" ON "permissions" USIN
 CREATE INDEX "permission_level_idx" ON "permissions" USING btree ("level");
 CREATE INDEX "permission_resource_idx" ON "permissions" USING btree ("resource");
 CREATE INDEX "permission_action_idx" ON "permissions" USING btree ("action");
-CREATE UNIQUE INDEX "role_name_type_unique" ON "roles" USING btree ("role_name","type");
-CREATE UNIQUE INDEX "custom_role_name_unique" ON "roles" USING btree ("custom_role_name","type");
+CREATE INDEX "role_org_id_idx" ON "roles" USING btree ("org_id");
 CREATE INDEX "role_type_idx" ON "roles" USING btree ("type");
 CREATE INDEX "role_name_idx" ON "roles" USING btree ("role_name");
+CREATE INDEX "role_custom_role_name_idx" ON "roles" USING btree ("custom_role_name");
+CREATE UNIQUE INDEX "role_org_id_custom_role_name_unique_idx" ON "roles" USING btree ("org_id","custom_role_name");
 CREATE UNIQUE INDEX "role_permission_unique" ON "role_permissions" USING btree ("role_id","permission_id");
 CREATE INDEX "role_permission_role_idx" ON "role_permissions" USING btree ("role_id");
 CREATE INDEX "role_permission_permission_idx" ON "role_permissions" USING btree ("permission_id");

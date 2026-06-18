@@ -1,9 +1,11 @@
 import { relations } from "drizzle-orm";
 import {
+  foreignKey,
   index,
   jsonb,
   pgTable,
   uniqueIndex,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import {
@@ -15,6 +17,7 @@ import z from "zod";
 
 import { db_created_at, db_id, db_updated_at } from "../../../db-utils";
 import { RoleEnum, RoleTypeEnum } from "../../enums/db-enums";
+import { OrganizationTable } from "../org";
 import { OrgMemberRoleTable } from "./orgMemberRole.table";
 import { RolePermissionTable } from "./rolePermission.table";
 import { UserRoleTable } from "./userRole.table";
@@ -23,8 +26,9 @@ export const RoleTable = pgTable(
   "roles",
   {
     id: db_id,
-    roleName: RoleEnum("role_name").notNull().default("USER"),
+    orgId: uuid("org_id"),
     type: RoleTypeEnum("type").notNull().default("SYSTEM"),
+    roleName: RoleEnum("role_name").notNull().default("USER"),
     customRoleName: varchar("custom_role_name", { length: 255 }),
     description: varchar("description", { length: 255 }),
     metadata: jsonb("metadata"),
@@ -32,14 +36,30 @@ export const RoleTable = pgTable(
     updatedAt: db_updated_at,
   },
   (table) => [
-    uniqueIndex("role_name_type_unique").on(table.roleName, table.type),
-    uniqueIndex("custom_role_name_unique").on(table.customRoleName, table.type),
+    foreignKey({
+      name: "role_org_fkey",
+      columns: [table.orgId],
+      foreignColumns: [OrganizationTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    index("role_org_id_idx").on(table.orgId),
     index("role_type_idx").on(table.type),
     index("role_name_idx").on(table.roleName),
+    index("role_custom_role_name_idx").on(table.customRoleName),
+    uniqueIndex("role_org_id_custom_role_name_unique_idx").on(
+      table.orgId,
+      table.customRoleName
+    ),
   ]
 );
 
-export const RoleRelations = relations(RoleTable, ({ many }) => ({
+export const RoleRelations = relations(RoleTable, ({ many, one }) => ({
+  org: one(OrganizationTable, {
+    fields: [RoleTable.orgId],
+    references: [OrganizationTable.id],
+    relationName: "RoleToOrg",
+  }),
   rolePermissions: many(RolePermissionTable, {
     relationName: "RoleToRolePermission",
   }),

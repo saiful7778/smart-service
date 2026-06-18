@@ -1037,8 +1037,9 @@ table permissions {
 
 table roles {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  role_name RoleEnum [not null, default: 'USER']
+  org_id uuid
   type RoleTypeEnum [not null, default: 'SYSTEM']
+  role_name RoleEnum [not null, default: 'USER']
   custom_role_name varchar(255)
   description varchar(255)
   metadata jsonb
@@ -1046,10 +1047,12 @@ table roles {
   updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
   indexes {
-    (role_name, type) [name: 'role_name_type_unique', unique]
-    (custom_role_name, type) [name: 'custom_role_name_unique', unique]
+    
+    org_id [name: 'role_org_id_idx']
     type [name: 'role_type_idx']
     role_name [name: 'role_name_idx']
+    custom_role_name [name: 'role_custom_role_name_idx']
+    (org_id, custom_role_name) [name: 'role_org_id_custom_role_name_unique_idx', unique]
   }
 }
 
@@ -1258,6 +1261,8 @@ ref: org_member_roles.role_id > roles.id
 ref: org_member_roles.organization_id > organizations.id
 
 ref: org_member_roles.org_member_id > organization_members.id
+
+ref: roles.org_id > organizations.id
 
 ref: role_permissions.role_id > roles.id
 

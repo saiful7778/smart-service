@@ -29,6 +29,13 @@
       "when": 1781422303564,
       "tag": "0003_remove_qstash_enum",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781694343938,
+      "tag": "0004_add_org_role",
+      "breakpoints": true
     }
   ]
 }
