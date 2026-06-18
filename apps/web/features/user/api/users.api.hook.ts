@@ -87,38 +87,3 @@ export function useRoleUpdate<TFieldNames>({
     })
   );
 }
-
-export function useSetRolePermissions({
-  onRequestStart,
-  onSuccess,
-  onError,
-}: Omit<IApiHookInput, "onValidationErrors"> = {}) {
-  const toastId = "set_role_permissions_toast_message";
-  const queryClient = useQueryClient();
-
-  return useMutation(
-    orpcTQClient.user.setRolePermissions.mutationOptions({
-      onMutate: () => {
-        toast.loading("Setting role permissions...", { id: toastId });
-        onRequestStart?.();
-      },
-      onSuccess: async ({ message }) => {
-        toast.success(message, { id: toastId });
-        await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.user.listRole.queryKey(),
-          exact: false,
-        });
-        onSuccess?.(message);
-      },
-      onError: (error) => {
-        const { message } = formatOrpcError(error);
-
-        toast.error(message ?? "Failed to set role permissions", {
-          id: toastId,
-        });
-
-        onError?.(message);
-      },
-    })
-  );
-}

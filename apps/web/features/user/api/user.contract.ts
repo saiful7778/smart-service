@@ -4,12 +4,7 @@ import {
 } from "@orpc/contract";
 import z from "zod";
 
-import {
-  selectPermissionSchema,
-  selectRoleSchema,
-  selectUserSchema,
-  updateUserSchema,
-} from "@workspace/drizzle/schemas";
+import { selectUserSchema, updateUserSchema } from "@workspace/drizzle/schemas";
 import {
   apiOutputZodSchema,
   paginateInputZodSchema,
@@ -145,74 +140,10 @@ export type UserDetailsOutput = InferContractRouterOutputs<
   typeof userDetailsContract
 >["data"];
 
-const roleAndPermissionTags = [...tags, "Role & Permissions"] as const;
-
-const listRoleContract = userBaseContract
-  .route({
-    method: "GET",
-    path: "/roles/list",
-    description: "List of roles",
-    tags: roleAndPermissionTags,
-  })
-  .output(
-    apiOutputZodSchema(
-      z.array(
-        selectRoleSchema
-          .pick({
-            id: true,
-            roleName: true,
-            type: true,
-            customRoleName: true,
-            description: true,
-            metadata: true,
-          })
-          .extend({
-            permissions: z.array(
-              selectPermissionSchema.pick({
-                id: true,
-                level: true,
-                action: true,
-                resource: true,
-                description: true,
-                name: true,
-                metadata: true,
-              })
-            ),
-          })
-      )
-    )
-  );
-export type ListRoleInput = InferContractRouterInputs<typeof listRoleContract>;
-export type ListRoleOutput = InferContractRouterOutputs<
-  typeof listRoleContract
->["data"];
-
-const setRolePermissionsContract = userBaseContract
-  .route({
-    path: "/roles/set-permissions",
-    description: "Set role permissions",
-    tags: roleAndPermissionTags,
-  })
-  .input(
-    z.object({
-      roleId: z.uuid(),
-      permissionIds: z.array(z.uuid()),
-    })
-  )
-  .output(apiOutputZodSchema(z.null()));
-export type SetRolePermissionsInput = InferContractRouterInputs<
-  typeof setRolePermissionsContract
->;
-export type SetRolePermissionsOutput = InferContractRouterOutputs<
-  typeof setRolePermissionsContract
->["data"];
-
 export const userContract = {
   list: listUserContract,
   stats: userStatsContract,
   update: updateUserContract,
   updateRole: updateUserRoleContract,
   details: userDetailsContract,
-  listRole: listRoleContract,
-  setRolePermissions: setRolePermissionsContract,
 };

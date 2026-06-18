@@ -1,23 +1,11 @@
-import { implement } from "@orpc/server";
-import {
-  and,
-  countDistinct,
-  eq,
-  gte,
-  inArray,
-  lte,
-  max,
-  sql,
-} from "drizzle-orm";
+import { implement, ORPCError } from "@orpc/server";
+import { and, countDistinct, eq, gte, inArray, lte, max } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
-  PermissionDataModel,
-  PermissionTable,
-  RolePermissionTable,
   RoleTable,
   UserActivityTable,
   UserRoleTable,
@@ -216,20 +204,36 @@ export const updateUserProcedure = userImpl.update
 export const updateUserRoleProcedure = userImpl.updateRole
   .use(userPermissionMiddleware(["system.user.manage", "system.user.update"]))
   .handler(async ({ input, context, errors }) => {
+    const [existUser] = await context.db
+      .select({
+        id: UserTable.id,
+      })
+      .from(UserTable)
+      .where(eq(UserTable.id, input.userId))
+      .limit(1);
+
+    if (!existUser) {
+      throw errors.NOT_FOUND();
+    }
+
     const roles = await context.db
       .select({ id: RoleTable.id })
       .from(RoleTable)
       .where(inArray(RoleTable.roleName, input.roleNames));
 
-    if (roles.length === 0) throw errors.BAD_REQUEST();
+    if (roles.length === 0) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.ROLE.NOT_FOUND,
+      });
+    }
 
     await context.db
       .delete(UserRoleTable)
-      .where(eq(UserRoleTable.userId, input.userId));
+      .where(eq(UserRoleTable.userId, existUser.id));
 
     await context.db.insert(UserRoleTable).values(
       roles.map((role) => ({
-        userId: input.userId,
+        userId: existUser.id,
         roleId: role.id,
       }))
     );
@@ -267,83 +271,4 @@ export const userDetailsProcedure = userImpl.details
       ...user.user,
       lastLogin: user.lastLogin,
     });
-  });
-
-export const listRoleProcedure = userImpl.listRole
-  .use(userPermissionMiddleware(["system.role.manage", "system.role.list"]))
-  .handler(async ({ context }) => {
-    const results = await context.db
-      .select({
-        id: RoleTable.id,
-        roleName: RoleTable.roleName,
-        type: RoleTable.type,
-        customRoleName: RoleTable.customRoleName,
-        description: RoleTable.description,
-        metadata: RoleTable.metadata,
-        permissions: sql<
-          Array<
-            Pick<
-              PermissionDataModel,
-              | "id"
-              | "level"
-              | "action"
-              | "resource"
-              | "description"
-              | "name"
-              | "metadata"
-            >
-          >
-        >`COALESCE(JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
-          'id', ${PermissionTable.id},
-          'level', ${PermissionTable.level},
-          'action', ${PermissionTable.action},
-          'resource', ${PermissionTable.resource},
-          'description', ${PermissionTable.description},
-          'name', ${PermissionTable.name},
-          'metadata', ${PermissionTable.metadata}
-        )) FILTER (WHERE ${PermissionTable.id} IS NOT NULL), '[]')`.as(
-          "permissions"
-        ),
-      })
-      .from(RoleTable)
-      .leftJoin(
-        RolePermissionTable,
-        eq(RoleTable.id, RolePermissionTable.roleId)
-      )
-      .leftJoin(
-        PermissionTable,
-        eq(RolePermissionTable.permissionId, PermissionTable.id)
-      )
-      .groupBy(RoleTable.id);
-
-    return apiResponse(API_MESSAGES.USER.ROLE.GET_ALL, results);
-  });
-
-export const setRolePermissionsProcedure = userImpl.setRolePermissions
-  .use(userPermissionMiddleware(["system.role.manage", "system.role.update"]))
-  .handler(async ({ input, context, errors }) => {
-    const { roleId, permissionIds } = input;
-
-    const [role] = await context.db
-      .select({ id: RoleTable.id })
-      .from(RoleTable)
-      .where(eq(RoleTable.id, roleId))
-      .limit(1);
-
-    if (!role) throw errors.BAD_REQUEST();
-
-    await context.db.transaction(async (tx) => {
-      await tx
-        .delete(RolePermissionTable)
-        .where(eq(RolePermissionTable.roleId, roleId));
-
-      await tx.insert(RolePermissionTable).values(
-        permissionIds.map((permissionId) => ({
-          roleId: roleId,
-          permissionId: permissionId,
-        }))
-      );
-    });
-
-    return apiResponse(API_MESSAGES.USER.ROLE.SET_PERMISSIONS, null);
   });

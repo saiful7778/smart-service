@@ -1,7 +1,5 @@
 import {
-  listRoleProcedure,
   listUserProcedure,
-  setRolePermissionsProcedure,
   updateUserProcedure,
   updateUserRoleProcedure,
   userDetailsProcedure,
@@ -15,6 +13,4 @@ export const userRouter = userImpl.router({
   update: updateUserProcedure,
   updateRole: updateUserRoleProcedure,
   details: userDetailsProcedure,
-  listRole: listRoleProcedure,
-  setRolePermissions: setRolePermissionsProcedure,
 });

@@ -180,7 +180,7 @@ export const inviteMemberProcedure = orgImpl.inviteMember
 
     if (!role) {
       throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.USER.ROLE.NOT_FOUND,
+        message: API_MESSAGES.ROLE.NOT_FOUND,
       });
     }
 

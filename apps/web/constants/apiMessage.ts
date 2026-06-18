@@ -47,17 +47,17 @@ export const API_MESSAGES = {
       CREATED: "User event created successfully",
       ERROR: "User event creation failed",
     },
-    PERMISSION: {
-      CREATE: "Permission created successfully",
-      NOT_CREATE: "Permission creation failed",
-      GET_ALL: "All Permissions data is fetched successfully",
-      EXIST: "Permission already exists",
-    },
-    ROLE: {
-      GET_ALL: "All Roles data is fetched successfully",
-      SET_PERMISSIONS: "Role permissions set successfully",
-      NOT_FOUND: "Role not found",
-    },
+  },
+  ROLE: {
+    GET_ALL: "All Roles data is fetched successfully",
+    CREATE: "Custom role created successfully",
+    UPDATE: "Custom role updated successfully",
+    DELETE: "Custom role is deleted successfully",
+    EXIST: "Role already exist",
+    NOT_FOUND: "Role not found",
+  },
+  PERMISSION: {
+    GET_ALL: "All Permissions data is fetched successfully",
   },
   UPLOAD: {
     GET_SIGNED_URL: "Signed URL fetched successfully",

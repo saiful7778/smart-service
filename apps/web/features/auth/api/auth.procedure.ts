@@ -40,7 +40,7 @@ export const requestResetPasswordProcedure = authImpl.requestResetPassword
 export const userBanProcedure = authImpl.ban
   .use(privateRateLimitMiddleware)
   .use(authMiddleware)
-  .use(userRoleMiddleware(["SUPER_ADMIN"]))
+  .use(userRoleMiddleware(["SUPER_ADMIN", "SYSTEM_ADMIN"]))
   .handler(async ({ input, context }) => {
     if (input?.banned) {
       let banExpiresIn: number = 60 * 60 * 24 * 10;
