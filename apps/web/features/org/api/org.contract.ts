@@ -139,8 +139,8 @@ const listInvitationContract = baseContract
       searchFields: ["email"],
       orderFields: ["createdAt"],
       filter: z.object({
-        status: invitationStatusEnum.optional(),
-        role: OrgRoleEnumSchema.optional(),
+        status: invitationStatusEnum.nullable().optional(),
+        role: OrgRoleEnumSchema.nullable().optional(),
       }),
     })
   )

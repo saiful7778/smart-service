@@ -6,12 +6,12 @@ import {
   parseAsInteger,
   parseAsString,
   parseAsStringEnum,
-  ParserMap,
 } from "nuqs/server";
+import type { ParserMap } from "nuqs/server";
 
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 
-type BaseKeys = {
+type BaseParsers = {
   page: ReturnType<typeof parseAsIndex.withDefault>;
   limit: ReturnType<typeof parseAsInteger.withDefault>;
   search: ReturnType<typeof parseAsString.withDefault>;
@@ -19,8 +19,8 @@ type BaseKeys = {
   orderField: typeof parseAsString;
 };
 
-export function tableQuerySearchParams<KeyMap extends ParserMap>(
-  additionalKeys?: KeyMap
+export function tableQuerySearchParams<Parsers extends ParserMap>(
+  additionalKeys?: Parsers
 ) {
   return createLoader({
     page: parseAsIndex
@@ -40,5 +40,5 @@ export function tableQuerySearchParams<KeyMap extends ParserMap>(
     orderField: parseAsString.withOptions({ clearOnDefault: true }),
 
     ...(additionalKeys ?? {}),
-  } as unknown as BaseKeys & KeyMap);
+  } as unknown as BaseParsers & Parsers);
 }

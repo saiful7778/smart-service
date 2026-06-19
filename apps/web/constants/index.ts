@@ -1,8 +1,3 @@
-import {
-  DEFAULT_PAGE_INDEX as UI_DEFAULT_PAGE_INDEX,
-  DEFAULT_PAGE_SIZE as UI_DEFAULT_PAGE_SIZE,
-} from "@workspace/ui/hooks/use-data-table";
-
 import type { BreadcrumbRoute, RoutePathType } from "@/types";
 
 export const DEFAULT_AUTH_PATH: RoutePathType = "/dashboard";
@@ -91,8 +86,8 @@ export const breadcrumbRoutes: Array<BreadcrumbRoute> = [
   },
 ];
 
-export const DEFAULT_PAGE_INDEX = UI_DEFAULT_PAGE_INDEX;
-export const DEFAULT_PAGE_SIZE = UI_DEFAULT_PAGE_SIZE;
+export const DEFAULT_PAGE_INDEX = 1;
+export const DEFAULT_PAGE_SIZE = 20;
 
 export const DEFAULT_INFINITE_PAGE_START = 1;
 export const DEFAULT_INFINITE_PAGE_SIZE = 10;

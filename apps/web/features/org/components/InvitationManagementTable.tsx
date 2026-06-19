@@ -89,27 +89,26 @@ export function InvitationManagementTable({
               page: filters.page,
               limit: filters.limit,
               search: filters.search,
-              order: filters.order ?? undefined,
-              orderField: filters.orderField ?? undefined,
+              order: filters.order,
+              orderField: filters.orderField,
               filter: {
-                status: filters.status,
-                role: filters.role,
+                status: filters.status ? [filters.status] : null,
+                role: filters.role ? [filters.role] : null,
               },
             }}
             setFilters={(filters) => {
-              const roles = filters?.filter?.role as OrgRoleType | null;
-              const status = filters?.filter
-                ?.status as InvitationStatusEnumType | null;
-
-              console.log(roles, status);
+              const roles = filters?.filter?.role as OrgRoleType[] | null;
+              const status = filters?.filter?.status as
+                | InvitationStatusEnumType[]
+                | null;
 
               setFilters({
                 page: filters?.page ?? DEFAULT_PAGE_INDEX,
                 limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
-                role: roles ?? null,
-                status: status ?? null,
+                role: roles?.[0] ?? null,
+                status: status?.[0] ?? null,
               });
             }}
           />
