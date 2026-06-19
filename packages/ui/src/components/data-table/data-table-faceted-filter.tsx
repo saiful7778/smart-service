@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import type { Column } from "@tanstack/react-table";
 
@@ -21,10 +21,15 @@ export function DataTableFacetedFilter<TData, TValue>({
   placeholder,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   "use no memo";
+  const [open, setOpen] = useState(false);
+
   const columnFilterValue = column?.getFilterValue();
 
   const selectedValues = useMemo(
-    () => new Set(Array.isArray(columnFilterValue) ? columnFilterValue : []),
+    () =>
+      new Set<string>(
+        Array.isArray(columnFilterValue) ? columnFilterValue : []
+      ),
     [columnFilterValue]
   );
 
@@ -42,7 +47,8 @@ export function DataTableFacetedFilter<TData, TValue>({
         const filterValues = Array.from(newSelectedValues);
         column.setFilterValue(filterValues.length ? filterValues : undefined);
       } else {
-        column.setFilterValue(isSelected ? undefined : option.value);
+        column.setFilterValue(isSelected ? undefined : [option.value]);
+        setOpen(false);
       }
     },
     [column, isMultiple, selectedValues]
@@ -60,6 +66,8 @@ export function DataTableFacetedFilter<TData, TValue>({
       options={options}
       isMultiple={isMultiple}
       placeholder={placeholder}
+      open={open}
+      onOpenChange={setOpen}
     />
   );
 }
