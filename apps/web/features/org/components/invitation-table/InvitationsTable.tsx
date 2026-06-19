@@ -6,7 +6,7 @@ import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { ListInvitationOutput } from "../../api/org.contract";
-import InviteMemberDialog from "../InviteMemberDialog";
+import { InviteMemberDialog } from "../InviteMemberDialog";
 import { invitationTableColumn } from "./invitationTableColumn";
 
 interface InvitationsTableProps {

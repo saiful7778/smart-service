@@ -3,15 +3,19 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pen } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
+import {
+  formatEnumValue,
+  OrgRoleEnumSchema,
+  OrgRoleType,
+} from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import {
   Dialog,
   DialogClose,
-  DialogDescription,
   DialogResponsiveBody,
   DialogResponsiveContent,
   DialogStickyFooter,
@@ -20,69 +24,78 @@ import {
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
 import { FieldGroup } from "@workspace/ui/components/field";
-import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
-import { useOrgStore } from "@/stores/zustand/org/OrgStoreContext";
+import { useUpdateInvitation } from "../api/org.api.hook";
+import { updateInvitationSchema, UpdateInvitationType } from "../org.schema";
 
-import { useInviteOrgMember } from "../api/org.api.hook";
-import { inviteOrgMemberSchema, InviteOrgMemberType } from "../org.schema";
-
-export function InviteMemberDialog() {
+export function UpdateInvitationDialog({
+  invitationId,
+  role,
+}: {
+  invitationId: string;
+  role: OrgRoleType;
+}) {
   "use no memo";
   const [open, setOpen] = useState(false);
-  const activeOrg = useOrgStore((state) => state.activeOrg!);
 
-  const form = useForm<InviteOrgMemberType>({
-    resolver: zodResolver(inviteOrgMemberSchema),
+  const form = useForm<UpdateInvitationType>({
+    resolver: zodResolver(updateInvitationSchema),
     defaultValues: {
-      email: "",
-      role: "STAFF",
-      organizationId: activeOrg.id,
+      invitationId,
+      role,
     },
   });
 
-  const { mutate, isPending } = useInviteOrgMember<keyof InviteOrgMemberType>({
-    onSuccess: () => {
-      form.reset();
-      setOpen(false);
-    },
-    onValidationErrors: (fields) => {
-      fields.forEach(({ fieldName, message }) => {
-        form.setError(fieldName, {
-          message: message,
+  const { mutate, isPending } = useUpdateInvitation<keyof UpdateInvitationType>(
+    {
+      onSuccess: () => {
+        setOpen(false);
+      },
+      onValidationErrors: (fields) => {
+        fields.forEach(({ fieldName, message }) => {
+          form.setError(fieldName, {
+            message,
+          });
         });
-      });
-    },
-  });
+      },
+    }
+  );
 
-  const handleSubmit = (e: InviteOrgMemberType) => {
+  const handleSubmit = (e: UpdateInvitationType) => {
     mutate(e);
   };
 
-  const formId = "invite-member-form";
+  const formId = "update-invitation-dialog-form";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>Invite Member</DialogTrigger>
-      <DialogResponsiveContent className="w-full sm:max-w-xl">
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DialogTrigger render={<Button size="icon" variant="outline" />} />
+          }
+        >
+          <Pen />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Update Invitation</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <DialogResponsiveContent>
         <DialogStickyHeader>
-          <DialogTitle>Invite member</DialogTitle>
-          <DialogDescription>
-            Invite a member to your organization
-          </DialogDescription>
+          <DialogTitle>Update Invitation</DialogTitle>
         </DialogStickyHeader>
+
         <DialogResponsiveBody>
-          <form id={formId} onSubmit={form.handleSubmit(handleSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} id={formId}>
             <FieldGroup>
-              <InputField
-                control={form.control}
-                name="email"
-                type="email"
-                placeholder="Email"
-                label="Email Address"
-                disabled={isPending}
-              />
               <SelectField
                 control={form.control}
                 name="role"
@@ -97,6 +110,7 @@ export function InviteMemberDialog() {
             </FieldGroup>
           </form>
         </DialogResponsiveBody>
+
         <DialogStickyFooter>
           <DialogClose
             render={
@@ -111,7 +125,7 @@ export function InviteMemberDialog() {
             className="w-fit"
             isLoading={isPending}
           >
-            Invite Member
+            Update
           </ButtonSpinner>
         </DialogStickyFooter>
       </DialogResponsiveContent>

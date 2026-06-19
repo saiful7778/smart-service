@@ -45,3 +45,9 @@ export const invitationStatusEnum = z.enum([
   "canceled",
 ] as InvitationStatus[]);
 export type InvitationStatusEnumType = z.infer<typeof invitationStatusEnum>;
+
+export const updateInvitationSchema = z.object({
+  invitationId: z.uuid(),
+  role: OrgRoleEnumSchema,
+});
+export type UpdateInvitationType = z.infer<typeof updateInvitationSchema>;

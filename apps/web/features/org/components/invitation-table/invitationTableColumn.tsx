@@ -1,8 +1,13 @@
 import { formatDate } from "date-fns";
 
-import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
+import {
+  formatEnumValue,
+  OrgRoleEnumSchema,
+  OrgRoleType,
+} from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
+import { cn } from "@workspace/ui/lib/utils";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
@@ -32,11 +37,23 @@ export const invitationTableColumn: ColumnType<InvitationTableRowDataType> = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} label="Email" />
     ),
-    cell: ({ getValue }) => (
-      <span className="text-sm">
-        {getValue<InvitationTableRowDataType["email"]>()}
-      </span>
-    ),
+    cell: ({ getValue, row }) => {
+      const isExpired = row.original.expiresAt < new Date();
+
+      return (
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              "text-sm",
+              isExpired && "text-muted-foreground line-through"
+            )}
+          >
+            {getValue<InvitationTableRowDataType["email"]>()}
+          </div>
+          {isExpired && <Badge variant="destructive">Expired</Badge>}
+        </div>
+      );
+    },
     enableSorting: false,
     enableHiding: false,
     enableColumnFilter: false,
@@ -135,7 +152,10 @@ export const invitationTableColumn: ColumnType<InvitationTableRowDataType> = [
   {
     id: "action",
     cell: ({ row }) => (
-      <InvitationTableRowAction invitationId={row.original.id} />
+      <InvitationTableRowAction
+        invitationId={row.original.id}
+        role={row.original.role as OrgRoleType}
+      />
     ),
     enableColumnFilter: false,
     enableSorting: false,

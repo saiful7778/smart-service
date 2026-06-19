@@ -28,6 +28,8 @@ export const API_MESSAGES = {
     INVITATION: {
       GET_ALL: "Invitations fetched successfully",
       NOT_FOUND: "Invitation not found",
+      UPDATE: "Invitation updated successfully",
+      NOT_UPDATED: "Failed to update invitation",
       ACCEPT: "Invitation accepted successfully",
       REJECT: "Invitation rejected successfully",
       DELETE: "Invitation deleted successfully",

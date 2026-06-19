@@ -328,6 +328,53 @@ export const listInvitationProcedure = orgImpl.listInvitation
     });
   });
 
+export const updateInvitationProcedure = orgImpl.updateInvitation
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.invitation.manage",
+      "org.invitation.update",
+    ])
+  )
+  .handler(async ({ input, context }) => {
+    const [exist] = await context.db
+      .select({ id: InvitationTable.id })
+      .from(InvitationTable)
+      .where(
+        and(
+          eq(InvitationTable.id, input.invitationId),
+          eq(InvitationTable.organizationId, context.org.id)
+        )
+      )
+      .limit(1);
+
+    if (!exist) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.ORG.INVITATION.NOT_FOUND,
+      });
+    }
+
+    const [invitation] = await context.db
+      .update(InvitationTable)
+      .set({
+        role: input.role,
+      })
+      .where(
+        and(
+          eq(InvitationTable.id, input.invitationId),
+          eq(InvitationTable.organizationId, context.org.id)
+        )
+      )
+      .returning();
+
+    if (!invitation) {
+      throw new ORPCError("NOT_UPDATED", {
+        message: API_MESSAGES.ORG.INVITATION.NOT_UPDATED,
+      });
+    }
+
+    return apiResponse(API_MESSAGES.ORG.INVITATION.UPDATE, invitation);
+  });
+
 export const deleteInvitationProcedure = orgImpl.deleteInvitation
   .use(
     orgMemberPermissionsMiddleware([

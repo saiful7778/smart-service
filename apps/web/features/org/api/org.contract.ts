@@ -23,6 +23,7 @@ import {
   createOrgSchema,
   invitationStatusEnum,
   inviteOrgMemberSchema,
+  updateInvitationSchema,
 } from "../org.schema";
 
 const tags = ["Organization"] as const;
@@ -165,6 +166,21 @@ export type ListInvitationOutput = InferContractRouterOutputs<
   typeof listInvitationContract
 >["data"];
 
+const updateInvitationContract = baseContract
+  .route({
+    path: "/orgs/invitations/update",
+    description: "Update organization invitation",
+    tags,
+  })
+  .input(updateInvitationSchema)
+  .output(apiOutputZodSchema(selectInvitationSchema));
+export type UpdateInvitationInput = InferContractRouterInputs<
+  typeof updateInvitationContract
+>;
+export type UpdateInvitationOutput = InferContractRouterOutputs<
+  typeof updateInvitationContract
+>["data"];
+
 const deleteInvitationContract = baseContract
   .route({
     path: "/orgs/invitations/delete",
@@ -191,5 +207,6 @@ export const orgContract = {
   acceptOrRejectInvitation: acceptOrRejectInvitationContract,
   listMemberForSearch: listMemberForSearchContract,
   listInvitation: listInvitationContract,
+  updateInvitation: updateInvitationContract,
   deleteInvitation: deleteInvitationContract,
 };
