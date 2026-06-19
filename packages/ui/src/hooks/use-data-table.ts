@@ -42,8 +42,8 @@ interface UseDataTableProps<TData>
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }
 
-export const DEFAULT_PAGE_INDEX = 1;
-export const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE_INDEX = 1;
+const DEFAULT_PAGE_SIZE = 20;
 
 export function useDataTable<TData>({
   columns,
@@ -126,12 +126,8 @@ export function useDataTable<TData>({
 
     return Object.entries(filter ?? {}).reduce<ColumnFiltersState>(
       (filters, [key, value]) => {
-        if (value !== null) {
-          const processedValue = Array.isArray(value)
-            ? value
-            : typeof value === "string" && /[^a-zA-Z0-9]/.test(value)
-              ? value.split(",").filter(Boolean)
-              : [value];
+        if (value !== null && value !== undefined) {
+          const processedValue = Array.isArray(value) ? value : [value];
 
           filters.push({
             id: key,
@@ -144,11 +140,8 @@ export function useDataTable<TData>({
     );
   }, [filter, enableAdvancedFilter]);
 
-  const columnFilters: ColumnFiltersState = useMemo(() => {
-    if (enableAdvancedFilter) return [];
-
-    return initialColumnFilters;
-  }, [initialColumnFilters, enableAdvancedFilter]);
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFiltersState>(initialColumnFilters);
 
   const debouncedSetFilterValues = useDebouncedCallback(
     (values: typeof filter) => {
@@ -163,34 +156,34 @@ export function useDataTable<TData>({
   const onColumnFiltersChange = useCallback(
     (updaterOrValue: Updater<ColumnFiltersState>) => {
       if (enableAdvancedFilter) return;
-      const next =
-        typeof updaterOrValue === "function"
-          ? updaterOrValue(columnFilters)
-          : updaterOrValue;
 
-      const filterUpdates = next.reduce<
-        Record<string, string | string[] | null>
-      >((acc, filter) => {
-        if (filterableColumns.find((column) => column.id === filter.id)) {
-          acc[filter.id] = filter.value as string | string[] | null;
+      setColumnFilters((prev) => {
+        const next =
+          typeof updaterOrValue === "function"
+            ? updaterOrValue(prev)
+            : updaterOrValue;
+
+        const filterUpdates = next.reduce<Record<string, string[] | null>>(
+          (acc, filter) => {
+            if (filterableColumns.find((column) => column.id === filter.id)) {
+              acc[filter.id] = filter.value as string[];
+            }
+            return acc;
+          },
+          {}
+        );
+
+        for (const prevFilter of prev) {
+          if (!next.some((filter) => filter.id === prevFilter.id)) {
+            filterUpdates[prevFilter.id] = null;
+          }
         }
-        return acc;
-      }, {});
 
-      for (const prevFilter of columnFilters) {
-        if (!next.some((filter) => filter.id === prevFilter.id)) {
-          filterUpdates[prevFilter.id] = null;
-        }
-      }
-
-      debouncedSetFilterValues(filterUpdates);
+        debouncedSetFilterValues(filterUpdates);
+        return next;
+      });
     },
-    [
-      columnFilters,
-      enableAdvancedFilter,
-      filterableColumns,
-      debouncedSetFilterValues,
-    ]
+    [debouncedSetFilterValues, filterableColumns, enableAdvancedFilter]
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
