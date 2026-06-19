@@ -43,7 +43,7 @@ export type FiltersType = Partial<{
   page: number;
   limit: number;
   search: string;
-  order: "asc" | "desc";
-  orderField: string;
-  filter: Record<string, string | string[] | null>;
+  order: "asc" | "desc" | null;
+  orderField: string | null;
+  filter: Record<string, string[] | null>;
 }>;
