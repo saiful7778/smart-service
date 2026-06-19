@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
+import "@base-ui/react";
 import { Check, PlusCircle, X } from "lucide-react";
 
 import { Badge } from "@workspace/ui/components/badge";
@@ -29,6 +30,7 @@ import {
   PopoverTrigger,
 } from "@workspace/ui/components/popover";
 import { Separator } from "@workspace/ui/components/separator";
+import { useControllableState } from "@workspace/ui/hooks/use-controllable-state";
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
 import { cn } from "@workspace/ui/lib/utils";
 
@@ -48,6 +50,8 @@ export interface FacetedFilterProps {
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   className?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function FacetedFilter({
@@ -60,10 +64,17 @@ export function FacetedFilter({
   variant = "outline",
   size = "sm",
   className,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: FacetedFilterProps) {
   "use no memo";
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
+
+  const [open, setOpen] = useControllableState<boolean>({
+    prop: controlledOpen,
+    defaultProp: false,
+    onChange: controlledOnOpenChange,
+  });
 
   const handleSelect = useCallback(
     (option: Option, isSelected: boolean) => {
@@ -72,7 +83,7 @@ export function FacetedFilter({
         setOpen(false);
       }
     },
-    [onSelect, isMultiple]
+    [onSelect, isMultiple, setOpen]
   );
 
   const content = (
