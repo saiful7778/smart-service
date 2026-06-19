@@ -11,12 +11,14 @@ interface CreateDrizzleClientConfigs {
   operationMode: "seed" | "normal";
   redisUrl?: string;
   redisToken?: string;
+  showDBLog?: boolean;
 }
 
 export function createDrizzleClient({
   databaseUrl,
   isProd,
   operationMode,
+  showDBLog = false,
   redisUrl,
   redisToken,
 }: CreateDrizzleClientConfigs): PostgresJsDatabase<typeof schema> {
@@ -41,7 +43,7 @@ export function createDrizzleClient({
 
   return drizzle(connection, {
     schema,
-    logger: !isProd && operationMode !== "seed",
+    logger: showDBLog,
     cache,
   });
 }
