@@ -1,5 +1,6 @@
 SET search_path TO public;
 
+DELETE FROM public.permissions;
 INSERT INTO public.permissions (name, level, resource, action, description)
 	VALUES
 		('self.user.read', 'self', 'user', 'read', 'View own user profile'),
@@ -240,9 +241,9 @@ INSERT INTO public.permissions (name, level, resource, action, description)
 		('org.job_time_entry.read', 'org', 'job_time_entry', 'read', 'View job time entries within organization'),
 		('org.job_time_entry.list', 'org', 'job_time_entry', 'list', 'List all job time entries in organization'),
 		('org.job_time_entry.update', 'org', 'job_time_entry', 'update', 'Update job time entries within organization'),
-		('org.job_time_entry.delete', 'org', 'job_time_entry', 'delete', 'Delete job time entries from organization')
-ON CONFLICT (level, resource, action) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description;
+		('org.job_time_entry.delete', 'org', 'job_time_entry', 'delete', 'Delete job time entries from organization');
 
+DELETE FROM public.roles;
 INSERT INTO public.roles (role_name, type, description)
 	VALUES
 		('USER', 'SYSTEM', 'Regular user with basic self-management permissions'),
@@ -256,9 +257,9 @@ INSERT INTO public.roles (role_name, type, description)
 		('MANAGER', 'ORG', 'Organization manager'),
 		('ORG_SUPPORT_AGENT', 'ORG', 'Organization support agent'),
 		('ORG_ADMIN', 'ORG', 'Organization administrator'),
-		('OWNER', 'ORG', 'Organization owner with full org access')
-ON CONFLICT (role_name, type) DO UPDATE SET description = EXCLUDED.description;
+		('OWNER', 'ORG', 'Organization owner with full org access');
 
+DELETE FROM public.role_permissions;
 WITH role_perm_mapping (role_name, role_type, permission_name) AS (
 	VALUES
 		('USER', 'SYSTEM', 'self.user.read'),
@@ -296,8 +297,11 @@ WITH role_perm_mapping (role_name, role_type, permission_name) AS (
 		('SUPER_ADMIN', 'SYSTEM', 'self.user.update'),
 		('SUPER_ADMIN', 'SYSTEM', 'system.user.manage'),
 		('SUPER_ADMIN', 'SYSTEM', 'system.org.manage'),
-		('SUPER_ADMIN', 'SYSTEM', 'system.role.manage'),
-		('SUPER_ADMIN', 'SYSTEM', 'system.permission.manage'),
+		('SUPER_ADMIN', 'SYSTEM', 'system.role.read'),
+		('SUPER_ADMIN', 'SYSTEM', 'system.role.list'),
+		('SUPER_ADMIN', 'SYSTEM', 'system.role.update'),
+		('SUPER_ADMIN', 'SYSTEM', 'system.permission.read'),
+		('SUPER_ADMIN', 'SYSTEM', 'system.permission.list'),
 		('SUPER_ADMIN', 'SYSTEM', 'system.invoice.manage'),
 		('SUPER_ADMIN', 'SYSTEM', 'system.payment.manage'),
 		('SUPER_ADMIN', 'SYSTEM', 'system.billing.manage'),
@@ -529,5 +533,4 @@ WITH role_perm_mapping (role_name, role_type, permission_name) AS (
  SELECT r.id, p.id
  FROM role_perm_mapping rpm
  JOIN public.roles r ON r.role_name = rpm.role_name::public."RoleEnum" AND r.type = rpm.role_type::public."RoleTypeEnum"
- JOIN public.permissions p ON p.name = rpm.permission_name
- ON CONFLICT (role_id, permission_id) DO NOTHING;
+ JOIN public.permissions p ON p.name = rpm.permission_name;

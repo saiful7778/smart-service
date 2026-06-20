@@ -10,7 +10,7 @@ function generatePermissionsSql() {
     (p) =>
       `('${p.level}.${p.resource}.${p.action}', '${p.level}', '${p.resource}', '${p.action}', '${p.description}')`
   );
-  const sql = `INSERT INTO public.permissions (name, level, resource, action, description)\n\tVALUES\n\t\t${data.join(",\n\t\t")}\nON CONFLICT (level, resource, action) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description;`;
+  const sql = `DELETE FROM public.permissions;\nINSERT INTO public.permissions (name, level, resource, action, description)\n\tVALUES\n\t\t${data.join(",\n\t\t")};`;
   return sql;
 }
 
@@ -18,7 +18,8 @@ function generateRolesSql() {
   const data = rolesData.map(
     (r) => `('${r.roleName}', '${r.type}', '${r.description}')`
   );
-  const sql = `INSERT INTO public.roles (role_name, type, description)\n\tVALUES\n\t\t${data.join(",\n\t\t")}\nON CONFLICT (role_name, type) DO UPDATE SET description = EXCLUDED.description;`;
+
+  const sql = `DELETE FROM public.roles;\nINSERT INTO public.roles (role_name, type, description)\n\tVALUES\n\t\t${data.join(",\n\t\t")};`;
   return sql;
 }
 
@@ -30,7 +31,7 @@ function generateRolePermissionSql() {
       })
   );
   const sql = `
-  WITH role_perm_mapping (role_name, role_type, permission_name) AS (\n\tVALUES\n\t\t${data.join(",\n\t\t")}\n )\n INSERT INTO public.role_permissions (role_id, permission_id)\n SELECT r.id, p.id\n FROM role_perm_mapping rpm\n JOIN public.roles r ON r.role_name = rpm.role_name::public."RoleEnum" AND r.type = rpm.role_type::public."RoleTypeEnum"\n JOIN public.permissions p ON p.name = rpm.permission_name\n ON CONFLICT (role_id, permission_id) DO NOTHING;
+  DELETE FROM public.role_permissions;\nWITH role_perm_mapping (role_name, role_type, permission_name) AS (\n\tVALUES\n\t\t${data.join(",\n\t\t")}\n )\n INSERT INTO public.role_permissions (role_id, permission_id)\n SELECT r.id, p.id\n FROM role_perm_mapping rpm\n JOIN public.roles r ON r.role_name = rpm.role_name::public."RoleEnum" AND r.type = rpm.role_type::public."RoleTypeEnum"\n JOIN public.permissions p ON p.name = rpm.permission_name;
   `;
   return sql;
 }
