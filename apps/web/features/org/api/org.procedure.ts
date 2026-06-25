@@ -193,26 +193,53 @@ export const listMemberProcedure = orgImpl.listMember
         })
         .from(OrgRoleMemberTable)
         .innerJoin(OrgRoleTable, eq(OrgRoleTable.id, OrgRoleMemberTable.roleId))
-        .where(inArray(OrgRoleMemberTable.memberId, memberIds)),
+        .where(
+          and(
+            eq(OrgRoleTable.organizationId, context.org.id),
+            inArray(OrgRoleMemberTable.memberId, memberIds)
+          )
+        ),
     ]);
 
-    const rolesMap = new Map<string, Array<{ id: string; roleName: string }>>();
+    const rolesMap = new Map<
+      string,
+      Array<{
+        id: string;
+        roleName: string;
+      }>
+    >();
 
     systemOrgRoles.forEach((role) => {
       const exist = rolesMap.get(role.memberId);
       if (exist) {
-        exist.push({ id: role.id, roleName: role.roleName });
+        exist.push({
+          id: role.id,
+          roleName: role.roleName,
+        });
       } else {
-        rolesMap.set(role.memberId, [{ id: role.id, roleName: role.roleName }]);
+        rolesMap.set(role.memberId, [
+          {
+            id: role.id,
+            roleName: role.roleName,
+          },
+        ]);
       }
     });
 
     customOrgRoles.forEach((role) => {
       const exist = rolesMap.get(role.memberId);
       if (exist) {
-        exist.push({ id: role.id, roleName: role.roleName });
+        exist.push({
+          id: role.id,
+          roleName: role.roleName,
+        });
       } else {
-        rolesMap.set(role.memberId, [{ id: role.id, roleName: role.roleName }]);
+        rolesMap.set(role.memberId, [
+          {
+            id: role.id,
+            roleName: role.roleName,
+          },
+        ]);
       }
     });
 

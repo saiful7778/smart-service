@@ -150,6 +150,7 @@ export const listOrgRoleProcedure = roleImpl.listOrgRole
           PermissionTable,
           eq(OrgRolePermissionTable.permissionId, PermissionTable.id)
         )
+        .where(eq(OrgRoleTable.organizationId, context.org.id))
         .groupBy(OrgRoleTable.id),
     ]);
 
