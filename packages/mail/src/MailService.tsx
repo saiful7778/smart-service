@@ -18,6 +18,9 @@ import WelcomeUserMail, {
   WelcomeUserMailProps,
 } from "./mail-templates/auth/WelcomeUserMail";
 import ContactSubmittedMail from "./mail-templates/ContactSubmittedMail";
+import OrgCreateWelcomeMail, {
+  OrgCreateWelcomeMailProps,
+} from "./mail-templates/org/OrgCreateWelcomeMail";
 import OrgInvitationMail, {
   OrgInvitationMailProps,
 } from "./mail-templates/org/OrgInvitationMail";
@@ -33,6 +36,9 @@ import type {
 
 type WelcomeUserEmailOptions = Pick<SendMailOption, "to"> &
   Omit<WelcomeUserMailProps, "appName" | "supportMail">;
+
+type OrgCreateWelcomeMailOptions = Pick<SendMailOption, "to"> &
+  Omit<OrgCreateWelcomeMailProps, "appName" | "supportMail">;
 
 type EmailVerificationMailOptions = Pick<SendMailOption, "to"> &
   Omit<EmailVerificationMailProps, "appName" | "supportMail">;
@@ -62,6 +68,9 @@ export interface ContactSubmittedEmailOptions extends Omit<
 export interface IMailService extends IQstashMailService {
   sendWelcomeUserMail(
     options: WelcomeUserEmailOptions
+  ): Promise<MailSendResult>;
+  sendOrgCreateWelcomeMail(
+    options: OrgCreateWelcomeMailOptions
   ): Promise<MailSendResult>;
   sendEmailVerificationMail(
     options: EmailVerificationMailOptions
@@ -107,6 +116,34 @@ export abstract class MailService
         appName={this.mailConfig.appName}
         userName={options.userName}
         dashboardUrl={options.dashboardUrl}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to: options.to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendOrgCreateWelcomeMail(
+    options: OrgCreateWelcomeMailOptions
+  ): Promise<MailSendResult> {
+    const subject = `Welcome to ${this.mailConfig.appName}`;
+    const element = (
+      <OrgCreateWelcomeMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        tenantName={options.tenantName}
+        adminName={options.adminName}
+        dashboardUrl={options.dashboardUrl}
+        trialEndDate={options.trialEndDate}
       />
     );
 

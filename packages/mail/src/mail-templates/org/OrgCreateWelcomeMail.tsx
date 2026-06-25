@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface OrgCreateWelcomeMailProps {
+export interface OrgCreateWelcomeMailProps {
   adminName: string;
   appName: string;
   tenantName: string;
