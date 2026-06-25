@@ -20,15 +20,17 @@ const OrgStoreContext = createContext<StoreApi<
 interface OrgStoreProviderProps extends React.PropsWithChildren {
   organizations: Array<StateOrganizationType>;
   activeOrg: OrganizationDataModel | undefined;
+  orgRoles: Array<{ id: string; roleName: string }>;
 }
 
 export function OrgStoreProvider({
   children,
   organizations,
   activeOrg,
+  orgRoles,
 }: OrgStoreProviderProps) {
   const [store] = useState<StoreApi<OrgStoreState & OrgStoreAction>>(() =>
-    orgStore(organizations, activeOrg)
+    orgStore(organizations, activeOrg, orgRoles)
   );
 
   return (

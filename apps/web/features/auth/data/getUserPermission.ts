@@ -2,106 +2,40 @@ import "server-only";
 
 import { cache } from "react";
 
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import type { DatabaseType } from "@workspace/drizzle/client";
 import {
   OrganizationMemberTable,
   OrganizationTable,
   OrgMemberRoleTable,
-  PermissionDataModel,
+  OrgRoleMemberTable,
+  OrgRoleTable,
   PermissionTable,
-  RoleDataModel,
   RolePermissionTable,
   RoleTable,
   UserRoleTable,
-  UserTable,
 } from "@workspace/drizzle/schemas";
 
 import { db } from "@/lib/db";
 
-import { PermissionWithContext, RoleWithContext } from "@/types";
+import { PermissionWithOrg, RoleWithOrg } from "@/types";
 
-export async function getUserRolesAndPermission(
+export async function getUserRolesAndPermissionWithOrg(
   userId: string,
   database: DatabaseType = db
 ): Promise<{
-  roles: Array<
-    Pick<RoleDataModel, "id" | "type" | "roleName" | "customRoleName">
-  >;
-  permissions: Array<
-    Pick<PermissionDataModel, "id" | "name" | "level" | "resource" | "action">
-  >;
-}> {
-  const rolesData = await database
-    .select({
-      id: RoleTable.id,
-      type: RoleTable.type,
-      roleName: RoleTable.roleName,
-      customRoleName: RoleTable.customRoleName,
-    })
-    .from(UserTable)
-    .innerJoin(UserRoleTable, eq(UserRoleTable.userId, UserTable.id))
-    .innerJoin(RoleTable, eq(RoleTable.id, UserRoleTable.roleId))
-    .where(eq(UserTable.id, userId));
-
-  if (rolesData.length === 0) {
-    throw new Error("User has no role");
-  }
-
-  const permissions = await database
-    .select({
-      id: PermissionTable.id,
-      name: PermissionTable.name,
-      level: PermissionTable.level,
-      resource: PermissionTable.resource,
-      action: PermissionTable.action,
-    })
-    .from(PermissionTable)
-    .innerJoin(
-      RolePermissionTable,
-      eq(PermissionTable.id, RolePermissionTable.permissionId)
-    )
-    .where(
-      inArray(
-        RolePermissionTable.roleId,
-        rolesData.map((r) => r.id)
-      )
-    );
-
-  return {
-    roles: rolesData,
-    permissions,
-  };
-}
-
-export const getUserRolesAndPermissionCache = cache(
-  async (userId: string): ReturnType<typeof getUserRolesAndPermission> =>
-    await getUserRolesAndPermission(userId)
-);
-
-export async function getUserRolesAndPermissionWithContext(
-  userId: string,
-  database: DatabaseType = db
-): Promise<{
-  roles: Array<RoleWithContext>;
-  permissions: Array<PermissionWithContext>;
+  roles: Array<RoleWithOrg>;
+  permissions: Array<PermissionWithOrg>;
 } | null> {
-  // Execute both queries in parallel
-  const [systemRoles, orgRoles] = await Promise.all([
+  const [systemRoles, systemOrgRoles, orgRoles] = await Promise.all([
     database
       .select({
-        role: {
-          roleName: RoleTable.roleName,
-          type: RoleTable.type,
-          customRoleName: RoleTable.customRoleName,
-        },
-        permission: {
-          name: PermissionTable.name,
-          level: PermissionTable.level,
-          resource: PermissionTable.resource,
-          action: PermissionTable.action,
-        },
+        roleName: RoleTable.roleName,
+        permissionName: PermissionTable.name,
+        permissionLevel: PermissionTable.level,
+        permissionResource: PermissionTable.resource,
+        permissionAction: PermissionTable.action,
       })
       .from(UserRoleTable)
       .innerJoin(RoleTable, eq(RoleTable.id, UserRoleTable.roleId))
@@ -119,24 +53,18 @@ export async function getUserRolesAndPermissionWithContext(
 
     database
       .select({
-        role: {
-          roleName: RoleTable.roleName,
-          type: RoleTable.type,
-          customRoleName: RoleTable.customRoleName,
-        },
-        permission: {
-          name: PermissionTable.name,
-          level: PermissionTable.level,
-          resource: PermissionTable.resource,
-          action: PermissionTable.action,
-        },
+        roleName: RoleTable.roleName,
+        permissionName: PermissionTable.name,
+        permissionLevel: PermissionTable.level,
+        permissionResource: PermissionTable.resource,
+        permissionAction: PermissionTable.action,
         orgId: OrganizationTable.id,
         orgSlug: OrganizationTable.slug,
       })
       .from(OrganizationMemberTable)
       .innerJoin(
         OrgMemberRoleTable,
-        eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
+        eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
       )
       .innerJoin(RoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
       .innerJoin(
@@ -151,83 +79,113 @@ export async function getUserRolesAndPermissionWithContext(
         PermissionTable,
         eq(PermissionTable.id, RolePermissionTable.permissionId)
       )
-      .where(
-        and(
-          eq(OrganizationMemberTable.userId, userId),
-          eq(RoleTable.type, "ORG")
-        )
-      ),
+      .where(eq(OrganizationMemberTable.userId, userId)),
+
+    database
+      .select({
+        roleName: OrgRoleTable.role,
+        permissionName: PermissionTable.name,
+        permissionLevel: PermissionTable.level,
+        permissionResource: PermissionTable.resource,
+        permissionAction: PermissionTable.action,
+        orgId: OrganizationTable.id,
+        orgSlug: OrganizationTable.slug,
+      })
+      .from(OrganizationMemberTable)
+      .innerJoin(
+        OrgRoleMemberTable,
+        eq(OrgRoleMemberTable.memberId, OrganizationMemberTable.id)
+      )
+      .innerJoin(OrgRoleTable, eq(OrgRoleTable.id, OrgRoleMemberTable.roleId))
+      .innerJoin(
+        RolePermissionTable,
+        eq(RolePermissionTable.roleId, OrgRoleTable.id)
+      )
+      .innerJoin(
+        PermissionTable,
+        eq(PermissionTable.id, RolePermissionTable.permissionId)
+      )
+      .innerJoin(
+        OrganizationTable,
+        eq(OrganizationTable.id, OrgRoleTable.organizationId)
+      )
+      .where(eq(OrganizationMemberTable.userId, userId)),
   ]);
 
   if (systemRoles.length === 0) {
     throw new Error("User has no system role");
   }
 
-  const permissionMap = new Map<string, PermissionWithContext>();
-  const roleMap = new Map<string, RoleWithContext>();
+  const permissionMap = new Map<string, PermissionWithOrg>();
+  const roleMap = new Map<string, RoleWithOrg>();
 
   for (let i = 0; i < systemRoles.length; i++) {
     const row = systemRoles[i]!;
-    const permission = row.permission;
-    const role = row.role;
 
-    permissionMap.set(permission.name, {
-      name: permission.name,
-      level: permission.level,
-      resource: permission.resource,
-      action: permission.action,
+    permissionMap.set(row.permissionName, {
+      name: row.permissionName,
+      level: row.permissionLevel,
+      resource: row.permissionResource,
+      action: row.permissionAction,
       source: "SYSTEM",
       orgId: undefined,
       orgSlug: undefined,
     });
 
-    roleMap.set(role.roleName, {
-      roleName: role.roleName,
-      type: role.type,
-      customRoleName: role.customRoleName,
-      source: "SYSTEM",
+    roleMap.set(row.roleName, {
+      roleName: row.roleName,
       orgId: undefined,
       orgSlug: undefined,
     });
   }
 
-  // Process org roles - batch the set operations
-  for (let i = 0; i < orgRoles.length; i++) {
-    const row = orgRoles[i]!;
-    const permission = row.permission;
-    const role = row.role;
-    const orgId = row.orgId;
-    const orgSlug = row.orgSlug;
+  for (let i = 0; i < systemOrgRoles.length; i++) {
+    const row = systemOrgRoles[i]!;
 
-    permissionMap.set(permission.name + orgId, {
-      name: permission.name,
-      level: permission.level,
-      resource: permission.resource,
-      action: permission.action,
+    permissionMap.set(row.permissionName + row.orgSlug, {
+      name: row.permissionName,
+      level: row.permissionLevel,
+      resource: row.permissionResource,
+      action: row.permissionAction,
       source: "ORG",
-      orgId,
-      orgSlug,
+      orgId: row.orgId,
+      orgSlug: row.orgSlug,
     });
 
-    roleMap.set(role.roleName + orgId, {
-      roleName: role.roleName,
-      type: role.type,
-      customRoleName: role.customRoleName,
+    roleMap.set(row.roleName + row.orgSlug, {
+      roleName: row.roleName,
+      orgId: row.orgId,
+      orgSlug: row.orgSlug,
+    });
+  }
+
+  for (let i = 0; i < orgRoles.length; i++) {
+    const row = orgRoles[i]!;
+
+    permissionMap.set(row.permissionName + row.orgSlug, {
+      name: row.permissionName,
+      level: row.permissionLevel,
+      resource: row.permissionResource,
+      action: row.permissionAction,
       source: "ORG",
-      orgId,
-      orgSlug,
+      orgId: row.orgId,
+      orgSlug: row.orgSlug,
+    });
+
+    roleMap.set(row.roleName + row.orgSlug, {
+      roleName: row.roleName,
+      orgId: row.orgId,
+      orgSlug: row.orgSlug,
     });
   }
 
   return {
-    roles: [...roleMap.values()],
-    permissions: [...permissionMap.values()],
+    roles: Array.from(roleMap.values()),
+    permissions: Array.from(permissionMap.values()),
   };
 }
 
-export const getUserRolesAndPermissionWithContextCache = cache(
-  async (
-    userId: string
-  ): ReturnType<typeof getUserRolesAndPermissionWithContext> =>
-    await getUserRolesAndPermissionWithContext(userId)
+export const getUserRolesAndPermissionWithOrgCache = cache(
+  async (userId: string): ReturnType<typeof getUserRolesAndPermissionWithOrg> =>
+    await getUserRolesAndPermissionWithOrg(userId)
 );

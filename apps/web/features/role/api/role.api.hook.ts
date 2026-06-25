@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
+import { useOrgStore } from "@/stores/zustand/org/OrgStoreContext";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
@@ -14,6 +15,7 @@ export function useCreateOrgRole<TFieldNames>({
 }: IApiHookInput<TFieldNames>) {
   const toastId = "create_role_toast_message";
   const queryClient = useQueryClient();
+  const addOrgRole = useOrgStore((state) => state.addOrgRole);
 
   return useMutation(
     orpcTQClient.role.createOrgRole.mutationOptions({
@@ -21,13 +23,15 @@ export function useCreateOrgRole<TFieldNames>({
         toast.loading("Creating role...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: async ({ message }) => {
+      onSuccess: async ({ message, data }) => {
         toast.success(message, { id: toastId });
 
         await queryClient.invalidateQueries({
           queryKey: orpcTQClient.role.listOrgRole.queryKey(),
           exact: false,
         });
+
+        addOrgRole(data.id, data.role);
 
         onSuccess?.(message);
       },
@@ -38,6 +42,8 @@ export function useCreateOrgRole<TFieldNames>({
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
         }
+
+        toast.error(message, { id: toastId });
 
         onError?.(message);
       },
@@ -57,6 +63,7 @@ export function useUpdateOrgRole<TFieldNames>({
 }: IApiHookInput<TFieldNames>) {
   const toastId = "update_role_toast_message";
   const queryClient = useQueryClient();
+  const updateOrgRole = useOrgStore((state) => state.updateOrgRole);
 
   return useMutation(
     orpcTQClient.role.updateOrgRole.mutationOptions({
@@ -64,13 +71,15 @@ export function useUpdateOrgRole<TFieldNames>({
         toast.loading("Updating role...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: async ({ message }) => {
+      onSuccess: async ({ message, data }) => {
         toast.success(message, { id: toastId });
 
         await queryClient.invalidateQueries({
           queryKey: orpcTQClient.role.listOrgRole.queryKey(),
           exact: false,
         });
+
+        updateOrgRole(data.id, data.role);
 
         onSuccess?.(message);
       },
@@ -81,6 +90,8 @@ export function useUpdateOrgRole<TFieldNames>({
         if (type === "validation") {
           onValidationErrors?.(fieldErrors ?? []);
         }
+
+        toast.error(message, { id: toastId });
 
         onError?.(message);
       },
@@ -99,6 +110,7 @@ export function useDeleteOrgRole({
 }: Omit<IApiHookInput, "onValidationErrors">) {
   const toastId = "delete_role_toast_message";
   const queryClient = useQueryClient();
+  const deleteOrgRole = useOrgStore((state) => state.deleteOrgRole);
 
   return useMutation(
     orpcTQClient.role.deleteOrgRole.mutationOptions({
@@ -106,7 +118,7 @@ export function useDeleteOrgRole({
         toast.loading("Deleting role...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: async ({ message }) => {
+      onSuccess: async ({ message }, { roleId }) => {
         toast.success(message, { id: toastId });
 
         await queryClient.invalidateQueries({
@@ -114,10 +126,14 @@ export function useDeleteOrgRole({
           exact: false,
         });
 
+        deleteOrgRole(roleId);
+
         onSuccess?.(message);
       },
       onError: (error) => {
         const { message } = formatOrpcError(error);
+
+        toast.error(message, { id: toastId });
 
         onError?.(message);
       },

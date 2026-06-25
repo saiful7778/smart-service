@@ -4,18 +4,13 @@ import { immer } from "zustand/middleware/immer";
 
 import { env } from "@/lib/env";
 
-import {
-  AuthSession,
-  AuthUser,
-  PermissionWithContext,
-  RoleWithContext,
-} from "@/types";
+import { AuthSession, AuthUser, PermissionWithOrg, RoleWithOrg } from "@/types";
 
 export interface AuthStoreState {
   user: AuthUser;
   session: AuthSession;
-  roles: Array<RoleWithContext>;
-  permissions: Array<PermissionWithContext>;
+  roles: Array<RoleWithOrg>;
+  permissions: Array<PermissionWithOrg>;
 }
 
 export interface AuthStoreAction {
@@ -25,8 +20,8 @@ export interface AuthStoreAction {
 export function authStore(
   userData: AuthUser,
   sessionData: AuthSession,
-  roles: Array<RoleWithContext>,
-  permissions: Array<PermissionWithContext>
+  roles: Array<RoleWithOrg>,
+  permissions: Array<PermissionWithOrg>
 ) {
   return createStore<AuthStoreState & AuthStoreAction>()(
     devtools(

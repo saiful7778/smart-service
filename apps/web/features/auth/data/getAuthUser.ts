@@ -10,10 +10,8 @@ import { DEFAULT_AUTH_PATH, DEFAULT_UNAUTH_PATH } from "@/constants";
 import { AuthSession, AuthUser } from "@/types";
 
 import {
-  getUserRolesAndPermission,
-  getUserRolesAndPermissionCache,
-  getUserRolesAndPermissionWithContext,
-  getUserRolesAndPermissionWithContextCache,
+  getUserRolesAndPermissionWithOrg,
+  getUserRolesAndPermissionWithOrgCache,
 } from "./getUserPermission";
 
 export async function getAuthUser(): Promise<{
@@ -35,13 +33,13 @@ export const getAuthUserCache = cache(
   async (): ReturnType<typeof getAuthUser> => await getAuthUser()
 );
 
-export async function getAuthUserWithRolesAndPermissions(): Promise<
+export async function getAuthUserWithRolesAndPermissionsWithOrg(): Promise<
   ReturnType<typeof getAuthUser> &
-    ReturnType<typeof getUserRolesAndPermissionCache>
+    ReturnType<typeof getUserRolesAndPermissionWithOrgCache>
 > {
   const { user, session } = await getAuthUser();
 
-  const rolesAndPermissions = await getUserRolesAndPermission(user.id);
+  const rolesAndPermissions = await getUserRolesAndPermissionWithOrg(user.id);
 
   if (!rolesAndPermissions) return redirect(DEFAULT_AUTH_PATH);
 
@@ -53,54 +51,14 @@ export async function getAuthUserWithRolesAndPermissions(): Promise<
   };
 }
 
-export const getAuthUserWithRolesAndPermissionsCache = cache(
+export const getAuthUserWithRolesAndPermissionsWithOrgCache = cache(
   async (): Promise<
     ReturnType<typeof getAuthUser> &
-      ReturnType<typeof getAuthUserWithRolesAndPermissions>
+      ReturnType<typeof getAuthUserWithRolesAndPermissionsWithOrg>
   > => {
     const { user, session } = await getAuthUserCache();
 
-    const rolesAndPermissions = await getUserRolesAndPermissionCache(user.id);
-
-    if (!rolesAndPermissions) return redirect(DEFAULT_AUTH_PATH);
-
-    return {
-      session,
-      user,
-      roles: rolesAndPermissions.roles,
-      permissions: rolesAndPermissions.permissions,
-    };
-  }
-);
-
-export async function getAuthUserWithRolesAndPermissionsWithContext(): Promise<
-  ReturnType<typeof getAuthUser> &
-    ReturnType<typeof getUserRolesAndPermissionWithContextCache>
-> {
-  const { user, session } = await getAuthUser();
-
-  const rolesAndPermissions = await getUserRolesAndPermissionWithContext(
-    user.id
-  );
-
-  if (!rolesAndPermissions) return redirect(DEFAULT_AUTH_PATH);
-
-  return {
-    session,
-    user,
-    roles: rolesAndPermissions.roles,
-    permissions: rolesAndPermissions.permissions,
-  };
-}
-
-export const getAuthUserWithRolesAndPermissionsWithContextCache = cache(
-  async (): Promise<
-    ReturnType<typeof getAuthUser> &
-      ReturnType<typeof getAuthUserWithRolesAndPermissionsWithContext>
-  > => {
-    const { user, session } = await getAuthUserCache();
-
-    const rolesAndPermission = await getUserRolesAndPermissionWithContextCache(
+    const rolesAndPermission = await getUserRolesAndPermissionWithOrgCache(
       user.id
     );
 

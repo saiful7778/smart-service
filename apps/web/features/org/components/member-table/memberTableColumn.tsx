@@ -6,6 +6,7 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListMemberOutput } from "../../api/org.contract";
+import { MemberTableRowAction } from "./MemberTableRowAction";
 
 type MemberTableRowDataType = ListMemberOutput["data"][number];
 
@@ -40,7 +41,7 @@ export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
         <div className="inline-flex items-center gap-1">
           {roles.map((role, idx) => (
             <Badge variant="secondary" key={idx}>
-              {role.customRoleName ?? formatEnumValue(role.roleName)}
+              {formatEnumValue(role.roleName)}
             </Badge>
           ))}
         </div>
@@ -57,5 +58,12 @@ export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
     },
     enableColumnFilter: true,
     enableSorting: false,
+  },
+  {
+    id: "action",
+    cell: ({ row }) => <MemberTableRowAction memberData={row.original} />,
+    enableColumnFilter: false,
+    enableSorting: false,
+    enableHiding: false,
   },
 ];

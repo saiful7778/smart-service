@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 import {
   SidebarGroup,
@@ -16,11 +17,16 @@ import { filterSidebarMenu } from "@/utils/filterSidebarMenu";
 import { NestedMenuItem } from "./NestedMenuItem";
 
 export function SidebarMainMenu() {
+  "use no memo";
   const pathname = usePathname();
 
-  const roles = useAuthStore((state) => state.roles);
+  const permissions = useAuthStore((state) => state.permissions);
+  const authUser = useAuthStore((state) => state.user!);
 
-  const sidebarLinks = filterSidebarMenu(sidebarMenuLinks, roles);
+  const sidebarLinks = useMemo(
+    () => filterSidebarMenu(sidebarMenuLinks, permissions, authUser.id),
+    [permissions, authUser.id]
+  );
 
   return (
     <>

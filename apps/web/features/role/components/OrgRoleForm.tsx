@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Controller, UseFormReturn } from "react-hook-form";
 
-import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
+import { formatEnumValue } from "@workspace/lib/utils";
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +21,6 @@ import {
   FieldTitle,
 } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
-import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
@@ -50,26 +49,13 @@ export function OrgRoleForm({
   return (
     <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <div className="grid grid-cols-2 gap-4">
-          <InputField
-            control={form.control}
-            name="customRoleName"
-            label="Role name"
-            requiredField
-            disabled={isSubmitting}
-          />
-          <SelectField
-            control={form.control}
-            name="roleName"
-            label="Access level"
-            options={OrgRoleEnumSchema.options.map((enumValue) => ({
-              value: enumValue,
-              label: formatEnumValue(enumValue),
-            }))}
-            requiredField
-            disabled={isSubmitting}
-          />
-        </div>
+        <InputField
+          control={form.control}
+          name="roleName"
+          label="Role name"
+          requiredField
+          disabled={isSubmitting}
+        />
         <TextareaField
           control={form.control}
           name="description"

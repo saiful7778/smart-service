@@ -2,9 +2,10 @@ import type { RouteType } from "next/dist/lib/load-custom-routes";
 
 import { LucideIcon } from "lucide-react";
 
-import { PermissionDataModel, RoleDataModel } from "@workspace/drizzle/schemas";
-import { RoleTypeEnumType } from "@workspace/drizzle/zod-db-enums";
-import { OrgRoleType, SystemRoleType } from "@workspace/lib/utils";
+import { PermissionDataModel } from "@workspace/drizzle/schemas";
+import { RoleEnumType } from "@workspace/drizzle/zod-db-enums";
+
+import { PermissionType } from "@/lib/permission";
 
 export type AuthUser = {
   id: string;
@@ -47,22 +48,19 @@ export interface IApiHookInput<TFieldNames = string> {
   onValidationErrors?: (fields: Array<FieldError<TFieldNames>>) => void;
 }
 
-export interface RoleWithContext extends Pick<
-  RoleDataModel,
-  "roleName" | "type" | "customRoleName"
-> {
-  source: RoleTypeEnumType;
-  orgId?: string;
-  orgSlug?: string;
+export interface RoleWithOrg {
+  roleName: RoleEnumType | string;
+  orgId: string | undefined;
+  orgSlug: string | undefined;
 }
 
-export interface PermissionWithContext extends Pick<
+export interface PermissionWithOrg extends Pick<
   PermissionDataModel,
   "name" | "level" | "resource" | "action"
 > {
-  source: RoleTypeEnumType;
-  orgId?: string;
-  orgSlug?: string;
+  source: "SYSTEM" | "ORG";
+  orgId: string | undefined;
+  orgSlug: string | undefined;
 }
 
 export type RoutePathType = __next_route_internal_types__.RouteImpl<RouteType>;
@@ -73,7 +71,7 @@ export type SidebarMenuLink = {
   pathRegex: RegExp;
   icon?: LucideIcon | undefined;
   items?: Array<SidebarMenuLink> | undefined;
-  roles?: Array<SystemRoleType | OrgRoleType>;
+  permissions?: Array<PermissionType>;
 };
 
 export type SidebarGroupMenuLink = {

@@ -7,8 +7,8 @@ import { StoreApi, useStore } from "zustand";
 import type {
   AuthSession,
   AuthUser,
-  PermissionWithContext,
-  RoleWithContext,
+  PermissionWithOrg,
+  RoleWithOrg,
 } from "@/types";
 
 import { authStore, AuthStoreAction, AuthStoreState } from "./authStore";
@@ -20,8 +20,8 @@ const AuthStoreContext = createContext<StoreApi<
 interface AuthStoreProviderProps extends React.PropsWithChildren {
   user: AuthUser;
   session: AuthSession;
-  roles: Array<RoleWithContext>;
-  permissions: Array<PermissionWithContext>;
+  roles: Array<RoleWithOrg>;
+  permissions: Array<PermissionWithOrg>;
 }
 
 export function AuthStoreProvider({

@@ -1,7 +1,5 @@
 "use client";
 
-import { OrgRoleType } from "@workspace/lib/utils";
-
 import { ListOrgRoleOutput } from "../../api/role.contract";
 import { DeleteOrgRole } from "../DeleteOrgRole";
 import { UpdateOrgRoleDialog } from "../UpdateOrgRoleDialog";
@@ -14,18 +12,17 @@ export function OrgRoleTableRowAction({
   "use no memo";
   return (
     <div className="flex gap-2 items-center">
-      {roleData.customRoleName && (
+      {roleData.type === "dynamic" && (
         <UpdateOrgRoleDialog
           roleId={roleData.id}
           defaultValues={{
-            roleName: roleData.roleName as OrgRoleType,
-            customRoleName: roleData.customRoleName,
+            roleName: roleData.roleName,
             permissions: roleData.permissions.map(({ id }) => id),
             description: roleData.description ?? undefined,
           }}
         />
       )}
-      {roleData.customRoleName && <DeleteOrgRole roleId={roleData.id} />}
+      {roleData.type === "dynamic" && <DeleteOrgRole roleId={roleData.id} />}
     </div>
   );
 }

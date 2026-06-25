@@ -1,10 +1,6 @@
 import { formatDate } from "date-fns";
 
-import {
-  formatEnumValue,
-  OrgRoleEnumSchema,
-  OrgRoleType,
-} from "@workspace/lib/utils";
+import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { cn } from "@workspace/ui/lib/utils";
@@ -152,10 +148,7 @@ export const invitationTableColumn: ColumnType<InvitationTableRowDataType> = [
   {
     id: "action",
     cell: ({ row }) => (
-      <InvitationTableRowAction
-        invitationId={row.original.id}
-        role={row.original.role as OrgRoleType}
-      />
+      <InvitationTableRowAction invitationData={row.original} />
     ),
     enableColumnFilter: false,
     enableSorting: false,

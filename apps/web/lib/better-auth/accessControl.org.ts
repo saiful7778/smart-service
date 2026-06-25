@@ -51,7 +51,7 @@ export const orgRoles = {
     member: ["create", "update"],
     invitation: ["create", "cancel"],
     team: ["create", "update"],
-    ac: ["create", "read", "update"],
+    ac: ["create", "read", "update", "delete"],
   }),
   [RoleEnumSchema.enum.OWNER]: orgAc.newRole({
     organization: ["delete", "update"],

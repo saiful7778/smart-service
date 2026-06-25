@@ -7,7 +7,7 @@ import { RoleEnumType } from "@workspace/drizzle/zod-db-enums";
 import { auth } from "@/lib/better-auth/auth";
 import { hasPermission, PermissionType } from "@/lib/permission";
 
-import { getUserRolesAndPermissionWithContext } from "@/features/auth/data/getUserPermission";
+import { getUserRolesAndPermissionWithOrg } from "@/features/auth/data/getUserPermission";
 import { AuthSession, AuthUser } from "@/types";
 import { ORPCContext } from "@/types/orpc.types";
 
@@ -57,7 +57,7 @@ export async function getRolesAndPermissionsWithContext(
   userId: string,
   context: ORPCContext
 ): Promise<Awaited<
-  ReturnType<typeof getUserRolesAndPermissionWithContext>
+  ReturnType<typeof getUserRolesAndPermissionWithOrg>
 > | null> {
   try {
     if (
@@ -72,7 +72,7 @@ export async function getRolesAndPermissionsWithContext(
       };
     }
 
-    const rolesAndPermissions = await getUserRolesAndPermissionWithContext(
+    const rolesAndPermissions = await getUserRolesAndPermissionWithOrg(
       userId,
       context.db
     );
@@ -90,12 +90,10 @@ export async function getRolesAndPermissionsWithContext(
 }
 
 export function validateRoles(
-  requiredRoles: Array<RoleEnumType>,
-  userRoles: Array<{ roleName: RoleEnumType }>
+  requiredRoles: Array<string>,
+  userRoles: Array<{ roleName: string }>
 ): boolean {
-  const userRolesSet = new Set<RoleEnumType>(
-    userRoles.map((role) => role.roleName)
-  );
+  const userRolesSet = new Set<string>(userRoles.map((role) => role.roleName));
 
   if (requiredRoles.some((role) => userRolesSet.has(role))) {
     return true;

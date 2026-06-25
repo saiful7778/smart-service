@@ -8,6 +8,7 @@ import {
   listMemberProcedure,
   orgImpl,
   updateInvitationProcedure,
+  updateMemberProcedure,
 } from "./org.procedure";
 
 export const orgRouter = orgImpl.router({
@@ -16,6 +17,7 @@ export const orgRouter = orgImpl.router({
   inviteMember: inviteMemberProcedure,
   acceptOrRejectInvitation: acceptOrRejectInvitationProcedure,
   listMemberForSearch: listMemberForSearchProcedure,
+  updateMember: updateMemberProcedure,
   listInvitation: listInvitationProcedure,
   updateInvitation: updateInvitationProcedure,
   deleteInvitation: deleteInvitationProcedure,

@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Badge } from "@workspace/ui/components/badge";
@@ -14,6 +16,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import {
@@ -32,7 +35,7 @@ import { resolveImagePath } from "@/utils/resolveImagePath";
 export function OrgSelector() {
   const { isMobile } = useSidebar();
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const orgs = useOrgStore((state) => state.organizations);
   const activeOrg = useOrgStore((state) => state.activeOrg);
   const setActiveOrg = useOrgStore((state) => state.setActiveOrg);
@@ -63,6 +66,8 @@ export function OrgSelector() {
           toast.success("Organization loaded", {
             id: toastId,
           });
+
+          router.refresh();
           setActiveOrg(org);
         },
         onError: ({ error }) => {
@@ -154,6 +159,14 @@ export function OrgSelector() {
               )}
             </DropdownMenuItem>
           ))}
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <DropdownMenuItem render={<Link href="/organization/create" />}>
+            <Plus /> <span>Create Organization</span>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

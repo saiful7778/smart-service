@@ -22,7 +22,7 @@ export const adminSidebarMenuLinks: Array<SidebarGroupMenuLink> = [
       {
         title: "Roles & Permissions",
         icon: ShieldUser,
-        roles: ["SYSTEM_ADMIN", "SUPER_ADMIN"],
+        permissions: ["system.role.manage", "system.role.list"],
         path: "/dashboard/admin/roles",
         pathRegex: /^\/dashboard\/admin\/roles$/,
       },
@@ -48,21 +48,21 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
       {
         title: "Members",
         icon: UsersRound,
-        roles: ["ORG_ADMIN", "OWNER"],
+        permissions: ["org.user.manage", "org.user.list"],
         path: "/dashboard/organization/members",
         pathRegex: /^\/dashboard\/organization\/members$/,
       },
       {
         title: "Invitations",
         icon: Mails,
-        roles: ["ORG_ADMIN", "OWNER"],
+        permissions: ["org.invitation.manage", "org.invitation.list"],
         path: "/dashboard/organization/invitations",
         pathRegex: /^\/dashboard\/organization\/invitations$/,
       },
       {
         title: "Roles & Permissions",
         icon: ShieldUser,
-        roles: ["ORG_ADMIN", "OWNER"],
+        permissions: ["org.role.manage", "org.role.list"],
         path: "/dashboard/organization/roles",
         pathRegex: /^\/dashboard\/organization\/roles$/,
       },

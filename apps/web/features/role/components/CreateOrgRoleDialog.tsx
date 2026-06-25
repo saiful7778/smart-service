@@ -33,9 +33,8 @@ export function CreateOrgRoleDialog() {
   const form = useForm<CreateOrUpdateOrgRoleType>({
     resolver: zodResolver(createOrUpdateOrgRoleSchema),
     defaultValues: {
-      roleName: "STAFF",
+      roleName: "",
       description: "",
-      customRoleName: "",
       permissions: [],
     },
   });

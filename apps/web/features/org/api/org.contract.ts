@@ -7,6 +7,7 @@ import z from "zod";
 import {
   selectInvitationSchema,
   selectOrganizationSchema,
+  selectOrgMemberSchema,
   selectUserSchema,
 } from "@workspace/drizzle/schemas";
 import {
@@ -24,6 +25,7 @@ import {
   invitationStatusEnum,
   inviteOrgMemberSchema,
   updateInvitationSchema,
+  updateMemberSchema,
 } from "../org.schema";
 
 const tags = ["Organization"] as const;
@@ -166,6 +168,21 @@ export type ListInvitationOutput = InferContractRouterOutputs<
   typeof listInvitationContract
 >["data"];
 
+const updateMemberContract = baseContract
+  .route({
+    path: "/orgs/members/update",
+    description: "Update organization member",
+    tags,
+  })
+  .input(updateMemberSchema)
+  .output(apiOutputZodSchema(selectOrgMemberSchema));
+export type UpdateMemberInput = InferContractRouterInputs<
+  typeof updateMemberContract
+>;
+export type UpdateMemberOutput = InferContractRouterOutputs<
+  typeof updateMemberContract
+>["data"];
+
 const updateInvitationContract = baseContract
   .route({
     path: "/orgs/invitations/update",
@@ -206,6 +223,7 @@ export const orgContract = {
   inviteMember: inviteMemberContract,
   acceptOrRejectInvitation: acceptOrRejectInvitationContract,
   listMemberForSearch: listMemberForSearchContract,
+  updateMember: updateMemberContract,
   listInvitation: listInvitationContract,
   updateInvitation: updateInvitationContract,
   deleteInvitation: deleteInvitationContract,

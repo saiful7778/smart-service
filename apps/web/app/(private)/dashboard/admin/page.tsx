@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { getAuthUserWithRolesAndPermissionsWithContextCache } from "@/features/auth/data/getAuthUser";
+import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
 export default async function DashboardPage() {
-  const { user } = await getAuthUserWithRolesAndPermissionsWithContextCache();
+  const { user } = await getAuthUserWithRolesAndPermissionsWithOrgCache();
 
   return (
     <DashboardShell

@@ -10,8 +10,8 @@ import type { ServerSupabaseClient } from "@workspace/lib/supabase/server-client
 import type {
   AuthSession,
   AuthUser,
-  PermissionWithContext,
-  RoleWithContext,
+  PermissionWithOrg,
+  RoleWithOrg,
 } from "@/types";
 
 export type InferProcedureOutput<T extends AnyRouter> =
@@ -23,7 +23,7 @@ export interface ORPCContext {
   logger: PinoLoggerType;
   user: AuthUser | null;
   session: AuthSession | null;
-  roles: Array<RoleWithContext> | null;
-  permissions: Array<PermissionWithContext> | null;
+  roles: Array<RoleWithOrg> | null;
+  permissions: Array<PermissionWithOrg> | null;
   supabaseClient: ServerSupabaseClient;
 }

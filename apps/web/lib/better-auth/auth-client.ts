@@ -3,6 +3,7 @@
 import {
   adminClient,
   inferAdditionalFields,
+  inferOrgAdditionalFields,
   oneTapClient,
   organizationClient,
 } from "better-auth/client/plugins";
@@ -18,8 +19,10 @@ export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<typeof auth>(),
     organizationClient({
+      schema: inferOrgAdditionalFields<typeof auth>(),
       ac: orgAc,
       roles: orgRoles,
+      dynamicAccessControl: { enabled: true },
     }),
     adminClient({ ac: systemAc, roles: systemRoles }),
     oneTapClient({

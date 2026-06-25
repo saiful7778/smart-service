@@ -83,6 +83,53 @@ export function useInviteOrgMember<TFieldNames>({
   );
 }
 
+export function useUpdateMember<TFieldNames>({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames> = {}) {
+  const queryClient = useQueryClient();
+  const toastId = "update_member_toast_message";
+
+  return useMutation(
+    orpcTQClient.org.updateMember.mutationOptions({
+      onMutate: () => {
+        toast.loading("Updating member...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.org.listMember.queryKey({ input: {} }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to update member", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
 export function useAcceptOrRejectInvitation({
   onRequestStart,
   onSuccess,

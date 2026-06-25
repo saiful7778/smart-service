@@ -17,6 +17,8 @@ import {
   OrganizationMemberTable,
   OrganizationTable,
   OrgMemberRoleTable,
+  OrgRoleMemberTable,
+  OrgRoleTable,
   OrgTeamMemberTable,
   OrgTeamTable,
   RoleTable,
@@ -26,7 +28,7 @@ import {
   VerificationTable,
 } from "@workspace/drizzle/schemas";
 import { RoleEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { OrgRoleType } from "@workspace/lib/utils";
+import { OrgRoleEnumSchema, OrgRoleType } from "@workspace/lib/utils";
 
 import { ERROR_PAGE_PATH } from "@/constants";
 import { getFirstOrg } from "@/features/org/data/get-first-org";
@@ -63,6 +65,7 @@ function createBetterAuth() {
         account: AccountTable,
         verification: VerificationTable,
         organization: OrganizationTable,
+        organizationRole: OrgRoleTable,
         member: OrganizationMemberTable,
         invitation: InvitationTable,
         team: OrgTeamTable,
@@ -322,6 +325,9 @@ function createBetterAuth() {
       organization({
         ac: orgAc,
         roles: orgRoles,
+        dynamicAccessControl: {
+          enabled: true,
+        },
         invitationExpiresIn: 60 * 60 * 24 * 7, // 7 days
         teams: {
           enabled: true,
@@ -406,34 +412,55 @@ function createBetterAuth() {
               .values({
                 orgId: organization.id,
                 roleId: ownerRole.id,
-                orgMemberId: member.id,
+                memberId: member.id,
               })
               .onConflictDoNothing();
           },
           afterAcceptInvitation: async ({ member, organization }) => {
-            const [role] = await db
-              .select({ id: RoleTable.id })
-              .from(RoleTable)
-              .where(
-                and(
-                  eq(RoleTable.roleName, member.role as OrgRoleType),
-                  eq(RoleTable.type, "ORG")
-                )
-              )
-              .limit(1);
+            if (OrgRoleEnumSchema.safeParse(member.role).success) {
+              const [roleData] = await db
+                .select({
+                  id: RoleTable.id,
+                  roleName: RoleTable.roleName,
+                })
+                .from(RoleTable)
+                .where(eq(RoleTable.roleName, member.role as OrgRoleType))
+                .limit(1);
 
-            if (!role) {
-              throw new Error("Role not found");
+              if (!roleData) {
+                throw new Error("Role not found");
+              }
+
+              await db
+                .insert(OrgMemberRoleTable)
+                .values({
+                  orgId: organization.id,
+                  roleId: roleData.id,
+                  memberId: member.id,
+                })
+                .onConflictDoNothing();
+            } else {
+              const [roleData] = await db
+                .select({
+                  id: OrgRoleTable.id,
+                  roleName: OrgRoleTable.role,
+                })
+                .from(OrgRoleTable)
+                .where(eq(OrgRoleTable.role, member.role))
+                .limit(1);
+
+              if (!roleData) {
+                throw new Error("Role not found");
+              }
+
+              await db
+                .insert(OrgRoleMemberTable)
+                .values({
+                  roleId: roleData.id,
+                  memberId: member.id,
+                })
+                .onConflictDoNothing();
             }
-
-            await db
-              .insert(OrgMemberRoleTable)
-              .values({
-                orgId: organization.id,
-                roleId: role.id,
-                orgMemberId: member.id,
-              })
-              .onConflictDoNothing();
           },
         },
       }),

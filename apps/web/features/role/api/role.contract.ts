@@ -5,6 +5,7 @@ import {
 import z from "zod";
 
 import {
+  selectOrgRoleSchema,
   selectPermissionSchema,
   selectRoleSchema,
 } from "@workspace/drizzle/schemas";
@@ -32,7 +33,6 @@ const listRoleContract = baseContract
             roleName: true,
             type: true,
             description: true,
-            metadata: true,
             createdAt: true,
           })
           .extend({
@@ -45,7 +45,6 @@ const listRoleContract = baseContract
                 resource: true,
                 description: true,
                 name: true,
-                metadata: true,
               })
             ),
           })
@@ -74,7 +73,6 @@ const listOrgPermissionContract = baseContract
           resource: true,
           description: true,
           name: true,
-          metadata: true,
         })
       )
     )
@@ -96,29 +94,23 @@ const listOrgRoleContract = baseContract
   .output(
     apiOutputZodSchema(
       z.array(
-        selectRoleSchema
-          .pick({
-            id: true,
-            roleName: true,
-            type: true,
-            customRoleName: true,
-            description: true,
-            metadata: true,
-            createdAt: true,
-          })
-          .extend({
-            permissions: z.array(
-              selectPermissionSchema.pick({
-                id: true,
-                level: true,
-                action: true,
-                resource: true,
-                description: true,
-                name: true,
-                metadata: true,
-              })
-            ),
-          })
+        z.object({
+          id: z.uuid(),
+          roleName: z.string(),
+          description: z.string().nullable(),
+          type: z.enum(["system", "dynamic"]),
+          createdAt: z.date(),
+          permissions: z.array(
+            selectPermissionSchema.pick({
+              id: true,
+              level: true,
+              action: true,
+              resource: true,
+              description: true,
+              name: true,
+            })
+          ),
+        })
       )
     )
   );
@@ -137,7 +129,7 @@ const createOrgRoleContract = baseContract
     tags,
   })
   .input(createOrUpdateOrgRoleSchema)
-  .output(apiOutputZodSchema(selectRoleSchema));
+  .output(apiOutputZodSchema(selectOrgRoleSchema));
 export type CreateOrgRoleInput = InferContractRouterInputs<
   typeof createOrgRoleContract
 >;
@@ -157,7 +149,7 @@ const updateOrgRoleContract = baseContract
       roleId: z.uuid(),
     })
   )
-  .output(apiOutputZodSchema(selectRoleSchema));
+  .output(apiOutputZodSchema(selectOrgRoleSchema));
 export type UpdateOrgRoleInput = InferContractRouterInputs<
   typeof updateOrgRoleContract
 >;

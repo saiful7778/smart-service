@@ -1,9 +1,5 @@
 import { getImageProps } from "next/image";
 
-import {
-  RoleEnumType,
-  RoleTypeEnumType,
-} from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import {
   Avatar,
@@ -52,9 +48,7 @@ interface UserAvatarProps {
   userEmail: string;
   userRoles?: Array<{
     id: string;
-    type: RoleTypeEnumType;
-    roleName: RoleEnumType;
-    customRoleName: string | null;
+    roleName: string;
   }>;
   showRoleDetails?: boolean;
   showDetails?: boolean;
@@ -99,12 +93,7 @@ export function UserAvatar({
             {showRoleDetails
               ? userRoles && userRoles?.length > 0
                 ? userRoles
-                    .map((role) =>
-                      role.type === "ORG"
-                        ? (role.customRoleName ??
-                          formatEnumValue(role.roleName))
-                        : formatEnumValue(role.roleName)
-                    )
+                    .map((role) => formatEnumValue(role.roleName))
                     .join(", ")
                 : userEmail
               : userEmail}

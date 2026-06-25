@@ -3,27 +3,14 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import {
-  RoleEnumSchema,
-  RoleEnumType,
-  RoleTypeEnumType,
-} from "@workspace/drizzle/zod-db-enums";
+import { RoleEnumSchema, RoleEnumType } from "@workspace/drizzle/zod-db-enums";
 
-import {
-  hasPermission,
-  hasPermissionWithOrg,
-  PermissionType,
-} from "@/lib/permission";
+import { hasPermissionWithOrg, PermissionType } from "@/lib/permission";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
-import {
-  getAuthUserWithRolesAndPermissionsCache,
-  getAuthUserWithRolesAndPermissionsWithContextCache,
-} from "@/features/auth/data/getAuthUser";
+import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
 
-export function isAdmin(
-  roles: Array<{ roleName: RoleEnumType; source: RoleTypeEnumType }>
-) {
+export function isAdmin(roles: Array<{ roleName: RoleEnumType | string }>) {
   return roles.some(
     ({ roleName }) =>
       roleName === RoleEnumSchema.enum.SYSTEM_ADMIN ||
@@ -31,31 +18,10 @@ export function isAdmin(
   );
 }
 
-export const requireUserPermissionsCache = cache(
-  async (inputPermissions: Array<PermissionType>, resourceId?: string) => {
-    const { session, user, permissions } =
-      await getAuthUserWithRolesAndPermissionsCache();
-
-    if (
-      !hasPermission(permissions, inputPermissions, {
-        userId: user.id,
-        resourceId,
-      })
-    ) {
-      return redirect(DEFAULT_AUTH_PATH);
-    }
-
-    return {
-      session,
-      user,
-    };
-  }
-);
-
 export const requireUserPermissionsWithOrgCache = cache(
   async (inputPermissions: Array<PermissionType>, resourceId?: string) => {
     const { session, user, permissions } =
-      await getAuthUserWithRolesAndPermissionsWithContextCache();
+      await getAuthUserWithRolesAndPermissionsWithOrgCache();
 
     if (
       !hasPermissionWithOrg(permissions, inputPermissions, {

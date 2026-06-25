@@ -1,16 +1,10 @@
 import { implement, ORPCError } from "@orpc/server";
-import {
-  and,
-  countDistinct,
-  eq,
-  isNotNull,
-  isNull,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, countDistinct, eq, sql } from "drizzle-orm";
 
 import {
-  OrgMemberRoleTable,
+  OrgRolePermissionTable,
+  OrgRoleTable,
+  PermissionDataModel,
   PermissionTable,
   RolePermissionTable,
   RoleTable,
@@ -18,6 +12,8 @@ import {
 } from "@workspace/drizzle/schemas";
 import { jsonbAgg } from "@workspace/drizzle/sql-helpers";
 import { apiResponse } from "@workspace/lib/utils";
+
+import { auth } from "@/lib/better-auth/auth";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import {
@@ -47,9 +43,7 @@ export const listRoleProcedure = roleImpl.listRole
         id: RoleTable.id,
         roleName: RoleTable.roleName,
         type: RoleTable.type,
-        customRoleName: RoleTable.customRoleName,
         description: RoleTable.description,
-        metadata: RoleTable.metadata,
         createdAt: RoleTable.createdAt,
         totalUsers: sql<number>`COALESCE(${countDistinct(UserRoleTable.userId)}, 0)::integer`,
         permissions: jsonbAgg(
@@ -60,7 +54,6 @@ export const listRoleProcedure = roleImpl.listRole
             resource: PermissionTable.resource,
             description: PermissionTable.description,
             name: PermissionTable.name,
-            metadata: PermissionTable.metadata,
           },
           PermissionTable.id
         ),
@@ -91,7 +84,6 @@ export const listOrgPermissionProcedure = roleImpl.listOrgPermission
         resource: PermissionTable.resource,
         description: PermissionTable.description,
         name: PermissionTable.name,
-        metadata: PermissionTable.metadata,
       })
       .from(PermissionTable)
       .where(eq(PermissionTable.level, "org"));
@@ -102,49 +94,107 @@ export const listOrgPermissionProcedure = roleImpl.listOrgPermission
 export const listOrgRoleProcedure = roleImpl.listOrgRole
   .use(orgMemberPermissionsMiddleware(["org.role.list"]))
   .handler(async ({ context }) => {
-    const orgId = context.session.activeOrganizationId!;
-
-    const result = await context.db
-      .select({
-        id: RoleTable.id,
-        roleName: RoleTable.roleName,
-        type: RoleTable.type,
-        customRoleName: RoleTable.customRoleName,
-        description: RoleTable.description,
-        metadata: RoleTable.metadata,
-        createdAt: RoleTable.createdAt,
-        permissions: jsonbAgg(
-          {
-            id: PermissionTable.id,
-            level: PermissionTable.level,
-            action: PermissionTable.action,
-            resource: PermissionTable.resource,
-            description: PermissionTable.description,
-            name: PermissionTable.name,
-            metadata: PermissionTable.metadata,
-          },
-          PermissionTable.id
-        ),
-      })
-      .from(RoleTable)
-      .leftJoin(OrgMemberRoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
-      .leftJoin(
-        RolePermissionTable,
-        eq(RoleTable.id, RolePermissionTable.roleId)
-      )
-      .leftJoin(
-        PermissionTable,
-        eq(RolePermissionTable.permissionId, PermissionTable.id)
-      )
-      .where(
-        and(
-          eq(RoleTable.type, "ORG"),
-          or(eq(RoleTable.orgId, orgId), isNull(RoleTable.orgId))
+    const [systemOrgRoles, orgRoles] = await Promise.all([
+      context.db
+        .select({
+          id: RoleTable.id,
+          roleName: RoleTable.roleName,
+          description: RoleTable.description,
+          createdAt: RoleTable.createdAt,
+          permissions: jsonbAgg(
+            {
+              id: PermissionTable.id,
+              level: PermissionTable.level,
+              action: PermissionTable.action,
+              resource: PermissionTable.resource,
+              description: PermissionTable.description,
+              name: PermissionTable.name,
+            },
+            PermissionTable.id
+          ),
+        })
+        .from(RoleTable)
+        .leftJoin(
+          RolePermissionTable,
+          eq(RoleTable.id, RolePermissionTable.roleId)
         )
-      )
-      .groupBy(RoleTable.id);
+        .leftJoin(
+          PermissionTable,
+          eq(RolePermissionTable.permissionId, PermissionTable.id)
+        )
+        .where(eq(RoleTable.type, "ORG"))
+        .groupBy(RoleTable.id),
+      context.db
+        .select({
+          id: OrgRoleTable.id,
+          roleName: OrgRoleTable.role,
+          createdAt: OrgRoleTable.createdAt,
+          permissions: jsonbAgg(
+            {
+              id: PermissionTable.id,
+              level: PermissionTable.level,
+              action: PermissionTable.action,
+              resource: PermissionTable.resource,
+              description: PermissionTable.description,
+              name: PermissionTable.name,
+            },
+            PermissionTable.id
+          ),
+        })
+        .from(OrgRoleTable)
+        .leftJoin(
+          OrgRolePermissionTable,
+          eq(OrgRoleTable.id, OrgRolePermissionTable.roleId)
+        )
+        .leftJoin(
+          PermissionTable,
+          eq(OrgRolePermissionTable.permissionId, PermissionTable.id)
+        )
+        .groupBy(OrgRoleTable.id),
+    ]);
 
-    return apiResponse(API_MESSAGES.ROLE.GET_ALL, result);
+    const allRoles = new Map<
+      string,
+      {
+        id: string;
+        roleName: string;
+        description: string | null;
+        type: "system" | "dynamic";
+        createdAt: Date;
+        permissions: Array<
+          Pick<
+            PermissionDataModel,
+            "id" | "level" | "action" | "resource" | "description" | "name"
+          >
+        >;
+      }
+    >();
+
+    for (const role of systemOrgRoles) {
+      allRoles.set(role.id, {
+        id: role.id,
+        roleName: role.roleName,
+        description: role.description,
+        type: "system",
+        createdAt: role.createdAt,
+        permissions: role.permissions,
+      });
+    }
+    for (const role of orgRoles) {
+      allRoles.set(role.id, {
+        id: role.id,
+        roleName: role.roleName,
+        description: null,
+        type: "dynamic",
+        createdAt: role.createdAt,
+        permissions: role.permissions,
+      });
+    }
+
+    return apiResponse(
+      API_MESSAGES.ROLE.GET_ALL,
+      Array.from(allRoles.values())
+    );
   });
 
 export const createOrgRoleProcudure = roleImpl.createOrgRole
@@ -153,13 +203,12 @@ export const createOrgRoleProcudure = roleImpl.createOrgRole
     const orgId = context.session.activeOrganizationId!;
 
     const [roleExist] = await context.db
-      .select({ id: RoleTable.id })
-      .from(RoleTable)
+      .select({ id: OrgRoleTable.id })
+      .from(OrgRoleTable)
       .where(
         and(
-          eq(RoleTable.orgId, orgId),
-          eq(RoleTable.roleName, input.roleName),
-          eq(RoleTable.customRoleName, input.customRoleName)
+          eq(OrgRoleTable.organizationId, orgId),
+          eq(OrgRoleTable.role, input.roleName)
         )
       )
       .limit(1);
@@ -170,29 +219,29 @@ export const createOrgRoleProcudure = roleImpl.createOrgRole
       });
     }
 
-    const [role] = await context.db
-      .insert(RoleTable)
-      .values({
-        roleName: input.roleName,
-        customRoleName: input.customRoleName,
-        description: input.description,
-        type: "ORG",
-        orgId,
-      })
-      .returning();
+    const { roleData } = await auth.api.createOrgRole({
+      body: {
+        role: input.roleName,
+        permission: {}, // TODO
+        organizationId: orgId,
+      },
+      headers: context.reqHeaders,
+    });
 
-    if (!role) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
-
-    await context.db.insert(RolePermissionTable).values(
+    await context.db.insert(OrgRolePermissionTable).values(
       input.permissions.map((permission) => ({
-        roleId: role.id,
+        roleId: roleData.id,
         permissionId: permission,
       }))
     );
 
-    return apiResponse(API_MESSAGES.ROLE.CREATE, role);
+    const [role] = await context.db
+      .select()
+      .from(OrgRoleTable)
+      .where(eq(OrgRoleTable.id, roleData.id))
+      .limit(1);
+
+    return apiResponse(API_MESSAGES.ROLE.CREATE, role!);
   });
 
 export const updateOrgRoleProcedure = roleImpl.updateOrgRole
@@ -201,13 +250,12 @@ export const updateOrgRoleProcedure = roleImpl.updateOrgRole
     const orgId = context.session.activeOrganizationId!;
 
     const [roleExist] = await context.db
-      .select({ id: RoleTable.id })
-      .from(RoleTable)
+      .select({ id: OrgRoleTable.id, roleName: OrgRoleTable.role })
+      .from(OrgRoleTable)
       .where(
         and(
-          eq(RoleTable.id, input.roleId),
-          eq(RoleTable.orgId, orgId),
-          isNotNull(RoleTable.customRoleName)
+          eq(OrgRoleTable.id, input.roleId),
+          eq(OrgRoleTable.organizationId, orgId)
         )
       )
       .limit(1);
@@ -218,32 +266,40 @@ export const updateOrgRoleProcedure = roleImpl.updateOrgRole
       });
     }
 
-    const [updatedRole] = await context.db
-      .update(RoleTable)
-      .set({
-        customRoleName: input.customRoleName,
-        roleName: input.roleName,
-        description: input.description,
-      })
-      .where(eq(RoleTable.id, roleExist.id))
-      .returning();
+    await context.db.transaction(async (tx) => {
+      if (roleExist.roleName !== input.roleName) {
+        await auth.api.updateOrgRole({
+          body: {
+            roleId: roleExist.id,
+            organizationId: orgId,
+            data: {
+              roleName: input.roleName,
+            },
+          },
+          headers: context.reqHeaders,
+        });
+      }
+      if (input.permissions.length > 0) {
+        await tx
+          .delete(OrgRolePermissionTable)
+          .where(eq(OrgRolePermissionTable.roleId, roleExist.id));
 
-    if (!updatedRole) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
+        await tx.insert(OrgRolePermissionTable).values(
+          input.permissions.map((permission) => ({
+            roleId: roleExist.id,
+            permissionId: permission,
+          }))
+        );
+      }
+    });
 
-    await context.db
-      .delete(RolePermissionTable)
-      .where(eq(RolePermissionTable.roleId, updatedRole.id));
+    const [role] = await context.db
+      .select()
+      .from(OrgRoleTable)
+      .where(eq(OrgRoleTable.id, input.roleId))
+      .limit(1);
 
-    await context.db.insert(RolePermissionTable).values(
-      input.permissions.map((permission) => ({
-        roleId: updatedRole.id,
-        permissionId: permission,
-      }))
-    );
-
-    return apiResponse(API_MESSAGES.ROLE.UPDATE, updatedRole);
+    return apiResponse(API_MESSAGES.ROLE.UPDATE, role!);
   });
 
 export const deleteOrgRoleProcedure = roleImpl.deleteOrgRole
@@ -251,29 +307,37 @@ export const deleteOrgRoleProcedure = roleImpl.deleteOrgRole
   .handler(async ({ context, input }) => {
     const orgId = context.session.activeOrganizationId!;
 
-    const [roleExist] = await context.db
-      .select({ id: RoleTable.id })
-      .from(RoleTable)
-      .where(
-        and(
-          eq(RoleTable.id, input.roleId),
-          eq(RoleTable.orgId, orgId),
-          isNotNull(RoleTable.customRoleName)
+    await context.db.transaction(async (tx) => {
+      const [roleExist] = await tx
+        .select({ id: OrgRoleTable.id, roleName: OrgRoleTable.role })
+        .from(OrgRoleTable)
+        .where(
+          and(
+            eq(OrgRoleTable.id, input.roleId),
+            eq(OrgRoleTable.organizationId, orgId)
+          )
         )
-      )
-      .limit(1);
+        .limit(1);
 
-    if (!roleExist) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.ROLE.NOT_FOUND,
+      if (!roleExist) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: API_MESSAGES.ROLE.NOT_FOUND,
+        });
+      }
+
+      await tx
+        .delete(OrgRolePermissionTable)
+        .where(eq(OrgRolePermissionTable.roleId, roleExist.id));
+
+      await auth.api.deleteOrgRole({
+        body: {
+          roleId: roleExist.id,
+          organizationId: orgId,
+          roleName: roleExist.roleName,
+        },
+        headers: context.reqHeaders,
       });
-    }
-
-    await context.db
-      .delete(RolePermissionTable)
-      .where(eq(RolePermissionTable.roleId, roleExist.id));
-
-    await context.db.delete(RoleTable).where(eq(RoleTable.id, roleExist.id));
+    });
 
     return apiResponse(API_MESSAGES.ROLE.DELETE, null);
   });

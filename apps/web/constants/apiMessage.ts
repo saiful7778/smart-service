@@ -25,9 +25,16 @@ export const API_MESSAGES = {
     NOT_MATCHED: "Requested organization and auth organization is not matched",
     GET_BOOKINGS: "Bookings fetched successfully",
     GET_SCHEDULE: "Schedule fetched successfully",
+    MEMBER: {
+      UPDATE: "Member updated successfully",
+      NOT_FOUND: "Member not found",
+      NOT_UPDATED: "Failed to update member",
+    },
     INVITATION: {
       GET_ALL: "Invitations fetched successfully",
       NOT_FOUND: "Invitation not found",
+      NOT_PENDING: "Invitation is not pending",
+      NOT_ACTIVE: "Invitation is not active",
       UPDATE: "Invitation updated successfully",
       NOT_UPDATED: "Failed to update invitation",
       ACCEPT: "Invitation accepted successfully",

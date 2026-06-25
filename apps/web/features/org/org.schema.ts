@@ -33,8 +33,7 @@ export type CreateOrgType = z.infer<typeof createOrgSchema>;
 
 export const inviteOrgMemberSchema = z.object({
   email: z.email(),
-  role: OrgRoleEnumSchema,
-  organizationId: z.uuid(),
+  roleName: z.string().min(1, "Role is required"),
 });
 export type InviteOrgMemberType = z.infer<typeof inviteOrgMemberSchema>;
 
@@ -51,3 +50,16 @@ export const updateInvitationSchema = z.object({
   role: OrgRoleEnumSchema,
 });
 export type UpdateInvitationType = z.infer<typeof updateInvitationSchema>;
+
+export const updateMemberSchema = z.object({
+  memberId: z.uuid(),
+  roleNames: z
+    .array(
+      z.object({
+        value: z.string().min(1, "Role is required"),
+        label: z.string().min(1, "Role is required"),
+      })
+    )
+    .min(1, "At least one role is required"),
+});
+export type UpdateMemberType = z.infer<typeof updateMemberSchema>;

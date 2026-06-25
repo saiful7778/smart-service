@@ -45,9 +45,8 @@ export function UpdateOrgRoleDialog({
   const form = useForm<CreateOrUpdateOrgRoleType>({
     resolver: zodResolver(createOrUpdateOrgRoleSchema),
     defaultValues: {
-      roleName: defaultValues?.roleName || "STAFF",
+      roleName: defaultValues?.roleName || "",
       description: defaultValues?.description || "",
-      customRoleName: defaultValues?.customRoleName || "",
       permissions: defaultValues?.permissions || [],
     },
   });

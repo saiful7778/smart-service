@@ -1,30 +1,26 @@
-import { sql } from "drizzle-orm";
 import z from "zod";
 
 import {
   OrganizationMemberTable,
-  RoleDataModel,
   RoleTable,
   selectRoleSchema,
   selectUserSchema,
   UserTable,
 } from "@workspace/drizzle/schemas";
+import { jsonbAgg } from "@workspace/drizzle/sql-helpers";
 
-export const roleColumnSql = sql<
-  Array<Pick<RoleDataModel, "type" | "roleName" | "customRoleName" | "id">>
->`COALESCE(JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
-    'id', ${RoleTable.id},
-    'type', ${RoleTable.type},
-    'roleName', ${RoleTable.roleName},
-    'customRoleName', ${RoleTable.customRoleName}
-  )) FILTER (WHERE ${RoleTable.id} IS NOT NULL), '[]')`.as("roles");
+export const roleColumnSql = jsonbAgg({
+  id: RoleTable.id,
+  roleName: RoleTable.roleName,
+}).as("roles");
 
-export const roleSqlSchema = selectRoleSchema.pick({
-  id: true,
-  type: true,
-  roleName: true,
-  customRoleName: true,
-});
+export const roleSqlSchema = selectRoleSchema
+  .pick({
+    id: true,
+  })
+  .extend({
+    roleName: z.string(),
+  });
 
 export const userProfileColumns = {
   userId: UserTable.id,

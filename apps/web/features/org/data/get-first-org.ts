@@ -28,7 +28,7 @@ export async function getFirstOrg(
     .innerJoin(UserTable, eq(OrganizationMemberTable.userId, UserTable.id))
     .innerJoin(
       OrgMemberRoleTable,
-      eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
+      eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
     )
     .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
     .where(

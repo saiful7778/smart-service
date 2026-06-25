@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -13,12 +13,20 @@ import {
   OrgAddressTable,
   OrganizationMemberTable,
   OrgMemberRoleTable,
+  OrgRoleMemberTable,
+  OrgRoleTable,
   RoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
-import { apiResponse } from "@workspace/lib/utils";
+import {
+  apiResponse,
+  OrgRoleEnumSchema,
+  OrgRoleType,
+} from "@workspace/lib/utils";
 
 import { auth } from "@/lib/better-auth/auth";
+import { env } from "@/lib/env";
+import { mailProvider } from "@/lib/mail";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { assignFileEntityByFileKey } from "@/features/upload/assignFileEntity";
@@ -52,57 +60,68 @@ export const createOrgProcedure = orgImpl.create
       });
     }
 
-    const org = await auth.api.createOrganization({
-      body: {
-        name: input.name,
-        slug: input.slug,
-        logo: input.logoUrl,
-        userId: context.user.id,
-        email: input.email,
-        phone: input.phone,
-        keepCurrentActiveOrganization: false,
-      },
-      headers: context.reqHeaders,
-    });
-    context.logger.info(API_MESSAGES.ORG.CREATE);
-
-    if (input.logoKey) {
-      await assignFileEntityByFileKey(
-        input.logoKey,
-        {
-          entityType: "organization",
-          entityId: org.id,
+    const org = await context.db.transaction(async (tx) => {
+      const org = await auth.api.createOrganization({
+        body: {
+          name: input.name,
+          slug: input.slug,
+          logo: input.logoUrl,
+          userId: context.user.id,
+          email: input.email,
+          phone: input.phone,
+          keepCurrentActiveOrganization: false,
         },
-        context.db
-      );
-    }
+        headers: context.reqHeaders,
+      });
+      context.logger.info(API_MESSAGES.ORG.CREATE);
 
-    const [address] = await context.db
-      .insert(AddressTable)
-      .values({
-        line1: input.line1,
-        city: input.city,
-        state: input.state,
-        zipCode: input.zipCode,
-        latitude: input.latitude,
-        longitude: input.longitude,
-        placeId: input.placeId,
-      } as InsertAddress)
-      .returning({ id: AddressTable.id });
+      await mailProvider.sendOrgCreateWelcomeMail({
+        to: context.user.email,
+        tenantName: org.name,
+        adminName: context.user.name,
+        dashboardUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+      });
 
-    await context.db.insert(OrgAddressTable).values({
-      orgId: org.id,
-      addressId: address!.id,
-      isPrimary: true,
-    } as InsertOrgAddress);
+      if (input.logoKey) {
+        await assignFileEntityByFileKey(
+          input.logoKey,
+          {
+            entityType: "organization",
+            entityId: org.id,
+          },
+          tx
+        );
+      }
 
-    await auth.api.setActiveOrganization({
-      body: {
-        organizationId: org.id,
-      },
-      headers: context.reqHeaders,
+      const [address] = await tx
+        .insert(AddressTable)
+        .values({
+          line1: input.line1,
+          city: input.city,
+          state: input.state,
+          zipCode: input.zipCode,
+          latitude: input.latitude,
+          longitude: input.longitude,
+          placeId: input.placeId,
+        } as InsertAddress)
+        .returning({ id: AddressTable.id });
+
+      await tx.insert(OrgAddressTable).values({
+        orgId: org.id,
+        addressId: address!.id,
+        isPrimary: true,
+      } as InsertOrgAddress);
+
+      await auth.api.setActiveOrganization({
+        body: {
+          organizationId: org.id,
+        },
+        headers: context.reqHeaders,
+      });
+      context.logger.info(API_MESSAGES.ORG.ACTIVATED);
+
+      return org;
     });
-    context.logger.info(API_MESSAGES.ORG.ACTIVATED);
 
     return apiResponse(API_MESSAGES.ORG.CREATE, {
       id: org.id,
@@ -125,14 +144,15 @@ export const listMemberProcedure = orgImpl.listMember
     );
 
     const joinedQuery = context.db
-      .select(userProfileColumns)
+      .select({
+        userId: UserTable.id,
+        orgMemberId: OrganizationMemberTable.id,
+        name: UserTable.name,
+        email: UserTable.email,
+        image: UserTable.image,
+      })
       .from(OrganizationMemberTable)
       .innerJoin(UserTable, eq(OrganizationMemberTable.userId, UserTable.id))
-      .innerJoin(
-        OrgMemberRoleTable,
-        eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
-      )
-      .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
       .where(
         and(eq(OrganizationMemberTable.organizationId, context.org.id), where)
       )
@@ -153,9 +173,55 @@ export const listMemberProcedure = orgImpl.listMember
 
     const meta = buildPaginationMeta(totalCount, members.length, page, limit);
 
+    const memberIds = members.map((m) => m.orgMemberId);
+
+    const [systemOrgRoles, customOrgRoles] = await Promise.all([
+      context.db
+        .select({
+          memberId: OrgMemberRoleTable.memberId,
+          id: RoleTable.id,
+          roleName: RoleTable.roleName,
+        })
+        .from(OrgMemberRoleTable)
+        .innerJoin(RoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
+        .where(inArray(OrgMemberRoleTable.memberId, memberIds)),
+      context.db
+        .select({
+          memberId: OrgRoleMemberTable.memberId,
+          id: OrgRoleTable.id,
+          roleName: OrgRoleTable.role,
+        })
+        .from(OrgRoleMemberTable)
+        .innerJoin(OrgRoleTable, eq(OrgRoleTable.id, OrgRoleMemberTable.roleId))
+        .where(inArray(OrgRoleMemberTable.memberId, memberIds)),
+    ]);
+
+    const rolesMap = new Map<string, Array<{ id: string; roleName: string }>>();
+
+    systemOrgRoles.forEach((role) => {
+      const exist = rolesMap.get(role.memberId);
+      if (exist) {
+        exist.push({ id: role.id, roleName: role.roleName });
+      } else {
+        rolesMap.set(role.memberId, [{ id: role.id, roleName: role.roleName }]);
+      }
+    });
+
+    customOrgRoles.forEach((role) => {
+      const exist = rolesMap.get(role.memberId);
+      if (exist) {
+        exist.push({ id: role.id, roleName: role.roleName });
+      } else {
+        rolesMap.set(role.memberId, [{ id: role.id, roleName: role.roleName }]);
+      }
+    });
+
     return apiResponse(API_MESSAGES.ORG.LIST_MEMBERS, {
       meta,
-      data: members,
+      data: members.map((member) => ({
+        ...member,
+        roles: rolesMap.get(member.orgMemberId) || [],
+      })),
     });
   });
 
@@ -167,19 +233,30 @@ export const inviteMemberProcedure = orgImpl.inviteMember
     ])
   )
   .handler(async ({ input, context }) => {
-    if (input.organizationId !== context.org.id) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.ORG.NOT_MATCHED,
-      });
+    let roleData: { id: string; roleName: OrgRoleType | string } | undefined =
+      undefined;
+
+    if (OrgRoleEnumSchema.safeParse(input.roleName).success) {
+      [roleData] = await context.db
+        .select({
+          id: RoleTable.id,
+          roleName: RoleTable.roleName,
+        })
+        .from(RoleTable)
+        .where(eq(RoleTable.roleName, input.roleName as OrgRoleType))
+        .limit(1);
+    } else {
+      [roleData] = await context.db
+        .select({
+          id: OrgRoleTable.id,
+          roleName: OrgRoleTable.role,
+        })
+        .from(OrgRoleTable)
+        .where(eq(OrgRoleTable.role, input.roleName))
+        .limit(1);
     }
 
-    const [role] = await context.db
-      .select({ id: RoleTable.id })
-      .from(RoleTable)
-      .where(and(eq(RoleTable.roleName, input.role), eq(RoleTable.type, "ORG")))
-      .limit(1);
-
-    if (!role) {
+    if (!roleData) {
       throw new ORPCError("BAD_REQUEST", {
         message: API_MESSAGES.ROLE.NOT_FOUND,
       });
@@ -188,8 +265,8 @@ export const inviteMemberProcedure = orgImpl.inviteMember
     await auth.api.createInvitation({
       body: {
         email: input.email,
-        role: input.role,
-        organizationId: input.organizationId,
+        role: roleData.roleName as OrgRoleType,
+        organizationId: context.org.id,
         resend: true,
       },
       headers: context.reqHeaders,
@@ -248,7 +325,7 @@ export const listMemberForSearchProcedure = orgImpl.listMemberForSearch
       .innerJoin(UserTable, eq(OrganizationMemberTable.userId, UserTable.id))
       .innerJoin(
         OrgMemberRoleTable,
-        eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
+        eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
       )
       .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
       .where(
@@ -256,6 +333,148 @@ export const listMemberForSearchProcedure = orgImpl.listMemberForSearch
       );
 
     return apiResponse(API_MESSAGES.ORG.LIST_MEMBERS_FOR_SEARCH, members);
+  });
+
+export const updateMemberProcedure = orgImpl.updateMember
+  .use(orgMemberPermissionsMiddleware(["org.user.manage", "org.user.update"]))
+  .handler(async ({ input, context }) => {
+    const [member] = await context.db
+      .select()
+      .from(OrganizationMemberTable)
+      .where(
+        and(
+          eq(OrganizationMemberTable.id, input.memberId),
+          eq(OrganizationMemberTable.organizationId, context.org.id)
+        )
+      )
+      .limit(1);
+
+    if (!member) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.ORG.MEMBER.NOT_FOUND,
+      });
+    }
+
+    const rolesData: Array<{
+      id: string;
+      roleName: OrgRoleType | string;
+      type: "custom" | "system";
+    }> = [];
+
+    await Promise.all(
+      input.roleNames.map(async (roleName) => {
+        if (OrgRoleEnumSchema.safeParse(roleName.value).success) {
+          const [roleData] = await context.db
+            .select({
+              id: RoleTable.id,
+              roleName: RoleTable.roleName,
+            })
+            .from(RoleTable)
+            .where(eq(RoleTable.roleName, roleName.value as OrgRoleType))
+            .limit(1);
+
+          if (!roleData) {
+            throw new ORPCError("BAD_REQUEST", {
+              message: API_MESSAGES.ROLE.NOT_FOUND,
+            });
+          }
+
+          rolesData.push({
+            id: roleData.id,
+            roleName: roleData.roleName,
+            type: "system",
+          });
+        } else {
+          const [roleData] = await context.db
+            .select({
+              id: OrgRoleTable.id,
+              roleName: OrgRoleTable.role,
+            })
+            .from(OrgRoleTable)
+            .where(eq(OrgRoleTable.role, roleName.value))
+            .limit(1);
+
+          if (!roleData) {
+            throw new ORPCError("BAD_REQUEST", {
+              message: API_MESSAGES.ROLE.NOT_FOUND,
+            });
+          }
+
+          rolesData.push({
+            id: roleData.id,
+            roleName: roleData.roleName,
+            type: "custom",
+          });
+        }
+      })
+    );
+
+    const updatedMember = await context.db.transaction(async (tx) => {
+      const [updatedMember] = await tx
+        .update(OrganizationMemberTable)
+        .set({
+          role: rolesData.map((role) => role.roleName).join(","),
+        })
+        .where(
+          and(
+            eq(OrganizationMemberTable.id, input.memberId),
+            eq(OrganizationMemberTable.organizationId, context.org.id)
+          )
+        )
+        .returning();
+
+      if (!updatedMember) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: API_MESSAGES.ORG.MEMBER.NOT_UPDATED,
+        });
+      }
+
+      const systemOrgRoles = rolesData.filter((role) => role.type === "system");
+      const customOrgRoles = rolesData.filter((role) => role.type === "custom");
+
+      await Promise.all([
+        tx
+          .delete(OrgMemberRoleTable)
+          .where(eq(OrgMemberRoleTable.memberId, input.memberId)),
+        tx
+          .delete(OrgRoleMemberTable)
+          .where(eq(OrgRoleMemberTable.memberId, input.memberId)),
+      ]);
+
+      const insertPromises: Array<Promise<unknown>> = [];
+
+      if (systemOrgRoles.length > 0) {
+        insertPromises.push(
+          tx.insert(OrgMemberRoleTable).values(
+            systemOrgRoles.map((role) => ({
+              memberId: input.memberId,
+              roleId: role.id,
+              orgId: context.org.id,
+            }))
+          )
+        );
+      }
+
+      if (customOrgRoles.length > 0) {
+        insertPromises.push(
+          tx.insert(OrgRoleMemberTable).values(
+            customOrgRoles.map((role) => ({
+              memberId: input.memberId,
+              roleId: role.id,
+              orgId: context.org.id,
+            }))
+          )
+        );
+      }
+
+      if (insertPromises.length > 0) {
+        await Promise.all(insertPromises);
+      }
+
+      return updatedMember;
+    });
+
+    return apiResponse(API_MESSAGES.ORG.MEMBER.UPDATE, updatedMember);
   });
 
 export const listInvitationProcedure = orgImpl.listInvitation
@@ -298,7 +517,7 @@ export const listInvitationProcedure = orgImpl.listInvitation
       )
       .innerJoin(
         OrgMemberRoleTable,
-        eq(OrgMemberRoleTable.orgMemberId, OrganizationMemberTable.id)
+        eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
       )
       .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
       .where(and(eq(InvitationTable.organizationId, context.org.id), where))
@@ -337,7 +556,11 @@ export const updateInvitationProcedure = orgImpl.updateInvitation
   )
   .handler(async ({ input, context }) => {
     const [exist] = await context.db
-      .select({ id: InvitationTable.id })
+      .select({
+        id: InvitationTable.id,
+        status: InvitationTable.status,
+        expiresAt: InvitationTable.expiresAt,
+      })
       .from(InvitationTable)
       .where(
         and(
@@ -350,6 +573,18 @@ export const updateInvitationProcedure = orgImpl.updateInvitation
     if (!exist) {
       throw new ORPCError("NOT_FOUND", {
         message: API_MESSAGES.ORG.INVITATION.NOT_FOUND,
+      });
+    }
+
+    if (exist.status !== "pending") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.INVITATION.NOT_PENDING,
+      });
+    }
+
+    if (exist.expiresAt < new Date()) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.INVITATION.NOT_ACTIVE,
       });
     }
 

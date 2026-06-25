@@ -1,4 +1,7 @@
+import { formatDate } from "date-fns";
+
 import { formatEnumValue } from "@workspace/lib/utils";
+import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
@@ -15,21 +18,23 @@ export const orgRoleTableColumn: ColumnType<RoleTableRowDataType> = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} label="Role name" />
     ),
-    cell: ({ getValue, row }) =>
-      row.original.customRoleName ? (
-        <div>
-          <div className="text-sm font-semibold">
-            {row.original.customRoleName}
-          </div>
+    cell: ({ getValue, row }) => (
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold">
+            {formatEnumValue(getValue<RoleTableRowDataType["roleName"]>())}
+          </span>
+          {row.original.type === "dynamic" && (
+            <Badge variant="secondary">Custom</Badge>
+          )}
+        </div>
+        {row.original.type === "dynamic" && (
           <div className="text-muted-foreground">
-            {`Access level: ${formatEnumValue(getValue<RoleTableRowDataType["roleName"]>())}`}
+            {formatDate(row.original.createdAt, "P - p")}
           </div>
-        </div>
-      ) : (
-        <div className="text-sm font-semibold">
-          {formatEnumValue(getValue<RoleTableRowDataType["roleName"]>())}
-        </div>
-      ),
+        )}
+      </div>
+    ),
     enableHiding: false,
     enableColumnFilter: false,
     enableSorting: false,

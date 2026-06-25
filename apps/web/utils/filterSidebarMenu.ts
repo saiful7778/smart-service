@@ -1,12 +1,15 @@
+import { hasPermission } from "@/lib/permission";
+
 import {
-  RoleWithContext,
+  PermissionWithOrg,
   SidebarGroupMenuLink,
   SidebarMenuLink,
 } from "@/types";
 
 export function filterSidebarMenu(
   menuItems: Array<SidebarGroupMenuLink>,
-  userRoles: Array<RoleWithContext>
+  userPermissions: Array<PermissionWithOrg>,
+  userId: string
 ) {
   const filteredMenu: Array<SidebarGroupMenuLink> = [];
 
@@ -14,10 +17,10 @@ export function filterSidebarMenu(
     const filteredItems: Array<SidebarMenuLink> = [];
 
     for (const menuItem of menuGroup.items) {
-      if (menuItem.roles) {
-        const isAllowed = menuItem.roles.some((menuRole) =>
-          userRoles.some((userRole) => userRole.roleName === menuRole)
-        );
+      if (menuItem.permissions) {
+        const isAllowed = hasPermission(userPermissions, menuItem.permissions, {
+          userId,
+        });
 
         if (isAllowed) {
           filteredItems.push(menuItem);

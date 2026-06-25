@@ -7,7 +7,7 @@ import {
   ResourceTypeEnumType,
 } from "@workspace/drizzle/zod-db-enums";
 
-import { PermissionWithContext } from "@/types";
+import { PermissionWithOrg } from "@/types";
 
 const separator = ".";
 
@@ -20,7 +20,7 @@ export type PermissionType =
   `${PermissionLevelEnumType}${typeof separator}${ResourceTypeEnumType}${typeof separator}${ActionTypeEnumType}`;
 
 function buildPermissionMap(
-  permissions: Array<PermissionDataType | PermissionWithContext>
+  permissions: Array<PermissionDataType | PermissionWithOrg>
 ): Map<string, Set<ActionTypeEnumType>> {
   const permissionMap = new Map<string, Set<ActionTypeEnumType>>();
 
@@ -84,7 +84,7 @@ export function hasPermission(
 }
 
 export function hasPermissionWithOrg(
-  userPermissions: Array<PermissionWithContext>,
+  userPermissions: Array<PermissionWithOrg>,
   requiredPermissions: Array<PermissionType>,
   context?: {
     orgId: string | null | undefined;
