@@ -62,7 +62,7 @@ function TagsField<TFieldValues extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState }) => {
-        const selectedTags = field.value as TagType[];
+        const selectedTags = (field.value || []) as TagType[];
 
         const handleSelect = (tag: TagType) => {
           field.onChange([...selectedTags, tag]);
@@ -90,7 +90,10 @@ function TagsField<TFieldValues extends FieldValues>({
                 {...triggerProps}
               >
                 {selectedTags?.map((tag) => (
-                  <TagsValue key={tag.value} onRemove={() => handleRemove(tag)}>
+                  <TagsValue
+                    key={`${name}.${tag.value}`}
+                    onRemove={() => handleRemove(tag)}
+                  >
                     {tag.label}
                   </TagsValue>
                 ))}
