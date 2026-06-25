@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -474,7 +474,7 @@ CREATE TABLE "org_member_roles" (
 	"organization_id" uuid NOT NULL,
 	"role_id" uuid NOT NULL,
 	"org_member_id" uuid NOT NULL,
-	"assigned_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE "permissions" (
@@ -491,10 +491,8 @@ CREATE TABLE "permissions" (
 
 CREATE TABLE "roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"org_id" uuid,
 	"type" "RoleTypeEnum" DEFAULT 'SYSTEM' NOT NULL,
 	"role_name" "RoleEnum" DEFAULT 'USER' NOT NULL,
-	"custom_role_name" varchar(255),
 	"description" varchar(255),
 	"metadata" jsonb,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
@@ -513,6 +511,29 @@ CREATE TABLE "user_roles" (
 	"role_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
 	"assigned_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "org_roles" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"organization_id" uuid NOT NULL,
+	"role" varchar(255) NOT NULL,
+	"permission" text NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "org_role_members" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"role_id" uuid NOT NULL,
+	"member_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "org_role_permissions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"role_id" uuid NOT NULL,
+	"permission_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE "schedules" (
@@ -634,12 +655,16 @@ ALTER TABLE "org_team_members" ADD CONSTRAINT "orgTeamMember_team_fkey" FOREIGN 
 ALTER TABLE "org_team_members" ADD CONSTRAINT "orgTeamMember_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_id" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_member_id" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "roles" ADD CONSTRAINT "role_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_member_id" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_role_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_permission_fkey" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_roles" ADD CONSTRAINT "orgRole_organizationId_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_roleId_fk" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_permissionId_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
@@ -795,23 +820,28 @@ CREATE INDEX "orgTeamMember_user_id_idx" ON "org_team_members" USING btree ("use
 CREATE INDEX "orgTeamMember_created_at_idx" ON "org_team_members" USING btree ("created_at");
 CREATE INDEX "org_member_role_unique" ON "org_member_roles" USING btree ("organization_id","org_member_id","role_id");
 CREATE INDEX "org_member_role_org_id_idx" ON "org_member_roles" USING btree ("organization_id");
-CREATE INDEX "org_member_role_org_member_id_idx" ON "org_member_roles" USING btree ("org_member_id");
+CREATE INDEX "org_member_role_member_id_idx" ON "org_member_roles" USING btree ("org_member_id");
 CREATE INDEX "org_member_role_role_id_idx" ON "org_member_roles" USING btree ("role_id");
 CREATE UNIQUE INDEX "permission_level_resource_action_key" ON "permissions" USING btree ("level","resource","action");
 CREATE INDEX "permission_level_idx" ON "permissions" USING btree ("level");
 CREATE INDEX "permission_resource_idx" ON "permissions" USING btree ("resource");
 CREATE INDEX "permission_action_idx" ON "permissions" USING btree ("action");
-CREATE INDEX "role_org_id_idx" ON "roles" USING btree ("org_id");
 CREATE INDEX "role_type_idx" ON "roles" USING btree ("type");
 CREATE INDEX "role_name_idx" ON "roles" USING btree ("role_name");
-CREATE INDEX "role_custom_role_name_idx" ON "roles" USING btree ("custom_role_name");
-CREATE UNIQUE INDEX "role_org_id_custom_role_name_unique_idx" ON "roles" USING btree ("org_id","custom_role_name");
+CREATE UNIQUE INDEX "role_type_name_unique" ON "roles" USING btree ("type","role_name");
 CREATE UNIQUE INDEX "role_permission_unique" ON "role_permissions" USING btree ("role_id","permission_id");
 CREATE INDEX "role_permission_role_idx" ON "role_permissions" USING btree ("role_id");
 CREATE INDEX "role_permission_permission_idx" ON "role_permissions" USING btree ("permission_id");
 CREATE INDEX "user_role_unique" ON "user_roles" USING btree ("user_id","role_id");
 CREATE INDEX "user_role_role_id_idx" ON "user_roles" USING btree ("role_id");
 CREATE INDEX "user_role_user_id_idx" ON "user_roles" USING btree ("user_id");
+CREATE INDEX "orgRole_organizationId_idx" ON "org_roles" USING btree ("organization_id");
+CREATE INDEX "org_role_member_org_role_id_idx" ON "org_role_members" USING btree ("role_id");
+CREATE INDEX "org_role_member_org_member_id_idx" ON "org_role_members" USING btree ("member_id");
+CREATE INDEX "org_role_member_unique_idx" ON "org_role_members" USING btree ("role_id","member_id");
+CREATE INDEX "orgRolePermission_roleId_idx" ON "org_role_permissions" USING btree ("role_id");
+CREATE INDEX "orgRolePermission_permissionId_idx" ON "org_role_permissions" USING btree ("permission_id");
+CREATE UNIQUE INDEX "orgRolePermission_unique" ON "org_role_permissions" USING btree ("role_id","permission_id");
 CREATE INDEX "schedules_org_id_idx" ON "schedules" USING btree ("org_id");
 CREATE INDEX "schedules_job_id_idx" ON "schedules" USING btree ("job_id");
 CREATE INDEX "schedules_start_at_idx" ON "schedules" USING btree ("start_at");

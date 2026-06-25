@@ -19,6 +19,7 @@ import {
   PermissionLevelEnum,
   ResourceTypeEnum,
 } from "../../enums/db-enums";
+import { OrgRolePermissionTable } from "./orgRolePermission.table";
 import { RolePermissionTable } from "./rolePermission.table";
 
 export const PermissionTable = pgTable(
@@ -51,6 +52,9 @@ export const PermissionTableRelations = relations(
   ({ many }) => ({
     rolePermissions: many(RolePermissionTable, {
       relationName: "PermissionToRolePermission",
+    }),
+    orgRolePermissions: many(OrgRolePermissionTable, {
+      relationName: "OrgRolePermissionToPermission",
     }),
   })
 );

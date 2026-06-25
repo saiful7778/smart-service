@@ -24,7 +24,8 @@ import { LeadTable } from "../lead/lead.table";
 import { LeadNoteTable } from "../lead/leadNote.table";
 import { MaterialTable } from "../material";
 import { NotificationTable } from "../notification/notification.table";
-import { OrgMemberRoleTable, RoleTable } from "../role-permission";
+import { OrgMemberRoleTable } from "../role-permission";
+import { OrgRoleTable } from "../role-permission/orgRole.table";
 import { SessionTable } from "../session.table";
 import { InvitationTable } from "./invitation.table";
 import { OrganizationMemberTable } from "./organizationMember.table";
@@ -52,8 +53,8 @@ export const OrganizationTable = pgTable(
 export const OrganizationRelations = relations(
   OrganizationTable,
   ({ many }) => ({
-    roles: many(RoleTable, {
-      relationName: "RoleToOrg",
+    roles: many(OrgRoleTable, {
+      relationName: "OrgRoleToOrg",
     }),
     members: many(OrganizationMemberTable, {
       relationName: "OrganizationToOrgMember",
@@ -61,7 +62,7 @@ export const OrganizationRelations = relations(
     teams: many(OrgTeamTable, {
       relationName: "OrgTeamToOrganization",
     }),
-    orgRoles: many(OrgMemberRoleTable, {
+    memberRoles: many(OrgMemberRoleTable, {
       relationName: "OrgMemberRoleToOrg",
     }),
     invitations: many(InvitationTable, {

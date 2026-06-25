@@ -25,6 +25,7 @@ import { LeadNoteTable } from "../lead/leadNote.table";
 import { LeadRevenueHistoryTable } from "../lead/leadRevenueHistory.table";
 import { MaterialTable } from "../material";
 import { OrgMemberRoleTable } from "../role-permission";
+import { OrgRoleMemberTable } from "../role-permission/orgRoleMember.table";
 import { UserTable } from "../user";
 import { OrganizationTable } from "./organization.table";
 
@@ -78,6 +79,9 @@ export const OrganizationMemberRelations = relations(
     }),
     roles: many(OrgMemberRoleTable, {
       relationName: "OrgMemberRoleToOrgMember",
+    }),
+    orgRoles: many(OrgRoleMemberTable, {
+      relationName: "OrgRoleMemberToOrgMember",
     }),
 
     createdMaterials: many(MaterialTable, {

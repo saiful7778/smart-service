@@ -48,7 +48,7 @@ export async function seedOrgMember(
         (role) => role.roleName === orgMember.role
       );
       return {
-        orgMemberId: orgMember.id,
+        memberId: orgMember.id,
         roleId: roleData!.id,
         orgId: orgMember.organizationId,
       } satisfies InsertOrgMemberRole;

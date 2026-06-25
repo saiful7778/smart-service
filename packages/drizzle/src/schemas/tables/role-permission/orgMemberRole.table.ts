@@ -1,15 +1,9 @@
 import { relations } from "drizzle-orm";
-import {
-  foreignKey,
-  index,
-  pgTable,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { foreignKey, index, pgTable, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 
-import { db_id } from "../../../db-utils";
+import { db_created_at, db_id } from "../../../db-utils";
 import { OrganizationMemberTable, OrganizationTable } from "../org";
 import { RoleTable } from "./role.table";
 
@@ -19,13 +13,8 @@ export const OrgMemberRoleTable = pgTable(
     id: db_id,
     orgId: uuid("organization_id").notNull(),
     roleId: uuid("role_id").notNull(),
-    orgMemberId: uuid("org_member_id").notNull(),
-    assignedAt: timestamp("assigned_at", {
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
+    memberId: uuid("org_member_id").notNull(),
+    createdAt: db_created_at,
   },
   (table) => [
     foreignKey({
@@ -43,19 +32,19 @@ export const OrgMemberRoleTable = pgTable(
       .onDelete("cascade")
       .onUpdate("cascade"),
     foreignKey({
-      name: "fk_org_member_roles_org_member_id",
-      columns: [table.orgMemberId],
+      name: "fk_org_member_roles_member_id",
+      columns: [table.memberId],
       foreignColumns: [OrganizationMemberTable.id],
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
     index("org_member_role_unique").on(
       table.orgId,
-      table.orgMemberId,
+      table.memberId,
       table.roleId
     ),
     index("org_member_role_org_id_idx").on(table.orgId),
-    index("org_member_role_org_member_id_idx").on(table.orgMemberId),
+    index("org_member_role_member_id_idx").on(table.memberId),
     index("org_member_role_role_id_idx").on(table.roleId),
   ]
 );
@@ -74,7 +63,7 @@ export const OrgMemberRoleRelations = relations(
       relationName: "OrgMemberRoleToOrg",
     }),
     orgMember: one(OrganizationMemberTable, {
-      fields: [OrgMemberRoleTable.orgMemberId],
+      fields: [OrgMemberRoleTable.memberId],
       references: [OrganizationMemberTable.id],
       relationName: "OrgMemberRoleToOrgMember",
     }),
@@ -85,7 +74,7 @@ export const insertOrgMemberRoleSchema = createInsertSchema(
   OrgMemberRoleTable
 ).omit({
   id: true,
-  assignedAt: true,
+  createdAt: true,
 });
 export const selectOrgMemberRoleSchema = createSelectSchema(OrgMemberRoleTable);
 
