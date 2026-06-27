@@ -2,10 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -34,51 +32,10 @@ import { resolveImagePath } from "@/utils/resolveImagePath";
 
 export function OrgSelector() {
   const { isMobile } = useSidebar();
-  const queryClient = useQueryClient();
-  const router = useRouter();
   const orgs = useOrgStore((state) => state.organizations);
   const activeOrg = useOrgStore((state) => state.activeOrg);
-  const setActiveOrg = useOrgStore((state) => state.setActiveOrg);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const handleSelect = async (org: StateOrganizationType) => {
-    const toastId = "set_active_org_toast_message";
-
-    if (org.id === activeOrg?.id) {
-      toast.success("Organization is already active!");
-      return;
-    }
-
-    return authClient.organization.setActive({
-      organizationId: org.id,
-      organizationSlug: org.slug,
-      fetchOptions: {
-        onRequest: () => {
-          setIsLoading(true);
-          toast.loading("Loading...", { id: toastId });
-        },
-        onSuccess: async () => {
-          setIsLoading(false);
-
-          await queryClient.resetQueries();
-
-          toast.success("Organization loaded", {
-            id: toastId,
-          });
-
-          router.refresh();
-          setActiveOrg(org);
-        },
-        onError: ({ error }) => {
-          setIsLoading(false);
-          toast.error(error.message ?? "Failed to load organization.", {
-            id: toastId,
-          });
-        },
-      },
-    });
-  };
+  const { isLoading, onSetActiveOrg } = useActiveOrg();
 
   if (orgs.length === 0) return null;
 
@@ -138,7 +95,7 @@ export function OrgSelector() {
             <DropdownMenuItem
               disabled={isLoading}
               key={org.name}
-              onClick={() => handleSelect(org)}
+              onClick={() => onSetActiveOrg(org)}
             >
               <div className="inline-flex aspect-square size-7 overflow-hidden items-center justify-center rounded-md border">
                 <Image
@@ -171,4 +128,46 @@ export function OrgSelector() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+function useActiveOrg() {
+  const activeOrg = useOrgStore((state) => state.activeOrg);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const onSetActiveOrg = useCallback(
+    async (org: StateOrganizationType) => {
+      const toastId = "set_active_org_toast_message";
+
+      if (org.id === activeOrg?.id) {
+        toast.success("Organization is already active!");
+        return;
+      }
+
+      return authClient.organization.setActive({
+        organizationId: org.id,
+        organizationSlug: org.slug,
+        fetchOptions: {
+          onRequest: () => {
+            setIsLoading(true);
+            toast.loading("Loading...", { id: toastId });
+          },
+          onSuccess: () => {
+            setIsLoading(false);
+
+            window.location.reload();
+          },
+          onError: ({ error }) => {
+            setIsLoading(false);
+            toast.error(error.message ?? "Failed to load organization.", {
+              id: toastId,
+            });
+          },
+        },
+      });
+    },
+    [activeOrg]
+  );
+
+  return { onSetActiveOrg, isLoading };
 }
