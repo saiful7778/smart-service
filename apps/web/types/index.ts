@@ -50,7 +50,9 @@ export interface IApiHookInput<TFieldNames = string> {
 
 export interface RoleWithOrg {
   roleName: RoleEnumType | string;
+  source: "SYSTEM" | "ORG";
   orgId: string | undefined;
+  orgName: string | undefined;
   orgSlug: string | undefined;
 }
 
@@ -60,6 +62,7 @@ export interface PermissionWithOrg extends Pick<
 > {
   source: "SYSTEM" | "ORG";
   orgId: string | undefined;
+  orgName: string | undefined;
   orgSlug: string | undefined;
 }
 

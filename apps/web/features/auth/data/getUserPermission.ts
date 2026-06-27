@@ -59,6 +59,7 @@ export async function getUserRolesAndPermissionWithOrg(
         permissionResource: PermissionTable.resource,
         permissionAction: PermissionTable.action,
         orgId: OrganizationTable.id,
+        orgName: OrganizationTable.name,
         orgSlug: OrganizationTable.slug,
       })
       .from(OrganizationMemberTable)
@@ -89,6 +90,7 @@ export async function getUserRolesAndPermissionWithOrg(
         permissionResource: PermissionTable.resource,
         permissionAction: PermissionTable.action,
         orgId: OrganizationTable.id,
+        orgName: OrganizationTable.name,
         orgSlug: OrganizationTable.slug,
       })
       .from(OrganizationMemberTable)
@@ -129,12 +131,15 @@ export async function getUserRolesAndPermissionWithOrg(
       action: row.permissionAction,
       source: "SYSTEM",
       orgId: undefined,
+      orgName: undefined,
       orgSlug: undefined,
     });
 
     roleMap.set(row.roleName, {
       roleName: row.roleName,
+      source: "SYSTEM",
       orgId: undefined,
+      orgName: undefined,
       orgSlug: undefined,
     });
   }
@@ -149,12 +154,15 @@ export async function getUserRolesAndPermissionWithOrg(
       action: row.permissionAction,
       source: "ORG",
       orgId: row.orgId,
+      orgName: row.orgName,
       orgSlug: row.orgSlug,
     });
 
     roleMap.set(row.roleName + row.orgSlug, {
       roleName: row.roleName,
+      source: "ORG",
       orgId: row.orgId,
+      orgName: row.orgName,
       orgSlug: row.orgSlug,
     });
   }
@@ -169,12 +177,15 @@ export async function getUserRolesAndPermissionWithOrg(
       action: row.permissionAction,
       source: "ORG",
       orgId: row.orgId,
+      orgName: row.orgName,
       orgSlug: row.orgSlug,
     });
 
     roleMap.set(row.roleName + row.orgSlug, {
       roleName: row.roleName,
+      source: "ORG",
       orgId: row.orgId,
+      orgName: row.orgName,
       orgSlug: row.orgSlug,
     });
   }
