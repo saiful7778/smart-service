@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { RoleEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { emailField } from "@workspace/lib/utils";
 
 export const userUpdateSchema = z.object({
   displayRole: z.string().nullable(),
@@ -13,3 +14,9 @@ export const roleUpdateSchema = z.object({
   roleNames: z.array(RoleEnumSchema),
 });
 export type RoleUpdateType = z.infer<typeof roleUpdateSchema>;
+
+export const profileUpdateSchema = z.object({
+  name: z.string(),
+  email: emailField({ fieldName: "email" }),
+});
+export type ProfileUpdateType = z.infer<typeof profileUpdateSchema>;

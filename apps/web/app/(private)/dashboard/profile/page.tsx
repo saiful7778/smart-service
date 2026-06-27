@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { formatDate } from "date-fns";
 import {
@@ -6,6 +7,7 @@ import {
   CalendarDays,
   Check,
   Mail,
+  Pencil,
   Shield,
   User,
 } from "lucide-react";
@@ -13,13 +15,20 @@ import {
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 import {
@@ -118,6 +127,24 @@ export default async function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Profile Details</CardTitle>
+              <CardAction>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        render={<Link href="/dashboard/settings/profile" />}
+                      />
+                    }
+                  >
+                    <Pencil />
+                    <span className="sr-only">update profile</span>
+                  </TooltipTrigger>
+
+                  <TooltipContent>
+                    <p>Update Profile</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardAction>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-2">
