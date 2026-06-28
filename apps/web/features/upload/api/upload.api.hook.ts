@@ -9,6 +9,7 @@ export function useGetUploadUrl({
   onSuccess,
   onError,
   onRequestStart,
+  onRequestEnd,
 }: Omit<IApiHookInput, "onValidationErrors">) {
   return useMutation(
     orpcTQClient.upload.getSignedUploadUrl.mutationOptions({
@@ -22,6 +23,9 @@ export function useGetUploadUrl({
         const { message } = formatOrpcError(error);
         onError?.(message);
       },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
     })
   );
 }
@@ -30,6 +34,7 @@ export function useGetDownloadUrl({
   onSuccess,
   onError,
   onRequestStart,
+  onRequestEnd,
 }: Omit<IApiHookInput, "onValidationErrors">) {
   return useMutation(
     orpcTQClient.upload.getSignedDownloadUrl.mutationOptions({
@@ -43,6 +48,9 @@ export function useGetDownloadUrl({
         const { message } = formatOrpcError(error);
         onError?.(message);
       },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
     })
   );
 }
@@ -51,6 +59,7 @@ export function useConfirmUpload({
   onSuccess,
   onError,
   onRequestStart,
+  onRequestEnd,
 }: Omit<IApiHookInput, "onValidationErrors">) {
   return useMutation(
     orpcTQClient.upload.confirm.mutationOptions({
@@ -64,12 +73,16 @@ export function useConfirmUpload({
         const { message } = formatOrpcError(error);
         onError?.(message);
       },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
     })
   );
 }
 
 export function useDeleteUpload({
   onRequestStart,
+  onRequestEnd,
   onSuccess,
   onError,
 }: Omit<IApiHookInput, "onValidationErrors">) {
@@ -92,6 +105,9 @@ export function useDeleteUpload({
         });
         onError?.(message);
       },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
     })
   );
 }
@@ -100,6 +116,7 @@ export function useAssignFileEntity({
   onRequestStart,
   onSuccess,
   onError,
+  onRequestEnd,
 }: Omit<IApiHookInput, "onValidationErrors"> = {}) {
   return useMutation(
     orpcTQClient.upload.assignEntity.mutationOptions({
@@ -112,6 +129,9 @@ export function useAssignFileEntity({
       onError: (error) => {
         const { message } = formatOrpcError(error);
         onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
       },
     })
   );

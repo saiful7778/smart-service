@@ -60,12 +60,12 @@ export const getSignedDownloadUrlProcedure =
     let signedUrl: string;
 
     if (storageType === "private") {
-      signedUrl = await privateStorage.getDownloadUrl(
+      signedUrl = await privateStorage.getSignedDownloadUrl(
         input.key,
         input.entityType
       );
     } else {
-      signedUrl = await publicStorage.getDownloadUrl(
+      signedUrl = await publicStorage.getSignedDownloadUrl(
         input.key,
         input.entityType
       );
@@ -82,7 +82,10 @@ export const confirmUploadProcedure = uploadImpl.confirm.handler(
 
     let url: string | undefined = undefined;
     if (storageType === "public") {
-      url = await publicStorage.getDownloadUrl(input.key, input.entityType);
+      url = await publicStorage.getSignedDownloadUrl(
+        input.key,
+        input.entityType
+      );
     }
 
     const [newFile] = await context.db

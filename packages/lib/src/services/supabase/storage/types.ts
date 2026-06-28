@@ -21,12 +21,6 @@ export interface SignedUploadUrl {
 }
 
 export interface IStorageService {
-  /** Generate a signed URL for client-side direct upload */
-  getSignedUploadUrl(
-    filename: string,
-    path?: string | null | undefined
-  ): Promise<SignedUploadUrl>;
-
   /** Store a file server-side (used in local/dev) */
   store(
     file: File | Blob,
@@ -34,8 +28,13 @@ export interface IStorageService {
     path?: string | null | undefined
   ): Promise<UploadedFile>;
 
-  /** Get a public or signed download URL for an existing file */
-  getDownloadUrl(
+  /** Generate a signed URL for client-side direct upload */
+  getSignedUploadUrl(
+    filename: string,
+    path?: string | null | undefined
+  ): Promise<SignedUploadUrl>;
+  /** Get a signed download URL for an existing file */
+  getSignedDownloadUrl(
     key: string,
     path?: string | null | undefined
   ): Promise<string>;

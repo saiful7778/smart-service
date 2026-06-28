@@ -28,29 +28,6 @@ export class StorageService
     this.isPublicBucket = configs?.bucketIsPublic || false;
   }
 
-  async getSignedUploadUrl(
-    filename: string,
-    path?: string | null | undefined
-  ): Promise<SignedUploadUrl> {
-    const key = this.generateKey(filename);
-
-    const { data, error } = await this.supabase.storage
-      .from(this.bucket)
-      .createSignedUploadUrl(path ? `${path}/${key}` : key, {
-        upsert: false,
-      });
-
-    if (error) {
-      throw new Error(`Failed to create signed upload URL: ${error.message}`);
-    }
-
-    return {
-      ...data,
-      key,
-      expiresAt: new Date(Date.now() + this.uploadExpiry * 1000),
-    };
-  }
-
   async store(
     file: File | Blob,
     filename: string,
@@ -70,7 +47,7 @@ export class StorageService
       throw new Error(`Failed to upload file: ${error.message}`);
     }
 
-    const url = await this.getDownloadUrl(key);
+    const url = await this.getSignedDownloadUrl(key);
 
     return {
       ...data,
@@ -83,7 +60,7 @@ export class StorageService
     };
   }
 
-  async getDownloadUrl(
+  async getSignedDownloadUrl(
     key: string,
     path?: string | null | undefined
   ): Promise<string> {
@@ -100,10 +77,36 @@ export class StorageService
         .createSignedUrl(storagePath, this.downloadExpiry);
 
       if (error) {
-        throw new Error(`Failed to create signed URL: ${error.message}`);
+        throw new Error(
+          `Failed to create signed download URL: ${error.message}`
+        );
       }
       return data.signedUrl;
     }
+  }
+
+  async getSignedUploadUrl(
+    filename: string,
+    path?: string | null | undefined
+  ): Promise<SignedUploadUrl> {
+    const key = this.generateKey(filename);
+    const storagePath = path ? `${path}/${key}` : key;
+
+    const { data, error } = await this.supabase.storage
+      .from(this.bucket)
+      .createSignedUploadUrl(storagePath, {
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to create signed upload URL: ${error.message}`);
+    }
+
+    return {
+      ...data,
+      key,
+      expiresAt: new Date(Date.now() + this.uploadExpiry * 1000),
+    };
   }
 
   async delete(key: string, path?: string | null | undefined): Promise<void> {

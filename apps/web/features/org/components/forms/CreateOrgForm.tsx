@@ -64,10 +64,7 @@ export function CreateOrgForm() {
     },
   });
 
-  const {
-    mutateAsync: uploadLogoImageToAPIAsync,
-    isPending: isUploadingLogoImage,
-  } = useFileUploadToAPI({
+  const uploadLogoImageToAPI = useFileUploadToAPI({
     onRequestStart: () => {
       toast.loading("Uploading logo image...", { id: toastId });
     },
@@ -99,7 +96,7 @@ export function CreateOrgForm() {
     },
   });
 
-  const isLoading = isPending || isUploadingLogoImage;
+  const isLoading = isPending || uploadLogoImageToAPI.isPending;
 
   const handleNameChange = (
     event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>
@@ -118,7 +115,7 @@ export function CreateOrgForm() {
     let logoKey = undefined;
 
     if (logoImageValue) {
-      const { data } = await uploadLogoImageToAPIAsync({
+      const { data } = await uploadLogoImageToAPI.mutateAsync({
         file: Array.isArray(logoImageValue)
           ? logoImageValue[0]!
           : logoImageValue,

@@ -60,7 +60,7 @@ export function ProfileUpdateForm() {
     },
   });
 
-  const assignFIleEntity = useAssignFileEntity();
+  const assignFileEntity = useAssignFileEntity();
 
   const handleSubmit = async (e: ProfileUpdateType) => {
     let profileImageUrl: string | undefined = user?.image ?? undefined;
@@ -86,7 +86,7 @@ export function ProfileUpdateForm() {
         onSuccess: () => {
           setIsLoading(false);
           if (profileImageKey) {
-            assignFIleEntity.mutate({
+            assignFileEntity.mutate({
               entityId: user.id,
               entityType: "user",
               key: profileImageKey,
