@@ -154,8 +154,9 @@ function useActiveOrg() {
           },
           onSuccess: () => {
             setIsLoading(false);
+            toast.success("Organization is activated!", { id: toastId });
 
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 500);
           },
           onError: ({ error }) => {
             setIsLoading(false);
