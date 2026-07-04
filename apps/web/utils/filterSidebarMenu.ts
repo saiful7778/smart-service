@@ -1,4 +1,4 @@
-import { hasPermission } from "@/lib/permission";
+import { hasPermissionWithOrg } from "@/lib/permission";
 
 import {
   PermissionWithOrg,
@@ -9,7 +9,8 @@ import {
 export function filterSidebarMenu(
   menuItems: Array<SidebarGroupMenuLink>,
   userPermissions: Array<PermissionWithOrg>,
-  userId: string
+  userId: string,
+  orgId?: string | null | undefined
 ) {
   const filteredMenu: Array<SidebarGroupMenuLink> = [];
 
@@ -18,9 +19,14 @@ export function filterSidebarMenu(
 
     for (const menuItem of menuGroup.items) {
       if (menuItem.permissions) {
-        const isAllowed = hasPermission(userPermissions, menuItem.permissions, {
-          userId,
-        });
+        const isAllowed = hasPermissionWithOrg(
+          userPermissions,
+          menuItem.permissions,
+          {
+            orgId,
+            userId,
+          }
+        );
 
         if (isAllowed) {
           filteredItems.push(menuItem);
