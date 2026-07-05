@@ -46,7 +46,7 @@ export const LeadCategoryTable = pgTable(
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
-    uniqueIndex("lead_category_slug_unique").on(table.slug),
+    uniqueIndex("lead_category_org_slug_unique").on(table.orgId, table.slug),
     index("lead_category_org_id_idx").on(table.orgId),
     index("lead_category_created_by_idx").on(table.createdBy),
     index("lead_category_created_at_idx").on(table.createdAt),

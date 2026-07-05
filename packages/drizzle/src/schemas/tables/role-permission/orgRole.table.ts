@@ -68,6 +68,6 @@ export const updateOrgRoleSchema = createUpdateSchema(OrgRoleTable).omit({
 });
 
 export type OrgRoleDataModel = typeof OrgRoleTable.$inferSelect;
-export type SelectOrgRoleType = z.infer<typeof selectOrgRoleSchema>;
-export type InsertOrgRoleType = z.infer<typeof insertOrgRoleSchema>;
-export type UpdateOrgRoleType = z.infer<typeof updateOrgRoleSchema>;
+export type InsertOrgRole = z.infer<typeof insertOrgRoleSchema>;
+export type SelectOrgRole = z.infer<typeof selectOrgRoleSchema>;
+export type UpdateOrgRole = z.infer<typeof updateOrgRoleSchema>;
