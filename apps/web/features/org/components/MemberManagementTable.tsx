@@ -87,18 +87,18 @@ export function MemberManagementTable({
               order: filters.order ?? undefined,
               orderField: filters.orderField ?? undefined,
               filter: {
-                roles: filters.roleName,
+                roleName: filters.roleName,
               },
             }}
             setFilters={(filters) => {
-              const roles = filters?.filter?.roles as OrgRoleType | null;
+              const roleName = filters?.filter?.roleName as OrgRoleType | null;
 
               setFilters({
                 page: filters?.page ?? DEFAULT_PAGE_INDEX,
                 limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
-                roleName: roles ?? null,
+                roleName: roleName ?? null,
               });
             }}
           />

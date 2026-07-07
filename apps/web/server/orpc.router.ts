@@ -1,4 +1,5 @@
 import { authRouter } from "@/features/auth/api/auth.router";
+import { leadRouter } from "@/features/lead/api/lead.router";
 import { orgRouter } from "@/features/org/api/org.router";
 import { roleRouter } from "@/features/role/api/role.router";
 import { uploadRouter } from "@/features/upload/api/upload.router";
@@ -10,4 +11,5 @@ export const router = {
   user: userRouter,
   upload: uploadRouter,
   org: orgRouter,
+  lead: leadRouter,
 };

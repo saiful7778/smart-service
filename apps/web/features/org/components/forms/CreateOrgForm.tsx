@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,12 +26,10 @@ import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
-// import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 import { toSlug } from "@/utils/toSlug";
 
 import { useOrgCreate } from "../../api/org.api.hook";
-// import { useOrgCreate } from "../../api/org.api.hook";
 import { createOrgSchema, CreateOrgType } from "../../org.schema";
 
 export function CreateOrgForm() {
@@ -47,7 +44,6 @@ export function CreateOrgForm() {
   );
 
   const user = useAuthStore((state) => state.user!);
-  const router = useRouter();
 
   const form = useForm<CreateOrgType>({
     resolver: zodResolver(createOrgSchema),
@@ -80,9 +76,9 @@ export function CreateOrgForm() {
     toastId,
     onSuccess: () => {
       form.reset();
-      router.push(DEFAULT_AUTH_PATH);
       uploadRef.current?.clearFiles();
       uploadRef.current?.clearErrors();
+      window.location.href = DEFAULT_AUTH_PATH;
     },
     onValidationErrors: (errors) => {
       errors.forEach(({ fieldName, message }) => {

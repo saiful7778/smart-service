@@ -30,7 +30,7 @@ export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
     enableSorting: false,
   },
   {
-    id: "roles",
+    id: "roleName",
     accessorKey: "roles",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} label="Organization Role" />

@@ -75,13 +75,6 @@ export const createOrgProcedure = orgImpl.create
       });
       context.logger.info(API_MESSAGES.ORG.CREATE);
 
-      await mailProvider.sendOrgCreateWelcomeMail({
-        to: context.user.email,
-        tenantName: org.name,
-        adminName: context.user.name,
-        dashboardUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
-      });
-
       if (input.logoKey) {
         await assignFileEntityByFileKey(
           input.logoKey,
@@ -111,6 +104,13 @@ export const createOrgProcedure = orgImpl.create
         addressId: address!.id,
         isPrimary: true,
       } as InsertOrgAddress);
+
+      await mailProvider.sendOrgCreateWelcomeMail({
+        to: context.user.email,
+        tenantName: org.name,
+        adminName: context.user.name,
+        dashboardUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+      });
 
       await auth.api.setActiveOrganization({
         body: {
