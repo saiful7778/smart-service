@@ -23,6 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@better-auth/drizzle-adapter": "catalog:",
     "@hookform/resolvers": "catalog:",
     "@orpc/client": "^1.14.4",

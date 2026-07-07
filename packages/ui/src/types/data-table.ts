@@ -45,5 +45,5 @@ export type FiltersType = Partial<{
   search: string;
   order: "asc" | "desc" | null;
   orderField: string | null;
-  filter: Record<string, string[] | null>;
+  filter: Record<string, string | string[] | null>;
 }>;
