@@ -45,9 +45,9 @@ async function getUserRoles(userId: string) {
     .where(and(eq(UserRoleTable.userId, userId), eq(RoleTable.type, "SYSTEM")));
 }
 
-async function getOrgs(userId: string) {
+async function getOrgIds(userId: string) {
   return await db
-    .select({ organizationId: OrganizationMemberTable.organizationId })
+    .select({ id: OrganizationMemberTable.organizationId })
     .from(OrganizationMemberTable)
     .where(eq(OrganizationMemberTable.userId, userId));
 }
@@ -95,7 +95,8 @@ export async function proxy(request: NextRequest) {
 
     const isAdminUser = roles ? isAdmin(roles) : false;
 
-    const orgs = isSystemUser && session ? await getOrgs(session.user.id) : [];
+    const orgs =
+      isSystemUser && session ? await getOrgIds(session.user.id) : [];
 
     if (
       !isAdminUser &&
