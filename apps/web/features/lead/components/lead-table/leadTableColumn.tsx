@@ -17,7 +17,7 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 import TruncatedList from "@/components/TruncatedList";
 
 import { ListLeadOutputs } from "../../api/lead.contract";
-import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
+import { ListLeadCategoriesForSearchOutput } from "../../api/leadCategory.contract";
 import { LeadTableRowAction } from "./LeadTableRowAction";
 
 type LeadTableRowDataType = ListLeadOutputs["data"][number];
@@ -35,7 +35,7 @@ const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
   };
 
 export function makeLeadTableColumn(
-  leadCategories: ListLeadCategoriesOutput
+  leadCategories: ListLeadCategoriesForSearchOutput
 ): ColumnType<LeadTableRowDataType> {
   return [
     {

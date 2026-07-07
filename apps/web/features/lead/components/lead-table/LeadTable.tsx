@@ -31,7 +31,7 @@ interface LeadTableProps {
 export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
   "use no memo";
   const { data: leadCategories } = useSuspenseQuery(
-    orpcTQClient.lead.category.list.queryOptions()
+    orpcTQClient.lead.category.listForSearch.queryOptions()
   );
 
   const columns = useMemo(

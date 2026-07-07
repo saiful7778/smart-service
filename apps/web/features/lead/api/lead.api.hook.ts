@@ -178,3 +178,47 @@ export function useLeadDelete({
     })
   );
 }
+
+export function useLeadCategoryCreate<TFieldNames>({
+  onRequestStart,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames>) {
+  const toastId = "service_category_create_toastId";
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.category.create.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Creating...", {
+          id: toastId,
+        });
+      },
+      onSuccess: async ({ message }) => {
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.lead.category.list.queryKey(),
+        });
+        toast.success(message, {
+          id: toastId,
+        });
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to create lead category", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+    })
+  );
+}

@@ -1,5 +1,6 @@
 import {
   House,
+  List,
   ListTree,
   Mails,
   PlusCircle,
@@ -51,7 +52,8 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         items: [
           {
             title: "All Leads",
-            icon: ListTree,
+            icon: List,
+            permissions: ["org.lead.manage", "org.lead.list"],
             path: "/dashboard/organization/leads",
             pathRegex: /^\/dashboard\/organization\/leads$/,
           },
@@ -61,6 +63,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             permissions: ["org.lead.manage", "org.lead.create"],
             path: "/dashboard/organization/leads/create",
             pathRegex: /^\/dashboard\/organization\/leads\/create$/,
+          },
+          {
+            title: "Categories",
+            icon: ListTree,
+            permissions: ["org.lead_category.manage", "org.lead_category.list"],
+            path: "/dashboard/organization/leads/categories",
+            pathRegex: /^\/dashboard\/organization\/leads\/categories$/,
           },
         ],
       },

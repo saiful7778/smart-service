@@ -109,3 +109,10 @@ export const generalInfoSchema = z.object({
   description: z.string().optional(),
 });
 export type GeneralInfoType = z.infer<typeof generalInfoSchema>;
+
+export const leadCategoryCreateSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().optional(),
+});
+export type LeadCategoryCreateType = z.infer<typeof leadCategoryCreateSchema>;

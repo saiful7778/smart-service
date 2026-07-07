@@ -193,6 +193,7 @@ export function RevenueHistories({
                           userEmail={item.changedBy.email}
                           imageUrl={item.changedBy.image}
                           userRoles={item.changedBy.roles}
+                          showDetails
                           showRoleDetails
                         />
                       </TableCell>

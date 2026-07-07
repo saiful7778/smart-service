@@ -11,7 +11,11 @@ import {
   leadUpdateProcedure,
   listLeadProcedure,
 } from "./lead.procedure";
-import { listLeadCategoriesProcedure } from "./leadCategory.procedure";
+import {
+  leadCategoryCreateProcedure,
+  listLeadCategoriesForSearchProcedure,
+  listLeadCategoriesProcedure,
+} from "./leadCategory.procedure";
 
 export const leadRouter = leadImpl.router({
   list: listLeadProcedure,
@@ -22,6 +26,8 @@ export const leadRouter = leadImpl.router({
   revenueHistory: leadRevenueHistoryProcedure,
   category: {
     list: listLeadCategoriesProcedure,
+    listForSearch: listLeadCategoriesForSearchProcedure,
+    create: leadCategoryCreateProcedure,
   },
   customer: {
     list: listCusotmerProcedure,
