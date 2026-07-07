@@ -20,6 +20,7 @@ catalog:
   "@types/nodemailer": ^8.0.0
   "@types/react": ^19.2.15
   "@types/react-dom": ^19.2.3
+  '@types/web-push': ^3.6.4
   "@upstash/qstash": ^2.11.0
   "@upstash/ratelimit": ^2.0.8
   "@upstash/redis": ^1.38.0
@@ -46,5 +47,6 @@ catalog:
   ua-parser-js: ^2.0.10
   vite-tsconfig-paths: ^6.1.1
   vitest: ^4.1.7
+  web-push: ^3.6.7
   zod: ^4.4.3
   zustand: ^5.0.14

@@ -141,4 +141,14 @@ export const API_MESSAGES = {
       NOT_CREATED: "Service category not created",
     },
   },
+  NOTIFICATION: {
+    UPDATE_SETTINGS: "Notification settings updated successfully",
+    GET_SETTINGS: "Notification settings fetched successfully",
+    GET_NOTIFICATIONS: "Notifications fetched successfully",
+    SEND_NOTIFICATION: "Notification sent successfully",
+    MARK_AS_READ: "Notification marked as read successfully",
+    MARK_ALL_AS_READ: "All notifications marked as read successfully",
+    SUBSCRIBE_PUSH: "Push notification subscribed successfully",
+    UNSUBSCRIBE_PUSH: "Push notification unsubscribed successfully",
+  },
 };

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { Bell, LogOut, UserRoundCog } from "lucide-react";
+import { BellRing, LogOut, UserRoundCog } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@workspace/ui/components/button";
@@ -89,12 +89,10 @@ export function TopbarUser() {
             <span>Profile setting</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            render={
-              <Link href={{ pathname: "/dashboard/settings/notification" }} />
-            }
+            render={<Link href={{ pathname: "/dashboard/notifications" }} />}
           >
-            <Bell />
-            <span>Notification setting</span>
+            <BellRing />
+            <span>Notifications</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -2,6 +2,8 @@ import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 
 import { ThemeChanger } from "@/components/ThemeChanger";
 
+import { NotificationPanel } from "@/features/notification/components/NotificationPanel";
+
 import { AppBreadcrumb } from "../AppBreadcrumb";
 import { TopbarUser } from "./TopbarUser";
 
@@ -13,6 +15,7 @@ export function Topbar() {
         <AppBreadcrumb />
       </div>
       <div className="flex items-center gap-2">
+        <NotificationPanel />
         <ThemeChanger />
         <TopbarUser />
       </div>

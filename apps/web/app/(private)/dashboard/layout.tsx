@@ -8,9 +8,13 @@ import { AppSidebar } from "@/components/shared/sidebar/AppSidebar";
 import { Topbar } from "@/components/shared/topbar";
 
 import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
+import { NotificationPermissionProvider } from "@/features/notification/components/NotificationPermissionProvider";
+import { NotificationProvider } from "@/features/notification/components/NotificationProvider";
 import { getActiveOrgCache } from "@/features/org/data/get-active-org";
 import { getOrgListCache } from "@/features/org/data/get-org-list";
 import { getOrgRolesCache } from "@/features/org/data/get-org-roles";
+import { orpcClient } from "@/server/orpc.client";
+import { NotificationStoreContextProvider } from "@/stores/zustand/notification/NotificationStoreContext";
 import { OrgStoreProvider } from "@/stores/zustand/org/OrgStoreContext";
 import { isAdmin } from "@/utils/user-utils";
 
@@ -37,19 +41,34 @@ export default async function DashboardLayout({
 
   const orgRoles = activeOrg ? await getOrgRolesCache(activeOrg.id) : [];
 
+  const notifications = await orpcClient.notification.list({
+    page: 1,
+    limit: 10,
+  });
+
   return (
     <OrgStoreProvider
       organizations={orgs}
       activeOrg={activeOrg}
       orgRoles={orgRoles}
     >
-      <SidebarProvider>
-        {isAdminUser ? <AdminSidebar /> : <AppSidebar />}
-        <SidebarInset>
-          <Topbar />
-          <main className="min-h-[calc(100vh-84px)] flex-1">{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
+      <NotificationStoreContextProvider
+        initialNotifications={notifications.data.data}
+      >
+        <NotificationPermissionProvider>
+          <NotificationProvider>
+            <SidebarProvider>
+              {isAdminUser ? <AdminSidebar /> : <AppSidebar />}
+              <SidebarInset>
+                <Topbar />
+                <main className="min-h-[calc(100vh-84px)] flex-1">
+                  {children}
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
+          </NotificationProvider>
+        </NotificationPermissionProvider>
+      </NotificationStoreContextProvider>
     </OrgStoreProvider>
   );
 }
