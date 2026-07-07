@@ -135,7 +135,7 @@ export abstract class MailService
   public async sendOrgCreateWelcomeMail(
     options: OrgCreateWelcomeMailOptions
   ): Promise<MailSendResult> {
-    const subject = `Welcome to ${this.mailConfig.appName}`;
+    const subject = `${options.tenantName} Is Ready - Let's Get Started`;
     const element = (
       <OrgCreateWelcomeMail
         supportMail={this.mailConfig.supportMail}
