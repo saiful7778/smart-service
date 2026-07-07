@@ -148,14 +148,12 @@ function FacetedFilterTrigger({
   options,
   className,
   variant = "outline",
-  size = "sm",
   placeholder,
   ...props
 }: FacetedFilterTriggerProps) {
   return (
     <Button
       variant={variant}
-      size={size}
       className={cn("border-dashed font-normal", className)}
       {...props}
     >

@@ -10,7 +10,7 @@ import { cn } from "@workspace/ui/lib/utils";
 export function RefreshButton({
   isLoading,
   onButtonClick,
-  size = "sm",
+  size = "icon",
   variant = "outline",
   ...props
 }: Omit<React.ComponentProps<typeof Button>, "onClick" | "disabled"> & {
