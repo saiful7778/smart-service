@@ -36,6 +36,13 @@
       "when": 1782230047292,
       "tag": "0004_add_org_role",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783268556478,
+      "tag": "0005_add_org_slug_unique",
+      "breakpoints": true
     }
   ]
 }
