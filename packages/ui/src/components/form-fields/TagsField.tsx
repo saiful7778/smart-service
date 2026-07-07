@@ -62,14 +62,14 @@ function TagsField<TFieldValues extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState }) => {
-        const selectedTags = (field.value || []) as TagType[];
+        const selectedTags = (field.value || []) as string[];
 
-        const handleSelect = (tag: TagType) => {
-          field.onChange([...selectedTags, tag]);
+        const handleSelect = (tagValue: string) => {
+          field.onChange([...selectedTags, tagValue]);
         };
 
-        const handleRemove = (tag: TagType) => {
-          field.onChange(selectedTags.filter((t) => t.value !== tag.value));
+        const handleRemove = (tagValue: string) => {
+          field.onChange(selectedTags.filter((t) => t !== tagValue));
         };
 
         return (
@@ -91,32 +91,27 @@ function TagsField<TFieldValues extends FieldValues>({
               >
                 {selectedTags?.map((tag) => (
                   <TagsValue
-                    key={`${name}.${tag.value}`}
+                    key={`${name}.${tag}`}
                     onRemove={() => handleRemove(tag)}
                   >
-                    {tag.label}
+                    {options.find(({ value }) => value === tag)?.label}
                   </TagsValue>
                 ))}
               </TagsTrigger>
-              <TagsContent
-                align={contentProps?.align ?? "start"}
-                side={contentProps?.side ?? "bottom"}
-                {...contentProps}
-              >
+              <TagsContent align="start" side="bottom" {...contentProps}>
                 <TagsInput placeholder="Search..." />
                 <TagsList>
                   <TagsEmpty />
                   <TagsGroup>
                     {options.map((option) => {
                       const isSelected =
-                        selectedTags.findIndex(
-                          (t) => t.value === option.value
-                        ) !== -1;
+                        selectedTags.findIndex((t) => t === option.value) !==
+                        -1;
 
                       return (
                         <TagsItem
                           key={`${name}.${option.value}`}
-                          onSelect={() => handleSelect(option)}
+                          onSelect={() => handleSelect(option.value)}
                           value={option.value}
                           disabled={isSelected}
                           aria-disabled={isSelected}
