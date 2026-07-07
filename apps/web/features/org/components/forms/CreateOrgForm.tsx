@@ -1,25 +1,20 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Asterisk } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import {
-  Field,
   FieldDescription,
-  FieldError,
   FieldGroup,
-  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
 } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
-import { Input } from "@workspace/ui/components/input";
 
 import { FileUploadRef } from "@/components/FileUpload";
 import { FileUploadField } from "@/components/form-fields/FileUploadField";
@@ -94,17 +89,14 @@ export function CreateOrgForm() {
 
   const isLoading = isPending || uploadLogoImageToAPI.isPending;
 
-  const handleNameChange = (
-    event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>
-  ) => {
-    event.stopPropagation();
-    event.preventDefault();
+  const nameValue = useWatch({
+    control: form.control,
+    name: "name",
+  });
 
-    const value = event.target.value;
-
-    form.setValue("name", value);
-    form.setValue("slug", toSlug(value), { shouldValidate: true });
-  };
+  useEffect(() => {
+    form.setValue("slug", toSlug(nameValue), { shouldValidate: true });
+  }, [nameValue, form]);
 
   const handleSubmit = async (e: CreateOrgType) => {
     let logoUrl = undefined;
@@ -151,26 +143,13 @@ export function CreateOrgForm() {
           onError={setLogoImageErrorValue}
           fieldError={logoImageErrorValue}
         />
-        <Controller
-          name="name"
+        <InputField
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="orgName" aria-disabled={isLoading}>
-                Organization name
-                <Asterisk className="-mt-2 size-3 text-destructive" />
-              </FieldLabel>
-              <Input
-                {...field}
-                onChange={handleNameChange}
-                placeholder="Name"
-                id="orgName"
-                aria-invalid={fieldState.invalid}
-                disabled={isLoading}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+          name="name"
+          label="Organization name"
+          placeholder="name"
+          requiredField
+          disabled={isLoading}
         />
         <InputField
           control={form.control}
@@ -179,7 +158,7 @@ export function CreateOrgForm() {
           placeholder="Slug"
           label="Org slug"
           description="Organization slug should be unique"
-          disabled={isLoading}
+          disabled
         />
         <InputField
           control={form.control}
