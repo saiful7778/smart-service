@@ -124,19 +124,20 @@ export const TagsTrigger = ({
   <PopoverTrigger
     render={
       <Button
-        className={cn("h-auto w-full justify-between p-2", className)}
+        className={cn(
+          "w-full justify-start flex-wrap items-center border-input",
+          className
+        )}
         role="combobox"
         variant="outline"
         {...props}
       />
     }
   >
-    <div className="flex flex-wrap items-center gap-1">
-      {children}
-      {placeholder && (
-        <span className="text-muted-foreground">{placeholder}</span>
-      )}
-    </div>
+    {children}
+    {placeholder && (
+      <span className="text-muted-foreground">{placeholder}</span>
+    )}
   </PopoverTrigger>
 );
 
@@ -198,7 +199,7 @@ export const TagsInput = ({ className, ...props }: TagsInputProps) => (
 export type TagsListProps = ComponentProps<typeof CommandList>;
 
 export const TagsList = ({ className, ...props }: TagsListProps) => (
-  <CommandList className={cn("max-h-[200px]", className)} {...props} />
+  <CommandList className={cn("max-h-50", className)} {...props} />
 );
 
 export type TagsEmptyProps = ComponentProps<typeof CommandEmpty>;
