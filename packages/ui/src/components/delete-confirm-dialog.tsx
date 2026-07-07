@@ -32,7 +32,7 @@ export function DeleteConfirmDialog({
   onOpenChange,
   onConfirm,
   title = "Are you absolutely sure?",
-  description = "This action cannot be undone. This will permanently delete the record.",
+  description = "This record will be permanently removed after 15 days. You can restore it within this period.",
   confirmText = "Delete",
   cancelText = "Cancel",
   isLoading = false,
