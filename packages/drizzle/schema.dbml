@@ -780,7 +780,7 @@ table lead_categories {
   indexes {
     
     
-    slug [name: 'lead_category_slug_unique', unique]
+    (organization_id, slug) [name: 'lead_category_org_slug_unique', unique]
     organization_id [name: 'lead_category_org_id_idx']
     created_by [name: 'lead_category_created_by_idx']
     created_at [name: 'lead_category_created_at_idx']

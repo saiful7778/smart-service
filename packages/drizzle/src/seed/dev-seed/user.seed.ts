@@ -47,26 +47,40 @@ const RANDOM_USER_CONFIG = {
 /**
  * Creates a user object with default avatar from DiceBear API
  */
-const createDefaultUser = (
+function createDefaultUser(
   user: (typeof DEFAULT_USERS)[number],
   roleId: string
-): InsertUser & { roleId: string } => ({
-  name: user.name,
-  email: user.email,
-  emailVerified: true,
-  image: `https://api.dicebear.com/7.x/avataaars/png?size=128&seed=${user.seed}`,
-  banned: false,
-  role: user.role,
-  roleId,
-});
+): InsertUser & { roleId: string } {
+  return {
+    name: user.name,
+    email: user.email,
+    emailVerified: true,
+    image: `https://api.dicebear.com/7.x/avataaars/png?size=128&seed=${user.seed}`,
+    banned: false,
+    role: user.role,
+    roleId,
+  };
+}
+
+/**
+ * Maps default users to their data with role IDs
+ */
+function buildDefaultUsersData(
+  roles: Array<RoleDataModel>
+): Array<InsertUser & { roleId: string }> {
+  return DEFAULT_USERS.map((user) => {
+    const role = roles.find(({ roleName }) => roleName === user.role)!;
+    return createDefaultUser(user, role.id);
+  });
+}
 
 /**
  * Creates a random user with faker-generated data
  */
-const createRandomUser = (
+function createRandomUser(
   roleData: RoleDataModel,
   index: number
-): InsertUser & { roleId: string } => {
+): InsertUser & { roleId: string } {
   const isBanned = faker.datatype.boolean(RANDOM_USER_CONFIG.BAN_PROBABILITY);
 
   return {
@@ -80,27 +94,15 @@ const createRandomUser = (
     role: roleData.roleName,
     roleId: roleData.id,
   };
-};
-
-/**
- * Maps default users to their data with role IDs
- */
-const buildDefaultUsersData = (
-  roles: Array<RoleDataModel>
-): Array<InsertUser & { roleId: string }> => {
-  return DEFAULT_USERS.map((user) => {
-    const role = roles.find(({ roleName }) => roleName === user.role)!;
-    return createDefaultUser(user, role.id);
-  });
-};
+}
 
 /**
  * Builds random users data based on remaining count
  */
-const buildRandomUsersData = (
+function buildRandomUsersData(
   roles: Array<RoleDataModel>,
   remainingCount: number
-): Array<InsertUser> => {
+): Array<InsertUser> {
   const randomUsers: Array<InsertUser> = [];
 
   for (let i = 0; i < remainingCount; i++) {
@@ -110,7 +112,7 @@ const buildRandomUsersData = (
   }
 
   return randomUsers;
-};
+}
 
 /**
  * Seeds users into the database

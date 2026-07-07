@@ -10,25 +10,20 @@ import {
   RoleDataModel,
   UserDataModel,
 } from "../../schemas";
-import { ORG_ROLES } from "../roles.seed";
 import { db } from "../seed-db-client";
 
 export async function seedOrgMember(
   orgs: Array<OrganizationDataModel>,
   users: Array<UserDataModel>,
-  roles: Array<RoleDataModel>
+  orgSystemRoles: Array<RoleDataModel>
 ): Promise<Array<OrgMemberDataModel>> {
   console.log("🌱 Seeding organization members...");
-
-  const allowdRoles = roles.filter(({ roleName }) =>
-    ORG_ROLES.includes(roleName)
-  );
 
   const allowdUsers = users.filter(({ role }) => role && role === "USER");
 
   const orgMembersData: Array<InsertOrgMember> = orgs.map((org) => {
     const user = faker.helpers.arrayElement(allowdUsers);
-    const roleData = faker.helpers.arrayElement(allowdRoles);
+    const roleData = faker.helpers.arrayElement(orgSystemRoles);
 
     return {
       organizationId: org.id,
@@ -44,7 +39,7 @@ export async function seedOrgMember(
 
   const orgMemberRolesData: Array<InsertOrgMemberRole> = orgMembers.map(
     (orgMember) => {
-      const roleData = allowdRoles.find(
+      const roleData = orgSystemRoles.find(
         (role) => role.roleName === orgMember.role
       );
       return {

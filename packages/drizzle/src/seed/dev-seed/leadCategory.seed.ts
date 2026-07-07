@@ -28,28 +28,24 @@ export async function seedLeadCategory(
 ): Promise<Array<LeadCategoryDataModel>> {
   console.log("🌱 Seeding lead categories...");
 
-  const leadCategoriesData: Array<InsertLeadCategory> = LEAD_CATEGORIES.map(
-    (leadCategory) => {
-      const org = faker.helpers.arrayElement(orgs);
-      const membersInOrg = orgMembers.filter(
-        (m) => m.organizationId === org.id
-      );
+  const leadCategoriesData: Array<InsertLeadCategory> = orgs.flatMap((org) => {
+    const membersInOrg = orgMembers.filter((m) => m.organizationId === org.id);
 
-      // Fallback to any member if none in this specific org (shouldn't happen with current seed logic)
+    return LEAD_CATEGORIES.map((leadCategory) => {
       const creator =
         membersInOrg.length > 0
           ? faker.helpers.arrayElement(membersInOrg)
-          : faker.helpers.arrayElement(orgMembers);
+          : null;
 
       return {
         orgId: org.id,
         name: leadCategory.name,
         slug: leadCategory.slug,
-        createdBy: creator.id,
+        createdBy: creator ? creator.id : null,
         description: faker.lorem.sentence(),
       } satisfies InsertLeadCategory;
-    }
-  );
+    });
+  });
 
   const leadCategories = await db
     .insert(LeadCategoryTable)

@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ suppress logs { quiet: true }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -779,7 +779,7 @@ CREATE INDEX "lead_revenue_history_job_id_idx" ON "lead_revenue_history" USING b
 CREATE INDEX "lead_revenue_history_revenue_type_idx" ON "lead_revenue_history" USING btree ("revenue_type");
 CREATE INDEX "lead_revenue_history_changed_by_idx" ON "lead_revenue_history" USING btree ("changed_by");
 CREATE INDEX "lead_revenue_history_changed_at_idx" ON "lead_revenue_history" USING btree ("changed_at");
-CREATE UNIQUE INDEX "lead_category_slug_unique" ON "lead_categories" USING btree ("slug");
+CREATE UNIQUE INDEX "lead_category_org_slug_unique" ON "lead_categories" USING btree ("organization_id","slug");
 CREATE INDEX "lead_category_org_id_idx" ON "lead_categories" USING btree ("organization_id");
 CREATE INDEX "lead_category_created_by_idx" ON "lead_categories" USING btree ("created_by");
 CREATE INDEX "lead_category_created_at_idx" ON "lead_categories" USING btree ("created_at");
