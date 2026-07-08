@@ -85,7 +85,7 @@ interface DataTableActionBarActionProps extends React.ComponentProps<
 }
 
 function DataTableActionBarAction({
-  size = "sm",
+  size = "default",
   tooltip,
   isPending,
   disabled,
@@ -99,8 +99,7 @@ function DataTableActionBarAction({
       variant="secondary"
       size={size}
       className={cn(
-        "gap-1.5 border border-secondary bg-secondary/50 hover:bg-secondary/70 [&>svg]:size-3.5",
-        size === "icon" ? "size-7" : "h-7",
+        "gap-1.5 border border-secondary bg-secondary/50 hover:bg-secondary/70",
         className
       )}
       disabled={disabled || isPending}
@@ -151,11 +150,11 @@ function DataTableActionBarSelection<TData>({
               size="icon"
               className="size-5"
               onClick={onClearSelection}
-            >
-              <X />
-            </Button>
+            />
           }
-        />
+        >
+          <X />
+        </TooltipTrigger>
         <TooltipContent
           sideOffset={10}
           className="flex items-center gap-2 px-2 py-1 font-semibold"

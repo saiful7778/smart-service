@@ -53,7 +53,7 @@ export function DataTablePagination<TData>({
             >
               <TooltipTrigger
                 render={
-                  <SelectTrigger size="sm" className="w-17.5">
+                  <SelectTrigger className="w-17.5">
                     <SelectValue
                       placeholder={table.getState().pagination.pageSize}
                     />
@@ -88,16 +88,16 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon-sm"
+                    size="icon"
                     className="hidden lg:flex"
                     onClick={() => table.setPageIndex(0)}
                     disabled={!table.getCanPreviousPage()}
-                  >
-                    <span className="sr-only">Go to first page</span>
-                    <ChevronsLeft className="size-4" />
-                  </Button>
+                  />
                 }
-              />
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="size-4" />
+              </TooltipTrigger>
               <TooltipContent>
                 <p>Go to first page</p>
               </TooltipContent>
@@ -107,15 +107,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon-sm"
+                    size="icon"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                  >
-                    <span className="sr-only">Go to previous page</span>
-                    <ChevronLeft className="size-4" />
-                  </Button>
+                  />
                 }
-              />
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="size-4" />
+              </TooltipTrigger>
               <TooltipContent>
                 <p>Go to previous page</p>
               </TooltipContent>
@@ -129,15 +129,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon-sm"
+                    size="icon"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                  >
-                    <span className="sr-only">Go to next page</span>
-                    <ChevronRight className="size-4" />
-                  </Button>
+                  />
                 }
-              />
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="size-4" />
+              </TooltipTrigger>
               <TooltipContent>
                 <p>Go to next page</p>
               </TooltipContent>
@@ -147,16 +147,16 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon-sm"
+                    size="icon"
                     className="hidden lg:flex"
                     onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                     disabled={!table.getCanNextPage()}
-                  >
-                    <span className="sr-only">Go to last page</span>
-                    <ChevronsRight className="size-4" />
-                  </Button>
+                  />
                 }
-              />
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="size-4" />
+              </TooltipTrigger>
               <TooltipContent>
                 <p>Go to last page</p>
               </TooltipContent>

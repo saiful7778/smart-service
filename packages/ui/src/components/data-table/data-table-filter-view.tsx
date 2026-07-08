@@ -61,15 +61,14 @@ export function DataTableFilterView<TData>({
               <Button
                 aria-label="Reset filters"
                 variant="outline"
-                size="sm"
                 className="border-dashed"
                 onClick={onReset}
-              >
-                <X />
-                <span>Reset</span>
-              </Button>
+              />
             }
-          />
+          >
+            <X />
+            <span>Reset</span>
+          </TooltipTrigger>
           <TooltipContent>
             <p>Reset filters</p>
           </TooltipContent>
@@ -86,15 +85,13 @@ function FilterFunnelView({ children }: { children: React.ReactNode }) {
         <TooltipTrigger
           render={
             <DialogTrigger
-              render={
-                <Button size="sm" className="border-dashed" variant="outline">
-                  <Funnel />
-                  <span>Filters</span>
-                </Button>
-              }
+              render={<Button className="border-dashed" variant="outline" />}
             />
           }
-        />
+        >
+          <Funnel />
+          <span>Filters</span>
+        </TooltipTrigger>
         <TooltipContent>
           <p>All filters</p>
         </TooltipContent>

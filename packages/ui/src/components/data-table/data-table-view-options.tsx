@@ -46,14 +46,13 @@ export function DataTableViewOptions<TData>({
             aria-label="Toggle columns"
             role="combobox"
             variant="outline"
-            size="sm"
             className="hidden lg:inline-flex"
-          >
-            <Settings2 className="text-muted-foreground" />
-            <span>View</span>
-          </Button>
+          />
         }
-      />
+      >
+        <Settings2 className="text-muted-foreground" />
+        <span>View</span>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44" {...props}>
         <DropdownMenuGroup>
           <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
