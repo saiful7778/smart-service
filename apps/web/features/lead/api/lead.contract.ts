@@ -26,6 +26,7 @@ import { createLeadSchema, leadAddressSchema } from "../lead.schema";
 import { customerContract } from "./customer.contract";
 import { leadBaseContract } from "./lead.contract-base";
 import { leadCategoryContract } from "./leadCategory.contract";
+import { leadNoteContract } from "./leadNote.contract";
 
 const tags = ["Organization", "Lead"] as const;
 
@@ -117,14 +118,7 @@ const leadUpdateContract = leadBaseContract
     updateLeadSchema
       .extend({
         leadId: z.uuid(),
-        categories: z
-          .array(
-            z.object({
-              value: z.string(),
-              label: z.string(),
-            })
-          )
-          .optional(),
+        categories: z.array(z.string()).optional(),
       })
       .extend({
         addresses: z
@@ -281,4 +275,5 @@ export const leadContract = {
   details: leadDetailsContract,
   delete: leadDeleteContract,
   revenueHistory: revenueHistoryContract,
+  note: leadNoteContract,
 };

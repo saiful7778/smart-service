@@ -330,10 +330,7 @@ export const leadUpdateProcedure = leadImpl.update
           .where(
             and(
               eq(LeadCategoryTable.orgId, context.org.id),
-              inArray(
-                LeadCategoryTable.id,
-                categories.map((c) => c.value)
-              )
+              inArray(LeadCategoryTable.id, categories)
             )
           );
 

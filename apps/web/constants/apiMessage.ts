@@ -151,4 +151,16 @@ export const API_MESSAGES = {
     SUBSCRIBE_PUSH: "Push notification subscribed successfully",
     UNSUBSCRIBE_PUSH: "Push notification unsubscribed successfully",
   },
+  JOB: {
+    GET_DETAILS: "Job details fetched successfully",
+    GET_ALL: "All Jobs data is fetched successfully",
+    NOT_FOUND: "Job is not found",
+    NOT_CREATED: "Job is not created",
+    CREATED: "Job created successfully",
+    UPDATED: "Job updated successfully",
+    REVENUE_UPDATED: "Job revenue updated successfully",
+    NOT_UPDATED: "Job not updated",
+    INVALID_REQUEST: "Invalid job request",
+    DELETED: "Job deleted successfully",
+  },
 };

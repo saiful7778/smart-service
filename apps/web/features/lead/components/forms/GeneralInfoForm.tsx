@@ -41,19 +41,17 @@ export function GeneralInfoUpdateForm({
     })
   );
 
-  const statusOptions = useMemo(() => {
-    return LeadStatusEnumSchema.options.map((option) => ({
-      value: option,
-      label: formatEnumValue(option),
-    }));
-  }, []);
-
-  const handleSubmit = (e: GeneralInfoType) => {
-    onSubmit(e);
-  };
+  const statusOptions = useMemo(
+    () =>
+      LeadStatusEnumSchema.options.map((option) => ({
+        value: option,
+        label: formatEnumValue(option),
+      })),
+    []
+  );
 
   return (
-    <form id={formId} onSubmit={form.handleSubmit(handleSubmit)}>
+    <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SelectField

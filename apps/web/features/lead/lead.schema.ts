@@ -103,9 +103,7 @@ export type CreateLeadType = z.infer<typeof createLeadSchema>;
 export const generalInfoSchema = z.object({
   status: LeadStatusEnumSchema,
   serviceType: z.string().optional(),
-  categories: z
-    .array(z.object({ value: z.string(), label: z.string() }))
-    .optional(),
+  categories: z.array(z.string()).optional(),
   description: z.string().optional(),
 });
 export type GeneralInfoType = z.infer<typeof generalInfoSchema>;
@@ -116,3 +114,15 @@ export const leadCategoryCreateSchema = z.object({
   description: z.string().optional(),
 });
 export type LeadCategoryCreateType = z.infer<typeof leadCategoryCreateSchema>;
+
+export const leadNoteSchema = z.object({
+  leadId: z.uuid(),
+  jobId: z.uuid().optional(),
+  content: z.string().min(1, "Note content is required"),
+});
+export type LeadNoteType = z.infer<typeof leadNoteSchema>;
+
+export const leadAddressesSchema = z.object({
+  addresses: z.array(leadAddressSchema),
+});
+export type LeadAddressesType = z.infer<typeof leadAddressesSchema>;

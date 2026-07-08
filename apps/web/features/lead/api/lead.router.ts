@@ -16,6 +16,12 @@ import {
   listLeadCategoriesForSearchProcedure,
   listLeadCategoriesProcedure,
 } from "./leadCategory.procedure";
+import {
+  leadNoteCreateProcedure,
+  leadNoteDeleteProcedure,
+  leadNoteUpdateProcedure,
+  listLeadNotesProcedure,
+} from "./leadNote.procedure";
 
 export const leadRouter = leadImpl.router({
   list: listLeadProcedure,
@@ -32,5 +38,11 @@ export const leadRouter = leadImpl.router({
   customer: {
     list: listCusotmerProcedure,
     listForSearch: listCustomerForSearchProcedure,
+  },
+  note: {
+    list: listLeadNotesProcedure,
+    create: leadNoteCreateProcedure,
+    update: leadNoteUpdateProcedure,
+    delete: leadNoteDeleteProcedure,
   },
 });
