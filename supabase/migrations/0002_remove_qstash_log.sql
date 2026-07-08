@@ -1,1 +1,0 @@
-DROP TABLE "qstash_logs" CASCADE;

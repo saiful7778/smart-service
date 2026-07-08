@@ -520,6 +520,7 @@ table jobs {
   title varchar(255) [not null]
   description text
   status JobStatusEnum [not null, default: 'scheduled']
+  service_at "timestamp (3) with time zone" [not null]
   expected_revenue "numeric(10, 2)" [default: '0']
   invoiced_revenue "numeric(10, 2)" [default: '0']
   received_revenue "numeric(10, 2)" [default: '0']
@@ -541,35 +542,12 @@ table jobs {
     lead_id [name: 'jobs_lead_id_idx']
     customer_id [name: 'jobs_customer_id_idx']
     status [name: 'jobs_status_idx']
+    service_at [name: 'jobs_service_at_idx']
     created_at [name: 'jobs_created_at_idx']
     created_by [name: 'jobs_created_by_idx']
     updated_by [name: 'jobs_updated_by_idx']
     deleted_by [name: 'jobs_deleted_by_idx']
     deleted_at [name: 'jobs_deleted_at_idx']
-  }
-}
-
-table job_assignments {
-  id uuid [pk, not null, default: `gen_random_uuid()`]
-  job_id uuid [not null]
-  assigned_by uuid [not null]
-  assigned_to uuid [not null]
-  role JobAssignmentRoleEnum [not null, default: 'secondary']
-  status JobAssignmentStatusEnum [not null, default: 'pending']
-  acknowledge_at "timestamp (3) with time zone"
-  created_at "timestamp (3) with time zone" [not null, default: `now()`]
-  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
-
-  indexes {
-    
-    
-    
-    job_id [name: 'job_assignment_job_id_idx']
-    assigned_to [name: 'job_assignment_assignedTo_id_idx']
-    assigned_by [name: 'job_assignment_assignedBy_id_idx']
-    status [name: 'job_assignment_status_idx']
-    role [name: 'job_assignment_role_idx']
-    acknowledge_at [name: 'job_assignment_acknowledge_at_idx']
   }
 }
 
@@ -634,46 +612,53 @@ table job_materials {
   }
 }
 
-table schedules {
+table job_schedules {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   org_id uuid [not null]
   job_id uuid [not null]
   title varchar(255) [not null]
   start_at "timestamp (3) with time zone" [not null]
   end_at "timestamp (3) with time zone" [not null]
-  all_day boolean [not null, default: false]
-  recurrence_rule text
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
   updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
   indexes {
     
     
-    org_id [name: 'schedules_org_id_idx']
-    job_id [name: 'schedules_job_id_idx']
-    start_at [name: 'schedules_start_at_idx']
-    end_at [name: 'schedules_end_at_idx']
-    created_at [name: 'schedules_created_at_idx']
+    org_id [name: 'job_schedules_org_id_idx']
+    job_id [name: 'job_schedules_job_id_idx']
+    start_at [name: 'job_schedules_start_at_idx']
+    end_at [name: 'job_schedules_end_at_idx']
+    created_at [name: 'job_schedules_created_at_idx']
   }
 }
 
-table schedule_assignments {
+table job_schedule_assignments {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  schedule_id uuid [not null]
-  member_id uuid [not null]
+  job_schedule_id uuid [not null]
+  assigned_by uuid [not null]
+  assigned_to uuid [not null]
+  role JobAssignmentRoleEnum [not null, default: 'secondary']
+  status JobAssignmentStatusEnum [not null, default: 'pending']
+  acknowledge_at "timestamp (3) with time zone"
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
+  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
   indexes {
     
     
-    (schedule_id, member_id) [name: 'schedule_assignement_schedule_id_org_member_id_key', unique]
-    schedule_id [name: 'schedule_assignement_schedule_id_idx']
-    member_id [name: 'schedule_assignement_org_member_id_idx']
-    created_at [name: 'schedule_assignement_created_at_idx']
+    
+    job_schedule_id [name: 'job_schedule_assignement_schedule_id_idx']
+    assigned_to [name: 'job_schedule_assignement_assignedTo_idx']
+    assigned_by [name: 'job_schedule_assignement_assignedBy_idx']
+    status [name: 'job_schedule_assignement_status_idx']
+    role [name: 'job_schedule_assignement_role_idx']
+    acknowledge_at [name: 'job_schedule_assignement_acknowledgeAt_idx']
+    created_at [name: 'job_schedule_assignement_created_at_idx']
   }
 }
 
-table time_entries {
+table job_time_entries {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   job_id uuid [not null]
   member_id uuid [not null]
@@ -681,8 +666,6 @@ table time_entries {
   start_at "timestamp (3) with time zone" [not null]
   end_at "timestamp (3) with time zone"
   duration_minutes integer
-  billable boolean [not null, default: true]
-  notes text
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
   updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
@@ -690,9 +673,11 @@ table time_entries {
     
     
     
-    job_id [name: 'time_entry_job_id_idx']
-    member_id [name: 'time_entry_member_idx']
-    schedule_id [name: 'time_entry_schedule_id_idx']
+    job_id [name: 'job_time_entry_job_id_idx']
+    member_id [name: 'job_time_entry_member_idx']
+    schedule_id [name: 'job_time_entry_schedule_id_idx']
+    start_at [name: 'job_time_entry_startAt_idx']
+    end_at [name: 'job_time_entry_endAt_idx']
   }
 }
 
@@ -1248,12 +1233,6 @@ ref: jobs.updated_by > organization_members.id
 
 ref: jobs.deleted_by > organization_members.id
 
-ref: job_assignments.job_id > jobs.id
-
-ref: job_assignments.assigned_by > organization_members.id
-
-ref: job_assignments.assigned_to - organization_members.id
-
 ref: job_categories.organization_id > organizations.id
 
 ref: job_categories.created_by > organization_members.id
@@ -1270,19 +1249,21 @@ ref: job_materials.created_by > organization_members.id
 
 ref: job_materials.updated_by > organization_members.id
 
-ref: schedules.org_id > organizations.id
+ref: job_schedules.org_id > organizations.id
 
-ref: schedules.job_id > jobs.id
+ref: job_schedules.job_id > jobs.id
 
-ref: schedule_assignments.schedule_id > schedules.id
+ref: job_schedule_assignments.job_schedule_id > job_schedules.id
 
-ref: schedule_assignments.member_id > organization_members.id
+ref: job_schedule_assignments.assigned_by > organization_members.id
 
-ref: time_entries.job_id > jobs.id
+ref: job_schedule_assignments.assigned_to > organization_members.id
 
-ref: time_entries.member_id > organization_members.id
+ref: job_time_entries.job_id > jobs.id
 
-ref: time_entries.schedule_id > schedules.id
+ref: job_time_entries.member_id > organization_members.id
+
+ref: job_time_entries.schedule_id > job_schedules.id
 
 ref: leads.organization_id > organizations.id
 

@@ -212,40 +212,16 @@ CREATE TABLE "jobs" (
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"status" "JobStatusEnum" DEFAULT 'scheduled' NOT NULL,
+	"service_at" timestamp (3) with time zone NOT NULL,
 	"expected_revenue" numeric(10, 2) DEFAULT '0',
 	"invoiced_revenue" numeric(10, 2) DEFAULT '0',
 	"received_revenue" numeric(10, 2) DEFAULT '0',
-	"hours_worked" numeric(6, 2) DEFAULT '0',
 	"created_by" uuid,
 	"updated_by" uuid,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"deleted_at" timestamp (3) with time zone,
 	"deleted_by" uuid
-);
---> statement-breakpoint
-CREATE TABLE "job_assignments" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"job_id" uuid NOT NULL,
-	"assigned_by" uuid NOT NULL,
-	"assigned_to" uuid NOT NULL,
-	"role" "JobAssignmentRoleEnum" DEFAULT 'secondary' NOT NULL,
-	"status" "JobAssignmentStatusEnum" DEFAULT 'pending' NOT NULL,
-	"acknowledge_at" timestamp (3) with time zone,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "job_materials" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"job_id" uuid NOT NULL,
-	"material_id" uuid NOT NULL,
-	"quantity" numeric(12, 2) NOT NULL,
-	"notes" text,
-	"created_by" uuid NOT NULL,
-	"updated_by" uuid NOT NULL,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "job_categories" (
@@ -264,6 +240,53 @@ CREATE TABLE "job_category_joins" (
 	"job_id" uuid NOT NULL,
 	"job_category_id" uuid NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "job_materials" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"job_id" uuid NOT NULL,
+	"material_id" uuid NOT NULL,
+	"quantity" numeric(12, 2) NOT NULL,
+	"notes" text,
+	"created_by" uuid NOT NULL,
+	"updated_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "job_schedules" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"job_id" uuid NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"start_at" timestamp (3) with time zone NOT NULL,
+	"end_at" timestamp (3) with time zone NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "job_schedule_assignments" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"job_schedule_id" uuid NOT NULL,
+	"assigned_by" uuid NOT NULL,
+	"assigned_to" uuid NOT NULL,
+	"role" "JobAssignmentRoleEnum" DEFAULT 'secondary' NOT NULL,
+	"status" "JobAssignmentStatusEnum" DEFAULT 'pending' NOT NULL,
+	"acknowledge_at" timestamp (3) with time zone,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "job_time_entries" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"job_id" uuid NOT NULL,
+	"member_id" uuid NOT NULL,
+	"schedule_id" uuid,
+	"start_at" timestamp (3) with time zone NOT NULL,
+	"end_at" timestamp (3) with time zone,
+	"duration_minutes" integer,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "leads" (
@@ -473,7 +496,7 @@ CREATE TABLE "org_member_roles" (
 	"organization_id" uuid NOT NULL,
 	"role_id" uuid NOT NULL,
 	"org_member_id" uuid NOT NULL,
-	"assigned_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "permissions" (
@@ -490,9 +513,8 @@ CREATE TABLE "permissions" (
 --> statement-breakpoint
 CREATE TABLE "roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"role_name" "RoleEnum" DEFAULT 'USER' NOT NULL,
 	"type" "RoleTypeEnum" DEFAULT 'SYSTEM' NOT NULL,
-	"custom_role_name" varchar(255),
+	"role_name" "RoleEnum" DEFAULT 'USER' NOT NULL,
 	"description" varchar(255),
 	"metadata" jsonb,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
@@ -513,38 +535,27 @@ CREATE TABLE "user_roles" (
 	"assigned_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "schedules" (
+CREATE TABLE "org_roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"org_id" uuid NOT NULL,
-	"job_id" uuid NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"start_at" timestamp (3) with time zone NOT NULL,
-	"end_at" timestamp (3) with time zone NOT NULL,
-	"all_day" boolean DEFAULT false NOT NULL,
-	"recurrence_rule" text,
+	"organization_id" uuid NOT NULL,
+	"role" varchar(255) NOT NULL,
+	"permission" text NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "schedule_assignments" (
+CREATE TABLE "org_role_members" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"schedule_id" uuid NOT NULL,
-	"org_member_id" uuid NOT NULL,
+	"role_id" uuid NOT NULL,
+	"member_id" uuid NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "time_entries" (
+CREATE TABLE "org_role_permissions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"job_id" uuid NOT NULL,
-	"org_member_id" uuid NOT NULL,
-	"schedule_id" uuid,
-	"start_at" timestamp (3) with time zone NOT NULL,
-	"end_at" timestamp (3) with time zone,
-	"duration_minutes" integer,
-	"billable" boolean DEFAULT true NOT NULL,
-	"notes" text,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+	"role_id" uuid NOT NULL,
+	"permission_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -577,17 +588,22 @@ ALTER TABLE "jobs" ADD CONSTRAINT "jobs_lead_fkey" FOREIGN KEY ("lead_id") REFER
 ALTER TABLE "jobs" ADD CONSTRAINT "jobs_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "jobs" ADD CONSTRAINT "jobs_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "jobs" ADD CONSTRAINT "jobs_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_assignedTo_fkey" FOREIGN KEY ("assigned_to") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_assignedBy_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "job_categories" ADD CONSTRAINT "job_categories_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "job_categories" ADD CONSTRAINT "job_categories_created_by_organization_members_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "job_category_joins" ADD CONSTRAINT "job_category_join_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "job_category_joins" ADD CONSTRAINT "job_category_join_job_category_fkey" FOREIGN KEY ("job_category_id") REFERENCES "public"."job_categories"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_schedules" ADD CONSTRAINT "job_schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_schedules" ADD CONSTRAINT "job_schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_schedule_assignments" ADD CONSTRAINT "job_schedule_assignement_schedule_fkey" FOREIGN KEY ("job_schedule_id") REFERENCES "public"."job_schedules"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_schedule_assignments" ADD CONSTRAINT "job_schedule_assignement_assignedTo_fkey" FOREIGN KEY ("assigned_to") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_schedule_assignments" ADD CONSTRAINT "job_schedule_assignement_assignedBy_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_time_entries" ADD CONSTRAINT "job_time_entries_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_time_entries" ADD CONSTRAINT "job_time_entries_member_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "job_time_entries" ADD CONSTRAINT "job_time_entries_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."job_schedules"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "leads" ADD CONSTRAINT "leads_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "leads" ADD CONSTRAINT "leads_customer_fkey" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "leads" ADD CONSTRAINT "leads_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
@@ -632,18 +648,16 @@ ALTER TABLE "org_team_members" ADD CONSTRAINT "orgTeamMember_team_fkey" FOREIGN 
 ALTER TABLE "org_team_members" ADD CONSTRAINT "orgTeamMember_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_id" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_org_member_id" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_member_roles" ADD CONSTRAINT "fk_org_member_roles_member_id" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_role_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permission_permission_fkey" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_role_id" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "fk_user_roles_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_org_member_fkey" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_member_fkey" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_roles" ADD CONSTRAINT "orgRole_organizationId_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_roleId_fk" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_permissionId_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 CREATE UNIQUE INDEX "user_email_key" ON "users" USING btree ("email");--> statement-breakpoint
 CREATE INDEX "user_activity_user_id_idx" ON "user_activities" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_activity_login_at_idx" ON "user_activities" USING btree ("login_at");--> statement-breakpoint
@@ -697,23 +711,12 @@ CREATE INDEX "jobs_org_id_idx" ON "jobs" USING btree ("organization_id");--> sta
 CREATE INDEX "jobs_lead_id_idx" ON "jobs" USING btree ("lead_id");--> statement-breakpoint
 CREATE INDEX "jobs_customer_id_idx" ON "jobs" USING btree ("customer_id");--> statement-breakpoint
 CREATE INDEX "jobs_status_idx" ON "jobs" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "jobs_service_at_idx" ON "jobs" USING btree ("service_at");--> statement-breakpoint
 CREATE INDEX "jobs_created_at_idx" ON "jobs" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "jobs_created_by_idx" ON "jobs" USING btree ("created_by");--> statement-breakpoint
 CREATE INDEX "jobs_updated_by_idx" ON "jobs" USING btree ("updated_by");--> statement-breakpoint
 CREATE INDEX "jobs_deleted_by_idx" ON "jobs" USING btree ("deleted_by");--> statement-breakpoint
 CREATE INDEX "jobs_deleted_at_idx" ON "jobs" USING btree ("deleted_at");--> statement-breakpoint
-CREATE INDEX "job_assignment_job_id_idx" ON "job_assignments" USING btree ("job_id");--> statement-breakpoint
-CREATE INDEX "job_assignment_assignedTo_id_idx" ON "job_assignments" USING btree ("assigned_to");--> statement-breakpoint
-CREATE INDEX "job_assignment_assignedBy_id_idx" ON "job_assignments" USING btree ("assigned_by");--> statement-breakpoint
-CREATE INDEX "job_assignment_status_idx" ON "job_assignments" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "job_assignment_role_idx" ON "job_assignments" USING btree ("role");--> statement-breakpoint
-CREATE INDEX "job_assignment_acknowledge_at_idx" ON "job_assignments" USING btree ("acknowledge_at");--> statement-breakpoint
-CREATE INDEX "job_material_job_id_idx" ON "job_materials" USING btree ("job_id");--> statement-breakpoint
-CREATE INDEX "job_material_material_id_idx" ON "job_materials" USING btree ("material_id");--> statement-breakpoint
-CREATE INDEX "job_material_created_by_idx" ON "job_materials" USING btree ("created_by");--> statement-breakpoint
-CREATE INDEX "job_material_updated_by_idx" ON "job_materials" USING btree ("updated_by");--> statement-breakpoint
-CREATE INDEX "job_material_quantity_idx" ON "job_materials" USING btree ("quantity");--> statement-breakpoint
-CREATE INDEX "job_material_created_at_idx" ON "job_materials" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "job_categories_organization_id_idx" ON "job_categories" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "job_categories_created_by_idx" ON "job_categories" USING btree ("created_by");--> statement-breakpoint
 CREATE UNIQUE INDEX "job_categories_slug_unique" ON "job_categories" USING btree ("slug");--> statement-breakpoint
@@ -722,6 +725,29 @@ CREATE INDEX "job_categories_created_at_idx" ON "job_categories" USING btree ("c
 CREATE INDEX "job_category_join_job_id_idx" ON "job_category_joins" USING btree ("job_id");--> statement-breakpoint
 CREATE INDEX "job_category_join_job_category_id_idx" ON "job_category_joins" USING btree ("job_category_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "job_category_join_unique" ON "job_category_joins" USING btree ("job_id","job_category_id");--> statement-breakpoint
+CREATE INDEX "job_material_job_id_idx" ON "job_materials" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "job_material_material_id_idx" ON "job_materials" USING btree ("material_id");--> statement-breakpoint
+CREATE INDEX "job_material_created_by_idx" ON "job_materials" USING btree ("created_by");--> statement-breakpoint
+CREATE INDEX "job_material_updated_by_idx" ON "job_materials" USING btree ("updated_by");--> statement-breakpoint
+CREATE INDEX "job_material_quantity_idx" ON "job_materials" USING btree ("quantity");--> statement-breakpoint
+CREATE INDEX "job_material_created_at_idx" ON "job_materials" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "job_schedules_org_id_idx" ON "job_schedules" USING btree ("org_id");--> statement-breakpoint
+CREATE INDEX "job_schedules_job_id_idx" ON "job_schedules" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "job_schedules_start_at_idx" ON "job_schedules" USING btree ("start_at");--> statement-breakpoint
+CREATE INDEX "job_schedules_end_at_idx" ON "job_schedules" USING btree ("end_at");--> statement-breakpoint
+CREATE INDEX "job_schedules_created_at_idx" ON "job_schedules" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_schedule_id_idx" ON "job_schedule_assignments" USING btree ("job_schedule_id");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_assignedTo_idx" ON "job_schedule_assignments" USING btree ("assigned_to");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_assignedBy_idx" ON "job_schedule_assignments" USING btree ("assigned_by");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_status_idx" ON "job_schedule_assignments" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_role_idx" ON "job_schedule_assignments" USING btree ("role");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_acknowledgeAt_idx" ON "job_schedule_assignments" USING btree ("acknowledge_at");--> statement-breakpoint
+CREATE INDEX "job_schedule_assignement_created_at_idx" ON "job_schedule_assignments" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "job_time_entry_job_id_idx" ON "job_time_entries" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "job_time_entry_member_idx" ON "job_time_entries" USING btree ("member_id");--> statement-breakpoint
+CREATE INDEX "job_time_entry_schedule_id_idx" ON "job_time_entries" USING btree ("schedule_id");--> statement-breakpoint
+CREATE INDEX "job_time_entry_startAt_idx" ON "job_time_entries" USING btree ("start_at");--> statement-breakpoint
+CREATE INDEX "job_time_entry_endAt_idx" ON "job_time_entries" USING btree ("end_at");--> statement-breakpoint
 CREATE INDEX "leads_org_id_idx" ON "leads" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "leads_customer_id_idx" ON "leads" USING btree ("customer_id");--> statement-breakpoint
 CREATE INDEX "leads_status_idx" ON "leads" USING btree ("status");--> statement-breakpoint
@@ -751,7 +777,7 @@ CREATE INDEX "lead_revenue_history_job_id_idx" ON "lead_revenue_history" USING b
 CREATE INDEX "lead_revenue_history_revenue_type_idx" ON "lead_revenue_history" USING btree ("revenue_type");--> statement-breakpoint
 CREATE INDEX "lead_revenue_history_changed_by_idx" ON "lead_revenue_history" USING btree ("changed_by");--> statement-breakpoint
 CREATE INDEX "lead_revenue_history_changed_at_idx" ON "lead_revenue_history" USING btree ("changed_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "lead_category_slug_unique" ON "lead_categories" USING btree ("slug");--> statement-breakpoint
+CREATE UNIQUE INDEX "lead_category_org_slug_unique" ON "lead_categories" USING btree ("organization_id","slug");--> statement-breakpoint
 CREATE INDEX "lead_category_org_id_idx" ON "lead_categories" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "lead_category_created_by_idx" ON "lead_categories" USING btree ("created_by");--> statement-breakpoint
 CREATE INDEX "lead_category_created_at_idx" ON "lead_categories" USING btree ("created_at");--> statement-breakpoint
@@ -792,31 +818,25 @@ CREATE INDEX "orgTeamMember_user_id_idx" ON "org_team_members" USING btree ("use
 CREATE INDEX "orgTeamMember_created_at_idx" ON "org_team_members" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "org_member_role_unique" ON "org_member_roles" USING btree ("organization_id","org_member_id","role_id");--> statement-breakpoint
 CREATE INDEX "org_member_role_org_id_idx" ON "org_member_roles" USING btree ("organization_id");--> statement-breakpoint
-CREATE INDEX "org_member_role_org_member_id_idx" ON "org_member_roles" USING btree ("org_member_id");--> statement-breakpoint
+CREATE INDEX "org_member_role_member_id_idx" ON "org_member_roles" USING btree ("org_member_id");--> statement-breakpoint
 CREATE INDEX "org_member_role_role_id_idx" ON "org_member_roles" USING btree ("role_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "permission_level_resource_action_key" ON "permissions" USING btree ("level","resource","action");--> statement-breakpoint
 CREATE INDEX "permission_level_idx" ON "permissions" USING btree ("level");--> statement-breakpoint
 CREATE INDEX "permission_resource_idx" ON "permissions" USING btree ("resource");--> statement-breakpoint
 CREATE INDEX "permission_action_idx" ON "permissions" USING btree ("action");--> statement-breakpoint
-CREATE UNIQUE INDEX "role_name_type_unique" ON "roles" USING btree ("role_name","type");--> statement-breakpoint
-CREATE UNIQUE INDEX "custom_role_name_unique" ON "roles" USING btree ("custom_role_name","type");--> statement-breakpoint
 CREATE INDEX "role_type_idx" ON "roles" USING btree ("type");--> statement-breakpoint
 CREATE INDEX "role_name_idx" ON "roles" USING btree ("role_name");--> statement-breakpoint
+CREATE UNIQUE INDEX "role_type_name_unique" ON "roles" USING btree ("type","role_name");--> statement-breakpoint
 CREATE UNIQUE INDEX "role_permission_unique" ON "role_permissions" USING btree ("role_id","permission_id");--> statement-breakpoint
 CREATE INDEX "role_permission_role_idx" ON "role_permissions" USING btree ("role_id");--> statement-breakpoint
 CREATE INDEX "role_permission_permission_idx" ON "role_permissions" USING btree ("permission_id");--> statement-breakpoint
 CREATE INDEX "user_role_unique" ON "user_roles" USING btree ("user_id","role_id");--> statement-breakpoint
 CREATE INDEX "user_role_role_id_idx" ON "user_roles" USING btree ("role_id");--> statement-breakpoint
 CREATE INDEX "user_role_user_id_idx" ON "user_roles" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "schedules_org_id_idx" ON "schedules" USING btree ("org_id");--> statement-breakpoint
-CREATE INDEX "schedules_job_id_idx" ON "schedules" USING btree ("job_id");--> statement-breakpoint
-CREATE INDEX "schedules_start_at_idx" ON "schedules" USING btree ("start_at");--> statement-breakpoint
-CREATE INDEX "schedules_end_at_idx" ON "schedules" USING btree ("end_at");--> statement-breakpoint
-CREATE INDEX "schedules_created_at_idx" ON "schedules" USING btree ("created_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "schedule_assignement_schedule_id_org_member_id_key" ON "schedule_assignments" USING btree ("schedule_id","org_member_id");--> statement-breakpoint
-CREATE INDEX "schedule_assignement_schedule_id_idx" ON "schedule_assignments" USING btree ("schedule_id");--> statement-breakpoint
-CREATE INDEX "schedule_assignement_org_member_id_idx" ON "schedule_assignments" USING btree ("org_member_id");--> statement-breakpoint
-CREATE INDEX "schedule_assignement_created_at_idx" ON "schedule_assignments" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "time_entry_job_id_idx" ON "time_entries" USING btree ("job_id");--> statement-breakpoint
-CREATE INDEX "time_entry_member_idx" ON "time_entries" USING btree ("org_member_id");--> statement-breakpoint
-CREATE INDEX "time_entry_schedule_id_idx" ON "time_entries" USING btree ("schedule_id");
+CREATE INDEX "orgRole_organizationId_idx" ON "org_roles" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "org_role_member_org_role_id_idx" ON "org_role_members" USING btree ("role_id");--> statement-breakpoint
+CREATE INDEX "org_role_member_org_member_id_idx" ON "org_role_members" USING btree ("member_id");--> statement-breakpoint
+CREATE INDEX "org_role_member_unique_idx" ON "org_role_members" USING btree ("role_id","member_id");--> statement-breakpoint
+CREATE INDEX "orgRolePermission_roleId_idx" ON "org_role_permissions" USING btree ("role_id");--> statement-breakpoint
+CREATE INDEX "orgRolePermission_permissionId_idx" ON "org_role_permissions" USING btree ("permission_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "orgRolePermission_unique" ON "org_role_permissions" USING btree ("role_id","permission_id");

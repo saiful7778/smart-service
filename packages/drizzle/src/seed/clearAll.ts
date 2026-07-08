@@ -5,7 +5,8 @@ export async function clearAll(db: DatabaseType) {
   console.log("🧹 Clearing existing data...");
   await db.transaction(async (tx) => {
     await tx.delete(schema.LeadNoteTable);
-    await tx.delete(schema.JobAssignmentTable);
+    await tx.delete(schema.JobScheduleAssignementTable);
+    await tx.delete(schema.JobScheduleTable);
     await tx.delete(schema.JobTable);
     await tx.delete(schema.LeadCategoryJoinTable);
     await tx.delete(schema.LeadAttachmentTable);

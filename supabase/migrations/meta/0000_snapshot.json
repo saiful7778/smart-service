@@ -1,5 +1,5 @@
 {
-  "id": "92fb9aac-0402-4371-af3d-16b9392c224b",
+  "id": "1040cc65-4ecf-4320-88a8-06dbbba6a1ff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2268,6 +2268,12 @@
           "notNull": true,
           "default": "'scheduled'"
         },
+        "service_at": {
+          "name": "service_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
         "expected_revenue": {
           "name": "expected_revenue",
           "type": "numeric(10, 2)",
@@ -2285,13 +2291,6 @@
         "received_revenue": {
           "name": "received_revenue",
           "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'0'"
-        },
-        "hours_worked": {
-          "name": "hours_worked",
-          "type": "numeric(6, 2)",
           "primaryKey": false,
           "notNull": false,
           "default": "'0'"
@@ -2386,6 +2385,21 @@
           "columns": [
             {
               "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "jobs_service_at_idx": {
+          "name": "jobs_service_at_idx",
+          "columns": [
+            {
+              "expression": "service_at",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2544,425 +2558,6 @@
           "tableTo": "organization_members",
           "columnsFrom": [
             "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.job_assignments": {
-      "name": "job_assignments",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "job_id": {
-          "name": "job_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "assigned_by": {
-          "name": "assigned_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "assigned_to": {
-          "name": "assigned_to",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "JobAssignmentRoleEnum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'secondary'"
-        },
-        "status": {
-          "name": "status",
-          "type": "JobAssignmentStatusEnum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "acknowledge_at": {
-          "name": "acknowledge_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "job_assignment_job_id_idx": {
-          "name": "job_assignment_job_id_idx",
-          "columns": [
-            {
-              "expression": "job_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_assignment_assignedTo_id_idx": {
-          "name": "job_assignment_assignedTo_id_idx",
-          "columns": [
-            {
-              "expression": "assigned_to",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_assignment_assignedBy_id_idx": {
-          "name": "job_assignment_assignedBy_id_idx",
-          "columns": [
-            {
-              "expression": "assigned_by",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_assignment_status_idx": {
-          "name": "job_assignment_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_assignment_role_idx": {
-          "name": "job_assignment_role_idx",
-          "columns": [
-            {
-              "expression": "role",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_assignment_acknowledge_at_idx": {
-          "name": "job_assignment_acknowledge_at_idx",
-          "columns": [
-            {
-              "expression": "acknowledge_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "job_assignment_job_fkey": {
-          "name": "job_assignment_job_fkey",
-          "tableFrom": "job_assignments",
-          "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "job_assignment_assignedTo_fkey": {
-          "name": "job_assignment_assignedTo_fkey",
-          "tableFrom": "job_assignments",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "assigned_to"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "job_assignment_assignedBy_fkey": {
-          "name": "job_assignment_assignedBy_fkey",
-          "tableFrom": "job_assignments",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.job_materials": {
-      "name": "job_materials",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "job_id": {
-          "name": "job_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "material_id": {
-          "name": "material_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "quantity": {
-          "name": "quantity",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "job_material_job_id_idx": {
-          "name": "job_material_job_id_idx",
-          "columns": [
-            {
-              "expression": "job_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_material_material_id_idx": {
-          "name": "job_material_material_id_idx",
-          "columns": [
-            {
-              "expression": "material_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_material_created_by_idx": {
-          "name": "job_material_created_by_idx",
-          "columns": [
-            {
-              "expression": "created_by",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_material_updated_by_idx": {
-          "name": "job_material_updated_by_idx",
-          "columns": [
-            {
-              "expression": "updated_by",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_material_quantity_idx": {
-          "name": "job_material_quantity_idx",
-          "columns": [
-            {
-              "expression": "quantity",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "job_material_created_at_idx": {
-          "name": "job_material_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "job_material_job_fkey": {
-          "name": "job_material_job_fkey",
-          "tableFrom": "job_materials",
-          "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "job_material_material_fkey": {
-          "name": "job_material_material_fkey",
-          "tableFrom": "job_materials",
-          "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "job_material_created_by_fkey": {
-          "name": "job_material_created_by_fkey",
-          "tableFrom": "job_materials",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "cascade"
-        },
-        "job_material_updated_by_fkey": {
-          "name": "job_material_updated_by_fkey",
-          "tableFrom": "job_materials",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "updated_by"
           ],
           "columnsTo": [
             "id"
@@ -3254,6 +2849,793 @@
           "tableTo": "job_categories",
           "columnsFrom": [
             "job_category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_materials": {
+      "name": "job_materials",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "material_id": {
+          "name": "material_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "job_material_job_id_idx": {
+          "name": "job_material_job_id_idx",
+          "columns": [
+            {
+              "expression": "job_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_material_material_id_idx": {
+          "name": "job_material_material_id_idx",
+          "columns": [
+            {
+              "expression": "material_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_material_created_by_idx": {
+          "name": "job_material_created_by_idx",
+          "columns": [
+            {
+              "expression": "created_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_material_updated_by_idx": {
+          "name": "job_material_updated_by_idx",
+          "columns": [
+            {
+              "expression": "updated_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_material_quantity_idx": {
+          "name": "job_material_quantity_idx",
+          "columns": [
+            {
+              "expression": "quantity",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_material_created_at_idx": {
+          "name": "job_material_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "job_material_job_fkey": {
+          "name": "job_material_job_fkey",
+          "tableFrom": "job_materials",
+          "tableTo": "jobs",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_material_material_fkey": {
+          "name": "job_material_material_fkey",
+          "tableFrom": "job_materials",
+          "tableTo": "materials",
+          "columnsFrom": [
+            "material_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_material_created_by_fkey": {
+          "name": "job_material_created_by_fkey",
+          "tableFrom": "job_materials",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "job_material_updated_by_fkey": {
+          "name": "job_material_updated_by_fkey",
+          "tableFrom": "job_materials",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_schedules": {
+      "name": "job_schedules",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_at": {
+          "name": "start_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_at": {
+          "name": "end_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "job_schedules_org_id_idx": {
+          "name": "job_schedules_org_id_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedules_job_id_idx": {
+          "name": "job_schedules_job_id_idx",
+          "columns": [
+            {
+              "expression": "job_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedules_start_at_idx": {
+          "name": "job_schedules_start_at_idx",
+          "columns": [
+            {
+              "expression": "start_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedules_end_at_idx": {
+          "name": "job_schedules_end_at_idx",
+          "columns": [
+            {
+              "expression": "end_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedules_created_at_idx": {
+          "name": "job_schedules_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "job_schedules_org_fkey": {
+          "name": "job_schedules_org_fkey",
+          "tableFrom": "job_schedules",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_schedules_job_fkey": {
+          "name": "job_schedules_job_fkey",
+          "tableFrom": "job_schedules",
+          "tableTo": "jobs",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_schedule_assignments": {
+      "name": "job_schedule_assignments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "job_schedule_id": {
+          "name": "job_schedule_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_by": {
+          "name": "assigned_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_to": {
+          "name": "assigned_to",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "JobAssignmentRoleEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'secondary'"
+        },
+        "status": {
+          "name": "status",
+          "type": "JobAssignmentStatusEnum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "acknowledge_at": {
+          "name": "acknowledge_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "job_schedule_assignement_schedule_id_idx": {
+          "name": "job_schedule_assignement_schedule_id_idx",
+          "columns": [
+            {
+              "expression": "job_schedule_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_assignedTo_idx": {
+          "name": "job_schedule_assignement_assignedTo_idx",
+          "columns": [
+            {
+              "expression": "assigned_to",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_assignedBy_idx": {
+          "name": "job_schedule_assignement_assignedBy_idx",
+          "columns": [
+            {
+              "expression": "assigned_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_status_idx": {
+          "name": "job_schedule_assignement_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_role_idx": {
+          "name": "job_schedule_assignement_role_idx",
+          "columns": [
+            {
+              "expression": "role",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_acknowledgeAt_idx": {
+          "name": "job_schedule_assignement_acknowledgeAt_idx",
+          "columns": [
+            {
+              "expression": "acknowledge_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_schedule_assignement_created_at_idx": {
+          "name": "job_schedule_assignement_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "job_schedule_assignement_schedule_fkey": {
+          "name": "job_schedule_assignement_schedule_fkey",
+          "tableFrom": "job_schedule_assignments",
+          "tableTo": "job_schedules",
+          "columnsFrom": [
+            "job_schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_schedule_assignement_assignedTo_fkey": {
+          "name": "job_schedule_assignement_assignedTo_fkey",
+          "tableFrom": "job_schedule_assignments",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "assigned_to"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "job_schedule_assignement_assignedBy_fkey": {
+          "name": "job_schedule_assignement_assignedBy_fkey",
+          "tableFrom": "job_schedule_assignments",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "assigned_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_time_entries": {
+      "name": "job_time_entries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_id": {
+          "name": "member_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "schedule_id": {
+          "name": "schedule_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_at": {
+          "name": "start_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_at": {
+          "name": "end_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration_minutes": {
+          "name": "duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "job_time_entry_job_id_idx": {
+          "name": "job_time_entry_job_id_idx",
+          "columns": [
+            {
+              "expression": "job_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_time_entry_member_idx": {
+          "name": "job_time_entry_member_idx",
+          "columns": [
+            {
+              "expression": "member_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_time_entry_schedule_id_idx": {
+          "name": "job_time_entry_schedule_id_idx",
+          "columns": [
+            {
+              "expression": "schedule_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_time_entry_startAt_idx": {
+          "name": "job_time_entry_startAt_idx",
+          "columns": [
+            {
+              "expression": "start_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_time_entry_endAt_idx": {
+          "name": "job_time_entry_endAt_idx",
+          "columns": [
+            {
+              "expression": "end_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "job_time_entries_job_fkey": {
+          "name": "job_time_entries_job_fkey",
+          "tableFrom": "job_time_entries",
+          "tableTo": "jobs",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_time_entries_member_fkey": {
+          "name": "job_time_entries_member_fkey",
+          "tableFrom": "job_time_entries",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "member_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "job_time_entries_schedule_fkey": {
+          "name": "job_time_entries_schedule_fkey",
+          "tableFrom": "job_time_entries",
+          "tableTo": "job_schedules",
+          "columnsFrom": [
+            "schedule_id"
           ],
           "columnsTo": [
             "id"
@@ -4433,9 +4815,15 @@
         }
       },
       "indexes": {
-        "lead_category_slug_unique": {
-          "name": "lead_category_slug_unique",
+        "lead_category_org_slug_unique": {
+          "name": "lead_category_org_slug_unique",
           "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
             {
               "expression": "slug",
               "isExpression": false,
@@ -6132,8 +6520,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "assigned_at": {
-          "name": "assigned_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp (3) with time zone",
           "primaryKey": false,
           "notNull": true,
@@ -6183,8 +6571,8 @@
           "method": "btree",
           "with": {}
         },
-        "org_member_role_org_member_id_idx": {
-          "name": "org_member_role_org_member_id_idx",
+        "org_member_role_member_id_idx": {
+          "name": "org_member_role_member_id_idx",
           "columns": [
             {
               "expression": "org_member_id",
@@ -6241,8 +6629,8 @@
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "fk_org_member_roles_org_member_id": {
-          "name": "fk_org_member_roles_org_member_id",
+        "fk_org_member_roles_member_id": {
+          "name": "fk_org_member_roles_member_id",
           "tableFrom": "org_member_roles",
           "tableTo": "organization_members",
           "columnsFrom": [
@@ -6418,14 +6806,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "role_name": {
-          "name": "role_name",
-          "type": "RoleEnum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'USER'"
-        },
         "type": {
           "name": "type",
           "type": "RoleTypeEnum",
@@ -6434,11 +6814,13 @@
           "notNull": true,
           "default": "'SYSTEM'"
         },
-        "custom_role_name": {
-          "name": "custom_role_name",
-          "type": "varchar(255)",
+        "role_name": {
+          "name": "role_name",
+          "type": "RoleEnum",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "'USER'"
         },
         "description": {
           "name": "description",
@@ -6468,48 +6850,6 @@
         }
       },
       "indexes": {
-        "role_name_type_unique": {
-          "name": "role_name_type_unique",
-          "columns": [
-            {
-              "expression": "role_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "custom_role_name_unique": {
-          "name": "custom_role_name_unique",
-          "columns": [
-            {
-              "expression": "custom_role_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "role_type_idx": {
           "name": "role_type_idx",
           "columns": [
@@ -6536,6 +6876,27 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "role_type_name_unique": {
+          "name": "role_type_name_unique",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "role_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -6784,8 +7145,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.schedules": {
-      "name": "schedules",
+    "public.org_roles": {
+      "name": "org_roles",
       "schema": "",
       "columns": {
         "id": {
@@ -6795,48 +7156,23 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "org_id": {
-          "name": "org_id",
+        "organization_id": {
+          "name": "organization_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "job_id": {
-          "name": "job_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
+        "role": {
+          "name": "role",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
-        "start_at": {
-          "name": "start_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_at": {
-          "name": "end_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "all_day": {
-          "name": "all_day",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "recurrence_rule": {
-          "name": "recurrence_rule",
+        "permission": {
+          "name": "permission",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -6854,71 +7190,11 @@
         }
       },
       "indexes": {
-        "schedules_org_id_idx": {
-          "name": "schedules_org_id_idx",
+        "orgRole_organizationId_idx": {
+          "name": "orgRole_organizationId_idx",
           "columns": [
             {
-              "expression": "org_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedules_job_id_idx": {
-          "name": "schedules_job_id_idx",
-          "columns": [
-            {
-              "expression": "job_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedules_start_at_idx": {
-          "name": "schedules_start_at_idx",
-          "columns": [
-            {
-              "expression": "start_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedules_end_at_idx": {
-          "name": "schedules_end_at_idx",
-          "columns": [
-            {
-              "expression": "end_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedules_created_at_idx": {
-          "name": "schedules_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
+              "expression": "organization_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -6931,25 +7207,12 @@
         }
       },
       "foreignKeys": {
-        "schedules_org_fkey": {
-          "name": "schedules_org_fkey",
-          "tableFrom": "schedules",
+        "orgRole_organizationId_fk": {
+          "name": "orgRole_organizationId_fk",
+          "tableFrom": "org_roles",
           "tableTo": "organizations",
           "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "schedules_job_fkey": {
-          "name": "schedules_job_fkey",
-          "tableFrom": "schedules",
-          "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
+            "organization_id"
           ],
           "columnsTo": [
             "id"
@@ -6964,8 +7227,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.schedule_assignments": {
-      "name": "schedule_assignments",
+    "public.org_role_members": {
+      "name": "org_role_members",
       "schema": "",
       "columns": {
         "id": {
@@ -6975,14 +7238,14 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "schedule_id": {
-          "name": "schedule_id",
+        "role_id": {
+          "name": "role_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "org_member_id": {
-          "name": "org_member_id",
+        "member_id": {
+          "name": "member_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -6996,17 +7259,165 @@
         }
       },
       "indexes": {
-        "schedule_assignement_schedule_id_org_member_id_key": {
-          "name": "schedule_assignement_schedule_id_org_member_id_key",
+        "org_role_member_org_role_id_idx": {
+          "name": "org_role_member_org_role_id_idx",
           "columns": [
             {
-              "expression": "schedule_id",
+              "expression": "role_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "org_role_member_org_member_id_idx": {
+          "name": "org_role_member_org_member_id_idx",
+          "columns": [
+            {
+              "expression": "member_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "org_role_member_unique_idx": {
+          "name": "org_role_member_unique_idx",
+          "columns": [
+            {
+              "expression": "role_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             },
             {
-              "expression": "org_member_id",
+              "expression": "member_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "org_role_member_org_role_id_fkey": {
+          "name": "org_role_member_org_role_id_fkey",
+          "tableFrom": "org_role_members",
+          "tableTo": "org_roles",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "org_role_member_org_member_id_fkey": {
+          "name": "org_role_member_org_member_id_fkey",
+          "tableFrom": "org_role_members",
+          "tableTo": "organization_members",
+          "columnsFrom": [
+            "member_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.org_role_permissions": {
+      "name": "org_role_permissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permission_id": {
+          "name": "permission_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "orgRolePermission_roleId_idx": {
+          "name": "orgRolePermission_roleId_idx",
+          "columns": [
+            {
+              "expression": "role_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "orgRolePermission_permissionId_idx": {
+          "name": "orgRolePermission_permissionId_idx",
+          "columns": [
+            {
+              "expression": "permission_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "orgRolePermission_unique": {
+          "name": "orgRolePermission_unique",
+          "columns": [
+            {
+              "expression": "role_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "permission_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -7016,60 +7427,15 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "schedule_assignement_schedule_id_idx": {
-          "name": "schedule_assignement_schedule_id_idx",
-          "columns": [
-            {
-              "expression": "schedule_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedule_assignement_org_member_id_idx": {
-          "name": "schedule_assignement_org_member_id_idx",
-          "columns": [
-            {
-              "expression": "org_member_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedule_assignement_created_at_idx": {
-          "name": "schedule_assignement_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
-        "schedule_assignement_schedule_fkey": {
-          "name": "schedule_assignement_schedule_fkey",
-          "tableFrom": "schedule_assignments",
-          "tableTo": "schedules",
+        "orgRolePermission_roleId_fk": {
+          "name": "orgRolePermission_roleId_fk",
+          "tableFrom": "org_role_permissions",
+          "tableTo": "org_roles",
           "columnsFrom": [
-            "schedule_id"
+            "role_id"
           ],
           "columnsTo": [
             "id"
@@ -7077,181 +7443,12 @@
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "schedule_assignement_org_member_fkey": {
-          "name": "schedule_assignement_org_member_fkey",
-          "tableFrom": "schedule_assignments",
-          "tableTo": "organization_members",
+        "orgRolePermission_permissionId_fk": {
+          "name": "orgRolePermission_permissionId_fk",
+          "tableFrom": "org_role_permissions",
+          "tableTo": "permissions",
           "columnsFrom": [
-            "org_member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.time_entries": {
-      "name": "time_entries",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "job_id": {
-          "name": "job_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "org_member_id": {
-          "name": "org_member_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "schedule_id": {
-          "name": "schedule_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_at": {
-          "name": "start_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_at": {
-          "name": "end_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "duration_minutes": {
-          "name": "duration_minutes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "billable": {
-          "name": "billable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "time_entry_job_id_idx": {
-          "name": "time_entry_job_id_idx",
-          "columns": [
-            {
-              "expression": "job_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "time_entry_member_idx": {
-          "name": "time_entry_member_idx",
-          "columns": [
-            {
-              "expression": "org_member_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "time_entry_schedule_id_idx": {
-          "name": "time_entry_schedule_id_idx",
-          "columns": [
-            {
-              "expression": "schedule_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "time_entries_job_fkey": {
-          "name": "time_entries_job_fkey",
-          "tableFrom": "time_entries",
-          "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "time_entries_member_fkey": {
-          "name": "time_entries_member_fkey",
-          "tableFrom": "time_entries",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "org_member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "time_entries_schedule_fkey": {
-          "name": "time_entries_schedule_fkey",
-          "tableFrom": "time_entries",
-          "tableTo": "schedules",
-          "columnsFrom": [
-            "schedule_id"
+            "permission_id"
           ],
           "columnsTo": [
             "id"

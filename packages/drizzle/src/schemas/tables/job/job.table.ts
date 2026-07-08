@@ -5,6 +5,7 @@ import {
   numeric,
   pgTable,
   text,
+  timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -32,11 +33,10 @@ import {
   LeadTable,
 } from "../lead";
 import { OrganizationMemberTable, OrganizationTable } from "../org";
-import { JobAssignmentTable } from "./jobAssignment.table";
 import { JobCategoryJoinTable } from "./jobCategoryJoin.table";
 import { JobMaterialTable } from "./jobMaterial.table";
-import { ScheduleTable } from "./schedule.table";
-import { TimeEntryTable } from "./timeEntry.table";
+import { JobScheduleTable } from "./jobSchedule.table";
+import { JobTimeEntryTable } from "./jobTimeEntry.table";
 
 export const JobTable = pgTable(
   "jobs",
@@ -48,6 +48,10 @@ export const JobTable = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     status: JobStatusEnum("status").default("scheduled").notNull(),
+    serviceAt: timestamp("service_at", {
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
     expectedRevenue: numeric("expected_revenue", {
       precision: 10,
       scale: 2,
@@ -114,6 +118,7 @@ export const JobTable = pgTable(
     index("jobs_lead_id_idx").on(table.leadId),
     index("jobs_customer_id_idx").on(table.customerId),
     index("jobs_status_idx").on(table.status),
+    index("jobs_service_at_idx").on(table.serviceAt),
     index("jobs_created_at_idx").on(table.createdAt),
     index("jobs_created_by_idx").on(table.createdBy),
     index("jobs_updated_by_idx").on(table.updatedBy),
@@ -153,9 +158,6 @@ export const JobRelations = relations(JobTable, ({ one, many }) => ({
     references: [OrganizationMemberTable.id],
     relationName: "JobToDeletedBy",
   }),
-  assignments: many(JobAssignmentTable, {
-    relationName: "JobAssignmentToJob",
-  }),
   attachments: many(LeadAttachmentTable, {
     relationName: "LeadAttachmentToJob",
   }),
@@ -177,11 +179,11 @@ export const JobRelations = relations(JobTable, ({ one, many }) => ({
   categories: many(JobCategoryJoinTable, {
     relationName: "JobCategoryJoinToJob",
   }),
-  schedules: many(ScheduleTable, {
-    relationName: "ScheduleToJob",
+  jobSchedules: many(JobScheduleTable, {
+    relationName: "JobScheduleToJob",
   }),
-  timeEntries: many(TimeEntryTable, {
-    relationName: "TimeEntryToJob",
+  timeEntries: many(JobTimeEntryTable, {
+    relationName: "JobTimeEntryToJob",
   }),
 }));
 

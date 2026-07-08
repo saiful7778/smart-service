@@ -18,7 +18,7 @@ import { OrgAddressTable } from "../address";
 import { CustomerTable } from "../customer";
 import { JobTable } from "../job/job.table";
 import { JobCategoryTable } from "../job/jobCategory.table";
-import { ScheduleTable } from "../job/schedule.table";
+import { JobScheduleTable } from "../job/jobSchedule.table";
 import { LeadCategoryTable } from "../lead";
 import { LeadTable } from "../lead/lead.table";
 import { LeadNoteTable } from "../lead/leadNote.table";
@@ -98,8 +98,8 @@ export const OrganizationRelations = relations(
     materials: many(MaterialTable, {
       relationName: "MaterialToOrg",
     }),
-    schedules: many(ScheduleTable, {
-      relationName: "ScheduleToOrg",
+    jobSchedules: many(JobScheduleTable, {
+      relationName: "JobScheduleToOrg",
     }),
   })
 );

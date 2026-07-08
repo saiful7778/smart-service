@@ -13,10 +13,9 @@ import z from "zod";
 import { db_created_at, db_id, db_updated_at } from "../../../db-utils";
 import { CustomerTable } from "../customer";
 import { JobMaterialTable, JobTable } from "../job";
-import { JobAssignmentTable } from "../job/jobAssignment.table";
 import { JobCategoryTable } from "../job/jobCategory.table";
-import { ScheduleAssignementTable } from "../job/scheduleAssignement.table";
-import { TimeEntryTable } from "../job/timeEntry.table";
+import { JobScheduleAssignementTable } from "../job/jobScheduleAssignement.table";
+import { JobTimeEntryTable } from "../job/jobTimeEntry.table";
 import { LeadCategoryTable } from "../lead";
 import { LeadTable } from "../lead/lead.table";
 import { LeadAttachmentTable } from "../lead/leadAttachment.table";
@@ -144,11 +143,11 @@ export const OrganizationMemberRelations = relations(
       relationName: "JobToDeletedBy",
     }),
 
-    assignedBys: many(JobAssignmentTable, {
-      relationName: "JobAssignmentToAssignedBy",
+    assignedBys: many(JobScheduleAssignementTable, {
+      relationName: "JobScheduleAssignementToAssignedBy",
     }),
-    assignedAts: many(JobAssignmentTable, {
-      relationName: "JobAssignmentToAssignedAt",
+    assignedAts: many(JobScheduleAssignementTable, {
+      relationName: "JobScheduleAssignementToAssignedTo",
     }),
     jobCategories: many(JobCategoryTable, {
       relationName: "JobCategoryToCreatedBy",
@@ -160,11 +159,11 @@ export const OrganizationMemberRelations = relations(
       relationName: "JobMaterialToUpdatedBy",
     }),
 
-    scheduleAssignments: many(ScheduleAssignementTable, {
-      relationName: "ScheduleAssignementToOrgMember",
+    scheduleAssignments: many(JobScheduleAssignementTable, {
+      relationName: "JobScheduleAssignementToOrgMember",
     }),
-    timeEntries: many(TimeEntryTable, {
-      relationName: "TimeEntryToMember",
+    timeEntries: many(JobTimeEntryTable, {
+      relationName: "JobTimeEntryToMember",
     }),
   })
 );
