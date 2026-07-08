@@ -26,7 +26,7 @@ export const TimeEntryTable = pgTable(
   {
     id: db_id,
     jobId: uuid("job_id").notNull(),
-    orgMemberId: uuid("org_member_id").notNull(),
+    memberId: uuid("member_id").notNull(),
     scheduleId: uuid("schedule_id"),
 
     startAt: timestamp("start_at", {
@@ -50,7 +50,7 @@ export const TimeEntryTable = pgTable(
       .onUpdate("cascade"),
     foreignKey({
       name: "time_entries_member_fkey",
-      columns: [table.orgMemberId],
+      columns: [table.memberId],
       foreignColumns: [OrganizationMemberTable.id],
     })
       .onDelete("cascade")
@@ -63,7 +63,7 @@ export const TimeEntryTable = pgTable(
       .onDelete("cascade")
       .onUpdate("cascade"),
     index("time_entry_job_id_idx").on(table.jobId),
-    index("time_entry_member_idx").on(table.orgMemberId),
+    index("time_entry_member_idx").on(table.memberId),
     index("time_entry_schedule_id_idx").on(table.scheduleId),
   ]
 );
@@ -75,7 +75,7 @@ export const TimeEntryRelations = relations(TimeEntryTable, ({ one }) => ({
     relationName: "TimeEntryToJob",
   }),
   member: one(OrganizationMemberTable, {
-    fields: [TimeEntryTable.orgMemberId],
+    fields: [TimeEntryTable.memberId],
     references: [OrganizationMemberTable.id],
     relationName: "TimeEntryToMember",
   }),

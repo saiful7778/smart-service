@@ -60,9 +60,6 @@ export const JobTable = pgTable(
       precision: 10,
       scale: 2,
     }).default("0"),
-    hoursWorked: numeric("hours_worked", { precision: 6, scale: 2 }).default(
-      "0"
-    ),
     createdBy: uuid("created_by"),
     updatedBy: uuid("updated_by"),
 

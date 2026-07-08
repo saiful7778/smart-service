@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ override existing { override: true }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -216,7 +216,6 @@ CREATE TABLE "jobs" (
 	"expected_revenue" numeric(10, 2) DEFAULT '0',
 	"invoiced_revenue" numeric(10, 2) DEFAULT '0',
 	"received_revenue" numeric(10, 2) DEFAULT '0',
-	"hours_worked" numeric(6, 2) DEFAULT '0',
 	"created_by" uuid,
 	"updated_by" uuid,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
@@ -237,18 +236,6 @@ CREATE TABLE "job_assignments" (
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
-CREATE TABLE "job_materials" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"job_id" uuid NOT NULL,
-	"material_id" uuid NOT NULL,
-	"quantity" numeric(12, 2) NOT NULL,
-	"notes" text,
-	"created_by" uuid NOT NULL,
-	"updated_by" uuid NOT NULL,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE "job_categories" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar NOT NULL,
@@ -265,6 +252,52 @@ CREATE TABLE "job_category_joins" (
 	"job_id" uuid NOT NULL,
 	"job_category_id" uuid NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "job_materials" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"job_id" uuid NOT NULL,
+	"material_id" uuid NOT NULL,
+	"quantity" numeric(12, 2) NOT NULL,
+	"notes" text,
+	"created_by" uuid NOT NULL,
+	"updated_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "schedules" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"job_id" uuid NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"start_at" timestamp (3) with time zone NOT NULL,
+	"end_at" timestamp (3) with time zone NOT NULL,
+	"all_day" boolean DEFAULT false NOT NULL,
+	"recurrence_rule" text,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "schedule_assignments" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"schedule_id" uuid NOT NULL,
+	"member_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "time_entries" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"job_id" uuid NOT NULL,
+	"member_id" uuid NOT NULL,
+	"schedule_id" uuid,
+	"start_at" timestamp (3) with time zone NOT NULL,
+	"end_at" timestamp (3) with time zone,
+	"duration_minutes" integer,
+	"billable" boolean DEFAULT true NOT NULL,
+	"notes" text,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE "leads" (
@@ -536,40 +569,6 @@ CREATE TABLE "org_role_permissions" (
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
-CREATE TABLE "schedules" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"org_id" uuid NOT NULL,
-	"job_id" uuid NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"start_at" timestamp (3) with time zone NOT NULL,
-	"end_at" timestamp (3) with time zone NOT NULL,
-	"all_day" boolean DEFAULT false NOT NULL,
-	"recurrence_rule" text,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE "schedule_assignments" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"schedule_id" uuid NOT NULL,
-	"org_member_id" uuid NOT NULL,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE "time_entries" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"job_id" uuid NOT NULL,
-	"org_member_id" uuid NOT NULL,
-	"schedule_id" uuid,
-	"start_at" timestamp (3) with time zone NOT NULL,
-	"end_at" timestamp (3) with time zone,
-	"duration_minutes" integer,
-	"billable" boolean DEFAULT true NOT NULL,
-	"notes" text,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_session_fkey" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
@@ -603,14 +602,21 @@ ALTER TABLE "jobs" ADD CONSTRAINT "jobs_deleted_by_fkey" FOREIGN KEY ("deleted_b
 ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_assignedTo_fkey" FOREIGN KEY ("assigned_to") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "job_assignments" ADD CONSTRAINT "job_assignment_assignedBy_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
-ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "job_categories" ADD CONSTRAINT "job_categories_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "job_categories" ADD CONSTRAINT "job_categories_created_by_organization_members_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "job_category_joins" ADD CONSTRAINT "job_category_join_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "job_category_joins" ADD CONSTRAINT "job_category_join_job_category_fkey" FOREIGN KEY ("job_category_id") REFERENCES "public"."job_categories"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "job_materials" ADD CONSTRAINT "job_material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "schedules" ADD CONSTRAINT "schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "schedules" ADD CONSTRAINT "schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_org_member_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_member_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "leads" ADD CONSTRAINT "leads_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "leads" ADD CONSTRAINT "leads_customer_fkey" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "leads" ADD CONSTRAINT "leads_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
@@ -665,13 +671,6 @@ ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_role_id_fkey"
 ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_roleId_fk" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_permissionId_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "schedule_assignments" ADD CONSTRAINT "schedule_assignement_org_member_fkey" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_member_fkey" FOREIGN KEY ("org_member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "time_entries" ADD CONSTRAINT "time_entries_schedule_fkey" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("id") ON DELETE cascade ON UPDATE cascade;
 CREATE UNIQUE INDEX "user_email_key" ON "users" USING btree ("email");
 CREATE INDEX "user_activity_user_id_idx" ON "user_activities" USING btree ("user_id");
 CREATE INDEX "user_activity_login_at_idx" ON "user_activities" USING btree ("login_at");
@@ -736,12 +735,6 @@ CREATE INDEX "job_assignment_assignedBy_id_idx" ON "job_assignments" USING btree
 CREATE INDEX "job_assignment_status_idx" ON "job_assignments" USING btree ("status");
 CREATE INDEX "job_assignment_role_idx" ON "job_assignments" USING btree ("role");
 CREATE INDEX "job_assignment_acknowledge_at_idx" ON "job_assignments" USING btree ("acknowledge_at");
-CREATE INDEX "job_material_job_id_idx" ON "job_materials" USING btree ("job_id");
-CREATE INDEX "job_material_material_id_idx" ON "job_materials" USING btree ("material_id");
-CREATE INDEX "job_material_created_by_idx" ON "job_materials" USING btree ("created_by");
-CREATE INDEX "job_material_updated_by_idx" ON "job_materials" USING btree ("updated_by");
-CREATE INDEX "job_material_quantity_idx" ON "job_materials" USING btree ("quantity");
-CREATE INDEX "job_material_created_at_idx" ON "job_materials" USING btree ("created_at");
 CREATE INDEX "job_categories_organization_id_idx" ON "job_categories" USING btree ("organization_id");
 CREATE INDEX "job_categories_created_by_idx" ON "job_categories" USING btree ("created_by");
 CREATE UNIQUE INDEX "job_categories_slug_unique" ON "job_categories" USING btree ("slug");
@@ -750,6 +743,24 @@ CREATE INDEX "job_categories_created_at_idx" ON "job_categories" USING btree ("c
 CREATE INDEX "job_category_join_job_id_idx" ON "job_category_joins" USING btree ("job_id");
 CREATE INDEX "job_category_join_job_category_id_idx" ON "job_category_joins" USING btree ("job_category_id");
 CREATE UNIQUE INDEX "job_category_join_unique" ON "job_category_joins" USING btree ("job_id","job_category_id");
+CREATE INDEX "job_material_job_id_idx" ON "job_materials" USING btree ("job_id");
+CREATE INDEX "job_material_material_id_idx" ON "job_materials" USING btree ("material_id");
+CREATE INDEX "job_material_created_by_idx" ON "job_materials" USING btree ("created_by");
+CREATE INDEX "job_material_updated_by_idx" ON "job_materials" USING btree ("updated_by");
+CREATE INDEX "job_material_quantity_idx" ON "job_materials" USING btree ("quantity");
+CREATE INDEX "job_material_created_at_idx" ON "job_materials" USING btree ("created_at");
+CREATE INDEX "schedules_org_id_idx" ON "schedules" USING btree ("org_id");
+CREATE INDEX "schedules_job_id_idx" ON "schedules" USING btree ("job_id");
+CREATE INDEX "schedules_start_at_idx" ON "schedules" USING btree ("start_at");
+CREATE INDEX "schedules_end_at_idx" ON "schedules" USING btree ("end_at");
+CREATE INDEX "schedules_created_at_idx" ON "schedules" USING btree ("created_at");
+CREATE UNIQUE INDEX "schedule_assignement_schedule_id_org_member_id_key" ON "schedule_assignments" USING btree ("schedule_id","member_id");
+CREATE INDEX "schedule_assignement_schedule_id_idx" ON "schedule_assignments" USING btree ("schedule_id");
+CREATE INDEX "schedule_assignement_org_member_id_idx" ON "schedule_assignments" USING btree ("member_id");
+CREATE INDEX "schedule_assignement_created_at_idx" ON "schedule_assignments" USING btree ("created_at");
+CREATE INDEX "time_entry_job_id_idx" ON "time_entries" USING btree ("job_id");
+CREATE INDEX "time_entry_member_idx" ON "time_entries" USING btree ("member_id");
+CREATE INDEX "time_entry_schedule_id_idx" ON "time_entries" USING btree ("schedule_id");
 CREATE INDEX "leads_org_id_idx" ON "leads" USING btree ("organization_id");
 CREATE INDEX "leads_customer_id_idx" ON "leads" USING btree ("customer_id");
 CREATE INDEX "leads_status_idx" ON "leads" USING btree ("status");
@@ -842,15 +853,3 @@ CREATE INDEX "org_role_member_unique_idx" ON "org_role_members" USING btree ("ro
 CREATE INDEX "orgRolePermission_roleId_idx" ON "org_role_permissions" USING btree ("role_id");
 CREATE INDEX "orgRolePermission_permissionId_idx" ON "org_role_permissions" USING btree ("permission_id");
 CREATE UNIQUE INDEX "orgRolePermission_unique" ON "org_role_permissions" USING btree ("role_id","permission_id");
-CREATE INDEX "schedules_org_id_idx" ON "schedules" USING btree ("org_id");
-CREATE INDEX "schedules_job_id_idx" ON "schedules" USING btree ("job_id");
-CREATE INDEX "schedules_start_at_idx" ON "schedules" USING btree ("start_at");
-CREATE INDEX "schedules_end_at_idx" ON "schedules" USING btree ("end_at");
-CREATE INDEX "schedules_created_at_idx" ON "schedules" USING btree ("created_at");
-CREATE UNIQUE INDEX "schedule_assignement_schedule_id_org_member_id_key" ON "schedule_assignments" USING btree ("schedule_id","org_member_id");
-CREATE INDEX "schedule_assignement_schedule_id_idx" ON "schedule_assignments" USING btree ("schedule_id");
-CREATE INDEX "schedule_assignement_org_member_id_idx" ON "schedule_assignments" USING btree ("org_member_id");
-CREATE INDEX "schedule_assignement_created_at_idx" ON "schedule_assignments" USING btree ("created_at");
-CREATE INDEX "time_entry_job_id_idx" ON "time_entries" USING btree ("job_id");
-CREATE INDEX "time_entry_member_idx" ON "time_entries" USING btree ("org_member_id");
-CREATE INDEX "time_entry_schedule_id_idx" ON "time_entries" USING btree ("schedule_id");

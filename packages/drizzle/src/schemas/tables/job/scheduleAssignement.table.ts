@@ -18,7 +18,7 @@ export const ScheduleAssignementTable = pgTable(
   {
     id: db_id,
     scheduleId: uuid("schedule_id").notNull(),
-    orgMemberId: uuid("org_member_id").notNull(),
+    memberId: uuid("member_id").notNull(),
     createdAt: db_created_at,
   },
   (table) => [
@@ -31,17 +31,17 @@ export const ScheduleAssignementTable = pgTable(
       .onUpdate("cascade"),
     foreignKey({
       name: "schedule_assignement_org_member_fkey",
-      columns: [table.orgMemberId],
+      columns: [table.memberId],
       foreignColumns: [OrganizationMemberTable.id],
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
     uniqueIndex("schedule_assignement_schedule_id_org_member_id_key").on(
       table.scheduleId,
-      table.orgMemberId
+      table.memberId
     ),
     index("schedule_assignement_schedule_id_idx").on(table.scheduleId),
-    index("schedule_assignement_org_member_id_idx").on(table.orgMemberId),
+    index("schedule_assignement_org_member_id_idx").on(table.memberId),
     index("schedule_assignement_created_at_idx").on(table.createdAt),
   ]
 );
@@ -55,7 +55,7 @@ export const ScheduleAssignementRelations = relations(
       relationName: "ScheduleAssignementToSchedule",
     }),
     orgMember: one(OrganizationMemberTable, {
-      fields: [ScheduleAssignementTable.orgMemberId],
+      fields: [ScheduleAssignementTable.memberId],
       references: [OrganizationMemberTable.id],
       relationName: "ScheduleAssignementToOrgMember",
     }),
