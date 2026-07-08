@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
@@ -213,7 +213,7 @@ CREATE TABLE "jobs" (
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"status" "JobStatusEnum" DEFAULT 'scheduled' NOT NULL,
-	"service_at" timestamp (3) with time zone NOT NULL,
+	"service_at" timestamp (3) with time zone,
 	"expected_revenue" numeric(10, 2) DEFAULT '0',
 	"invoiced_revenue" numeric(10, 2) DEFAULT '0',
 	"received_revenue" numeric(10, 2) DEFAULT '0',

@@ -51,7 +51,7 @@ export const JobTable = pgTable(
     serviceAt: timestamp("service_at", {
       withTimezone: true,
       precision: 3,
-    }).notNull(),
+    }),
     expectedRevenue: numeric("expected_revenue", {
       precision: 10,
       scale: 2,

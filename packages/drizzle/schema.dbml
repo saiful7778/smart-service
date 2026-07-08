@@ -520,7 +520,7 @@ table jobs {
   title varchar(255) [not null]
   description text
   status JobStatusEnum [not null, default: 'scheduled']
-  service_at "timestamp (3) with time zone" [not null]
+  service_at "timestamp (3) with time zone"
   expected_revenue "numeric(10, 2)" [default: '0']
   invoiced_revenue "numeric(10, 2)" [default: '0']
   received_revenue "numeric(10, 2)" [default: '0']
