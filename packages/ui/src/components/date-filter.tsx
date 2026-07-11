@@ -63,7 +63,7 @@ export function DateFilter({
   placeholder = "Select date",
   isInRange,
   variant = "outline",
-  size = "sm",
+  size = "default",
   className,
   calendarProps,
 }: DateFilterProps) {
@@ -151,7 +151,7 @@ function DateFilterTrigger({
   placeholder,
   className,
   variant = "outline",
-  size = "sm",
+  size = "default",
   ...props
 }: DateFilterTriggerProps) {
   const label = useMemo(() => {
@@ -228,15 +228,10 @@ function DateFilterContent({
             {...calendarProps}
           />
           <div className="flex items-center gap-2 px-2 pb-2">
-            <Button
-              className="flex-1"
-              size="sm"
-              variant="secondary"
-              onClick={onCancel}
-            >
+            <Button className="flex-1" variant="secondary" onClick={onCancel}>
               Cancel
             </Button>
-            <Button className="flex-1" size="sm" onClick={onApply}>
+            <Button className="flex-1" onClick={onApply}>
               Apply
             </Button>
           </div>

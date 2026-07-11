@@ -62,7 +62,7 @@ export function FacetedFilter({
   isMultiple,
   placeholder,
   variant = "outline",
-  size = "sm",
+  size = "default",
   className,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
@@ -242,7 +242,7 @@ function FacetedFilterContent({
                   <Check className="size-3.5" />
                 </span>
                 <span className="truncate">{option.label}</span>
-                {option.count && (
+                {!!option.count && (
                   <span className="ml-auto rounded border px-1 py-px font-mono text-xs font-medium text-muted-foreground shadow-xs select-none">
                     {option.count}
                   </span>

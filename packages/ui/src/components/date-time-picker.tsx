@@ -137,8 +137,6 @@ export function DateTimePicker({
   );
 }
 
-// ─── Trigger Button ───────────────────────────────────────────────────────────
-
 interface DateTimePickerTriggerProps extends Omit<ButtonProps, "value"> {
   value: Date | null | undefined;
   placeholder?: string;
@@ -149,15 +147,15 @@ function DateTimePickerTrigger({
   value,
   className,
   placeholder = "Pick a date and time",
-  variant,
+  variant = "outline",
   showTimeSelection,
   ...props
 }: DateTimePickerTriggerProps) {
   return (
     <Button
-      variant={variant ?? "outline"}
+      variant={variant}
       className={cn(
-        "pl-3 text-left justify-start font-normal transition-all",
+        "pl-3 text-left justify-start font-normal transition-all border-input",
         !value && "text-muted-foreground",
         className
       )}
@@ -175,8 +173,6 @@ function DateTimePickerTrigger({
     </Button>
   );
 }
-
-// ─── Picker Content ───────────────────────────────────────────────────────────
 
 interface DateTimePickerContentProps extends CalendarCompProps {
   value: Date | null | undefined;
@@ -288,7 +284,7 @@ function DateTimePickerContent({
       )}
 
       <div className="border-t border-border p-2">
-        <Button className="w-full" size="sm" onClick={handleConfirm}>
+        <Button className="w-full" onClick={handleConfirm}>
           Done
         </Button>
       </div>
@@ -311,7 +307,7 @@ function MonthSelect({
       value={value?.getMonth().toString()}
       onValueChange={onChange}
     >
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -347,7 +343,7 @@ function YearSelect({
       value={value.getFullYear().toString()}
       onValueChange={onChange}
     >
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -384,7 +380,7 @@ function HourSelect({
       value={display.toString().padStart(2, "0")}
       onValueChange={onChange}
     >
-      <SelectTrigger size="sm" className="w-[60px]">
+      <SelectTrigger className="w-15">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -418,7 +414,7 @@ function MinuteSelect({
       value={value.getMinutes().toString().padStart(2, "0")}
       onValueChange={onChange}
     >
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -452,7 +448,7 @@ function MeridiemSelect({
       value={value.getHours() >= 12 ? "PM" : "AM"}
       onValueChange={onChange}
     >
-      <SelectTrigger size="sm">
+      <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
