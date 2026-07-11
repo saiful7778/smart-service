@@ -863,6 +863,12 @@ const orgJobPermissions: CreatePermissionType[] = [
   {
     level: "org",
     resource: "job_revenue",
+    action: "manage",
+    description: "Full job revenue management within organization",
+  },
+  {
+    level: "org",
+    resource: "job_revenue",
     action: "read",
     description: "View job revenues within organization",
   },

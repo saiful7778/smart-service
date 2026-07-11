@@ -18,7 +18,7 @@ export const LeadNoteTable = pgTable(
   {
     id: db_id,
     orgId: uuid("organization_id").notNull(),
-    leadId: uuid("lead_id").notNull(),
+    leadId: uuid("lead_id"),
     jobId: uuid("job_id"),
     content: text("content").notNull(),
     createdBy: uuid("created_by").notNull(),

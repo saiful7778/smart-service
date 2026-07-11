@@ -1,5 +1,5 @@
 {
-  "id": "1040cc65-4ecf-4320-88a8-06dbbba6a1ff",
+  "id": "f698232e-89a1-45d6-b0a6-0949735fd101",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1646,6 +1646,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp (3) with time zone",
@@ -1675,6 +1682,21 @@
           "columns": [
             {
               "expression": "job_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "job_address_is_primary_idx": {
+          "name": "job_address_is_primary_idx",
+          "columns": [
+            {
+              "expression": "is_primary",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2272,7 +2294,7 @@
           "name": "service_at",
           "type": "timestamp (3) with time zone",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "expected_revenue": {
           "name": "expected_revenue",
@@ -3949,7 +3971,7 @@
           "name": "lead_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "job_id": {
           "name": "job_id",
@@ -4187,211 +4209,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.lead_history": {
-      "name": "lead_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "lead_id": {
-          "name": "lead_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "job_id": {
-          "name": "job_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "event_type": {
-          "name": "event_type",
-          "type": "HistoryEventTypeEnum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "triggered_by": {
-          "name": "triggered_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "triggered_by_type": {
-          "name": "triggered_by_type",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "related_entity_type": {
-          "name": "related_entity_type",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "related_entity_id": {
-          "name": "related_entity_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "lead_history_lead_id_idx": {
-          "name": "lead_history_lead_id_idx",
-          "columns": [
-            {
-              "expression": "lead_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lead_history_job_id_idx": {
-          "name": "lead_history_job_id_idx",
-          "columns": [
-            {
-              "expression": "job_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lead_history_event_type_idx": {
-          "name": "lead_history_event_type_idx",
-          "columns": [
-            {
-              "expression": "event_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lead_history_triggered_by_idx": {
-          "name": "lead_history_triggered_by_idx",
-          "columns": [
-            {
-              "expression": "triggered_by",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "lead_history_created_at_idx": {
-          "name": "lead_history_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "lead_history_lead_fkey": {
-          "name": "lead_history_lead_fkey",
-          "tableFrom": "lead_history",
-          "tableTo": "leads",
-          "columnsFrom": [
-            "lead_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "lead_history_job_fkey": {
-          "name": "lead_history_job_fkey",
-          "tableFrom": "lead_history",
-          "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "lead_history_triggered_by_fkey": {
-          "name": "lead_history_triggered_by_fkey",
-          "tableFrom": "lead_history",
-          "tableTo": "organization_members",
-          "columnsFrom": [
-            "triggered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.lead_notes": {
       "name": "lead_notes",
       "schema": "",
@@ -4413,7 +4230,7 @@
           "name": "lead_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "job_id": {
           "name": "job_id",
@@ -4585,7 +4402,7 @@
           "name": "lead_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "job_id": {
           "name": "job_id",
@@ -7486,63 +7303,6 @@
         "READ",
         "REPLIED",
         "SPAM"
-      ]
-    },
-    "public.HistoryEventTypeEnum": {
-      "name": "HistoryEventTypeEnum",
-      "schema": "public",
-      "values": [
-        "customer_created",
-        "customer_updated",
-        "lead_created",
-        "lead_updated",
-        "lead_status_changed",
-        "lead_contacted",
-        "lead_converted",
-        "lead_attachment_added",
-        "lead_attachment_removed",
-        "lead_assignment_created",
-        "lead_assignment_updated",
-        "lead_assignment_removed",
-        "lead_note_added",
-        "lead_note_updated",
-        "lead_note_deleted",
-        "job_created",
-        "job_updated",
-        "job_status_changed",
-        "job_started",
-        "job_completed",
-        "job_cancelled",
-        "job_paused",
-        "job_resumed",
-        "job_scheduled",
-        "job_rescheduled",
-        "job_assigned",
-        "job_reassigned",
-        "job_attachment_added",
-        "job_attachment_removed",
-        "job_attachment_viewed",
-        "job_assignment_created",
-        "job_assignment_updated",
-        "job_assignment_removed",
-        "job_note_added",
-        "job_note_updated",
-        "job_note_deleted",
-        "time_entry_started",
-        "time_entry_updated",
-        "time_entry_stopped",
-        "schedule_created",
-        "schedule_updated",
-        "schedule_deleted",
-        "schedule_confirmed",
-        "schedule_cancelled",
-        "schedule_rescheduled",
-        "invoice_created",
-        "invoice_sent",
-        "invoice_paid",
-        "payment_received",
-        "estimate_created",
-        "estimate_accepted"
       ]
     },
     "public.JobAssignmentRoleEnum": {

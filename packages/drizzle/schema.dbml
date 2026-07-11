@@ -15,60 +15,6 @@ enum ContactSubmissionStatusEnum {
   SPAM
 }
 
-enum HistoryEventTypeEnum {
-  customer_created
-  customer_updated
-  lead_created
-  lead_updated
-  lead_status_changed
-  lead_contacted
-  lead_converted
-  lead_attachment_added
-  lead_attachment_removed
-  lead_assignment_created
-  lead_assignment_updated
-  lead_assignment_removed
-  lead_note_added
-  lead_note_updated
-  lead_note_deleted
-  job_created
-  job_updated
-  job_status_changed
-  job_started
-  job_completed
-  job_cancelled
-  job_paused
-  job_resumed
-  job_scheduled
-  job_rescheduled
-  job_assigned
-  job_reassigned
-  job_attachment_added
-  job_attachment_removed
-  job_attachment_viewed
-  job_assignment_created
-  job_assignment_updated
-  job_assignment_removed
-  job_note_added
-  job_note_updated
-  job_note_deleted
-  time_entry_started
-  time_entry_updated
-  time_entry_stopped
-  schedule_created
-  schedule_updated
-  schedule_deleted
-  schedule_confirmed
-  schedule_cancelled
-  schedule_rescheduled
-  invoice_created
-  invoice_sent
-  invoice_paid
-  payment_received
-  estimate_created
-  estimate_accepted
-}
-
 enum JobAssignmentRoleEnum {
   primary
   secondary
@@ -435,6 +381,7 @@ table job_addresses {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   address_id uuid [not null]
   job_id uuid [not null]
+  is_primary boolean [default: false]
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
 
   indexes {
@@ -442,6 +389,7 @@ table job_addresses {
     
     address_id [name: 'job_address_address_id_idx']
     job_id [name: 'job_address_job_id_idx']
+    is_primary [name: 'job_address_is_primary_idx']
     created_at [name: 'job_address_created_at_idx']
   }
 }
@@ -715,7 +663,7 @@ table leads {
 
 table lead_attachments {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  lead_id uuid [not null]
+  lead_id uuid
   job_id uuid
   file_id uuid [not null]
   title varchar(255)
@@ -742,36 +690,10 @@ table lead_attachments {
   }
 }
 
-table lead_history {
-  id uuid [pk, not null, default: `gen_random_uuid()`]
-  lead_id uuid [not null]
-  job_id uuid
-  event_type HistoryEventTypeEnum [not null]
-  title varchar(255)
-  description text
-  triggered_by uuid
-  triggered_by_type varchar(50)
-  related_entity_type varchar(50)
-  related_entity_id uuid
-  created_at "timestamp (3) with time zone" [not null, default: `now()`]
-  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
-
-  indexes {
-    
-    
-    
-    lead_id [name: 'lead_history_lead_id_idx']
-    job_id [name: 'lead_history_job_id_idx']
-    event_type [name: 'lead_history_event_type_idx']
-    triggered_by [name: 'lead_history_triggered_by_idx']
-    created_at [name: 'lead_history_created_at_idx']
-  }
-}
-
 table lead_notes {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   organization_id uuid [not null]
-  lead_id uuid [not null]
+  lead_id uuid
   job_id uuid
   content text [not null]
   created_by uuid [not null]
@@ -792,7 +714,7 @@ table lead_notes {
 
 table lead_revenue_history {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  lead_id uuid [not null]
+  lead_id uuid
   job_id uuid
   revenue_type LeadRevenueTypeEnum [not null]
   old_value "numeric(10, 2)" [default: '0']
@@ -1284,12 +1206,6 @@ ref: lead_attachments.file_id - files.id
 ref: lead_attachments.uploaded_by > organization_members.id
 
 ref: lead_attachments.deleted_by > organization_members.id
-
-ref: lead_history.lead_id > leads.id
-
-ref: lead_history.job_id > jobs.id
-
-ref: lead_history.triggered_by > organization_members.id
 
 ref: lead_notes.organization_id > organizations.id
 

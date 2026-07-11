@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { foreignKey, index, pgTable, uuid } from "drizzle-orm/pg-core";
+import { boolean, foreignKey, index, pgTable, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 
@@ -13,6 +13,7 @@ export const JobAddressTable = pgTable(
     id: db_id,
     addressId: uuid("address_id").notNull(),
     jobId: uuid("job_id").notNull(),
+    isPrimary: boolean("is_primary").default(false),
     createdAt: db_created_at,
   },
   (table) => [
@@ -32,6 +33,7 @@ export const JobAddressTable = pgTable(
       .onUpdate("cascade"),
     index("job_address_address_id_idx").on(table.addressId),
     index("job_address_job_id_idx").on(table.jobId),
+    index("job_address_is_primary_idx").on(table.isPrimary),
     index("job_address_created_at_idx").on(table.createdAt),
   ]
 );

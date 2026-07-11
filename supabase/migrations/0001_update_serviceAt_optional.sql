@@ -1,1 +1,0 @@
-ALTER TABLE "jobs" ALTER COLUMN "service_at" DROP NOT NULL;

@@ -10,7 +10,6 @@ export async function clearAll(db: DatabaseType) {
     await tx.delete(schema.JobTable);
     await tx.delete(schema.LeadCategoryJoinTable);
     await tx.delete(schema.LeadAttachmentTable);
-    await tx.delete(schema.LeadHistoryTable);
     await tx.delete(schema.LeadRevenueHistoryTable);
     await tx.delete(schema.LeadAddressTable);
     await tx.delete(schema.LeadTable);

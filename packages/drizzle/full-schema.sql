@@ -1,7 +1,6 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
-CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');
 CREATE TYPE "public"."JobAssignmentRoleEnum" AS ENUM('primary', 'secondary', 'supervisor', 'trainee');
 CREATE TYPE "public"."JobAssignmentStatusEnum" AS ENUM('active', 'completed', 'cancelled', 'pending', 'declined');
 CREATE TYPE "public"."JobStatusEnum" AS ENUM('draft', 'scheduled', 'in_progress', 'on_hold', 'needs_review', 'completed', 'cancelled');
@@ -162,6 +161,7 @@ CREATE TABLE "job_addresses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"address_id" uuid NOT NULL,
 	"job_id" uuid NOT NULL,
+	"is_primary" boolean DEFAULT false,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
@@ -308,7 +308,7 @@ CREATE TABLE "leads" (
 
 CREATE TABLE "lead_attachments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"file_id" uuid NOT NULL,
 	"title" varchar(255),
@@ -320,25 +320,10 @@ CREATE TABLE "lead_attachments" (
 	"deleted_by" uuid
 );
 
-CREATE TABLE "lead_history" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
-	"job_id" uuid,
-	"event_type" "HistoryEventTypeEnum" NOT NULL,
-	"title" varchar(255),
-	"description" text,
-	"triggered_by" uuid,
-	"triggered_by_type" varchar(50),
-	"related_entity_type" varchar(50),
-	"related_entity_id" uuid,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE "lead_notes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"organization_id" uuid NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"content" text NOT NULL,
 	"created_by" uuid NOT NULL,
@@ -348,7 +333,7 @@ CREATE TABLE "lead_notes" (
 
 CREATE TABLE "lead_revenue_history" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"revenue_type" "LeadRevenueTypeEnum" NOT NULL,
 	"old_value" numeric(10, 2) DEFAULT '0',
@@ -615,9 +600,6 @@ ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_job_fkey" FOREIGN
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_file_fkey" FOREIGN KEY ("file_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_uploaded_by_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_triggered_by_fkey" FOREIGN KEY ("triggered_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;
@@ -696,6 +678,7 @@ CREATE INDEX "lead_address_address_id_idx" ON "lead_addresses" USING btree ("add
 CREATE INDEX "lead_address_is_primary_idx" ON "lead_addresses" USING btree ("is_primary");
 CREATE INDEX "job_address_address_id_idx" ON "job_addresses" USING btree ("address_id");
 CREATE INDEX "job_address_job_id_idx" ON "job_addresses" USING btree ("job_id");
+CREATE INDEX "job_address_is_primary_idx" ON "job_addresses" USING btree ("is_primary");
 CREATE INDEX "job_address_created_at_idx" ON "job_addresses" USING btree ("created_at");
 CREATE INDEX "contact_submission_email_idx" ON "contact_submissions" USING btree ("email");
 CREATE INDEX "contact_submission_status_idx" ON "contact_submissions" USING btree ("status");
@@ -764,11 +747,6 @@ CREATE INDEX "lead_attachment_uploaded_at_idx" ON "lead_attachments" USING btree
 CREATE INDEX "lead_attachment_uploaded_by_idx" ON "lead_attachments" USING btree ("uploaded_by");
 CREATE INDEX "lead_attachment_deleted_by_idx" ON "lead_attachments" USING btree ("deleted_by");
 CREATE INDEX "lead_attachment_deleted_at_idx" ON "lead_attachments" USING btree ("deleted_at");
-CREATE INDEX "lead_history_lead_id_idx" ON "lead_history" USING btree ("lead_id");
-CREATE INDEX "lead_history_job_id_idx" ON "lead_history" USING btree ("job_id");
-CREATE INDEX "lead_history_event_type_idx" ON "lead_history" USING btree ("event_type");
-CREATE INDEX "lead_history_triggered_by_idx" ON "lead_history" USING btree ("triggered_by");
-CREATE INDEX "lead_history_created_at_idx" ON "lead_history" USING btree ("created_at");
 CREATE INDEX "notes_org_id_idx" ON "lead_notes" USING btree ("organization_id");
 CREATE INDEX "notes_lead_id_idx" ON "lead_notes" USING btree ("lead_id");
 CREATE INDEX "notes_job_id_idx" ON "lead_notes" USING btree ("job_id");

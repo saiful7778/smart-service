@@ -191,6 +191,7 @@ INSERT INTO public.permissions (name, level, resource, action, description)
 		('org.job_material.list', 'org', 'job_material', 'list', 'List all job materials in organization'),
 		('org.job_material.update', 'org', 'job_material', 'update', 'Update job materials within organization'),
 		('org.job_material.delete', 'org', 'job_material', 'delete', 'Delete job materials from organization'),
+		('org.job_revenue.manage', 'org', 'job_revenue', 'manage', 'Full job revenue management within organization'),
 		('org.job_revenue.read', 'org', 'job_revenue', 'read', 'View job revenues within organization'),
 		('org.job_revenue.list', 'org', 'job_revenue', 'list', 'List all job revenues in organization'),
 		('org.job_revenue.update', 'org', 'job_revenue', 'update', 'Update job revenues within organization'),
@@ -249,15 +250,7 @@ INSERT INTO public.roles (role_name, type, description)
 		('USER', 'SYSTEM', 'Regular user with basic self-management permissions'),
 		('SYSTEM_SUPPORT_AGENT', 'SYSTEM', 'System support agent'),
 		('SYSTEM_ADMIN', 'SYSTEM', 'System administrator with organization-level access'),
-		('SUPER_ADMIN', 'SYSTEM', 'Full system access'),
-		('MEMBER', 'ORG', 'Basic organization member'),
-		('STAFF', 'ORG', 'Organization staff member'),
-		('DISPATCHER', 'ORG', 'Organization dispatcher'),
-		('TEAM_LEAD', 'ORG', 'Organization team lead'),
-		('MANAGER', 'ORG', 'Organization manager'),
-		('ORG_SUPPORT_AGENT', 'ORG', 'Organization support agent'),
-		('ORG_ADMIN', 'ORG', 'Organization administrator'),
-		('OWNER', 'ORG', 'Organization owner with full org access');
+		('SUPER_ADMIN', 'SYSTEM', 'Full system access');
 
 DELETE FROM public.role_permissions;
 WITH role_perm_mapping (role_name, role_type, permission_name) AS (

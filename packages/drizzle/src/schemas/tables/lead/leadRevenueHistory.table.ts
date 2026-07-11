@@ -25,7 +25,7 @@ export const LeadRevenueHistoryTable = pgTable(
   "lead_revenue_history",
   {
     id: db_id,
-    leadId: uuid("lead_id").notNull(),
+    leadId: uuid("lead_id"),
     jobId: uuid("job_id"),
     revenueType: LeadRevenueTypeEnum("revenue_type").notNull(),
     oldValue: numeric("old_value", { precision: 10, scale: 2 }).default("0"),

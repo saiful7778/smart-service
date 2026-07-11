@@ -1,6 +1,5 @@
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');--> statement-breakpoint
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');--> statement-breakpoint
-CREATE TYPE "public"."HistoryEventTypeEnum" AS ENUM('customer_created', 'customer_updated', 'lead_created', 'lead_updated', 'lead_status_changed', 'lead_contacted', 'lead_converted', 'lead_attachment_added', 'lead_attachment_removed', 'lead_assignment_created', 'lead_assignment_updated', 'lead_assignment_removed', 'lead_note_added', 'lead_note_updated', 'lead_note_deleted', 'job_created', 'job_updated', 'job_status_changed', 'job_started', 'job_completed', 'job_cancelled', 'job_paused', 'job_resumed', 'job_scheduled', 'job_rescheduled', 'job_assigned', 'job_reassigned', 'job_attachment_added', 'job_attachment_removed', 'job_attachment_viewed', 'job_assignment_created', 'job_assignment_updated', 'job_assignment_removed', 'job_note_added', 'job_note_updated', 'job_note_deleted', 'time_entry_started', 'time_entry_updated', 'time_entry_stopped', 'schedule_created', 'schedule_updated', 'schedule_deleted', 'schedule_confirmed', 'schedule_cancelled', 'schedule_rescheduled', 'invoice_created', 'invoice_sent', 'invoice_paid', 'payment_received', 'estimate_created', 'estimate_accepted');--> statement-breakpoint
 CREATE TYPE "public"."JobAssignmentRoleEnum" AS ENUM('primary', 'secondary', 'supervisor', 'trainee');--> statement-breakpoint
 CREATE TYPE "public"."JobAssignmentStatusEnum" AS ENUM('active', 'completed', 'cancelled', 'pending', 'declined');--> statement-breakpoint
 CREATE TYPE "public"."JobStatusEnum" AS ENUM('draft', 'scheduled', 'in_progress', 'on_hold', 'needs_review', 'completed', 'cancelled');--> statement-breakpoint
@@ -161,6 +160,7 @@ CREATE TABLE "job_addresses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"address_id" uuid NOT NULL,
 	"job_id" uuid NOT NULL,
+	"is_primary" boolean DEFAULT false,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -212,7 +212,7 @@ CREATE TABLE "jobs" (
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"status" "JobStatusEnum" DEFAULT 'scheduled' NOT NULL,
-	"service_at" timestamp (3) with time zone NOT NULL,
+	"service_at" timestamp (3) with time zone,
 	"expected_revenue" numeric(10, 2) DEFAULT '0',
 	"invoiced_revenue" numeric(10, 2) DEFAULT '0',
 	"received_revenue" numeric(10, 2) DEFAULT '0',
@@ -307,7 +307,7 @@ CREATE TABLE "leads" (
 --> statement-breakpoint
 CREATE TABLE "lead_attachments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"file_id" uuid NOT NULL,
 	"title" varchar(255),
@@ -319,25 +319,10 @@ CREATE TABLE "lead_attachments" (
 	"deleted_by" uuid
 );
 --> statement-breakpoint
-CREATE TABLE "lead_history" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
-	"job_id" uuid,
-	"event_type" "HistoryEventTypeEnum" NOT NULL,
-	"title" varchar(255),
-	"description" text,
-	"triggered_by" uuid,
-	"triggered_by_type" varchar(50),
-	"related_entity_type" varchar(50),
-	"related_entity_id" uuid,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "lead_notes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"organization_id" uuid NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"content" text NOT NULL,
 	"created_by" uuid NOT NULL,
@@ -347,7 +332,7 @@ CREATE TABLE "lead_notes" (
 --> statement-breakpoint
 CREATE TABLE "lead_revenue_history" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"lead_id" uuid NOT NULL,
+	"lead_id" uuid,
 	"job_id" uuid,
 	"revenue_type" "LeadRevenueTypeEnum" NOT NULL,
 	"old_value" numeric(10, 2) DEFAULT '0',
@@ -614,9 +599,6 @@ ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_job_fkey" FOREIGN
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_file_fkey" FOREIGN KEY ("file_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_uploaded_by_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_attachments" ADD CONSTRAINT "lead_attachment_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "lead_history" ADD CONSTRAINT "lead_history_triggered_by_fkey" FOREIGN KEY ("triggered_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_notes" ADD CONSTRAINT "notes_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -695,6 +677,7 @@ CREATE INDEX "lead_address_address_id_idx" ON "lead_addresses" USING btree ("add
 CREATE INDEX "lead_address_is_primary_idx" ON "lead_addresses" USING btree ("is_primary");--> statement-breakpoint
 CREATE INDEX "job_address_address_id_idx" ON "job_addresses" USING btree ("address_id");--> statement-breakpoint
 CREATE INDEX "job_address_job_id_idx" ON "job_addresses" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "job_address_is_primary_idx" ON "job_addresses" USING btree ("is_primary");--> statement-breakpoint
 CREATE INDEX "job_address_created_at_idx" ON "job_addresses" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "contact_submission_email_idx" ON "contact_submissions" USING btree ("email");--> statement-breakpoint
 CREATE INDEX "contact_submission_status_idx" ON "contact_submissions" USING btree ("status");--> statement-breakpoint
@@ -763,11 +746,6 @@ CREATE INDEX "lead_attachment_uploaded_at_idx" ON "lead_attachments" USING btree
 CREATE INDEX "lead_attachment_uploaded_by_idx" ON "lead_attachments" USING btree ("uploaded_by");--> statement-breakpoint
 CREATE INDEX "lead_attachment_deleted_by_idx" ON "lead_attachments" USING btree ("deleted_by");--> statement-breakpoint
 CREATE INDEX "lead_attachment_deleted_at_idx" ON "lead_attachments" USING btree ("deleted_at");--> statement-breakpoint
-CREATE INDEX "lead_history_lead_id_idx" ON "lead_history" USING btree ("lead_id");--> statement-breakpoint
-CREATE INDEX "lead_history_job_id_idx" ON "lead_history" USING btree ("job_id");--> statement-breakpoint
-CREATE INDEX "lead_history_event_type_idx" ON "lead_history" USING btree ("event_type");--> statement-breakpoint
-CREATE INDEX "lead_history_triggered_by_idx" ON "lead_history" USING btree ("triggered_by");--> statement-breakpoint
-CREATE INDEX "lead_history_created_at_idx" ON "lead_history" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "notes_org_id_idx" ON "lead_notes" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "notes_lead_id_idx" ON "lead_notes" USING btree ("lead_id");--> statement-breakpoint
 CREATE INDEX "notes_job_id_idx" ON "lead_notes" USING btree ("job_id");--> statement-breakpoint

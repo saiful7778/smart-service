@@ -25,7 +25,7 @@ export const LeadAttachmentTable = pgTable(
   "lead_attachments",
   {
     id: db_id,
-    leadId: uuid("lead_id").notNull(),
+    leadId: uuid("lead_id"),
     jobId: uuid("job_id"),
     fileId: uuid("file_id").notNull(),
     title: varchar("title", { length: 255 }),

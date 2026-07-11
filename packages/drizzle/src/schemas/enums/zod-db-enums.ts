@@ -3,7 +3,6 @@ import z from "zod";
 import {
   ACTION_TYPE,
   CONTACT_SUBMISSION_STATUS,
-  HISTORY_EVENT_TYPE,
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
@@ -58,11 +57,6 @@ export type LeadStatusEnumType = z.infer<typeof LeadStatusEnumSchema>;
 
 export const LeadRevenueTypeEnumSchema = z.enum(LEAD_REVENUE_TYPE);
 export type LeadRevenueTypeEnumType = z.infer<typeof LeadRevenueTypeEnumSchema>;
-
-export const HistoryEventTypeEnumSchema = z.enum(HISTORY_EVENT_TYPE);
-export type HistoryEventTypeEnumType = z.infer<
-  typeof HistoryEventTypeEnumSchema
->;
 
 export const JobStatusEnumSchema = z.enum(JOB_STATUS);
 export type JobStatusEnumType = z.infer<typeof JobStatusEnumSchema>;

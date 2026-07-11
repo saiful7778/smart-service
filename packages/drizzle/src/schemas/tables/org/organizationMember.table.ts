@@ -19,7 +19,6 @@ import { JobTimeEntryTable } from "../job/jobTimeEntry.table";
 import { LeadCategoryTable } from "../lead";
 import { LeadTable } from "../lead/lead.table";
 import { LeadAttachmentTable } from "../lead/leadAttachment.table";
-import { LeadHistoryTable } from "../lead/leadHistory.table";
 import { LeadNoteTable } from "../lead/leadNote.table";
 import { LeadRevenueHistoryTable } from "../lead/leadRevenueHistory.table";
 import { MaterialTable } from "../material";
@@ -125,9 +124,6 @@ export const OrganizationMemberRelations = relations(
     }),
     leadCategories: many(LeadCategoryTable, {
       relationName: "LeadCategoryToCreatedBy",
-    }),
-    leadHistories: many(LeadHistoryTable, {
-      relationName: "LeadHistoryToTriggeredBy",
     }),
     leadNotes: many(LeadNoteTable, {
       relationName: "LeadNoteToCreatedBy",

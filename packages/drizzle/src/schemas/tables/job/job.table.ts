@@ -27,7 +27,6 @@ import { JobAddressTable } from "../address/jobAddress.table";
 import { CustomerTable } from "../customer";
 import {
   LeadAttachmentTable,
-  LeadHistoryTable,
   LeadNoteTable,
   LeadRevenueHistoryTable,
   LeadTable,
@@ -160,9 +159,6 @@ export const JobRelations = relations(JobTable, ({ one, many }) => ({
   }),
   attachments: many(LeadAttachmentTable, {
     relationName: "LeadAttachmentToJob",
-  }),
-  histories: many(LeadHistoryTable, {
-    relationName: "LeadHistoryToJob",
   }),
   revenueHistory: many(LeadRevenueHistoryTable, {
     relationName: "LeadRevenueHistoryToJob",

@@ -27,7 +27,6 @@ import { JobTable } from "../job";
 import { OrganizationMemberTable, OrganizationTable } from "../org";
 import { LeadAttachmentTable } from "./leadAttachment.table";
 import { LeadCategoryJoinTable } from "./leadCategoryJoin.table";
-import { LeadHistoryTable } from "./leadHistory.table";
 import { LeadNoteTable } from "./leadNote.table";
 import { LeadRevenueHistoryTable } from "./leadRevenueHistory.table";
 
@@ -127,9 +126,6 @@ export const LeadRelations = relations(LeadTable, ({ one, many }) => ({
   }),
   notes: many(LeadNoteTable, {
     relationName: "LeadNoteToLead",
-  }),
-  histories: many(LeadHistoryTable, {
-    relationName: "LeadHistoryToLead",
   }),
   revenueHistory: many(LeadRevenueHistoryTable, {
     relationName: "LeadRevenueHistoryToLead",

@@ -3,7 +3,6 @@ import { pgEnum } from "drizzle-orm/pg-core";
 import {
   ACTION_TYPE,
   CONTACT_SUBMISSION_STATUS,
-  HISTORY_EVENT_TYPE,
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
@@ -55,11 +54,6 @@ export const JobStatusEnum = pgEnum("JobStatusEnum", JOB_STATUS);
 export const LeadRevenueTypeEnum = pgEnum(
   "LeadRevenueTypeEnum",
   LEAD_REVENUE_TYPE
-);
-
-export const HistoryEventTypeEnum = pgEnum(
-  "HistoryEventTypeEnum",
-  HISTORY_EVENT_TYPE
 );
 
 export const JobAssignmentStatusEnum = pgEnum(

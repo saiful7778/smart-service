@@ -13,7 +13,6 @@ import { seedLead } from "./lead.seed";
 import { seedLeadAddress } from "./leadAddress.seed";
 import { seedLeadAttachment } from "./leadAttachment.seed";
 import { seedLeadCategory } from "./leadCategory.seed";
-import { seedHistory } from "./leadHistory.seed";
 import { seedOrganization } from "./organization.seed";
 import { seedOrgMember } from "./orgMember.seed";
 import { seedUsers } from "./user.seed";
@@ -48,7 +47,6 @@ async function main() {
   const leads = await seedLead(customers, leadCategories);
   const jobs = await seedJob(leads, orgMembers);
   const leadAddresses = await seedLeadAddress(leads, addresses);
-  const leadHistories = await seedHistory(leads);
 
   const leadAttachments = await seedLeadAttachment(leads, files);
 
@@ -67,7 +65,6 @@ async function main() {
   console.log(`Leads: ${leads.length}`);
   console.log(`Jobs: ${jobs.length}`);
   console.log(`Lead Addresses: ${leadAddresses.length}`);
-  console.log(`Lead Histories: ${leadHistories.length}`);
   console.log(`Lead Attachments: ${leadAttachments.length}`);
 
   console.log("\n🎉 Seed completed successfully!");
