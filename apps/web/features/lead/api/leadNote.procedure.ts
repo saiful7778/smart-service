@@ -17,59 +17,67 @@ import { apiResponse } from "@workspace/lib/utils";
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
 
-import { createLeadHistory } from "../leadHistory.data";
 import { leadImpl } from "./lead.procedure";
 
 export const listLeadNotesProcedure = leadImpl.note.list
-  .use(
-    orgMemberPermissionsMiddleware([
-      "org.lead_note.manage",
-      "org.lead_note.read",
-    ])
-  )
-  .handler(async ({ context, input }) => {
-    const [leadData] = await context.db
-      .select({ id: LeadTable.id })
-      .from(LeadTable)
-      .where(
-        and(
-          eq(LeadTable.id, input.leadId),
-          eq(LeadTable.orgId, context.org.id),
-          isNull(LeadTable.deletedAt)
-        )
-      )
-      .limit(1);
-
-    if (!leadData) {
-      throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOT_FOUND,
-      });
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead_note.manage", "org.lead_note.read"]
+        : jobId
+          ? ["org.job_note.manage", "org.job_note.read"]
+          : [
+              "org.lead_note.manage",
+              "org.lead_note.read",
+              "org.job_note.manage",
+              "org.job_note.read",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
     }
+    const whereSql = [];
 
-    const whereSql = [eq(LeadNoteTable.leadId, leadData.id)];
-
-    const jobId = input?.jobId;
-
-    if (jobId) {
-      const [jobData] = await context.db
-        .select({ id: JobTable.id })
-        .from(JobTable)
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({ id: LeadTable.id })
+        .from(LeadTable)
         .where(
           and(
-            eq(JobTable.id, jobId),
-            eq(JobTable.orgId, context.org.id),
-            isNull(JobTable.deletedAt)
+            eq(LeadTable.id, input.leadId),
+            eq(LeadTable.orgId, context.org.id),
+            isNull(LeadTable.deletedAt)
           )
         )
         .limit(1);
 
-      if (!jobData) {
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      whereSql.push(eq(LeadNoteTable.leadId, existLead.id));
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.id, input.jobId),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      if (!existJob) {
         throw new ORPCError("NOT_FOUND", {
           message: API_MESSAGES.JOB.NOT_FOUND,
         });
       }
-
-      whereSql.push(eq(LeadNoteTable.jobId, jobData.id));
+      whereSql.push(eq(LeadNoteTable.jobId, existJob.id));
     }
 
     const { limit, offset, orderBy, page, where } = buildPaginateOptions(
@@ -114,6 +122,14 @@ export const listLeadNotesProcedure = leadImpl.note.list
         JobTable.id
       );
 
+    const whereTotalSql = [];
+
+    if (input?.leadId) {
+      whereTotalSql.push(eq(LeadNoteTable.leadId, input.leadId));
+    }
+
+    whereTotalSql.push(eq(LeadNoteTable.orgId, context.org.id));
+
     const [totalCount, notes] = await Promise.all([
       context.db.$count(
         context.db
@@ -121,12 +137,7 @@ export const listLeadNotesProcedure = leadImpl.note.list
             id: LeadNoteTable.id,
           })
           .from(LeadNoteTable)
-          .where(
-            and(
-              eq(LeadNoteTable.leadId, input.leadId),
-              eq(LeadNoteTable.orgId, context.org.id)
-            )
-          )
+          .where(and(...whereTotalSql))
       ),
       joinedQuery.orderBy(orderBy).limit(limit).offset(offset),
     ]);
@@ -140,146 +151,153 @@ export const listLeadNotesProcedure = leadImpl.note.list
   });
 
 export const leadNoteCreateProcedure = leadImpl.note.create
-  .use(
-    orgMemberPermissionsMiddleware([
-      "org.lead_note.manage",
-      "org.lead_note.create",
-    ])
-  )
-  .handler(async ({ context, input }) => {
-    const [leadData] = await context.db
-      .select({ id: LeadTable.id })
-      .from(LeadTable)
-      .where(
-        and(
-          eq(LeadTable.id, input.leadId),
-          eq(LeadTable.orgId, context.org.id),
-          isNull(LeadTable.deletedAt)
-        )
-      )
-      .limit(1);
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
 
-    if (!leadData) {
-      throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOT_FOUND,
-      });
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead_note.manage", "org.lead_note.create"]
+        : jobId
+          ? ["org.job_note.manage", "org.job_note.create"]
+          : [
+              "org.lead_note.manage",
+              "org.lead_note.create",
+              "org.job_note.manage",
+              "org.job_note.create",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
     }
 
-    const jobId = input?.jobId;
+    let leadId: string | undefined = undefined;
+    let jobId: string | undefined = undefined;
 
-    if (jobId) {
-      const [jobData] = await context.db
-        .select({ id: JobTable.id })
-        .from(JobTable)
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({ id: LeadTable.id })
+        .from(LeadTable)
         .where(
           and(
-            eq(JobTable.id, jobId),
-            eq(JobTable.orgId, context.org.id),
-            isNull(JobTable.deletedAt)
+            eq(LeadTable.id, input.leadId),
+            eq(LeadTable.orgId, context.org.id),
+            isNull(LeadTable.deletedAt)
           )
         )
         .limit(1);
 
-      if (!jobData) {
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      leadId = existLead.id;
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.id, input.jobId),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      if (!existJob) {
         throw new ORPCError("NOT_FOUND", {
           message: API_MESSAGES.JOB.NOT_FOUND,
         });
       }
+      jobId = existJob.id;
     }
 
-    const noteData = await context.db.transaction(async (tx) => {
-      const [note] = await tx
-        .insert(LeadNoteTable)
-        .values({
-          leadId: input.leadId,
-          orgId: context.org.id,
-          content: input.content,
-          createdBy: context.orgMember.id,
-          ...(jobId && { jobId }),
-        })
-        .returning();
+    const [noteData] = await context.db
+      .insert(LeadNoteTable)
+      .values({
+        leadId,
+        jobId,
+        orgId: context.org.id,
+        content: input.content,
+        createdBy: context.orgMember.id,
+      })
+      .returning();
 
-      if (!note) {
-        tx.rollback();
-        throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: API_MESSAGES.LEAD.NOTES.NOT_CREATE,
-        });
-      }
-
-      await createLeadHistory(
-        {
-          leadId: input.leadId,
-          eventType: input?.jobId ? "job_note_added" : "lead_note_added",
-          ...(input?.jobId ? { jobId: input?.jobId } : {}),
-          triggeredBy: context.orgMember.id,
-          triggeredByType: "organization_member",
-          title: "Note added",
-          relatedEntityType: input.jobId ? "job" : "lead",
-          relatedEntityId: input.jobId ?? leadData.id,
-        },
-        tx
-      );
-
-      return note;
-    });
+    if (!noteData) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: API_MESSAGES.LEAD.NOTES.NOT_CREATE,
+      });
+    }
 
     return apiResponse(API_MESSAGES.LEAD.NOTES.CREATE, noteData);
   });
 
 export const leadNoteUpdateProcedure = leadImpl.note.update
-  .use(
-    orgMemberPermissionsMiddleware([
-      "org.lead_note.manage",
-      "org.lead_note.update",
-    ])
-  )
-  .handler(async ({ context, input }) => {
-    const [leadData] = await context.db
-      .select({ id: LeadTable.id })
-      .from(LeadTable)
-      .where(
-        and(
-          eq(LeadTable.id, input.leadId),
-          eq(LeadTable.orgId, context.org.id),
-          isNull(LeadTable.deletedAt)
-        )
-      )
-      .limit(1);
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
 
-    if (!leadData) {
-      throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOT_FOUND,
-      });
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead_note.manage", "org.lead_note.update"]
+        : jobId
+          ? ["org.job_note.manage", "org.job_note.update"]
+          : [
+              "org.lead_note.manage",
+              "org.lead_note.update",
+              "org.job_note.manage",
+              "org.job_note.update",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
     }
 
     const whereSql = [
       eq(LeadNoteTable.id, input.leadNoteId),
-      eq(LeadNoteTable.leadId, leadData.id),
       eq(LeadNoteTable.orgId, context.org.id),
     ];
 
-    const jobId = input?.jobId;
-
-    if (jobId) {
-      const [jobData] = await context.db
-        .select({ id: JobTable.id })
-        .from(JobTable)
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({ id: LeadTable.id })
+        .from(LeadTable)
         .where(
           and(
-            eq(JobTable.id, jobId),
-            eq(JobTable.orgId, context.org.id),
-            isNull(JobTable.deletedAt)
+            eq(LeadTable.id, input.leadId),
+            eq(LeadTable.orgId, context.org.id),
+            isNull(LeadTable.deletedAt)
           )
         )
         .limit(1);
 
-      if (!jobData) {
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      whereSql.push(eq(LeadNoteTable.jobId, existLead.id));
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.id, input.jobId),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      if (!existJob) {
         throw new ORPCError("NOT_FOUND", {
           message: API_MESSAGES.JOB.NOT_FOUND,
         });
       }
-
-      whereSql.push(eq(LeadNoteTable.jobId, jobData.id));
+      whereSql.push(eq(LeadNoteTable.jobId, existJob.id));
     }
 
     const [noteData] = await context.db
@@ -305,96 +323,86 @@ export const leadNoteUpdateProcedure = leadImpl.note.update
       });
     }
 
-    const note = await context.db.transaction(async (tx) => {
-      const [note] = await tx
-        .update(LeadNoteTable)
-        .set({
-          content: input.content,
-        })
-        .where(eq(LeadNoteTable.id, noteData.id))
-        .returning();
+    const [note] = await context.db
+      .update(LeadNoteTable)
+      .set({
+        content: input.content,
+      })
+      .where(eq(LeadNoteTable.id, noteData.id))
+      .returning();
 
-      if (!note) {
-        tx.rollback();
-        throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: API_MESSAGES.LEAD.NOTES.NOT_UPDATE,
-        });
-      }
-
-      await createLeadHistory(
-        {
-          leadId: input.leadId,
-          eventType: noteData.jobId ? "job_note_updated" : "lead_note_updated",
-          ...(noteData.jobId ? { jobId: noteData.jobId } : {}),
-          triggeredBy: context.orgMember.id,
-          triggeredByType: "organigation_member",
-          title: "Note updated",
-          relatedEntityType: noteData.jobId ? "job" : "lead",
-          relatedEntityId: noteData.jobId ?? noteData.leadId,
-        },
-        tx
-      );
-
-      return note;
-    });
+    if (!note) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: API_MESSAGES.LEAD.NOTES.NOT_UPDATE,
+      });
+    }
 
     return apiResponse(API_MESSAGES.LEAD.NOTES.UPDATE, note);
   });
 
 export const leadNoteDeleteProcedure = leadImpl.note.delete
-  .use(
-    orgMemberPermissionsMiddleware([
-      "org.lead_note.manage",
-      "org.lead_note.delete",
-    ])
-  )
-  .handler(async ({ context, input }) => {
-    const [leadData] = await context.db
-      .select({ id: LeadTable.id })
-      .from(LeadTable)
-      .where(
-        and(
-          eq(LeadTable.id, input.leadId),
-          eq(LeadTable.orgId, context.org.id),
-          isNull(LeadTable.deletedAt)
-        )
-      )
-      .limit(1);
-
-    if (!leadData) {
-      throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOT_FOUND,
-      });
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead_note.manage", "org.lead_note.delete"]
+        : jobId
+          ? ["org.job_note.manage", "org.job_note.delete"]
+          : [
+              "org.lead_note.manage",
+              "org.lead_note.delete",
+              "org.job_note.manage",
+              "org.job_note.delete",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
     }
 
     const whereSql = [
       eq(LeadNoteTable.id, input.leadNoteId),
-      eq(LeadNoteTable.leadId, leadData.id),
       eq(LeadNoteTable.orgId, context.org.id),
     ];
 
-    const jobId = input?.jobId;
-
-    if (jobId) {
-      const [jobData] = await context.db
-        .select({ id: JobTable.id })
-        .from(JobTable)
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({ id: LeadTable.id })
+        .from(LeadTable)
         .where(
           and(
-            eq(JobTable.id, jobId),
-            eq(JobTable.orgId, context.org.id),
-            isNull(JobTable.deletedAt)
+            eq(LeadTable.id, input.leadId),
+            eq(LeadTable.orgId, context.org.id),
+            isNull(LeadTable.deletedAt)
           )
         )
         .limit(1);
 
-      if (!jobData) {
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      whereSql.push(eq(LeadNoteTable.leadId, existLead.id));
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.id, input.jobId),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      if (!existJob) {
         throw new ORPCError("NOT_FOUND", {
           message: API_MESSAGES.JOB.NOT_FOUND,
         });
       }
-
-      whereSql.push(eq(LeadNoteTable.jobId, jobData.id));
+      whereSql.push(eq(LeadNoteTable.jobId, existJob.id));
     }
 
     const [noteData] = await context.db
@@ -420,23 +428,9 @@ export const leadNoteDeleteProcedure = leadImpl.note.delete
       });
     }
 
-    await context.db.transaction(async (tx) => {
-      await tx.delete(LeadNoteTable).where(eq(LeadNoteTable.id, noteData.id));
-
-      await createLeadHistory(
-        {
-          leadId: input.leadId,
-          eventType: noteData.jobId ? "job_note_deleted" : "lead_note_deleted",
-          ...(noteData.jobId ? { jobId: noteData.jobId } : {}),
-          triggeredBy: context.orgMember.id,
-          triggeredByType: "organigation_member",
-          title: "Note deleted",
-          relatedEntityType: noteData.jobId ? "job" : "lead",
-          relatedEntityId: noteData.jobId ?? noteData.leadId,
-        },
-        tx
-      );
-    });
+    await context.db
+      .delete(LeadNoteTable)
+      .where(eq(LeadNoteTable.id, noteData.id));
 
     return apiResponse(API_MESSAGES.LEAD.NOTES.DELETE, null);
   });

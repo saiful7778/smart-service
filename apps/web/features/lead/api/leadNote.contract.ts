@@ -31,8 +31,8 @@ const listLeadNotesContract = leadBaseContract
     paginateInputZodSchema<typeof selectLeadNoteSchema>({
       orderFields: ["createdAt"],
     }).extend({
-      leadId: z.uuid(),
-      jobId: z.uuid().optional(),
+      leadId: z.uuid().nullable().optional(),
+      jobId: z.uuid().nullable().optional(),
     })
   )
   .output(
@@ -116,8 +116,8 @@ const leadNoteDeleteContract = leadBaseContract
   .input(
     z.object({
       leadNoteId: z.uuid(),
-      leadId: z.uuid(),
-      jobId: z.uuid().optional(),
+      leadId: z.uuid().nullable().optional(),
+      jobId: z.uuid().nullable().optional(),
     })
   )
   .output(apiOutputZodSchema(z.null()));

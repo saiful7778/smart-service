@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MapPin, Pen } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { AddressDataModel } from "@workspace/drizzle/schemas";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
@@ -32,8 +33,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
-import { useLeadUpdate } from "@/features/lead/api/lead.api.hook";
-import { LeadDetailsOutputs } from "@/features/lead/api/lead.contract";
+import { useLeadAddressUpdate } from "@/features/lead/api/lead.api.hook";
 import {
   leadAddressesSchema,
   LeadAddressesType,
@@ -43,10 +43,19 @@ import { AddressesForm } from "../../forms/AddressesForm";
 
 export function AddressDetails({
   leadId,
+  jobId,
   addresses,
 }: {
-  leadId: string;
-  addresses: LeadDetailsOutputs["addresses"];
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
+  addresses: Array<
+    Pick<
+      AddressDataModel,
+      "id" | "line1" | "city" | "state" | "zipCode" | "country"
+    > & {
+      isPrimary: boolean;
+    }
+  >;
 }) {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   return (
@@ -133,6 +142,7 @@ export function AddressDetails({
       </Card>
       <AddressUpdateDialog
         leadId={leadId}
+        jobId={jobId}
         addresses={addresses}
         open={openDialog}
         onOpenChange={setOpenDialog}
@@ -143,12 +153,21 @@ export function AddressDetails({
 
 function AddressUpdateDialog({
   leadId,
+  jobId,
   addresses,
   open,
   onOpenChange,
 }: {
-  leadId: string;
-  addresses: LeadDetailsOutputs["addresses"];
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
+  addresses: Array<
+    Pick<
+      AddressDataModel,
+      "id" | "line1" | "city" | "state" | "zipCode" | "country"
+    > & {
+      isPrimary: boolean;
+    }
+  >;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -166,7 +185,7 @@ function AddressUpdateDialog({
     },
   });
 
-  const { mutate, isPending } = useLeadUpdate<keyof LeadAddressesType>({
+  const { mutate, isPending } = useLeadAddressUpdate<keyof LeadAddressesType>({
     onSuccess: () => {
       form.reset();
       onOpenChange(false);
@@ -182,8 +201,9 @@ function AddressUpdateDialog({
 
   const handleSubmit = (e: LeadAddressesType) => {
     mutate({
-      ...e,
       leadId,
+      jobId,
+      addresses: e.addresses,
     });
   };
 

@@ -16,8 +16,8 @@ import { LeadNoteSkeleton } from "./LoadingSkeleton";
 import { LeadNoteItem } from "./NoteItem";
 
 interface FeedProps {
-  leadId: string;
-  jobId?: string;
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
   notes: ListLeadNotesOutputs["data"];
   fetchNextPage: () => void;
   hasNextPage: boolean;
@@ -34,8 +34,7 @@ export function Feed({
 }: FeedProps) {
   const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
-  const [noteToDeleteId, setNoteToDeleteId] = useState<string | null>(null);
-  const [noteToUpdate, setNoteToUpdate] = useState<
+  const [noteToAction, setNoteToAction] = useState<
     ListLeadNotesOutputs["data"][number] | null
   >(null);
 
@@ -47,29 +46,33 @@ export function Feed({
     },
   });
 
-  const { mutate: deleteMutate, isPending: deletePending } = useLeadNoteDelete({
+  const handleDeleteDialog = useCallback(
+    (leadNoteId: string) => {
+      const noteData = notes.find((note) => note.id === leadNoteId);
+      if (noteData) {
+        setNoteToAction(noteData);
+        setOpenDeleteDialog(true);
+      }
+    },
+    [notes]
+  );
+
+  const { mutate: deleteNote, isPending: deletePending } = useLeadNoteDelete({
     onSuccess: () => {
       setOpenDeleteDialog(false);
-      setNoteToDeleteId(null);
+      setNoteToAction(null);
     },
   });
 
-  const handleDeleteDialog = useCallback((leadNoteId: string) => {
-    setNoteToDeleteId(leadNoteId);
-    setOpenDeleteDialog(true);
-  }, []);
-
   const handleDelete = useCallback(() => {
-    if (!noteToDeleteId) {
-      toast.error("Note is not selected");
-      return;
+    if (noteToAction) {
+      deleteNote({
+        leadId,
+        leadNoteId: noteToAction.id,
+        ...(jobId && { jobId }),
+      });
     }
-    deleteMutate({
-      leadId,
-      leadNoteId: noteToDeleteId,
-      ...(jobId && { jobId }),
-    });
-  }, [leadId, jobId, noteToDeleteId, deleteMutate]);
+  }, [leadId, jobId, deleteNote, noteToAction]);
 
   const handleUpdateDialog = useCallback(
     (leadNoteId: string) => {
@@ -78,7 +81,7 @@ export function Feed({
         toast.error("Note is not found");
         return;
       }
-      setNoteToUpdate(noteData);
+      setNoteToAction(noteData);
       setOpenUpdateDialog(true);
     },
     [notes]
@@ -137,13 +140,13 @@ export function Feed({
       <LeadNoteUpdateDialog
         open={openUpdateDialog}
         onOpenChange={setOpenUpdateDialog}
+        leadNoteId={noteToAction ? noteToAction.id : undefined}
         initialData={
-          noteToUpdate
+          noteToAction
             ? {
-                leadId: noteToUpdate.leadId,
-                leadNoteId: noteToUpdate.id,
-                jobId: noteToUpdate.job?.id,
-                content: noteToUpdate.content,
+                leadId: noteToAction.leadId,
+                jobId: noteToAction.job?.id,
+                content: noteToAction.content,
               }
             : undefined
         }

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { Clock, Eye, FileText, Mail, Package, Phone } from "lucide-react";
+import { Eye, FileText, Mail, Package, Phone } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
@@ -17,7 +17,9 @@ import {
   DEFAULT_INFINITE_PAGE_SIZE,
   DEFAULT_INFINITE_PAGE_START,
 } from "@/constants";
+import { AttachmentStep } from "@/features/lead/components/lead-details/AttachmentStep";
 import { DetailsStep } from "@/features/lead/components/lead-details/details-step";
+import { JobStep } from "@/features/lead/components/lead-details/job-step";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
@@ -64,7 +66,7 @@ export default async function SingleLeadDetailsPage(
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
         backUrl="/dashboard/organization/leads"
-        title={data.customer.name || "No Name"}
+        title={data.customer.name}
         shortDescription="Detailed overview of lead information and performance."
       >
         {/* Header Section start */}
@@ -127,12 +129,7 @@ export default async function SingleLeadDetailsPage(
               <span>Jobs</span>
             </TabNavigationTrigger>
 
-            <TabNavigationTrigger value="history">
-              <Clock className="size-4" />
-              <span>History</span>
-            </TabNavigationTrigger>
-
-            <TabNavigationTrigger value="attachment">
+            <TabNavigationTrigger value="attachments">
               <FileText className="size-4" />
               <span>Attachments</span>
             </TabNavigationTrigger>
@@ -142,9 +139,12 @@ export default async function SingleLeadDetailsPage(
             <TabNavigationContent value="details">
               <DetailsStep leadId={leadId} />
             </TabNavigationContent>
-            <TabNavigationContent value="jobs"></TabNavigationContent>
-            <TabNavigationContent value="history"></TabNavigationContent>
-            <TabNavigationContent value="attachments"></TabNavigationContent>
+            <TabNavigationContent value="jobs">
+              <JobStep leadId={leadId} />
+            </TabNavigationContent>
+            <TabNavigationContent value="attachments">
+              <AttachmentStep leadId={leadId} />
+            </TabNavigationContent>
           </div>
         </TabNavigation>
       </DashboardShell>

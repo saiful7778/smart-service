@@ -20,7 +20,7 @@ export function LeadCategoryCreateDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>Create New</DialogTrigger>
+      <DialogTrigger render={<Button />}>Create New</DialogTrigger>
       <DialogResponsiveContent className="w-full sm:max-w-2xl">
         <DialogStickyHeader>
           <DialogTitle>Create Lead Category</DialogTitle>

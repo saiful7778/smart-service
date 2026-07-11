@@ -16,19 +16,14 @@ import { LeadNoteForm } from "../forms/LeadNoteForm";
 interface LeadNoteUpdateDialogProps {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  initialData?:
-    | {
-        leadId: string;
-        leadNoteId: string;
-        content: string;
-        jobId?: string;
-      }
-    | undefined;
+  leadNoteId: string | undefined;
+  initialData: LeadNoteType | undefined;
 }
 
 export function LeadNoteUpdateDialog({
   open,
   onOpenChange,
+  leadNoteId,
   initialData,
 }: LeadNoteUpdateDialogProps) {
   return (
@@ -38,8 +33,9 @@ export function LeadNoteUpdateDialog({
           <DialogTitle>Update Note</DialogTitle>
           <DialogDescription>Update the note data.</DialogDescription>
         </DialogHeader>
-        {initialData ? (
+        {initialData && leadNoteId ? (
           <LeadNoteUpdateDialogForm
+            leadNoteId={leadNoteId}
             initialData={initialData}
             onSuccess={() => onOpenChange(false)}
           />
@@ -54,15 +50,12 @@ export function LeadNoteUpdateDialog({
 }
 
 function LeadNoteUpdateDialogForm({
+  leadNoteId,
   initialData,
   onSuccess,
 }: {
-  initialData: {
-    leadId: string;
-    leadNoteId: string;
-    content: string;
-    jobId?: string;
-  };
+  leadNoteId: string;
+  initialData: LeadNoteType;
   onSuccess: () => void;
 }) {
   "use no memo";
@@ -92,12 +85,11 @@ function LeadNoteUpdateDialogForm({
   const handleSubmit = (e: LeadNoteType) => {
     mutate({
       ...e,
-      leadNoteId: initialData.leadNoteId,
+      leadNoteId,
     });
   };
   return (
     <LeadNoteForm
-      formId="lead_note_create_form"
       form={form}
       onSubmit={handleSubmit}
       isSubmitting={isPending}

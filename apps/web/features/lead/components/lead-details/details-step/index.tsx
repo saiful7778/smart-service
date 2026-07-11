@@ -1,14 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 
@@ -20,7 +13,7 @@ import { LeadNotes } from "../../lead-note";
 import { AddressDetails } from "./AddressDetails";
 import { GeneralInfo } from "./GeneralInfo";
 import { LeadRevenueStats } from "./LeadRevenueStats";
-import { LeadTimeItem } from "./LeadTimeItem";
+import { TimeCard } from "./TimeCard";
 
 export function DetailsStep({ leadId }: { leadId: string }) {
   const { data, isLoading, isError, error } = useQuery(
@@ -60,6 +53,7 @@ export function DetailsStep({ leadId }: { leadId: string }) {
         <div className="space-y-4 md:space-y-6 lg:space-y-10 animate-in fade-in duration-500">
           <LeadRevenueStats
             leadId={data.id}
+            jobId={undefined}
             totalExpectedRevenue={data.totalExpectedRevenue}
             totalInvoicedRevenue={data.totalInvoicedRevenue}
             totalMissedRevenue={data.totalMissedRevenue}
@@ -78,26 +72,20 @@ export function DetailsStep({ leadId }: { leadId: string }) {
                 leadCategories={data.leadCategories}
                 description={data.description}
               />
-              <LeadNotes leadId={data.id} />
+              <LeadNotes leadId={data.id} jobId={undefined} />
             </div>
 
             <div className="lg:col-span-4 space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarDays className="size-5 text-primary" />
-                    <span className="font-semibold text-lg">Time</span>
-                  </CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-4">
-                  <LeadTimeItem
-                    title="Registered At"
-                    timeValue={data.createdAt}
-                  />
-                </CardContent>
-              </Card>
-              <AddressDetails leadId={data.id} addresses={data.addresses} />
+              <TimeCard
+                leadId={data.id}
+                jobId={undefined}
+                createdAt={data.createdAt}
+              />
+              <AddressDetails
+                leadId={data.id}
+                jobId={undefined}
+                addresses={data.addresses}
+              />
             </div>
           </div>
         </div>

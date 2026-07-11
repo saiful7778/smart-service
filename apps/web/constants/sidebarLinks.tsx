@@ -3,6 +3,7 @@ import {
   List,
   ListTree,
   Mails,
+  Package,
   PlusCircle,
   Settings,
   ShieldUser,
@@ -48,7 +49,7 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: UsersRound,
         permissions: ["org.lead.manage", "org.lead.list"],
         path: "/dashboard/organization/leads",
-        pathRegex: /^\/dashboard\/organization\/leads($|\/.*)$/,
+        pathRegex: /^\/dashboard\/organization\/leads(\/.*)?$/,
         items: [
           {
             title: "All Leads",
@@ -70,6 +71,29 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             permissions: ["org.lead_category.manage", "org.lead_category.list"],
             path: "/dashboard/organization/leads/categories",
             pathRegex: /^\/dashboard\/organization\/leads\/categories$/,
+          },
+        ],
+      },
+      {
+        title: "Jobs",
+        icon: Package,
+        permissions: ["org.job.manage", "org.job.list"],
+        path: "/dashboard/organization/jobs",
+        pathRegex: /^\/dashboard\/organization\/jobs(\/.*)?$/,
+        items: [
+          {
+            icon: List,
+            title: "All Jobs",
+            permissions: ["org.job.manage", "org.job.list"],
+            path: "/dashboard/organization/jobs",
+            pathRegex: /^\/dashboard\/organization\/jobs$/,
+          },
+          {
+            icon: PlusCircle,
+            title: "Create Job",
+            permissions: ["org.job.manage", "org.job.create"],
+            path: "/dashboard/organization/jobs/create",
+            pathRegex: /^\/dashboard\/organization\/jobs\/create$/,
           },
         ],
       },

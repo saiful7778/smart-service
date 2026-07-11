@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
@@ -5,6 +7,10 @@ import { DashboardShell } from "@/components/shared/DashboardShell";
 import { LeadCategoryManagementTable } from "@/features/lead/components/LeadCategoryManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
+
+export const metadata: Metadata = {
+  title: "Lead Categories",
+};
 
 export default async function CategoriesPage() {
   await requireUserPermissionsWithOrgCache([

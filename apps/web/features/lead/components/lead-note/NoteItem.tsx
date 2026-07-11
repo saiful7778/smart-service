@@ -85,7 +85,7 @@ export function LeadNoteItem({
         {pathname.startsWith("/dashboard/organization/leads") && note.job && (
           <div>
             <Button
-              size="xs"
+              size="sm"
               variant="outline"
               nativeButton={false}
               render={

@@ -20,6 +20,7 @@ import {
   InsertLead,
   InsertLeadAddress,
   InsertLeadCategoryJoin,
+  JobAddressTable,
   JobTable,
   LeadAddressTable,
   LeadCategoryJoinTable,
@@ -43,7 +44,6 @@ import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middlewa
 import { privateRateLimitMiddleware } from "@/server/middleware/rateLimit.middleware";
 import { ORPCContext } from "@/types/orpc.types";
 
-import { createLeadHistory } from "../leadHistory.data";
 import { leadContract } from "./lead.contract";
 
 export const leadImpl = implement(leadContract)
@@ -178,19 +178,6 @@ export const leadCreateProcedure = leadImpl.create
         );
       }
 
-      await createLeadHistory(
-        {
-          leadId: leadData.id,
-          eventType: "lead_created",
-          triggeredBy: context.orgMember.id,
-          triggeredByType: "organization_member",
-          title: "Lead Created",
-          relatedEntityType: "lead",
-          relatedEntityId: leadData.id,
-        },
-        tx
-      );
-
       return leadData;
     });
 
@@ -255,6 +242,7 @@ export const listLeadProcedure = leadImpl.list
         and(
           eq(LeadTable.orgId, context.org.id),
           isNull(LeadTable.deletedAt),
+          isNull(JobTable.deletedAt),
           where
         )
       )
@@ -289,7 +277,7 @@ export const listLeadProcedure = leadImpl.list
 export const leadUpdateProcedure = leadImpl.update
   .use(orgMemberPermissionsMiddleware(["org.lead.manage", "org.lead.update"]))
   .handler(async ({ context, input, errors }) => {
-    const { leadId, addresses, categories, ...rest } = input;
+    const { leadId, categories, ...rest } = input;
 
     const [existLead] = await context.db
       .select({
@@ -380,18 +368,116 @@ export const leadUpdateProcedure = leadImpl.update
         }
       }
 
-      if (addresses) {
+      return leadData;
+    });
+
+    return apiResponse(API_MESSAGES.LEAD.UPDATE, leadData);
+  });
+
+export const leadAddressUpdateProcedure = leadImpl.updateAddress
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
+
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead.manage", "org.lead.update"]
+        : jobId
+          ? ["org.job.manage", "org.job.update"]
+          : [
+              "org.lead.manage",
+              "org.lead.update",
+              "org.job.manage",
+              "org.job.update",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
+    }
+
+    let leadId: string | undefined = undefined;
+    let jobId: string | undefined = undefined;
+
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({
+          id: LeadTable.id,
+        })
+        .from(LeadTable)
+        .where(
+          and(
+            eq(LeadTable.orgId, context.org.id),
+            eq(LeadTable.id, input.leadId),
+            isNull(LeadTable.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      leadId = existLead.id;
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({
+          id: JobTable.id,
+        })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.orgId, context.org.id),
+            eq(JobTable.id, input.jobId),
+            isNull(JobTable.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!existJob) {
+        throw new ORPCError("NOT_FOUND", {
+          message: API_MESSAGES.JOB.NOT_FOUND,
+        });
+      }
+      jobId = existJob.id;
+    }
+
+    await context.db.transaction(async (tx) => {
+      if (input.addresses.length > 0) {
         // 1. Get existing addresses
-        const existedAddresses = await tx
-          .select()
-          .from(LeadAddressTable)
-          .where(eq(LeadAddressTable.leadId, leadData.id));
+        const existedAddresses: Array<{ id: string }> = [];
+
+        if (leadId) {
+          const existingAddresses = await tx
+            .select({
+              id: LeadAddressTable.addressId,
+            })
+            .from(LeadAddressTable)
+            .where(eq(LeadAddressTable.leadId, leadId));
+
+          existingAddresses.forEach((existingAddress) => {
+            existedAddresses.push(existingAddress);
+          });
+        }
+        if (jobId) {
+          const existingAddresses = await tx
+            .select({
+              id: JobAddressTable.addressId,
+            })
+            .from(JobAddressTable)
+            .where(eq(JobAddressTable.jobId, jobId));
+
+          existingAddresses.forEach((existingAddress) => {
+            existedAddresses.push(existingAddress);
+          });
+        }
 
         // 2. Identify addresses and separate them
-        const incomingWithId = addresses.filter((a) => a.id);
-        const incomingWithoutId = addresses.filter((a) => !a.id);
+        const incomingWithId = input.addresses.filter((a) => a.id);
+        const incomingWithoutId = input.addresses.filter((a) => !a.id);
         const addressesToRemove = existedAddresses.filter(
-          (l) => incomingWithId.findIndex((a) => a.id === l.addressId) === -1
+          (l) => incomingWithId.findIndex((a) => a.id === l.id) === -1
         );
 
         try {
@@ -405,17 +491,31 @@ export const leadUpdateProcedure = leadImpl.update
                 state: addr.state,
                 zipCode: addr.zipCode,
               })
-              .where(eq(AddressTable.id, addr.id!));
+              .where(eq(AddressTable.id, addr.id!))
+              .returning();
 
-            await tx
-              .update(LeadAddressTable)
-              .set({ isPrimary: addr.isPrimary })
-              .where(
-                and(
-                  eq(LeadAddressTable.leadId, input.leadId),
-                  eq(LeadAddressTable.addressId, addr.id!)
-                )
-              );
+            if (leadId) {
+              await tx
+                .update(LeadAddressTable)
+                .set({ isPrimary: addr.isPrimary })
+                .where(
+                  and(
+                    eq(LeadAddressTable.leadId, leadId),
+                    eq(LeadAddressTable.addressId, addr.id!)
+                  )
+                );
+            }
+            if (jobId) {
+              await tx
+                .update(JobAddressTable)
+                .set({ isPrimary: addr.isPrimary })
+                .where(
+                  and(
+                    eq(JobAddressTable.jobId, jobId),
+                    eq(JobAddressTable.addressId, addr.id!)
+                  )
+                );
+            }
           }
 
           // 4. Create new addresses
@@ -430,12 +530,23 @@ export const leadUpdateProcedure = leadImpl.update
               })
               .returning({ id: AddressTable.id });
 
-            if (newAddr) {
-              await tx.insert(LeadAddressTable).values({
-                leadId: input.leadId,
-                addressId: newAddr.id,
-                isPrimary: addr.isPrimary,
-              });
+            if (leadId) {
+              if (newAddr) {
+                await tx.insert(LeadAddressTable).values({
+                  leadId,
+                  addressId: newAddr.id,
+                  isPrimary: addr.isPrimary,
+                });
+              }
+            }
+            if (jobId) {
+              if (newAddr) {
+                await tx.insert(JobAddressTable).values({
+                  jobId,
+                  addressId: newAddr.id,
+                  isPrimary: addr.isPrimary,
+                });
+              }
             }
           }
         } catch (err) {
@@ -445,36 +556,33 @@ export const leadUpdateProcedure = leadImpl.update
 
         // 5. Remove addresses
         if (addressesToRemove.length > 0) {
-          await tx.delete(LeadAddressTable).where(
-            and(
-              eq(LeadAddressTable.leadId, input.leadId),
-              inArray(
-                LeadAddressTable.addressId,
-                addressesToRemove.map((l) => l.addressId)
+          if (leadId) {
+            await tx.delete(LeadAddressTable).where(
+              and(
+                eq(LeadAddressTable.leadId, leadId),
+                inArray(
+                  LeadAddressTable.addressId,
+                  addressesToRemove.map((l) => l.id)
+                )
               )
-            )
-          );
+            );
+          }
+          if (jobId) {
+            await tx.delete(JobAddressTable).where(
+              and(
+                eq(JobAddressTable.jobId, jobId),
+                inArray(
+                  JobAddressTable.addressId,
+                  addressesToRemove.map((l) => l.id)
+                )
+              )
+            );
+          }
         }
       }
-
-      // create history
-      await createLeadHistory(
-        {
-          leadId: input.leadId,
-          eventType: "lead_updated",
-          triggeredBy: context.orgMember.id,
-          triggeredByType: "organization_member",
-          title: "Lead Updated",
-          relatedEntityType: "lead",
-          relatedEntityId: input.leadId,
-        },
-        tx
-      );
-
-      return leadData;
     });
 
-    return apiResponse(API_MESSAGES.LEAD.UPDATE, leadData);
+    return apiResponse(API_MESSAGES.LEAD.UPDATE_ADDRESS, null);
   });
 
 export const leadDetailsProcedure = leadImpl.details
@@ -649,30 +757,81 @@ export const leadDeleteProcedure = leadImpl.delete
   });
 
 export const leadRevenueHistoryProcedure = leadImpl.revenueHistory
-  .use(orgMemberPermissionsMiddleware(["org.lead.manage", "org.lead.read"]))
-  .handler(async ({ context, input, errors }) => {
-    const [existLead] = await context.db
-      .select({
-        id: LeadTable.id,
-      })
-      .from(LeadTable)
-      .where(
-        and(
-          eq(LeadTable.orgId, context.org.id),
-          eq(LeadTable.id, input.leadId),
-          isNull(LeadTable.deletedAt)
-        )
-      )
-      .limit(1);
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
 
-    if (!existLead) {
-      throw errors.NOT_FOUND();
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead.manage", "org.lead.read"]
+        : jobId
+          ? ["org.job.manage", "org.job.read"]
+          : [
+              "org.lead.manage",
+              "org.job.read",
+              "org.job.manage",
+              "org.job.read",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    let leadId: string | undefined = undefined;
+    let jobId: string | undefined = undefined;
+
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({
+          id: LeadTable.id,
+        })
+        .from(LeadTable)
+        .where(
+          and(
+            eq(LeadTable.orgId, context.org.id),
+            eq(LeadTable.id, input.leadId),
+            isNull(LeadTable.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      leadId = existLead.id;
     }
 
-    const whereSql = [eq(LeadRevenueHistoryTable.leadId, existLead.id)];
-
     if (input?.jobId) {
-      whereSql.push(eq(LeadRevenueHistoryTable.jobId, input.jobId));
+      const [existJob] = await context.db
+        .select({
+          id: JobTable.id,
+        })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.orgId, context.org.id),
+            eq(JobTable.id, input.jobId),
+            isNull(JobTable.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!existJob) {
+        throw new ORPCError("NOT_FOUND", {
+          message: API_MESSAGES.JOB.NOT_FOUND,
+        });
+      }
+      jobId = existJob.id;
+    }
+
+    if (!leadId && !jobId) {
+      throw errors.BAD_REQUEST();
+    }
+
+    const whereSql = [];
+
+    if (leadId) {
+      whereSql.push(eq(LeadRevenueHistoryTable.leadId, leadId));
+    }
+    if (jobId) {
+      whereSql.push(eq(LeadRevenueHistoryTable.jobId, jobId));
     }
 
     const revenueHistory = await context.db
@@ -712,4 +871,42 @@ export const leadRevenueHistoryProcedure = leadImpl.revenueHistory
       );
 
     return apiResponse(API_MESSAGES.LEAD.GET_REVENUE_HISTORY, revenueHistory);
+  });
+
+export const listLeadForSearchProcedure = leadImpl.listForSearch
+  .use(orgMemberPermissionsMiddleware(["org.lead.manage", "org.lead.list"]))
+  .handler(async ({ context, input }) => {
+    const { where } = buildPaginateOptions(
+      {
+        id: LeadTable.id,
+        status: LeadTable.status,
+        name: CustomerTable.name,
+        email: CustomerTable.email,
+        phone: CustomerTable.phone,
+      },
+      input
+    );
+
+    const leads = await context.db
+      .select({
+        id: LeadTable.id,
+        status: LeadTable.status,
+        customer: {
+          id: CustomerTable.id,
+          name: CustomerTable.name,
+          email: CustomerTable.email,
+          phone: CustomerTable.phone,
+        },
+      })
+      .from(LeadTable)
+      .innerJoin(CustomerTable, eq(CustomerTable.id, LeadTable.customerId))
+      .where(
+        and(
+          eq(LeadTable.orgId, context.org.id),
+          isNull(LeadTable.deletedAt),
+          where
+        )
+      );
+
+    return apiResponse(API_MESSAGES.LEAD.GET_LIST_FOR_SEARCH, leads);
   });

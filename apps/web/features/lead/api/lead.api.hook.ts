@@ -95,12 +95,71 @@ export function useLeadUpdate<TFieldNames>({
           queryKey: orpcTQClient.lead.details.queryKey({
             input: { leadId },
           }),
-          exact: true,
+          exact: false,
         });
 
         if (categories) {
           await queryclient.invalidateQueries({
             queryKey: orpcTQClient.lead.category.list.queryKey(),
+            exact: false,
+          });
+        }
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to update lead", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadAddressUpdate<TFieldNames>({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames>) {
+  const toastId = "update_lead_address_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.updateAddress.mutationOptions({
+      onMutate: () => {
+        toast.loading("Updating...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }, { leadId, jobId }) => {
+        toast.success(message, { id: toastId });
+        if (leadId) {
+          await queryclient.invalidateQueries({
+            queryKey: orpcTQClient.lead.details.queryKey({
+              input: { leadId },
+            }),
+            exact: false,
+          });
+        }
+
+        if (jobId) {
+          await queryclient.invalidateQueries({
+            queryKey: orpcTQClient.job.details.queryKey({
+              input: { jobId },
+            }),
             exact: false,
           });
         }
@@ -157,7 +216,7 @@ export function useLeadDelete({
           queryKey: orpcTQClient.lead.details.queryKey({
             input: { leadId },
           }),
-          exact: true,
+          exact: false,
         });
 
         await queryclient.invalidateQueries({
@@ -374,6 +433,98 @@ export function useLeadNoteDelete({
         const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to delete note", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadAttachmentCreate<TFieldNames>({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames>) {
+  const toastId = "upload_attachment_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.attachment.create.mutationOptions({
+      onMutate: () => {
+        toast.loading("Uploading...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }, { leadId, jobId }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.attachment.list.queryKey({
+            input: { leadId, jobId },
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to upload attachment", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadAttachmentDelete({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "delete_attachment_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.attachment.delete.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting attachment...", { id: toastId });
+      },
+      onSuccess: async ({ message }, { leadId }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.attachment.list.queryKey({
+            input: { leadId },
+          }),
+          exact: true,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete attachment", {
           id: toastId,
         });
 

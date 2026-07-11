@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Asterisk, Info, UserSearch } from "lucide-react";
@@ -59,10 +59,6 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
     })
   );
 
-  const handleSearch = useCallback((searchValue: string) => {
-    setSearch(searchValue);
-  }, []);
-
   return (
     <Controller
       name={name}
@@ -80,7 +76,7 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
           <SearchableSelector
             value={field.value}
             onChange={field.onChange}
-            onSearch={handleSearch}
+            onSearch={setSearch}
           >
             <SearchableSelectorTrigger>
               <UserSearch className="size-4" />

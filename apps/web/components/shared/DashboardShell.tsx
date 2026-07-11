@@ -30,16 +30,13 @@ export function DashboardShell({
           {backUrl && (
             <Button
               className="mb-1"
-              size="sm"
               variant="ghost"
               nativeButton={false}
-              render={
-                <Link href={{ pathname: backUrl }}>
-                  <ArrowLeft />
-                  <span>Go Back</span>
-                </Link>
-              }
-            />
+              render={<Link href={{ pathname: backUrl }} />}
+            >
+              <ArrowLeft />
+              <span>Go Back</span>
+            </Button>
           )}
           <h1 className="text-lg md:text-3xl font-bold">{title}</h1>
           {shortDescription && (

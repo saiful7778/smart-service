@@ -1,0 +1,428 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useState } from "react";
+
+import { useQuery } from "@tanstack/react-query";
+import { formatDate } from "date-fns";
+import { Briefcase, Clock, Edit, Plus, Trash2 } from "lucide-react";
+import { parseAsBoolean, parseAsIndex, useQueryState } from "nuqs";
+
+import { JobStatusEnumType } from "@workspace/drizzle/zod-db-enums";
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
+import { Button } from "@workspace/ui/components/button";
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@workspace/ui/components/empty";
+import { Separator } from "@workspace/ui/components/separator";
+import { Skeleton } from "@workspace/ui/components/skeleton";
+import {
+  Status,
+  StatusIndicator,
+  StatusLabel,
+  StatusVariant,
+} from "@workspace/ui/components/status";
+import { cn } from "@workspace/ui/lib/utils";
+
+import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
+
+import { MetaPagination } from "@/components/MetaPagination";
+import { UserAvatarImage } from "@/components/UserAvatar";
+
+import {
+  DEFAULT_INFINITE_PAGE_SIZE,
+  DEFAULT_INFINITE_PAGE_START,
+} from "@/constants";
+import { useJobDelete } from "@/features/job/api/job.api.hook";
+import { LeadJobCreateDialog } from "@/features/job/components/LeadJobCreateDialog";
+import { LeadJobUpdateDialog } from "@/features/job/components/LeadJobUpdateDialog";
+import { ListLeadJobsOutput } from "@/features/lead/api/leadJob.contract";
+import { orpcTQClient } from "@/server/orpc.client";
+import { RoutePathType } from "@/types";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { nameInitials } from "@/utils/nameInitials";
+
+export function JobStep({ leadId }: { leadId: string }) {
+  const [openCreateDialog, setOpenCreateDialog] = useQueryState<boolean>(
+    "create_job_dialog",
+    parseAsBoolean
+      .withDefault(false)
+      .withOptions({ shallow: true, history: "replace" })
+  );
+
+  const [page, setPage] = useQueryState(
+    "page",
+    parseAsIndex
+      .withDefault(DEFAULT_INFINITE_PAGE_START)
+      .withOptions({ history: "push", shallow: true })
+  );
+
+  const { data, isLoading, isError, error } = useQuery(
+    orpcTQClient.lead.job.list.queryOptions({
+      input: {
+        leadId,
+        page,
+        limit: DEFAULT_INFINITE_PAGE_SIZE,
+        order: "desc",
+        orderField: "createdAt",
+      },
+    })
+  );
+
+  return (
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold">Jobs</h3>
+            <p className="text-xs text-muted-foreground">
+              Manage jobs for this lead
+            </p>
+          </div>
+          <Button onClick={() => setOpenCreateDialog(true)}>
+            <Plus />
+            <span>Create Job</span>
+          </Button>
+        </div>
+
+        <QueryStateBoundary
+          data={data?.data}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          isEmpty={(d) => d.data.length === 0}
+          loadingFallback={<JobsSkeleton />}
+          emptyFallback={
+            <Empty className="py-12 border-dashed">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Briefcase className="size-8" />
+                </EmptyMedia>
+                <EmptyTitle>No jobs yet</EmptyTitle>
+                <EmptyDescription>
+                  This lead hasn&apos;t been converted into any jobs yet.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          }
+        >
+          {({ data, meta }) => (
+            <>
+              <JobList jobs={data} leadId={leadId} />
+              <MetaPagination meta={meta} onPageChange={setPage} />
+            </>
+          )}
+        </QueryStateBoundary>
+      </div>
+      <LeadJobCreateDialog
+        open={openCreateDialog}
+        onOpenChange={setOpenCreateDialog}
+        leadId={leadId}
+      />
+    </>
+  );
+}
+
+function JobList({
+  leadId,
+  jobs,
+}: {
+  leadId: string;
+  jobs: ListLeadJobsOutput["data"];
+}) {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [jobToDeleteId, setJobToDeleteId] = useState<string | null>(null);
+  const [openUpdateDialog, setOpenUpdateDialog] = useQueryState<boolean>(
+    "update_job_dialog",
+    parseAsBoolean
+      .withDefault(false)
+      .withOptions({ shallow: true, history: "replace" })
+  );
+  const [jobToUpdate, setJobToUpdate] = useState<
+    ListLeadJobsOutput["data"][number] | null
+  >(null);
+
+  const { mutate, isPending } = useJobDelete({
+    leadId,
+    onSuccess: () => {
+      setOpenDeleteDialog(false);
+      setJobToDeleteId(null);
+    },
+  });
+
+  const handleDelete = useCallback(() => {
+    if (isPending || !jobToDeleteId) return;
+    mutate({ jobId: jobToDeleteId });
+  }, [mutate, isPending, jobToDeleteId]);
+
+  return (
+    <>
+      <div className="flex flex-col gap-4">
+        {jobs.map((job) => (
+          <JobItem
+            key={job.id}
+            job={job}
+            isDeleting={job.id === jobToDeleteId && isPending}
+            isUpdating={job.id === jobToUpdate?.id && isPending}
+            handleDeleteDialog={() => {
+              setOpenDeleteDialog(true);
+              setJobToDeleteId(job.id);
+            }}
+            handleInfoUpdateDialog={() => {
+              setOpenUpdateDialog(true);
+              setJobToUpdate(job);
+            }}
+          />
+        ))}
+      </div>
+      <DeleteConfirmDialog
+        open={openDeleteDialog}
+        onOpenChange={setOpenDeleteDialog}
+        onConfirm={handleDelete}
+        isLoading={isPending}
+        title="Delete Job"
+        description="Are you sure you want to delete this job?"
+      />
+      <LeadJobUpdateDialog
+        open={openUpdateDialog}
+        onOpenChange={setOpenUpdateDialog}
+        leadId={leadId}
+        jobId={jobToUpdate?.id}
+        initialData={
+          jobToUpdate
+            ? {
+                title: jobToUpdate.title,
+                description: jobToUpdate.description || undefined,
+                status: jobToUpdate.status,
+                serviceAt: jobToUpdate.serviceAt || undefined,
+              }
+            : undefined
+        }
+      />
+    </>
+  );
+}
+
+const statusConfig: Record<
+  JobStatusEnumType,
+  { variant: StatusVariant; label: string }
+> = {
+  draft: { variant: "default", label: "Draft" },
+  scheduled: { variant: "info", label: "Scheduled" },
+  in_progress: { variant: "info", label: "In Progress" },
+  on_hold: { variant: "warning", label: "On Hold" },
+  needs_review: { variant: "warning", label: "Needs Review" },
+  completed: { variant: "success", label: "Completed" },
+  cancelled: { variant: "error", label: "Cancelled" },
+} as const;
+
+interface JobItemProps {
+  job: ListLeadJobsOutput["data"][number];
+  isDeleting: boolean;
+  isUpdating: boolean;
+  handleDeleteDialog: () => void;
+  handleInfoUpdateDialog: () => void;
+}
+
+function JobItem({
+  job,
+  isDeleting,
+  isUpdating,
+  handleDeleteDialog,
+  handleInfoUpdateDialog,
+}: JobItemProps) {
+  const config = statusConfig[job.status] || {
+    variant: "default",
+    label: job.status,
+  };
+
+  return (
+    <Card>
+      <CardContent className="flex items-start gap-4">
+        <div className="flex-1 space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex-1">
+              <div className="flex items-center flex-wrap gap-2">
+                <Link
+                  href={
+                    `/dashboard/organization/jobs/${job.id}` as RoutePathType
+                  }
+                  className="font-bold text-base text-foreground/90 hover:underline"
+                >
+                  {job.title}
+                </Link>
+                <Status variant={config.variant} className="h-6">
+                  <StatusIndicator />
+                  <StatusLabel className="text-[10px] uppercase tracking-wider font-bold">
+                    {config.label}
+                  </StatusLabel>
+                </Status>
+              </div>
+              {job.description && (
+                <p className="text-sm text-muted-foreground line-clamp-2 max-w-lg w-full mt-1">
+                  {job.description}
+                </p>
+              )}
+            </div>
+
+            {job.serviceAt && (
+              <div className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/50 p-2 rounded-lg border shrink-0">
+                {job.serviceAt && (
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="size-3.5 text-primary" />
+                      <span>Service</span>
+                    </div>
+                    <div>{formatDate(new Date(job.serviceAt), "P - p")}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div className="flex flex-wrap items-center gap-4">
+              <RevenueStat
+                label="Expected"
+                amount={job.expectedRevenue}
+                color="text-amber-600 dark:text-amber-400"
+                bg="bg-amber-50 dark:bg-amber-950"
+              />
+              <RevenueStat
+                label="Invoiced"
+                amount={job.invoicedRevenue}
+                color="text-blue-600 dark:text-blue-400"
+                bg="bg-blue-50 dark:bg-blue-950"
+              />
+              <RevenueStat
+                label="Received"
+                amount={job.receivedRevenue}
+                color="text-emerald-600 dark:text-emerald-400"
+                bg="bg-emerald-50 dark:bg-emerald-950"
+              />
+            </div>
+
+            <div className="flex items-center justify-start sm:justify-end gap-2.5">
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
+                  Created By
+                </p>
+                <p className="text-xs font-semibold text-foreground/80">
+                  {job.createdBy.name}
+                </p>
+              </div>
+              <Avatar className="size-8">
+                <UserAvatarImage
+                  image={job.createdBy.image}
+                  alt={job.createdBy.name}
+                />
+                <AvatarFallback>
+                  {nameInitials(job.createdBy.name)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+        </div>
+
+        <Separator orientation="vertical" />
+
+        <div className="flex flex-col gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleInfoUpdateDialog}
+            disabled={isUpdating}
+          >
+            <Edit />
+            <span className="sr-only">Edit Job</span>
+          </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={handleDeleteDialog}
+            disabled={isDeleting}
+          >
+            <Trash2 />
+            <span className="sr-only">Delete Job</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RevenueStat({
+  label,
+  amount,
+  color,
+  bg,
+}: {
+  label: string;
+  amount: string | number | null;
+  color: string;
+  bg: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/70">
+        {label}
+      </span>
+      <div
+        className={cn(
+          "flex items-center gap-1 font-bold text-sm w-fit px-2 py-0.5 rounded-md border border-current/10",
+          color,
+          bg
+        )}
+      >
+        {formatCurrency(Number(amount ?? 0))}
+      </div>
+    </div>
+  );
+}
+
+function JobsSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2].map((i) => (
+        <Card key={i} className="w-full">
+          <CardContent className="flex items-start gap-4">
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-6 w-1/3" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+                <Skeleton className="h-12 w-32 rounded-lg" />
+              </div>
+              <div className="flex justify-between items-end mt-5">
+                <div className="flex gap-6">
+                  <Skeleton className="h-10 w-24 rounded-md" />
+                  <Skeleton className="h-10 w-24 rounded-md" />
+                  <Skeleton className="h-10 w-24 rounded-md" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="space-y-1 items-end flex flex-col">
+                    <Skeleton className="h-2 w-12" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                  <Skeleton className="size-8 rounded-full" />
+                </div>
+              </div>
+            </div>
+            <Separator orientation="vertical" />
+            <div className="flex flex-col gap-2">
+              <Skeleton className="size-8 rounded-sm" />
+              <Skeleton className="size-8 rounded-sm" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

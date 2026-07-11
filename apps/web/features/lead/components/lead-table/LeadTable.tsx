@@ -65,14 +65,15 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
         <DataTableToolbar table={table}>
           <Button
             nativeButton={false}
-            size="sm"
             render={
-              <Link href={{ pathname: "/dashboard/organization/leads/create" }}>
-                <CirclePlus />
-                <span>Create new Lead</span>
-              </Link>
+              <Link
+                href={{ pathname: "/dashboard/organization/leads/create" }}
+              />
             }
-          />
+          >
+            <CirclePlus />
+            <span>Create new Lead</span>
+          </Button>
         </DataTableToolbar>
       </DataTable>
     </TooltipProvider>

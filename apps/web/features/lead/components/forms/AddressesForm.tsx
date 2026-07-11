@@ -46,9 +46,9 @@ export function AddressesForm({
       city: "",
       state: "",
       zipCode: "",
-      isPrimary: fields.length === 0,
+      isPrimary: false,
     });
-  }, [append, fields.length]);
+  }, [append]);
 
   return (
     <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>

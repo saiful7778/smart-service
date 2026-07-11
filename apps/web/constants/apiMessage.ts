@@ -23,7 +23,6 @@ export const API_MESSAGES = {
     NO_ACTIVE_ORGANIZATION: "No active organization found",
     NO_PERMISSION: "No permission to perform this action",
     NOT_MATCHED: "Requested organization and auth organization is not matched",
-    GET_BOOKINGS: "Bookings fetched successfully",
     GET_SCHEDULE: "Schedule fetched successfully",
     MEMBER: {
       UPDATE: "Member updated successfully",
@@ -96,6 +95,7 @@ export const API_MESSAGES = {
     GET_ATTACHMENT_DETAILS: "Lead attachment details fetched successfully",
     GET_REVENUE_HISTORY: "Lead revenue history fetched successfully",
     UPDATE: "Lead updated successfully",
+    UPDATE_ADDRESS: "Address is updated successfully",
     DELETE: "Lead deleted successfully",
     GET_LIST_FOR_SEARCH: "All Leads data for search fetched successfully",
     ASSIGNMENT: {
@@ -119,15 +119,15 @@ export const API_MESSAGES = {
       NOT_CREATE: "History creation failed",
     },
     NOTES: {
-      GET_ALL: "All Lead Notes data is fetched successfully",
-      CREATE: "Lead note created successfully",
+      GET_ALL: "All Notes data is fetched successfully",
+      CREATE: "Note created successfully",
       NOT_CREATE: "Lead note creation failed",
-      DELETE: "Lead note deleted successfully",
-      NOT_FOUND: "Lead note not found",
+      DELETE: "Note deleted successfully",
+      NOT_FOUND: "Note not found",
       NOT_ALLOWED_DELETE: "You are not allowed to delete this lead note",
       NOT_ALLOWED_UPDATE: "You are not allowed to update this lead note",
-      UPDATE: "Lead note updated successfully",
-      NOT_UPDATE: "Lead note update failed",
+      UPDATE: "Note updated successfully",
+      NOT_UPDATE: "Note update failed",
     },
     CUSTOMER: {
       GET_ALL: "All Customer data is fetched successfully",
@@ -162,5 +162,6 @@ export const API_MESSAGES = {
     NOT_UPDATED: "Job not updated",
     INVALID_REQUEST: "Invalid job request",
     DELETED: "Job deleted successfully",
+    GET_ALL_SERVICINGS: "Get all servicings",
   },
 };

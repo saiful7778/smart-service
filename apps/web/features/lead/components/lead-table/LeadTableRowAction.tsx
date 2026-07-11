@@ -190,6 +190,7 @@ export function LeadTableRowAction({
         open={openRevenueHistoryDialog}
         onOpenChange={setOpenRevenueHistoryDialog}
         leadId={leadData.id}
+        jobId={undefined}
       />
     </>
   );

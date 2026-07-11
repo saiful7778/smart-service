@@ -30,8 +30,8 @@ export function LeadNotes({
   leadId,
   jobId,
 }: {
-  leadId: string;
-  jobId?: string;
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
 }) {
   const {
     data,

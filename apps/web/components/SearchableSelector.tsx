@@ -298,16 +298,18 @@ export function SearchableSelectorEmpty({
 
 // ─── Item ────────────────────────────────────────────────────────────────────
 
-interface SearchableSelectorItemProps<T> {
+interface SearchableSelectorItemProps<T> extends React.ComponentProps<
+  typeof CommandItem
+> {
   item: T;
   getItemId: (item: T) => string;
-  children: React.ReactNode;
 }
 
 export function SearchableSelectorItem<T>({
   children,
   item,
   getItemId,
+  ...props
 }: SearchableSelectorItemProps<T>) {
   const { handleSelect, value } = useSearchableSelectorContext();
   const itemId = getItemId(item);
@@ -316,6 +318,7 @@ export function SearchableSelectorItem<T>({
     <CommandItem
       onSelect={() => handleSelect(itemId)}
       data-checked={itemId === value}
+      {...props}
     >
       {children}
     </CommandItem>

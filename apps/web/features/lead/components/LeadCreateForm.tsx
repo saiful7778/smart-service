@@ -185,8 +185,6 @@ export function LeadCreateForm() {
     [form, step]
   );
 
-  console.log(form.formState.errors);
-
   const handleSubmit = (e: CreateLeadType) => {
     mutate(e);
   };

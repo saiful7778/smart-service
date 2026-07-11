@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
+import { JobRevenueUpdateDialog } from "@/features/job/components/JobRevenueUpdateDialog";
 import { formatCurrency } from "@/utils/formatCurrency";
 
 import { RevenueHistoryDialog } from "./RevenueHistories";
@@ -29,8 +30,8 @@ export function LeadRevenueStats({
   totalReceivedRevenue,
   totalMissedRevenue,
 }: {
-  leadId: string;
-  jobId?: string | undefined;
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
   totalExpectedRevenue?: string | null | undefined;
   totalInvoicedRevenue?: string | null | undefined;
   totalReceivedRevenue?: string | null | undefined;
@@ -133,6 +134,18 @@ export function LeadRevenueStats({
           </Stat>
         </div>
       </div>
+      {jobId && (
+        <JobRevenueUpdateDialog
+          open={openRevenueUpdateDialog}
+          onOpenChange={setOpenRevenueUpdateDialog}
+          defaultValues={{
+            expectedRevenue: totalExpectedRevenue ?? undefined,
+            invoicedRevenue: totalInvoicedRevenue ?? undefined,
+            receivedRevenue: totalReceivedRevenue ?? undefined,
+            jobId,
+          }}
+        />
+      )}
       <RevenueHistoryDialog
         open={openHistoryDialog}
         onOpenChange={setOpenHistoryDialog}

@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { UseFormReturn } from "react-hook-form";
 
@@ -24,6 +22,11 @@ interface GeneralInfoUpdateFormProps {
   disabled?: boolean;
 }
 
+const statusOptions = LeadStatusEnumSchema.options.map((option) => ({
+  value: option,
+  label: formatEnumValue(option),
+}));
+
 export function GeneralInfoUpdateForm({
   form,
   onSubmit,
@@ -39,15 +42,6 @@ export function GeneralInfoUpdateForm({
           label: category.name,
         })),
     })
-  );
-
-  const statusOptions = useMemo(
-    () =>
-      LeadStatusEnumSchema.options.map((option) => ({
-        value: option,
-        label: formatEnumValue(option),
-      })),
-    []
   );
 
   return (

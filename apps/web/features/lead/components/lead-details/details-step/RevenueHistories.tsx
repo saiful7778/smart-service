@@ -40,8 +40,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 interface RevenueHistoryDialogProps {
   open: boolean;
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-  leadId: string;
-  jobId?: string | undefined;
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
 }
 
 export function RevenueHistoryDialog({
@@ -72,8 +72,8 @@ export function RevenueHistories({
   leadId,
   jobId,
 }: {
-  leadId: string;
-  jobId?: string | undefined;
+  leadId: string | null | undefined;
+  jobId: string | null | undefined;
 }) {
   const { data, isLoading, isError, error, refetch } = useQuery(
     orpcTQClient.lead.revenueHistory.queryOptions({

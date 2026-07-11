@@ -25,7 +25,9 @@ import { userProfileSchema } from "@/features/user/user.api-schema";
 import { createLeadSchema, leadAddressSchema } from "../lead.schema";
 import { customerContract } from "./customer.contract";
 import { leadBaseContract } from "./lead.contract-base";
+import { leadAttachmentContract } from "./leadAttachment.contract";
 import { leadCategoryContract } from "./leadCategory.contract";
+import { leadJobContract } from "./leadJob.contract";
 import { leadNoteContract } from "./leadNote.contract";
 
 const tags = ["Organization", "Lead"] as const;
@@ -108,6 +110,44 @@ export type ListLeadOutputs = InferContractRouterOutputs<
   typeof listLeadContract
 >["data"];
 
+const listLeadForSearchContract = leadBaseContract
+  .route({
+    path: "/leads/search",
+    description: "Search leads",
+    tags,
+  })
+  .input(
+    paginateInputZodSchema<typeof selectCustomerSchema>({
+      orderFields: [],
+      searchFields: ["name", "email", "phone"],
+    })
+  )
+  .output(
+    apiOutputZodSchema(
+      z.array(
+        selectLeadSchema
+          .pick({
+            id: true,
+            status: true,
+          })
+          .extend({
+            customer: selectCustomerSchema.pick({
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            }),
+          })
+      )
+    )
+  );
+export type ListLeadForSearchInputs = InferContractRouterInputs<
+  typeof listLeadForSearchContract
+>;
+export type ListLeadForSearchOutputs = InferContractRouterOutputs<
+  typeof listLeadForSearchContract
+>["data"];
+
 const leadUpdateContract = leadBaseContract
   .route({
     path: "/leads/update",
@@ -115,16 +155,10 @@ const leadUpdateContract = leadBaseContract
     tags,
   })
   .input(
-    updateLeadSchema
-      .extend({
-        leadId: z.uuid(),
-        categories: z.array(z.string()).optional(),
-      })
-      .extend({
-        addresses: z
-          .array(leadAddressSchema.extend({ id: z.uuid().optional() }))
-          .optional(),
-      })
+    updateLeadSchema.extend({
+      leadId: z.uuid(),
+      categories: z.array(z.string()).optional(),
+    })
   )
   .output(apiOutputZodSchema(selectLeadSchema));
 export type LeadUpdateInputs = InferContractRouterInputs<
@@ -133,6 +167,27 @@ export type LeadUpdateInputs = InferContractRouterInputs<
 export type LeadUpdateOutputs = InferContractRouterOutputs<
   typeof leadUpdateContract
 >["data"];
+
+const leadAddressUpdateContract = leadBaseContract
+  .route({
+    path: "/leads/update/address",
+    description: "Update lead address data",
+    tags,
+  })
+  .input(
+    z.object({
+      leadId: z.uuid().nullable().optional(),
+      jobId: z.uuid().nullable().optional(),
+      addresses: z.array(leadAddressSchema.extend({ id: z.uuid().optional() })),
+    })
+  )
+  .output(apiOutputZodSchema(z.null()));
+export type LeadAddressUpdateInputs = InferContractRouterInputs<
+  typeof leadAddressUpdateContract
+>;
+export type LeadAddressUpdateOutputs = InferContractRouterInputs<
+  typeof leadAddressUpdateContract
+>;
 
 const leadDetailsContract = leadBaseContract
   .route({
@@ -230,8 +285,8 @@ const revenueHistoryContract = leadBaseContract
   })
   .input(
     z.object({
-      leadId: z.uuid(),
-      jobId: z.uuid().optional(),
+      leadId: z.uuid().nullable().optional(),
+      jobId: z.uuid().nullable().optional(),
     })
   )
   .output(
@@ -268,12 +323,16 @@ export type RevenueHistoryOutputs = InferContractRouterOutputs<
 
 export const leadContract = {
   list: listLeadContract,
+  listForSearch: listLeadForSearchContract,
   create: leadCreateContract,
   category: leadCategoryContract,
   customer: customerContract,
   update: leadUpdateContract,
+  updateAddress: leadAddressUpdateContract,
   details: leadDetailsContract,
   delete: leadDeleteContract,
   revenueHistory: revenueHistoryContract,
   note: leadNoteContract,
+  job: leadJobContract,
+  attachment: leadAttachmentContract,
 };

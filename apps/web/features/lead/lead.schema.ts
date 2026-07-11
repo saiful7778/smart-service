@@ -116,8 +116,8 @@ export const leadCategoryCreateSchema = z.object({
 export type LeadCategoryCreateType = z.infer<typeof leadCategoryCreateSchema>;
 
 export const leadNoteSchema = z.object({
-  leadId: z.uuid(),
-  jobId: z.uuid().optional(),
+  leadId: z.uuid().nullable().optional(),
+  jobId: z.uuid().nullable().optional(),
   content: z.string().min(1, "Note content is required"),
 });
 export type LeadNoteType = z.infer<typeof leadNoteSchema>;
@@ -126,3 +126,14 @@ export const leadAddressesSchema = z.object({
   addresses: z.array(leadAddressSchema),
 });
 export type LeadAddressesType = z.infer<typeof leadAddressesSchema>;
+
+export const leadAttachmentUploadSchema = z.object({
+  leadId: z.uuid().nullable().optional(),
+  jobId: z.uuid().nullable().optional(),
+  title: z.string().min(1).max(255).optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+});
+export type LeadAttachmentUploadType = z.infer<
+  typeof leadAttachmentUploadSchema
+>;

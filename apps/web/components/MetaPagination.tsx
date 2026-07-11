@@ -77,7 +77,6 @@ export function MetaPagination({
         {/* Previous Button */}
         <PaginationItem>
           <Button
-            size="xs"
             variant="ghost"
             disabled={meta.isFirstPage}
             aria-disabled={meta.isFirstPage}
@@ -100,7 +99,7 @@ export function MetaPagination({
               <PaginationEllipsis />
             ) : (
               <Button
-                size="icon-xs"
+                size="icon"
                 variant={page === meta.currentPage ? "outline" : "ghost"}
                 aria-current={page === meta.currentPage ? "page" : undefined}
                 data-slot="pagination-link"
@@ -116,7 +115,6 @@ export function MetaPagination({
         {/* Next Button */}
         <PaginationItem>
           <Button
-            size="xs"
             variant="ghost"
             aria-label="Go to next page"
             disabled={meta.isLastPage}
