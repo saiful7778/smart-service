@@ -1,7 +1,7 @@
 import z from "zod";
 
 export function apiOutputZodSchema<
-  T extends z.ZodObject<z.ZodRawShape> | z.ZodNull | z.ZodArray,
+  T extends z.ZodObject<z.ZodRawShape> | z.ZodNull | z.ZodArray | z.ZodRecord,
 >(
   schema: T
 ): z.ZodObject<{
