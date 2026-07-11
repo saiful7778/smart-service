@@ -25,6 +25,7 @@ interface DeleteConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;
+  icon?: React.ReactNode;
 }
 
 export function DeleteConfirmDialog({
@@ -36,14 +37,13 @@ export function DeleteConfirmDialog({
   confirmText = "Delete",
   cancelText = "Cancel",
   isLoading = false,
+  icon = <Trash2 className="size-4 text-destructive" />,
 }: DeleteConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia>
-            <Trash2 className="size-4 text-destructive" />
-          </AlertDialogMedia>
+          <AlertDialogMedia>{icon}</AlertDialogMedia>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
