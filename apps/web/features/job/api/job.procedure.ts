@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { and, count, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, count, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -383,6 +383,46 @@ export const jobDeleteProcedure = jobImpl.delete
     });
 
     return apiResponse(API_MESSAGES.JOB.DELETED, null);
+  });
+
+export const jobAllDeleteProcedure = jobImpl.deleteAll
+  .use(orgMemberPermissionsMiddleware(["org.job.manage", "org.job.delete"]))
+  .handler(async ({ context, input, errors }) => {
+    const existJobs = await context.db
+      .select({
+        id: JobTable.id,
+        leadId: JobTable.leadId,
+        title: JobTable.title,
+      })
+      .from(JobTable)
+      .where(
+        and(
+          eq(JobTable.orgId, context.org.id),
+          inArray(JobTable.id, input.jobIds),
+          isNull(JobTable.deletedAt)
+        )
+      );
+
+    if (existJobs.length === 0) {
+      throw errors.BAD_REQUEST();
+    }
+
+    await context.db.transaction(async (tx) => {
+      await tx
+        .update(JobTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        })
+        .where(
+          inArray(
+            JobTable.id,
+            existJobs.map(({ id }) => id)
+          )
+        );
+    });
+
+    return apiResponse(API_MESSAGES.JOB.DELETE_ALL, null);
   });
 
 export const jobDetailsProcedure = jobImpl.details

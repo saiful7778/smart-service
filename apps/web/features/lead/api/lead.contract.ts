@@ -26,6 +26,7 @@ import { createLeadSchema, leadAddressSchema } from "../lead.schema";
 import { customerContract } from "./customer.contract";
 import { leadBaseContract } from "./lead.contract-base";
 import { leadAttachmentContract } from "./leadAttachment.contract";
+import { leadBinContract } from "./leadBin.contract";
 import { leadCategoryContract } from "./leadCategory.contract";
 import { leadJobContract } from "./leadJob.contract";
 import { leadNoteContract } from "./leadNote.contract";
@@ -224,7 +225,7 @@ const leadDetailsContract = leadBaseContract
           totalReceivedRevenue: z.string(),
           totalMissedRevenue: z.string(),
           totalInvoicedRevenue: z.string(),
-          createdBy: userProfileSchema.nullable(),
+          createdByMember: userProfileSchema.nullable(),
           addresses: z.array(
             selectAddressSchema
               .pick({
@@ -276,6 +277,25 @@ export type LeadDeleteOutputs = InferContractRouterOutputs<
   typeof leadDeleteContract
 >;
 
+const leadAllDeleteContract = leadBaseContract
+  .route({
+    path: "/leads/delete/all",
+    description: "Delete all lead",
+    tags,
+  })
+  .input(
+    z.object({
+      leadIds: z.array(z.uuid()),
+    })
+  )
+  .output(apiOutputZodSchema(z.null()));
+export type LeadAllDeleteInputs = InferContractRouterInputs<
+  typeof leadAllDeleteContract
+>;
+export type LeadAllDeleteOutputs = InferContractRouterOutputs<
+  typeof leadAllDeleteContract
+>;
+
 const revenueHistoryContract = leadBaseContract
   .route({
     method: "GET",
@@ -303,7 +323,7 @@ const revenueHistoryContract = leadBaseContract
             changeReason: true,
           })
           .extend({
-            changedBy: userProfileSchema,
+            changedByMember: userProfileSchema,
             job: selectJobSchema
               .pick({
                 id: true,
@@ -331,8 +351,10 @@ export const leadContract = {
   updateAddress: leadAddressUpdateContract,
   details: leadDetailsContract,
   delete: leadDeleteContract,
+  deleteAll: leadAllDeleteContract,
   revenueHistory: revenueHistoryContract,
   note: leadNoteContract,
   job: leadJobContract,
   attachment: leadAttachmentContract,
+  bin: leadBinContract,
 };

@@ -212,6 +212,13 @@ export function useLeadDelete({
           exact: false,
         });
 
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
         queryclient.removeQueries({
           queryKey: orpcTQClient.lead.details.queryKey({
             input: { leadId },
@@ -230,6 +237,61 @@ export function useLeadDelete({
         const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to delete lead", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadDeleteAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "delete_all_lead_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.deleteAll.mutationOptions({
+      onMutate: () => {
+        toast.loading("Deleting...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.category.list.queryKey(),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete leads", {
           id: toastId,
         });
 
@@ -525,6 +587,204 @@ export function useLeadAttachmentDelete({
         const { message } = formatOrpcError(error);
 
         toast.error(message ?? "Failed to delete attachment", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadRestore({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "lead_restore_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.bin.restore.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Restoring...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to restore lead", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadRestoreAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "lead_all_restore_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.bin.restoreAll.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Restoring...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to restore leads", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadBinDelete({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "lead_bin_delete_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.bin.delete.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete lead", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadBinDeleteAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "lead_all_bin_delete_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.bin.deleteAll.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete leads", {
           id: toastId,
         });
 

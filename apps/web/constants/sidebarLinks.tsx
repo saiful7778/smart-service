@@ -7,6 +7,7 @@ import {
   PlusCircle,
   Settings,
   ShieldUser,
+  Trash2,
   User,
   UsersRound,
 } from "lucide-react";
@@ -72,6 +73,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             path: "/dashboard/organization/leads/categories",
             pathRegex: /^\/dashboard\/organization\/leads\/categories$/,
           },
+          {
+            title: "Recycle Bin",
+            icon: Trash2,
+            permissions: ["org.lead.manage", "org.lead.delete"],
+            path: "/dashboard/organization/leads/bin",
+            pathRegex: /^\/dashboard\/organization\/leads\/bin$/,
+          },
         ],
       },
       {
@@ -94,6 +102,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             permissions: ["org.job.manage", "org.job.create"],
             path: "/dashboard/organization/jobs/create",
             pathRegex: /^\/dashboard\/organization\/jobs\/create$/,
+          },
+          {
+            title: "Recycle Bin",
+            icon: Trash2,
+            permissions: ["org.job.manage", "org.job.delete"],
+            path: "/dashboard/organization/jobs/bin",
+            pathRegex: /^\/dashboard\/organization\/jobs\/bin$/,
           },
         ],
       },

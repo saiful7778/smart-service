@@ -4,6 +4,7 @@ import {
 } from "./customer.procedure";
 import {
   leadAddressUpdateProcedure,
+  leadAllDeleteProcedure,
   leadCreateProcedure,
   leadDeleteProcedure,
   leadDetailsProcedure,
@@ -18,6 +19,13 @@ import {
   leadAttachmentDeleteProcedure,
   listLeadAttachmentProcedure,
 } from "./leadAttachment.procedure";
+import {
+  leadAllRestoreProcedure,
+  leadBinDeleteAllProcedure,
+  leadBinDeleteProcedure,
+  leadRestoreProcedure,
+  listLeadBinProcedure,
+} from "./leadBin.procedure";
 import {
   leadCategoryCreateProcedure,
   listLeadCategoriesForSearchProcedure,
@@ -39,6 +47,7 @@ export const leadRouter = leadImpl.router({
   updateAddress: leadAddressUpdateProcedure,
   details: leadDetailsProcedure,
   delete: leadDeleteProcedure,
+  deleteAll: leadAllDeleteProcedure,
   revenueHistory: leadRevenueHistoryProcedure,
   category: {
     list: listLeadCategoriesProcedure,
@@ -62,5 +71,12 @@ export const leadRouter = leadImpl.router({
     list: listLeadAttachmentProcedure,
     create: leadAttachmentCreateProcedure,
     delete: leadAttachmentDeleteProcedure,
+  },
+  bin: {
+    list: listLeadBinProcedure,
+    restore: leadRestoreProcedure,
+    restoreAll: leadAllRestoreProcedure,
+    delete: leadBinDeleteProcedure,
+    deleteAll: leadBinDeleteAllProcedure,
   },
 });

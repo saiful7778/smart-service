@@ -79,7 +79,7 @@ export default async function SingleJobDetailsPage(
               <DetailsStep jobId={jobId} />
             </TabNavigationContent>
             <TabNavigationContent value="attachments">
-              <AttachmentStep jobId={jobId} />
+              <AttachmentStep leadId={data.leadId} jobId={jobId} />
             </TabNavigationContent>
           </div>
         </TabNavigation>

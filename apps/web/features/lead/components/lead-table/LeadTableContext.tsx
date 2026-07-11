@@ -31,11 +31,10 @@ export function LeadTableContextProvider({
 }: LeadTableContextProviderProps) {
   const [openGeneralUpdateDialog, setOpenGeneralUpdateDialog] =
     useState<boolean>(false);
-  const [leadToUpdate, setLeadToUpdate] = useState<
+  const [leadToAction, setLeadToAction] = useState<
     ListLeadOutputs["data"][number] | null
   >(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
-  const [leadIdToDelete, setLeadIdToDelete] = useState<string | null>(null);
 
   const handleGeneralUpdateDialog = useCallback(
     (leadId: string) => {
@@ -45,7 +44,7 @@ export function LeadTableContextProvider({
         return;
       }
       setOpenGeneralUpdateDialog(true);
-      setLeadToUpdate(lead);
+      setLeadToAction(lead);
     },
     [data]
   );
@@ -53,19 +52,27 @@ export function LeadTableContextProvider({
   const { mutate, isPending } = useLeadDelete({
     onRequestEnd: () => {
       setOpenDeleteDialog(false);
-      setLeadIdToDelete(null);
+      setLeadToAction(null);
     },
   });
 
-  const handleDelete = () => {
-    if (!leadIdToDelete) return;
-    mutate({ leadId: leadIdToDelete });
-  };
+  const handleDelete = useCallback(() => {
+    if (!leadToAction) return;
+    mutate({ leadId: leadToAction.id });
+  }, [leadToAction, mutate]);
 
-  const handleDeleteDialog = useCallback((leadId: string) => {
-    setOpenDeleteDialog(true);
-    setLeadIdToDelete(leadId);
-  }, []);
+  const handleDeleteDialog = useCallback(
+    (leadId: string) => {
+      const lead = data.find((lead) => lead.id === leadId);
+      if (!lead) {
+        toast.error("Lead not found");
+        return;
+      }
+      setOpenDeleteDialog(true);
+      setLeadToAction(lead);
+    },
+    [data]
+  );
 
   return (
     <LeadTableContext.Provider
@@ -83,13 +90,13 @@ export function LeadTableContextProvider({
         open={openGeneralUpdateDialog}
         onOpenChange={setOpenGeneralUpdateDialog}
         initialData={
-          leadToUpdate
+          leadToAction
             ? {
-                leadId: leadToUpdate.id,
-                status: leadToUpdate.status,
-                serviceType: leadToUpdate.serviceType,
-                leadCategories: leadToUpdate.leadCategories,
-                description: leadToUpdate.description,
+                leadId: leadToAction.id,
+                status: leadToAction.status,
+                serviceType: leadToAction.serviceType,
+                leadCategories: leadToAction.leadCategories,
+                description: leadToAction.description,
               }
             : undefined
         }

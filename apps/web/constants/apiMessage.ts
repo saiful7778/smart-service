@@ -97,7 +97,12 @@ export const API_MESSAGES = {
     UPDATE: "Lead updated successfully",
     UPDATE_ADDRESS: "Address is updated successfully",
     DELETE: "Lead deleted successfully",
+    DELETE_ALL: "All lead deleted successfully",
     GET_LIST_FOR_SEARCH: "All Leads data for search fetched successfully",
+    RESTORE: "Lead restored successfully",
+    RESTORE_ALL: "All lead restored successfully",
+    BIN_DELETE: "Lead is deleted successfully",
+    BIN_DELETE_ALL: "All lead is deleted successfully",
     ASSIGNMENT: {
       CREATE: "Assignment created successfully",
       NOT_CREATE: "Assignment creation failed",
@@ -154,6 +159,10 @@ export const API_MESSAGES = {
   JOB: {
     GET_DETAILS: "Job details fetched successfully",
     GET_ALL: "All Jobs data is fetched successfully",
+    RESTORE: "Job restored successfully",
+    RESTORE_ALL: "All job restored successfully",
+    BIN_DELETE: "Job is deleted successfully",
+    BIN_DELETE_ALL: "All job is deleted successfully",
     NOT_FOUND: "Job is not found",
     NOT_CREATED: "Job is not created",
     CREATED: "Job created successfully",
@@ -162,6 +171,7 @@ export const API_MESSAGES = {
     NOT_UPDATED: "Job not updated",
     INVALID_REQUEST: "Invalid job request",
     DELETED: "Job deleted successfully",
+    DELETE_ALL: "All job deleted successfully",
     GET_ALL_SERVICINGS: "Get all servicings",
   },
 };

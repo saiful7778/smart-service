@@ -1,4 +1,5 @@
 import {
+  jobAllDeleteProcedure,
   jobCreateProcedure,
   jobDeleteProcedure,
   jobDetailsProcedure,
@@ -8,6 +9,13 @@ import {
   listJobsProcedure,
   listServicingsProcedure,
 } from "./job.procedure";
+import {
+  jobAllRestoreProcedure,
+  jobBinDeleteAllProcedure,
+  jobBinDeleteProcedure,
+  jobRestoreProcedure,
+  listJobBinProcedure,
+} from "./jobBin.procedure";
 
 export const jobRouter = jobImpl.router({
   list: listJobsProcedure,
@@ -17,4 +25,12 @@ export const jobRouter = jobImpl.router({
   update: jobUpdateProcedure,
   updateRevenue: jobUpdateRevenueProcedure,
   delete: jobDeleteProcedure,
+  deleteAll: jobAllDeleteProcedure,
+  bin: {
+    list: listJobBinProcedure,
+    restore: jobRestoreProcedure,
+    restoreAll: jobAllRestoreProcedure,
+    delete: jobBinDeleteProcedure,
+    deleteAll: jobBinDeleteAllProcedure,
+  },
 });

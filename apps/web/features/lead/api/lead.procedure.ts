@@ -16,6 +16,7 @@ import {
 import {
   AddressTable,
   CustomerTable,
+  FileTable,
   InsertAddress,
   InsertLead,
   InsertLeadAddress,
@@ -23,6 +24,7 @@ import {
   JobAddressTable,
   JobTable,
   LeadAddressTable,
+  LeadAttachmentTable,
   LeadCategoryJoinTable,
   LeadCategoryTable,
   LeadRevenueHistoryTable,
@@ -189,15 +191,13 @@ export const listLeadProcedure = leadImpl.list
   .handler(async ({ context, input }) => {
     const { limit, offset, orderBy, page, where } = buildPaginateOptions(
       {
-        id: LeadTable.id,
-        status: LeadTable.status,
-        serviceType: LeadTable.serviceType,
-        createdAt: LeadTable.createdAt,
-        updatedAt: LeadTable.updatedAt,
-        categories: LeadCategoryTable.slug,
         name: CustomerTable.name,
         email: CustomerTable.email,
         phone: CustomerTable.phone,
+        status: LeadTable.status,
+        createdAt: LeadTable.createdAt,
+        serviceType: LeadTable.serviceType,
+        categories: LeadCategoryTable.slug,
       },
       input
     );
@@ -619,7 +619,7 @@ export const leadDetailsProcedure = leadImpl.details
           email: CustomerTable.email,
           phone: CustomerTable.phone,
         },
-        createdBy: userProfileColumns,
+        createdByMember: userProfileColumns,
         addresses: jsonbAgg(
           {
             id: AddressTable.id,
@@ -689,7 +689,7 @@ export const leadDetailsProcedure = leadImpl.details
       .where(and(eq(JobTable.leadId, leadData.id), isNull(JobTable.deletedAt)))
       .execute();
 
-    const { createdBy, addresses, ...restLeadData } = leadData;
+    const { createdByMember, addresses, ...restLeadData } = leadData;
 
     return apiResponse(API_MESSAGES.LEAD.GET_DETAILS, {
       ...restLeadData,
@@ -701,14 +701,14 @@ export const leadDetailsProcedure = leadImpl.details
       totalInvoicedRevenue: revenueStats?.totalInvoiced?.toString() || "0.00",
       totalReceivedRevenue: revenueStats?.totalReceived?.toString() || "0.00",
       totalMissedRevenue: revenueStats?.totalMissed?.toString() || "0.00",
-      createdBy: createdBy?.userId
+      createdByMember: createdByMember?.userId
         ? {
-            userId: createdBy.userId!,
-            orgMemberId: createdBy.orgMemberId!,
-            name: createdBy.name!,
-            email: createdBy.email!,
-            image: createdBy.image!,
-            roles: createdBy.roles!,
+            userId: createdByMember.userId!,
+            orgMemberId: createdByMember.orgMemberId!,
+            name: createdByMember.name!,
+            email: createdByMember.email!,
+            image: createdByMember.image!,
+            roles: createdByMember.roles!,
           }
         : null,
     });
@@ -736,6 +736,19 @@ export const leadDeleteProcedure = leadImpl.delete
     }
 
     await context.db.transaction(async (tx) => {
+      const jobs = await tx
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.leadId, existLead.id),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      const jobIds = jobs.map(({ id }) => id);
+
       await tx
         .update(LeadTable)
         .set({
@@ -750,10 +763,110 @@ export const leadDeleteProcedure = leadImpl.delete
           deletedAt: new Date(),
           deletedBy: context.orgMember.id,
         })
-        .where(eq(JobTable.leadId, existLead.id));
+        .where(inArray(JobTable.id, jobIds));
+
+      const jobAttachments = await tx
+        .update(LeadAttachmentTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        })
+        .where(inArray(LeadAttachmentTable.jobId, jobIds))
+        .returning({ id: LeadAttachmentTable.id });
+
+      await tx
+        .update(FileTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.user.id,
+        })
+        .where(
+          inArray(
+            FileTable.id,
+            jobAttachments.map(({ id }) => id)
+          )
+        );
     });
 
     return apiResponse(API_MESSAGES.LEAD.DELETE, null);
+  });
+
+export const leadAllDeleteProcedure = leadImpl.deleteAll
+  .use(orgMemberPermissionsMiddleware(["org.lead.manage", "org.lead.delete"]))
+  .handler(async ({ context, input, errors }) => {
+    const existLeads = await context.db
+      .select({
+        id: LeadTable.id,
+      })
+      .from(LeadTable)
+      .where(
+        and(
+          eq(LeadTable.orgId, context.org.id),
+          inArray(LeadTable.id, input.leadIds),
+          isNull(LeadTable.deletedAt)
+        )
+      );
+
+    if (existLeads.length === 0) {
+      throw errors.BAD_REQUEST();
+    }
+
+    const leadIds = existLeads.map(({ id }) => id);
+
+    await context.db.transaction(async (tx) => {
+      const jobs = await tx
+        .select({ id: JobTable.id })
+        .from(JobTable)
+        .where(
+          and(
+            inArray(JobTable.leadId, leadIds),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      const jobIds = jobs.map(({ id }) => id);
+
+      await tx
+        .update(LeadTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        })
+        .where(inArray(LeadTable.id, leadIds));
+
+      await tx
+        .update(JobTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        })
+        .where(inArray(JobTable.id, jobIds));
+
+      const jobAttachments = await tx
+        .update(LeadAttachmentTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        })
+        .where(inArray(LeadAttachmentTable.jobId, jobIds))
+        .returning({ id: LeadAttachmentTable.id });
+
+      await tx
+        .update(FileTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.user.id,
+        })
+        .where(
+          inArray(
+            FileTable.id,
+            jobAttachments.map(({ id }) => id)
+          )
+        );
+    });
+
+    return apiResponse(API_MESSAGES.LEAD.DELETE_ALL, null);
   });
 
 export const leadRevenueHistoryProcedure = leadImpl.revenueHistory
@@ -841,7 +954,7 @@ export const leadRevenueHistoryProcedure = leadImpl.revenueHistory
         revenueType: LeadRevenueHistoryTable.revenueType,
         oldValue: LeadRevenueHistoryTable.oldValue,
         newValue: LeadRevenueHistoryTable.newValue,
-        changedBy: userProfileColumns,
+        changedByMember: userProfileColumns,
         changedAt: LeadRevenueHistoryTable.changedAt,
         changeReason: LeadRevenueHistoryTable.changeReason,
         job: {

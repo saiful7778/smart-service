@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Trash2 } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
 import { DataTable } from "@workspace/ui/components/data-table/data-table";
 import {
   DataTableActionBar,
+  DataTableActionBarAction,
   DataTableActionBarSelection,
 } from "@workspace/ui/components/data-table/data-table-action-bar";
 import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table-toolbar";
@@ -19,6 +20,7 @@ import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { orpcTQClient } from "@/server/orpc.client";
 
+import { useLeadDeleteAll } from "../../api/lead.api.hook";
 import { ListLeadOutputs } from "../../api/lead.contract";
 import { makeLeadTableColumn } from "./leadTableColumn";
 
@@ -52,12 +54,31 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
     },
   });
 
+  const { mutate: deleteAll, isPending: isDeleting } = useLeadDeleteAll({});
+
+  const handleDeleteAll = useCallback(() => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedIds = selectedRows.map((row) => row.original.id);
+
+    deleteAll({ leadIds: selectedIds });
+
+    table.toggleAllRowsSelected(false);
+  }, [table, deleteAll]);
+
   return (
     <TooltipProvider delay={200}>
       <DataTable
         table={table}
         actionBar={
           <DataTableActionBar table={table}>
+            <DataTableActionBarAction
+              onClick={handleDeleteAll}
+              isPending={isDeleting}
+              variant="destructive"
+            >
+              <Trash2 className="size-4" />
+              <span>Delete All</span>
+            </DataTableActionBarAction>
             <DataTableActionBarSelection table={table} />
           </DataTableActionBar>
         }

@@ -23,6 +23,7 @@ import {
   jobUpdateSchema,
 } from "../job.schema";
 import { jobBaseContract } from "./job.contract-base";
+import { jobBinContract } from "./jobBin.contract";
 
 const tags = ["Organization", "Lead", "Job"] as const;
 
@@ -158,6 +159,25 @@ export type JobDeleteOutput = InferContractRouterOutputs<
   typeof jobDeleteContract
 >["data"];
 
+const jobAllDeleteContract = jobBaseContract
+  .route({
+    path: "/jobs/delete/all",
+    description: "delete all job",
+    tags,
+  })
+  .input(
+    z.object({
+      jobIds: z.array(z.uuid()),
+    })
+  )
+  .output(apiOutputZodSchema(z.null()));
+export type JobAllDeleteInput = InferContractRouterInputs<
+  typeof jobAllDeleteContract
+>;
+export type JobAllDeleteOutput = InferContractRouterOutputs<
+  typeof jobAllDeleteContract
+>["data"];
+
 const listServicingsContract = jobBaseContract
   .route({
     path: "/jobs/servicings",
@@ -232,5 +252,7 @@ export const jobContract = {
   update: jobUpdateContract,
   updateRevenue: jobUpdateRevenueContract,
   delete: jobDeleteContract,
+  deleteAll: jobAllDeleteContract,
   details: jobDetailsContract,
+  bin: jobBinContract,
 };
