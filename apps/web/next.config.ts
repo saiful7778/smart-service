@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "smart-service-neon.vercel.app",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.jsdelivr.net",
         port: "",
         pathname: "/**",
