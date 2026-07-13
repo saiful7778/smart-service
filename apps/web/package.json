@@ -25,6 +25,7 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@better-auth/drizzle-adapter": "catalog:",
+    "@bprogress/next": "^3.2.12",
     "@hookform/resolvers": "catalog:",
     "@orpc/client": "^1.14.4",
     "@orpc/contract": "^1.14.4",
