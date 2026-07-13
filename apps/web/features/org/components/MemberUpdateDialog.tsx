@@ -35,10 +35,10 @@ import { updateMemberSchema, UpdateMemberType } from "../org.schema";
 
 export function MemberUpdateDialog({
   memberId,
-  roleNames,
+  roleIds,
 }: {
   memberId: string;
-  roleNames: string[];
+  roleIds: string[];
 }) {
   "use no memo";
   const [openDialog, setOpenDialog] = useState(false);
@@ -48,10 +48,7 @@ export function MemberUpdateDialog({
     resolver: zodResolver(updateMemberSchema),
     defaultValues: {
       memberId,
-      roleNames: roleNames.map((roleName) => ({
-        value: roleName,
-        label: formatEnumValue(roleName),
-      })),
+      roleIds,
     },
   });
 
@@ -102,12 +99,12 @@ export function MemberUpdateDialog({
             <FieldGroup>
               <TagsField
                 control={form.control}
-                name="roleNames"
+                name="roleIds"
                 placeholder="Roles"
                 label="Member Roles"
                 disabled={isPending}
                 options={orgRoles.map((orgRole) => ({
-                  value: orgRole.roleName,
+                  value: orgRole.id,
                   label: formatEnumValue(orgRole.roleName),
                 }))}
               />
@@ -123,12 +120,7 @@ export function MemberUpdateDialog({
           >
             Cancel
           </DialogClose>
-          <ButtonSpinner
-            form={formId}
-            type="submit"
-            className="w-fit"
-            isLoading={isPending}
-          >
+          <ButtonSpinner form={formId} type="submit" isLoading={isPending}>
             Update Member
           </ButtonSpinner>
         </DialogStickyFooter>

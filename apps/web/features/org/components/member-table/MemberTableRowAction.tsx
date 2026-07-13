@@ -23,7 +23,7 @@ export function MemberTableRowAction({
       {!isCurrentUser && isAllowUpdate && (
         <MemberUpdateDialog
           memberId={memberData.orgMemberId}
-          roleNames={memberData.roles.map((role) => role.roleName)}
+          roleIds={memberData.roles.map(({ id }) => id)}
         />
       )}
     </div>

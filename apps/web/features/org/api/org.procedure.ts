@@ -388,47 +388,37 @@ export const updateMemberProcedure = orgImpl.updateMember
     }> = [];
 
     await Promise.all(
-      input.roleNames.map(async (roleName) => {
-        if (OrgRoleEnumSchema.safeParse(roleName.value).success) {
-          const [roleData] = await context.db
-            .select({
-              id: RoleTable.id,
-              roleName: RoleTable.roleName,
-            })
-            .from(RoleTable)
-            .where(eq(RoleTable.roleName, roleName.value as OrgRoleType))
-            .limit(1);
+      input.roleIds.map(async (roleId) => {
+        const [roleData] = await context.db
+          .select({
+            id: RoleTable.id,
+            roleName: RoleTable.roleName,
+          })
+          .from(RoleTable)
+          .where(eq(RoleTable.id, roleId))
+          .limit(1);
 
-          if (!roleData) {
-            throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
-            });
-          }
-
+        if (roleData) {
           rolesData.push({
             id: roleData.id,
             roleName: roleData.roleName,
             type: "system",
           });
-        } else {
-          const [roleData] = await context.db
-            .select({
-              id: OrgRoleTable.id,
-              roleName: OrgRoleTable.role,
-            })
-            .from(OrgRoleTable)
-            .where(eq(OrgRoleTable.role, roleName.value))
-            .limit(1);
+        }
 
-          if (!roleData) {
-            throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
-            });
-          }
+        const [orgRoleData] = await context.db
+          .select({
+            id: OrgRoleTable.id,
+            roleName: OrgRoleTable.role,
+          })
+          .from(OrgRoleTable)
+          .where(eq(OrgRoleTable.id, roleId))
+          .limit(1);
 
+        if (orgRoleData) {
           rolesData.push({
-            id: roleData.id,
-            roleName: roleData.roleName,
+            id: orgRoleData.id,
+            roleName: orgRoleData.roleName,
             type: "custom",
           });
         }

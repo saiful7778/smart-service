@@ -11,33 +11,80 @@ export function filterSidebarMenu(
   userPermissions: Array<PermissionWithOrg>,
   userId: string,
   orgId?: string | null | undefined
-) {
+): Array<SidebarGroupMenuLink> {
   const filteredMenu: Array<SidebarGroupMenuLink> = [];
 
   for (const menuGroup of menuItems) {
-    const filteredItems: Array<SidebarMenuLink> = [];
+    const filteredItems = filterMenuItems(
+      menuGroup.items,
+      userPermissions,
+      userId,
+      orgId
+    );
 
-    for (const menuItem of menuGroup.items) {
-      if (menuItem.permissions) {
-        const isAllowed = hasPermissionWithOrg(
-          userPermissions,
-          menuItem.permissions,
-          {
-            orgId,
-            userId,
-          }
-        );
-
-        if (isAllowed) {
-          filteredItems.push(menuItem);
-        }
-      } else {
-        filteredItems.push(menuItem);
-      }
-    }
     if (filteredItems.length > 0) {
-      filteredMenu.push({ ...menuGroup, items: filteredItems });
+      filteredMenu.push({
+        ...menuGroup,
+        items: filteredItems,
+      });
     }
   }
   return filteredMenu;
+}
+
+function filterMenuItems(
+  items: Array<SidebarMenuLink>,
+  userPermissions: Array<PermissionWithOrg>,
+  userId: string,
+  orgId?: string | null | undefined
+): Array<SidebarMenuLink> {
+  const filteredItems: Array<SidebarMenuLink> = [];
+
+  for (const menuItem of items) {
+    let isAllowed = true;
+
+    if (menuItem.permissions) {
+      isAllowed = hasPermissionWithOrg(userPermissions, menuItem.permissions, {
+        orgId,
+        userId,
+      });
+    }
+
+    let filteredNestedItems: Array<SidebarMenuLink> | undefined;
+    if (menuItem.items && menuItem.items.length > 0) {
+      filteredNestedItems = filterMenuItems(
+        menuItem.items,
+        userPermissions,
+        userId,
+        orgId
+      );
+    }
+
+    let shouldInclude = false;
+
+    if (isAllowed) {
+      shouldInclude = true;
+
+      if (
+        filteredNestedItems !== undefined &&
+        filteredNestedItems.length === 0
+      ) {
+        shouldInclude = true;
+      }
+    } else {
+      if (filteredNestedItems !== undefined && filteredNestedItems.length > 0) {
+        shouldInclude = true;
+      }
+    }
+
+    if (shouldInclude) {
+      const newItem = { ...menuItem };
+      if (filteredNestedItems !== undefined) {
+        newItem.items = filteredNestedItems;
+      }
+      filteredItems.push(newItem);
+    }
+  }
+
+  return filteredItems;
 }
