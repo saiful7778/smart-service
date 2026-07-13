@@ -97,37 +97,18 @@ export function LeadAttachmentUploadDialog({
       setAttachmentError("Please select a file");
       return;
     }
-    let fileId: string | undefined = undefined;
 
-    if (e.leadId) {
-      const { data } = await uploadFileToAPI({
-        file: Array.isArray(attachmentValue)
-          ? attachmentValue[0]!
-          : attachmentValue,
-        entityId: e.leadId,
-        entityType: "lead_attachment",
-      });
-      fileId = data.id;
-    }
-    if (e.jobId) {
-      const { data } = await uploadFileToAPI({
-        file: Array.isArray(attachmentValue)
-          ? attachmentValue[0]!
-          : attachmentValue,
-        entityId: e.jobId,
-        entityType: "job_attachment",
-      });
-      fileId = data.id;
-    }
-
-    if (!fileId) {
-      setAttachmentError("File is not uploaded");
-      return;
-    }
+    const { data } = await uploadFileToAPI({
+      file: Array.isArray(attachmentValue)
+        ? attachmentValue[0]!
+        : attachmentValue,
+      entityId: (e.jobId ?? e.leadId)!,
+      entityType: e.jobId ? "job_attachment" : "lead_attachment",
+    });
 
     createAttachment({
       ...e,
-      fileId,
+      fileId: data.id,
     });
   };
 

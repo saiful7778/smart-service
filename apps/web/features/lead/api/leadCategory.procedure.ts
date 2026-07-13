@@ -130,7 +130,7 @@ export const leadCategoryCreateProcedure = leadImpl.category.create
 
     if (!leadCategory) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: API_MESSAGES.LEAD.CATEGORY.NOT_CREATED,
+        message: API_MESSAGES.LEAD.CATEGORY.NOT_CREATE,
       });
     }
 

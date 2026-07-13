@@ -128,7 +128,7 @@ export const leadRestoreProcedure = leadImpl.bin.restore
       })
       .where(eq(LeadTable.id, existLead.id));
 
-    return apiResponse(API_MESSAGES.LEAD.RESTORE, null);
+    return apiResponse(API_MESSAGES.LEAD.BIN.RESTORE, null);
   });
 
 export const leadAllRestoreProcedure = leadImpl.bin.restoreAll
@@ -164,7 +164,7 @@ export const leadAllRestoreProcedure = leadImpl.bin.restoreAll
         )
       );
 
-    return apiResponse(API_MESSAGES.LEAD.RESTORE, null);
+    return apiResponse(API_MESSAGES.LEAD.BIN.RESTORE, null);
   });
 
 export const leadBinDeleteProcedure = leadImpl.bin.delete
@@ -190,7 +190,7 @@ export const leadBinDeleteProcedure = leadImpl.bin.delete
 
     await context.db.delete(LeadTable).where(eq(LeadTable.id, existLead.id));
 
-    return apiResponse(API_MESSAGES.LEAD.BIN_DELETE, null);
+    return apiResponse(API_MESSAGES.LEAD.BIN.DELETE, null);
   });
 
 export const leadBinDeleteAllProcedure = leadImpl.bin.deleteAll
@@ -220,5 +220,5 @@ export const leadBinDeleteAllProcedure = leadImpl.bin.deleteAll
       )
     );
 
-    return apiResponse(API_MESSAGES.LEAD.BIN_DELETE_ALL, null);
+    return apiResponse(API_MESSAGES.LEAD.BIN.DELETE_ALL, null);
   });

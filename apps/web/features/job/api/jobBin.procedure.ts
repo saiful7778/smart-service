@@ -5,13 +5,17 @@ import {
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
+  FileTable,
   JobTable,
+  LeadAttachmentTable,
   OrganizationMemberTable,
   OrgMemberRoleTable,
   RoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
 import { apiResponse } from "@workspace/lib/utils";
+
+import { privateStorage } from "@/lib/storage";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
@@ -103,15 +107,58 @@ export const jobRestoreProcedure = jobImpl.bin.restore
       throw errors.NOT_FOUND();
     }
 
-    await context.db
-      .update(JobTable)
-      .set({
-        deletedAt: null,
-        deletedBy: null,
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
       })
-      .where(eq(JobTable.id, existJob.id));
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(eq(LeadAttachmentTable.jobId, existJob.id));
 
-    return apiResponse(API_MESSAGES.JOB.RESTORE, null);
+    await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx
+          .update(FileTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              FileTable.id,
+              jobAttachments.map(({ file }) => file.id)
+            )
+          );
+
+        await tx
+          .update(LeadAttachmentTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              LeadAttachmentTable.id,
+              jobAttachments.map(({ id }) => id)
+            )
+          );
+      }
+
+      await tx
+        .update(JobTable)
+        .set({
+          deletedAt: null,
+          deletedBy: null,
+        })
+        .where(eq(JobTable.id, existJob.id));
+    });
+
+    return apiResponse(API_MESSAGES.JOB.BIN.RESTORE, null);
   });
 
 export const jobAllRestoreProcedure = jobImpl.bin.restoreAll
@@ -134,20 +181,60 @@ export const jobAllRestoreProcedure = jobImpl.bin.restoreAll
       throw errors.BAD_REQUEST();
     }
 
-    await context.db
-      .update(JobTable)
-      .set({
-        deletedAt: null,
-        deletedBy: null,
-      })
-      .where(
-        inArray(
-          JobTable.id,
-          existJobs.map(({ id }) => id)
-        )
-      );
+    const jobIds = existJobs.map(({ id }) => id);
 
-    return apiResponse(API_MESSAGES.JOB.RESTORE, null);
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
+      })
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(inArray(LeadAttachmentTable.jobId, jobIds));
+
+    await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx
+          .update(FileTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              FileTable.id,
+              jobAttachments.map(({ file }) => file.id)
+            )
+          );
+
+        await tx
+          .update(LeadAttachmentTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              LeadAttachmentTable.id,
+              jobAttachments.map(({ id }) => id)
+            )
+          );
+      }
+
+      await tx
+        .update(JobTable)
+        .set({
+          deletedAt: null,
+          deletedBy: null,
+        })
+        .where(inArray(JobTable.id, jobIds));
+    });
+
+    return apiResponse(API_MESSAGES.JOB.BIN.RESTORE, null);
   });
 
 export const jobBinDeleteProcedure = jobImpl.bin.delete
@@ -171,9 +258,54 @@ export const jobBinDeleteProcedure = jobImpl.bin.delete
       throw errors.NOT_FOUND();
     }
 
-    await context.db.delete(JobTable).where(eq(JobTable.id, existJob.id));
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
+      })
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(eq(LeadAttachmentTable.jobId, existJob.id));
 
-    return apiResponse(API_MESSAGES.JOB.BIN_DELETE, null);
+    await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx.delete(LeadAttachmentTable).where(
+          inArray(
+            LeadAttachmentTable.id,
+            jobAttachments.map(({ id }) => id)
+          )
+        );
+
+        await tx.delete(FileTable).where(
+          inArray(
+            FileTable.id,
+            jobAttachments.map(({ file }) => file.id)
+          )
+        );
+
+        try {
+          await Promise.all(
+            jobAttachments.map(async (jobAttachment) => {
+              await privateStorage.delete(
+                jobAttachment.file.key,
+                jobAttachment.file.entityType
+              );
+            })
+          );
+        } catch (err) {
+          context.logger.error({ err }, "Error deleting file");
+          tx.rollback();
+        }
+      }
+
+      await tx.delete(JobTable).where(eq(JobTable.id, existJob.id));
+    });
+
+    return apiResponse(API_MESSAGES.JOB.BIN.DELETE, null);
   });
 
 export const jobBinDeleteAllProcedure = jobImpl.bin.deleteAll
@@ -196,12 +328,54 @@ export const jobBinDeleteAllProcedure = jobImpl.bin.deleteAll
       throw errors.BAD_REQUEST();
     }
 
-    await context.db.delete(JobTable).where(
-      inArray(
-        JobTable.id,
-        existJobs.map(({ id }) => id)
-      )
-    );
+    const jobIds = existJobs.map(({ id }) => id);
 
-    return apiResponse(API_MESSAGES.LEAD.BIN_DELETE_ALL, null);
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
+      })
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(inArray(LeadAttachmentTable.jobId, jobIds));
+
+    await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx.delete(LeadAttachmentTable).where(
+          inArray(
+            LeadAttachmentTable.id,
+            jobAttachments.map(({ id }) => id)
+          )
+        );
+
+        await tx.delete(FileTable).where(
+          inArray(
+            FileTable.id,
+            jobAttachments.map(({ file }) => file.id)
+          )
+        );
+
+        try {
+          await Promise.all(
+            jobAttachments.map(async (jobAttachment) => {
+              await privateStorage.delete(
+                jobAttachment.file.key,
+                jobAttachment.file.entityType
+              );
+            })
+          );
+        } catch (err) {
+          context.logger.error({ err }, "Error deleting file");
+          tx.rollback();
+        }
+      }
+
+      await tx.delete(JobTable).where(inArray(JobTable.id, jobIds));
+    });
+
+    return apiResponse(API_MESSAGES.JOB.BIN.DELETE_ALL, null);
   });

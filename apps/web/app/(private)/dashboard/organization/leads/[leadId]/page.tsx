@@ -103,12 +103,12 @@ export default async function SingleLeadDetailsPage(
           <div className="space-y-2">
             <div className="text-sm font-bold leading-none">Created by</div>
             <div className="bg-card py-2 px-3 rounded-lg border shadow-sm">
-              {data.createdBy && (
+              {data.createdByMember && (
                 <UserAvatar
-                  userName={data.createdBy.name}
-                  userEmail={data.createdBy.email}
-                  imageUrl={data.createdBy.image}
-                  userRoles={data.createdBy.roles}
+                  userName={data.createdByMember.name}
+                  userEmail={data.createdByMember.email}
+                  imageUrl={data.createdByMember.image}
+                  userRoles={data.createdByMember.roles}
                   showDetails
                   showRoleDetails
                 />
@@ -135,17 +135,15 @@ export default async function SingleLeadDetailsPage(
             </TabNavigationTrigger>
           </TabNavigationList>
 
-          <div className="mt-4">
-            <TabNavigationContent value="details">
-              <DetailsStep leadId={leadId} />
-            </TabNavigationContent>
-            <TabNavigationContent value="jobs">
-              <JobStep leadId={leadId} />
-            </TabNavigationContent>
-            <TabNavigationContent value="attachments">
-              <AttachmentStep leadId={leadId} />
-            </TabNavigationContent>
-          </div>
+          <TabNavigationContent value="details">
+            <DetailsStep leadId={leadId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="jobs">
+            <JobStep leadId={leadId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="attachments">
+            <AttachmentStep leadId={leadId} />
+          </TabNavigationContent>
         </TabNavigation>
       </DashboardShell>
     </HydrateClient>

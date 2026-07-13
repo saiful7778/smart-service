@@ -20,6 +20,11 @@ import {
   listLeadAttachmentProcedure,
 } from "./leadAttachment.procedure";
 import {
+  leadAttachmentBinDeleteProcedure,
+  leadAttachmentRestoreProcedure,
+  listLeadAttachmentBinProcedure,
+} from "./leadAttachmentBin.procedure";
+import {
   leadAllRestoreProcedure,
   leadBinDeleteAllProcedure,
   leadBinDeleteProcedure,
@@ -71,6 +76,11 @@ export const leadRouter = leadImpl.router({
     list: listLeadAttachmentProcedure,
     create: leadAttachmentCreateProcedure,
     delete: leadAttachmentDeleteProcedure,
+    bin: {
+      list: listLeadAttachmentBinProcedure,
+      delete: leadAttachmentBinDeleteProcedure,
+      restore: leadAttachmentRestoreProcedure,
+    },
   },
   bin: {
     list: listLeadBinProcedure,

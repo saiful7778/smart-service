@@ -54,7 +54,6 @@ export const createOrgProcedure = orgImpl.create
   .use(userPermissionMiddleware(["self.org.create"]))
   .handler(async ({ context, input }) => {
     if (context.user.id !== input.userId) {
-      context.logger.error(API_MESSAGES.USER.NOT_MATCHED);
       throw new ORPCError("BAD_REQUEST", {
         message: API_MESSAGES.USER.NOT_MATCHED,
       });
@@ -243,7 +242,7 @@ export const listMemberProcedure = orgImpl.listMember
       }
     });
 
-    return apiResponse(API_MESSAGES.ORG.LIST_MEMBERS, {
+    return apiResponse(API_MESSAGES.ORG.MEMBER.GET_ALL, {
       meta,
       data: members.map((member) => ({
         ...member,
@@ -285,7 +284,7 @@ export const inviteMemberProcedure = orgImpl.inviteMember
 
     if (!roleData) {
       throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.ROLE.NOT_FOUND,
+        message: API_MESSAGES.USER.ROLE.NOT_FOUND,
       });
     }
 
@@ -299,7 +298,7 @@ export const inviteMemberProcedure = orgImpl.inviteMember
       headers: context.reqHeaders,
     });
 
-    return apiResponse(API_MESSAGES.ORG.INVITE_MEMBER, null);
+    return apiResponse(API_MESSAGES.ORG.INVITATION.INVITE_MEMBER, null);
   });
 
 export const acceptOrRejectInvitationProcedure =
@@ -359,7 +358,7 @@ export const listMemberForSearchProcedure = orgImpl.listMemberForSearch
         and(eq(OrganizationMemberTable.organizationId, context.org.id), where)
       );
 
-    return apiResponse(API_MESSAGES.ORG.LIST_MEMBERS_FOR_SEARCH, members);
+    return apiResponse(API_MESSAGES.ORG.MEMBER.GET_ALL_FOR_SEARCH, members);
   });
 
 export const updateMemberProcedure = orgImpl.updateMember
@@ -402,7 +401,7 @@ export const updateMemberProcedure = orgImpl.updateMember
 
           if (!roleData) {
             throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.ROLE.NOT_FOUND,
+              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
             });
           }
 
@@ -423,7 +422,7 @@ export const updateMemberProcedure = orgImpl.updateMember
 
           if (!roleData) {
             throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.ROLE.NOT_FOUND,
+              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
             });
           }
 
@@ -452,7 +451,7 @@ export const updateMemberProcedure = orgImpl.updateMember
 
       if (!updatedMember) {
         throw new ORPCError("BAD_REQUEST", {
-          message: API_MESSAGES.ORG.MEMBER.NOT_UPDATED,
+          message: API_MESSAGES.ORG.MEMBER.NOT_UPDATE,
         });
       }
 
@@ -630,7 +629,7 @@ export const updateInvitationProcedure = orgImpl.updateInvitation
 
     if (!invitation) {
       throw new ORPCError("NOT_UPDATED", {
-        message: API_MESSAGES.ORG.INVITATION.NOT_UPDATED,
+        message: API_MESSAGES.ORG.INVITATION.NOT_UPDATE,
       });
     }
 

@@ -189,10 +189,10 @@ export function RevenueHistories({
                       </TableCell>
                       <TableCell>
                         <UserAvatar
-                          userName={item.changedBy.name}
-                          userEmail={item.changedBy.email}
-                          imageUrl={item.changedBy.image}
-                          userRoles={item.changedBy.roles}
+                          userName={item.changedByMember.name}
+                          userEmail={item.changedByMember.email}
+                          imageUrl={item.changedByMember.image}
+                          userRoles={item.changedByMember.roles}
                           showDetails
                           showRoleDetails
                         />

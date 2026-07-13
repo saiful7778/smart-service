@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
 } from "@workspace/ui/components/dropdown-menu";
 
-import { ListLeadBinOutputs } from "../../api/lead.contract";
+import { ListLeadBinOutputs } from "../../api/leadBin.contract";
 import { useLeadBinContext } from "./LeadBinTableContext";
 
 export function LeadBinTableRowAction({

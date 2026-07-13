@@ -70,7 +70,7 @@ export const listRoleProcedure = roleImpl.listRole
       )
       .groupBy(RoleTable.id);
 
-    return apiResponse(API_MESSAGES.ROLE.GET_ALL, result);
+    return apiResponse(API_MESSAGES.USER.ROLE.GET_ALL, result);
   });
 
 export const listOrgPermissionProcedure = roleImpl.listOrgPermission
@@ -88,7 +88,7 @@ export const listOrgPermissionProcedure = roleImpl.listOrgPermission
       .from(PermissionTable)
       .where(eq(PermissionTable.level, "org"));
 
-    return apiResponse(API_MESSAGES.PERMISSION.GET_ALL, results);
+    return apiResponse(API_MESSAGES.USER.PERMISSION.GET_ALL, results);
   });
 
 export const listOrgRoleProcedure = roleImpl.listOrgRole
@@ -193,7 +193,7 @@ export const listOrgRoleProcedure = roleImpl.listOrgRole
     }
 
     return apiResponse(
-      API_MESSAGES.ROLE.GET_ALL,
+      API_MESSAGES.USER.ROLE.GET_ALL,
       Array.from(allRoles.values())
     );
   });
@@ -216,7 +216,7 @@ export const createOrgRoleProcudure = roleImpl.createOrgRole
 
     if (roleExist) {
       throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.ROLE.EXIST,
+        message: API_MESSAGES.USER.ROLE.EXIST,
       });
     }
 
@@ -242,7 +242,7 @@ export const createOrgRoleProcudure = roleImpl.createOrgRole
       .where(eq(OrgRoleTable.id, roleData.id))
       .limit(1);
 
-    return apiResponse(API_MESSAGES.ROLE.CREATE, role!);
+    return apiResponse(API_MESSAGES.USER.ROLE.CREATE, role!);
   });
 
 export const updateOrgRoleProcedure = roleImpl.updateOrgRole
@@ -263,7 +263,7 @@ export const updateOrgRoleProcedure = roleImpl.updateOrgRole
 
     if (!roleExist) {
       throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.ROLE.NOT_FOUND,
+        message: API_MESSAGES.USER.ROLE.NOT_FOUND,
       });
     }
 
@@ -300,7 +300,7 @@ export const updateOrgRoleProcedure = roleImpl.updateOrgRole
       .where(eq(OrgRoleTable.id, input.roleId))
       .limit(1);
 
-    return apiResponse(API_MESSAGES.ROLE.UPDATE, role!);
+    return apiResponse(API_MESSAGES.USER.ROLE.UPDATE, role!);
   });
 
 export const deleteOrgRoleProcedure = roleImpl.deleteOrgRole
@@ -322,7 +322,7 @@ export const deleteOrgRoleProcedure = roleImpl.deleteOrgRole
 
       if (!roleExist) {
         throw new ORPCError("BAD_REQUEST", {
-          message: API_MESSAGES.ROLE.NOT_FOUND,
+          message: API_MESSAGES.USER.ROLE.NOT_FOUND,
         });
       }
 
@@ -340,5 +340,5 @@ export const deleteOrgRoleProcedure = roleImpl.deleteOrgRole
       });
     });
 
-    return apiResponse(API_MESSAGES.ROLE.DELETE, null);
+    return apiResponse(API_MESSAGES.USER.ROLE.DELETE, null);
   });

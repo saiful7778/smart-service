@@ -232,7 +232,7 @@ export const listLeadAttachmentProcedure = leadImpl.attachment.list
         FileTable.id
       );
 
-    return apiResponse(API_MESSAGES.LEAD.GET_ATTACHMENT_DETAILS, attachments);
+    return apiResponse(API_MESSAGES.LEAD.ATTACHMENT.GET_DETAILS, attachments);
   });
 
 export const leadAttachmentDeleteProcedure = leadImpl.attachment.delete
@@ -256,7 +256,7 @@ export const leadAttachmentDeleteProcedure = leadImpl.attachment.delete
       throw errors.BAD_REQUEST();
     }
 
-    const whereSQL = [];
+    const whereSQL = [isNull(LeadAttachmentTable.deletedAt)];
 
     if (input?.leadId) {
       const [existLead] = await context.db
@@ -297,16 +297,17 @@ export const leadAttachmentDeleteProcedure = leadImpl.attachment.delete
       whereSQL.push(eq(LeadAttachmentTable.jobId, existJob.id));
     }
 
-    whereSQL.push(isNull(LeadAttachmentTable.deletedAt));
-
     const [existAttachment] = await context.db
       .select({
         id: LeadAttachmentTable.id,
-        leadId: LeadAttachmentTable.leadId,
-        fileId: LeadAttachmentTable.fileId,
         uploadedBy: LeadAttachmentTable.uploadedBy,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+        },
       })
       .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
       .where(and(...whereSQL))
       .limit(1);
 
@@ -322,26 +323,6 @@ export const leadAttachmentDeleteProcedure = leadImpl.attachment.delete
       });
     }
 
-    const [fileExist] = await context.db
-      .select({
-        id: FileTable.id,
-        key: FileTable.key,
-      })
-      .from(FileTable)
-      .where(
-        and(
-          eq(FileTable.id, existAttachment.fileId),
-          isNull(FileTable.deletedAt)
-        )
-      )
-      .limit(1);
-
-    if (!fileExist) {
-      throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.UPLOAD.NOT_FOUND,
-      });
-    }
-
     await context.db.transaction(async (tx) => {
       await tx
         .update(FileTable)
@@ -349,7 +330,7 @@ export const leadAttachmentDeleteProcedure = leadImpl.attachment.delete
           deletedAt: new Date(),
           deletedBy: context.user.id,
         })
-        .where(eq(FileTable.id, existAttachment.fileId));
+        .where(eq(FileTable.id, existAttachment.file.id));
 
       await tx
         .update(LeadAttachmentTable)

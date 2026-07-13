@@ -7,11 +7,13 @@ import {
 } from "@workspace/drizzle/paginate-query";
 import {
   AddressTable,
+  FileTable,
   InsertAddress,
   InsertJobAddress,
   InsertLeadRevenueHistory,
   JobAddressTable,
   JobTable,
+  LeadAttachmentTable,
   LeadRevenueHistoryTable,
   LeadTable,
   OrganizationMemberTable,
@@ -148,7 +150,7 @@ export const jobCreateProcedure = jobImpl.create
 
       if (!createdJob) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: API_MESSAGES.JOB.NOT_CREATED,
+          message: API_MESSAGES.JOB.NOT_CREATE,
         });
       }
 
@@ -185,7 +187,7 @@ export const jobCreateProcedure = jobImpl.create
       return createdJob;
     });
 
-    return apiResponse(API_MESSAGES.JOB.CREATED, createdJob);
+    return apiResponse(API_MESSAGES.JOB.CREATE, createdJob);
   });
 
 export const jobUpdateProcedure = jobImpl.update
@@ -223,11 +225,11 @@ export const jobUpdateProcedure = jobImpl.update
 
     if (!updatedJob) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: API_MESSAGES.JOB.NOT_UPDATED,
+        message: API_MESSAGES.JOB.NOT_UPDATE,
       });
     }
 
-    return apiResponse(API_MESSAGES.JOB.UPDATED, updatedJob);
+    return apiResponse(API_MESSAGES.JOB.UPDATE, updatedJob);
   });
 
 export const jobUpdateRevenueProcedure = jobImpl.updateRevenue
@@ -274,7 +276,7 @@ export const jobUpdateRevenueProcedure = jobImpl.updateRevenue
 
       if (!updatedJob) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: API_MESSAGES.JOB.NOT_UPDATED,
+          message: API_MESSAGES.JOB.NOT_UPDATE,
         });
       }
 
@@ -317,7 +319,7 @@ export const jobUpdateRevenueProcedure = jobImpl.updateRevenue
       return updatedJob;
     });
 
-    return apiResponse(API_MESSAGES.JOB.REVENUE_UPDATED, updatedJob);
+    return apiResponse(API_MESSAGES.JOB.UPDATE_REVENUE, updatedJob);
   });
 
 export const listServicingsProcedure = jobImpl.listServicings
@@ -355,8 +357,6 @@ export const jobDeleteProcedure = jobImpl.delete
     const [existJob] = await context.db
       .select({
         id: JobTable.id,
-        leadId: JobTable.leadId,
-        title: JobTable.title,
       })
       .from(JobTable)
       .where(
@@ -372,7 +372,48 @@ export const jobDeleteProcedure = jobImpl.delete
       throw errors.NOT_FOUND();
     }
 
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
+      })
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(eq(LeadAttachmentTable.jobId, existJob.id));
+
     await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx
+          .update(FileTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.user.id,
+          })
+          .where(
+            inArray(
+              FileTable.id,
+              jobAttachments.map(({ file }) => file.id)
+            )
+          );
+
+        await tx
+          .update(LeadAttachmentTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadAttachmentTable.id,
+              jobAttachments.map(({ id }) => id)
+            )
+          );
+      }
+
       await tx
         .update(JobTable)
         .set({
@@ -382,7 +423,7 @@ export const jobDeleteProcedure = jobImpl.delete
         .where(eq(JobTable.id, existJob.id));
     });
 
-    return apiResponse(API_MESSAGES.JOB.DELETED, null);
+    return apiResponse(API_MESSAGES.JOB.DELETE, null);
   });
 
 export const jobAllDeleteProcedure = jobImpl.deleteAll
@@ -391,8 +432,6 @@ export const jobAllDeleteProcedure = jobImpl.deleteAll
     const existJobs = await context.db
       .select({
         id: JobTable.id,
-        leadId: JobTable.leadId,
-        title: JobTable.title,
       })
       .from(JobTable)
       .where(
@@ -407,19 +446,57 @@ export const jobAllDeleteProcedure = jobImpl.deleteAll
       throw errors.BAD_REQUEST();
     }
 
+    const jobIds = existJobs.map(({ id }) => id);
+
+    const jobAttachments = await context.db
+      .select({
+        id: LeadAttachmentTable.id,
+        file: {
+          id: FileTable.id,
+          key: FileTable.key,
+          entityType: FileTable.entityType,
+        },
+      })
+      .from(LeadAttachmentTable)
+      .innerJoin(FileTable, eq(FileTable.id, LeadAttachmentTable.fileId))
+      .where(inArray(LeadAttachmentTable.jobId, jobIds));
+
     await context.db.transaction(async (tx) => {
+      if (jobAttachments.length > 0) {
+        await tx
+          .update(FileTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.user.id,
+          })
+          .where(
+            inArray(
+              FileTable.id,
+              jobAttachments.map(({ file }) => file.id)
+            )
+          );
+
+        await tx
+          .update(LeadAttachmentTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadAttachmentTable.id,
+              jobAttachments.map(({ id }) => id)
+            )
+          );
+      }
+
       await tx
         .update(JobTable)
         .set({
           deletedAt: new Date(),
           deletedBy: context.orgMember.id,
         })
-        .where(
-          inArray(
-            JobTable.id,
-            existJobs.map(({ id }) => id)
-          )
-        );
+        .where(inArray(JobTable.id, jobIds));
     });
 
     return apiResponse(API_MESSAGES.JOB.DELETE_ALL, null);

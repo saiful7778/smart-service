@@ -22,15 +22,6 @@ import {
   validateRoles,
 } from "./auth.middleware";
 
-const ORG_ERRORS = {
-  NO_ACTIVE_ORGANIZATION: {
-    message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
-  },
-  NO_PERMISSION: {
-    message: API_MESSAGES.ORG.NO_PERMISSION,
-  },
-} as const;
-
 async function getOrg(
   orgId: string,
   database: DatabaseType
@@ -76,13 +67,17 @@ async function getActiveOrganization(
     const activeOrganizationId = context.session.activeOrganizationId;
 
     if (!activeOrganizationId) {
-      throw new ORPCError("BAD_REQUEST", ORG_ERRORS.NO_ACTIVE_ORGANIZATION);
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
+      });
     }
 
     const org = await getOrg(activeOrganizationId, context.db);
 
     if (!org) {
-      throw new ORPCError("BAD_REQUEST", ORG_ERRORS.NO_ACTIVE_ORGANIZATION);
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
+      });
     }
 
     return org;
@@ -101,7 +96,11 @@ export const orgMiddleware = baseOs.middleware(
 
     const org = await getActiveOrganization(context);
 
-    if (!org) throw errors.UNAUTHORIZED();
+    if (!org) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
+      });
+    }
 
     const orgMember = await getOrgMember(org.id, authData.user.id, context.db);
 
@@ -141,7 +140,11 @@ export function orgMemberRoleMiddleware(roles: Array<OrgRoleType>) {
 
     const org = await getActiveOrganization(context);
 
-    if (!org) throw errors.UNAUTHORIZED();
+    if (!org) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
+      });
+    }
 
     const orgMember = await getOrgMember(org.id, authData.user.id, context.db);
 
@@ -190,7 +193,11 @@ export function orgMemberPermissionsMiddleware(
 
     const org = await getActiveOrganization(context);
 
-    if (!org) throw errors.UNAUTHORIZED();
+    if (!org) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ORG.NO_ACTIVE_ORGANIZATION,
+      });
+    }
 
     const orgMember = await getOrgMember(org.id, authData.user.id, context.db);
 

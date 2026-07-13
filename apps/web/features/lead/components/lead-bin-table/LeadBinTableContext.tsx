@@ -7,7 +7,7 @@ import { RotateCcw } from "lucide-react";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 
 import { useLeadBinDelete, useLeadRestore } from "../../api/lead.api.hook";
-import { ListLeadBinOutputs } from "../../api/lead.contract";
+import { ListLeadBinOutputs } from "../../api/leadBin.contract";
 
 interface LeadBinTableContextProps {
   handleDeleteDialog: (leadId: string) => void;

@@ -223,7 +223,7 @@ export const updateUserRoleProcedure = userImpl.updateRole
 
     if (roles.length === 0) {
       throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.ROLE.NOT_FOUND,
+        message: API_MESSAGES.USER.ROLE.NOT_FOUND,
       });
     }
 

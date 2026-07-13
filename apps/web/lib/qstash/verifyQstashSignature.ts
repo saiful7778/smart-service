@@ -12,7 +12,7 @@ export async function verifyQstashSignature(req: NextRequest | Request) {
 
   if (!signature) {
     throw new QstashError(
-      API_MESSAGES.QSTASH.INVALID_SIGNATURE,
+      API_MESSAGES.GENERAL.QSTASH.INVALID_SIGNATURE,
       "QSTASH_SIGNATURE_INVALID",
       401
     );
@@ -22,7 +22,7 @@ export async function verifyQstashSignature(req: NextRequest | Request) {
 
   if (!isValid) {
     throw new QstashError(
-      API_MESSAGES.QSTASH.INVALID_SIGNATURE,
+      API_MESSAGES.GENERAL.QSTASH.INVALID_SIGNATURE,
       "QSTASH_SIGNATURE_INVALID",
       401
     );

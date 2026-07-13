@@ -14,6 +14,7 @@ import { userProfileSchema } from "@/features/user/user.api-schema";
 
 import { leadAttachmentUploadSchema } from "../lead.schema";
 import { leadBaseContract } from "./lead.contract-base";
+import { leadAttachmentBinContract } from "./leadAttachmentBin.contract";
 
 const tags = ["Organization", "Lead", "Attachment"] as const;
 
@@ -107,4 +108,5 @@ export const leadAttachmentContract = {
   list: listLeadAttachmentContract,
   create: leadAttachmentCreateContract,
   delete: leadAttachmentDeleteContract,
+  bin: leadAttachmentBinContract,
 };

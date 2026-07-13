@@ -18,7 +18,7 @@ import {
   useLeadBinDeleteAll,
   useLeadRestoreAll,
 } from "../../api/lead.api.hook";
-import { ListLeadBinOutputs } from "../../api/lead.contract";
+import { ListLeadBinOutputs } from "../../api/leadBin.contract";
 import { leadBinTableColumn } from "./leadBinTableColumn";
 
 interface LeadBinTableProps {

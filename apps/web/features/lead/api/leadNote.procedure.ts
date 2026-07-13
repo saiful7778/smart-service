@@ -144,7 +144,7 @@ export const listLeadNotesProcedure = leadImpl.note.list
 
     const meta = buildPaginationMeta(totalCount, notes.length, page, limit);
 
-    return apiResponse(API_MESSAGES.LEAD.NOTES.GET_ALL, {
+    return apiResponse(API_MESSAGES.LEAD.NOTE.GET_ALL, {
       meta,
       data: notes,
     });
@@ -227,11 +227,11 @@ export const leadNoteCreateProcedure = leadImpl.note.create
 
     if (!noteData) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_CREATE,
+        message: API_MESSAGES.LEAD.NOTE.NOT_CREATE,
       });
     }
 
-    return apiResponse(API_MESSAGES.LEAD.NOTES.CREATE, noteData);
+    return apiResponse(API_MESSAGES.LEAD.NOTE.CREATE, noteData);
   });
 
 export const leadNoteUpdateProcedure = leadImpl.note.update
@@ -313,13 +313,13 @@ export const leadNoteUpdateProcedure = leadImpl.note.update
 
     if (!noteData) {
       throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_FOUND,
+        message: API_MESSAGES.LEAD.NOTE.NOT_FOUND,
       });
     }
 
     if (noteData.createdBy !== context.orgMember.id) {
       throw new ORPCError("FORBIDDEN", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_ALLOWED_UPDATE,
+        message: API_MESSAGES.LEAD.NOTE.NOT_ALLOWED_UPDATE,
       });
     }
 
@@ -333,11 +333,11 @@ export const leadNoteUpdateProcedure = leadImpl.note.update
 
     if (!note) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_UPDATE,
+        message: API_MESSAGES.LEAD.NOTE.NOT_UPDATE,
       });
     }
 
-    return apiResponse(API_MESSAGES.LEAD.NOTES.UPDATE, note);
+    return apiResponse(API_MESSAGES.LEAD.NOTE.UPDATE, note);
   });
 
 export const leadNoteDeleteProcedure = leadImpl.note.delete
@@ -418,13 +418,13 @@ export const leadNoteDeleteProcedure = leadImpl.note.delete
 
     if (!noteData) {
       throw new ORPCError("NOT_FOUND", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_FOUND,
+        message: API_MESSAGES.LEAD.NOTE.NOT_FOUND,
       });
     }
 
     if (noteData.createdBy !== context.orgMember.id) {
       throw new ORPCError("FORBIDDEN", {
-        message: API_MESSAGES.LEAD.NOTES.NOT_ALLOWED_DELETE,
+        message: API_MESSAGES.LEAD.NOTE.NOT_ALLOWED_DELETE,
       });
     }
 
@@ -432,5 +432,5 @@ export const leadNoteDeleteProcedure = leadImpl.note.delete
       .delete(LeadNoteTable)
       .where(eq(LeadNoteTable.id, noteData.id));
 
-    return apiResponse(API_MESSAGES.LEAD.NOTES.DELETE, null);
+    return apiResponse(API_MESSAGES.LEAD.NOTE.DELETE, null);
   });

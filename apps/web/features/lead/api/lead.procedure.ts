@@ -78,7 +78,7 @@ export const leadCreateProcedure = leadImpl.create
 
         if (!customerData) {
           throw new ORPCError("INTERNAL_SERVER_ERROR", {
-            message: API_MESSAGES.LEAD.CUSTOMER.NOT_CREATED,
+            message: API_MESSAGES.LEAD.CUSTOMER.NOT_CREATE,
           });
         }
         customerId = customerData.id;
@@ -121,7 +121,7 @@ export const leadCreateProcedure = leadImpl.create
 
       if (!leadData) {
         throw new ORPCError("BAD_REQUEST", {
-          message: API_MESSAGES.LEAD.NOT_CREATED,
+          message: API_MESSAGES.LEAD.NOT_CREATE,
         });
       }
 
@@ -183,7 +183,7 @@ export const leadCreateProcedure = leadImpl.create
       return leadData;
     });
 
-    return apiResponse(API_MESSAGES.LEAD.CREATED, leadData);
+    return apiResponse(API_MESSAGES.LEAD.CREATE, leadData);
   });
 
 export const listLeadProcedure = leadImpl.list
@@ -1021,5 +1021,5 @@ export const listLeadForSearchProcedure = leadImpl.listForSearch
         )
       );
 
-    return apiResponse(API_MESSAGES.LEAD.GET_LIST_FOR_SEARCH, leads);
+    return apiResponse(API_MESSAGES.LEAD.GET_ALL_FOR_SEARCH, leads);
   });

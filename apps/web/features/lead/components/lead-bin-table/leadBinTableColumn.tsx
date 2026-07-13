@@ -13,7 +13,7 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListLeadBinOutputs } from "../../api/lead.contract";
+import { ListLeadBinOutputs } from "../../api/leadBin.contract";
 import { LeadBinTableRowAction } from "./LeadBinTableRowAction";
 
 type LeadBinTableRowDataType = ListLeadBinOutputs["data"][number];

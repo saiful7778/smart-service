@@ -74,14 +74,12 @@ export default async function SingleJobDetailsPage(
             </TabNavigationTrigger>
           </TabNavigationList>
 
-          <div className="mt-4">
-            <TabNavigationContent value="details">
-              <DetailsStep jobId={jobId} />
-            </TabNavigationContent>
-            <TabNavigationContent value="attachments">
-              <AttachmentStep leadId={data.leadId} jobId={jobId} />
-            </TabNavigationContent>
-          </div>
+          <TabNavigationContent value="details">
+            <DetailsStep jobId={jobId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="attachments">
+            <AttachmentStep leadId={data.leadId} jobId={jobId} />
+          </TabNavigationContent>
         </TabNavigation>
       </DashboardShell>
     </HydrateClient>
