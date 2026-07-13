@@ -310,7 +310,7 @@ export function useLeadCategoryCreate<TFieldNames>({
   onError,
   onValidationErrors,
 }: IApiHookInput<TFieldNames>) {
-  const toastId = "service_category_create_toastId";
+  const toastId = "lead_category_create_toastId";
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -318,6 +318,57 @@ export function useLeadCategoryCreate<TFieldNames>({
       onMutate: () => {
         onRequestStart?.();
         toast.loading("Creating...", {
+          id: toastId,
+        });
+      },
+      onSuccess: async ({ message }) => {
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.lead.category.list.queryKey(),
+          exact: false,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.lead.customer.listForSearch.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+        toast.success(message, {
+          id: toastId,
+        });
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to create lead category", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+    })
+  );
+}
+
+export function useLeadCategoryUpdate<TFieldNames>({
+  onRequestStart,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames>) {
+  const toastId = "lead_category_update_toastId";
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.category.update.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Updating...", {
           id: toastId,
         });
       },
@@ -338,7 +389,45 @@ export function useLeadCategoryCreate<TFieldNames>({
           onValidationErrors?.(fieldErrors ?? []);
         }
 
-        toast.error(message ?? "Failed to create lead category", {
+        toast.error(message ?? "Failed to update lead category", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+    })
+  );
+}
+
+export function useLeadCategoryDelete({
+  onRequestStart,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "lead_category_delete_toastId";
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.category.delete.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting...", {
+          id: toastId,
+        });
+      },
+      onSuccess: async ({ message }) => {
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.lead.category.list.queryKey(),
+        });
+        toast.success(message, {
+          id: toastId,
+        });
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete lead category", {
           id: toastId,
         });
 

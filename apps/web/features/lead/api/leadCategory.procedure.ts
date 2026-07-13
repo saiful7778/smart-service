@@ -136,3 +136,82 @@ export const leadCategoryCreateProcedure = leadImpl.category.create
 
     return apiResponse(API_MESSAGES.LEAD.CATEGORY.CREATE, leadCategory);
   });
+
+export const leadCategoryUpdateProcedure = leadImpl.category.update
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.lead_category.manage",
+      "org.lead_category.update",
+    ])
+  )
+  .handler(async ({ context, input }) => {
+    const [existCategory] = await context.db
+      .select({ id: LeadCategoryTable.id })
+      .from(LeadCategoryTable)
+      .where(
+        and(
+          eq(LeadCategoryTable.orgId, context.org.id),
+          eq(LeadCategoryTable.id, input.categoryId)
+        )
+      )
+      .limit(1);
+
+    if (!existCategory) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.LEAD.CATEGORY.NOT_FOUND,
+      });
+    }
+
+    const [leadCategory] = await context.db
+      .update(LeadCategoryTable)
+      .set({
+        name: input.name,
+        description: input.description,
+      })
+      .where(eq(LeadCategoryTable.id, existCategory.id))
+      .returning();
+
+    if (!leadCategory) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: API_MESSAGES.LEAD.CATEGORY.NOT_UPDATE,
+      });
+    }
+
+    return apiResponse(API_MESSAGES.LEAD.CATEGORY.UPDATE, leadCategory);
+  });
+
+export const leadCategoryDeleteProcedure = leadImpl.category.delete
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.lead_category.manage",
+      "org.lead_category.delete",
+    ])
+  )
+  .handler(async ({ context, input }) => {
+    const [existCategory] = await context.db
+      .select({ id: LeadCategoryTable.id })
+      .from(LeadCategoryTable)
+      .where(
+        and(
+          eq(LeadCategoryTable.orgId, context.org.id),
+          eq(LeadCategoryTable.id, input.categoryId)
+        )
+      )
+      .limit(1);
+
+    if (!existCategory) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.LEAD.CATEGORY.NOT_FOUND,
+      });
+    }
+
+    await context.db
+      .delete(LeadCategoryJoinTable)
+      .where(eq(LeadCategoryJoinTable.leadCategoryId, existCategory.id));
+
+    await context.db
+      .delete(LeadCategoryTable)
+      .where(eq(LeadCategoryTable.id, existCategory.id));
+
+    return apiResponse(API_MESSAGES.LEAD.CATEGORY.UPDATE, null);
+  });

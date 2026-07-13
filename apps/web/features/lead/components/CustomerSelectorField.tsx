@@ -112,7 +112,21 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
                   item={item}
                   getItemId={(customer) => customer.id}
                 >
-                  <span className="truncate">{item.name}</span>
+                  <span className="flex flex-col items-start justify-center gap-0">
+                    <span className="flex gap-1 items-center">
+                      <span>{item.name}</span>
+                      {item.phone && (
+                        <span className="text-muted-foreground">
+                          {`(${item.phone})`}
+                        </span>
+                      )}
+                    </span>
+                    {item.email && (
+                      <span className="text-muted-foreground">
+                        {item.email}
+                      </span>
+                    )}
+                  </span>
                 </SearchableSelectorItem>
               )}
             </SearchableSelectorContent>

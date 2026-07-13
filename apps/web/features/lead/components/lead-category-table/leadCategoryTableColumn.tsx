@@ -8,6 +8,7 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
+import { LeadCategoryTableRowAction } from "./LeadCategoryTableRowAction";
 
 type LeadCategoryTableRowDataType = ListLeadCategoriesOutput[number];
 
@@ -123,5 +124,12 @@ export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> 
       meta: { label: "Created At" },
       enableColumnFilter: false,
       enableSorting: false,
+    },
+    {
+      id: "action",
+      cell: ({ row }) => <LeadCategoryTableRowAction category={row.original} />,
+      enableColumnFilter: false,
+      enableSorting: false,
+      enableHiding: false,
     },
   ];

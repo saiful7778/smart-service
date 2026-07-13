@@ -18,6 +18,7 @@ import { TooltipProvider } from "@workspace/ui/components/tooltip";
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
+import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { useLeadDeleteAll } from "../../api/lead.api.hook";
@@ -35,6 +36,10 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
   const { data: leadCategories } = useSuspenseQuery(
     orpcTQClient.lead.category.listForSearch.queryOptions()
   );
+  const isAllowCreate = usePermissionCheckWithOrg([
+    "org.lead.manage",
+    "org.lead.create",
+  ]);
 
   const columns = useMemo(
     () => makeLeadTableColumn(leadCategories.data),
@@ -84,17 +89,19 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
         }
       >
         <DataTableToolbar table={table}>
-          <Button
-            nativeButton={false}
-            render={
-              <Link
-                href={{ pathname: "/dashboard/organization/leads/create" }}
-              />
-            }
-          >
-            <CirclePlus />
-            <span>Create new Lead</span>
-          </Button>
+          {isAllowCreate && (
+            <Button
+              nativeButton={false}
+              render={
+                <Link
+                  href={{ pathname: "/dashboard/organization/leads/create" }}
+                />
+              }
+            >
+              <CirclePlus />
+              <span>Create new Lead</span>
+            </Button>
+          )}
         </DataTableToolbar>
       </DataTable>
     </TooltipProvider>

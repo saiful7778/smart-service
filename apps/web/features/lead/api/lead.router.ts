@@ -33,6 +33,8 @@ import {
 } from "./leadBin.procedure";
 import {
   leadCategoryCreateProcedure,
+  leadCategoryDeleteProcedure,
+  leadCategoryUpdateProcedure,
   listLeadCategoriesForSearchProcedure,
   listLeadCategoriesProcedure,
 } from "./leadCategory.procedure";
@@ -58,6 +60,8 @@ export const leadRouter = leadImpl.router({
     list: listLeadCategoriesProcedure,
     listForSearch: listLeadCategoriesForSearchProcedure,
     create: leadCategoryCreateProcedure,
+    update: leadCategoryUpdateProcedure,
+    delete: leadCategoryDeleteProcedure,
   },
   customer: {
     list: listCusotmerProcedure,

@@ -9,7 +9,7 @@ import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
 
-import { leadCategoryCreateSchema } from "../lead.schema";
+import { leadCategorySchema } from "../lead.schema";
 import { leadBaseContract } from "./lead.contract-base";
 
 const tags = ["Organization", "Lead"] as const;
@@ -82,7 +82,7 @@ const leadCategoryCreateContract = leadBaseContract
     description: "Create a new lead category",
     tags,
   })
-  .input(leadCategoryCreateSchema)
+  .input(leadCategorySchema)
   .output(apiOutputZodSchema(selectLeadCategorySchema));
 export type LeadCategoryCreateInput = InferContractRouterInputs<
   typeof leadCategoryCreateContract
@@ -91,8 +91,40 @@ export type LeadCategoryCreateOutput = InferContractRouterOutputs<
   typeof leadCategoryCreateContract
 >["data"];
 
+const leadCategoryUpdateContract = leadBaseContract
+  .route({
+    path: "/leads/categories/update",
+    description: "Update a lead category",
+    tags,
+  })
+  .input(leadCategorySchema.extend({ categoryId: z.uuid() }))
+  .output(apiOutputZodSchema(selectLeadCategorySchema));
+export type LeadCategoryUpdateInput = InferContractRouterInputs<
+  typeof leadCategoryUpdateContract
+>;
+export type LeadCategoryUpdateOutput = InferContractRouterOutputs<
+  typeof leadCategoryUpdateContract
+>["data"];
+
+const leadCategoryDeleteContract = leadBaseContract
+  .route({
+    path: "/leads/categories/delete",
+    description: "Delete a lead category",
+    tags,
+  })
+  .input(z.object({ categoryId: z.uuid() }))
+  .output(apiOutputZodSchema(z.null()));
+export type LeadCategoryDeleteInput = InferContractRouterInputs<
+  typeof leadCategoryDeleteContract
+>;
+export type LeadCategoryDeleteOutput = InferContractRouterOutputs<
+  typeof leadCategoryDeleteContract
+>["data"];
+
 export const leadCategoryContract = {
   list: listLeadCategoriesContract,
   listForSearch: listLeadCategoriesForSearchContract,
   create: leadCategoryCreateContract,
+  update: leadCategoryUpdateContract,
+  delete: leadCategoryDeleteContract,
 };

@@ -5,6 +5,8 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
+import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
+
 import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
 import { LeadCategoryCreateDialog } from "../LeadCategoryCreateDialog";
 import { leadCategoryTableColumns } from "./leadCategoryTableColumn";
@@ -21,6 +23,11 @@ export function LeadCategoryTable({
   setFilters,
 }: LeadCategoryTableProps) {
   "use no memo";
+  const isAllowCreate = usePermissionCheckWithOrg([
+    "org.lead_category.manage",
+    "org.lead_category.create",
+  ]);
+
   const table = useDataTable({
     data: data,
     columns: leadCategoryTableColumns,
@@ -37,7 +44,7 @@ export function LeadCategoryTable({
   return (
     <DataTable table={table} showPagination={false}>
       <DataTableToolbar table={table}>
-        <LeadCategoryCreateDialog />
+        {isAllowCreate && <LeadCategoryCreateDialog />}
       </DataTableToolbar>
     </DataTable>
   );

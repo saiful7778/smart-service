@@ -100,8 +100,11 @@ export const API_MESSAGES = {
     },
     CATEGORY: {
       GET_ALL: "Categories loaded successfully.",
-      NOT_CREATE: "Failed to create category. Please try again.",
       CREATE: "Category created successfully.",
+      UPDATE: "Category updated successfully.",
+      NOT_CREATE: "Failed to create category. Please try again.",
+      NOT_UPDATE: "Failed to update category. Please try again.",
+      NOT_FOUND: "Category not found.",
     },
     NOTE: {
       GET_ALL: "Notes loaded successfully.",

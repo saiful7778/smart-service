@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { Pen } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
@@ -18,27 +19,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
-import { toSlug } from "@/utils/toSlug";
-
-import { useLeadCategoryCreate } from "../api/lead.api.hook";
+import { useLeadCategoryUpdate } from "../api/lead.api.hook";
 import { leadCategorySchema, LeadCategoryType } from "../lead.schema";
 import { LeadCategoryForm } from "./forms/LeadCategoryForm";
 
-export function LeadCategoryCreateDialog() {
+export function LeadCategoryUpdateDialog({
+  initialData,
+  categoryId,
+}: {
+  initialData: LeadCategoryType;
+  categoryId: string;
+}) {
   "use no memo";
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<LeadCategoryType>({
     resolver: zodResolver(leadCategorySchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      description: "",
-    },
+    defaultValues: initialData,
   });
 
-  const { mutate, isPending } = useLeadCategoryCreate<keyof LeadCategoryType>({
+  const { mutate, isPending } = useLeadCategoryUpdate<keyof LeadCategoryType>({
     onSuccess: () => {
       form.reset();
       setOpen(false);
@@ -52,30 +58,38 @@ export function LeadCategoryCreateDialog() {
     },
   });
 
-  const nameValue = useWatch({
-    control: form.control,
-    name: "name",
-  });
+  const formId = "lead_category_update_form";
 
-  useEffect(() => {
-    form.setValue("slug", toSlug(nameValue), { shouldValidate: true });
-  }, [nameValue, form]);
-
-  const formId = "lead_category_create_form";
+  const handleSubmit = (e: LeadCategoryType) => {
+    mutate({ ...e, categoryId });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>Create New</DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DialogTrigger render={<Button size="icon" variant="outline" />} />
+          }
+        >
+          <Pen />
+          <span className="sr-only">update category</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Update</p>
+        </TooltipContent>
+      </Tooltip>
+
       <DialogResponsiveContent className="w-full sm:max-w-2xl">
         <DialogStickyHeader>
-          <DialogTitle>Create Lead Category</DialogTitle>
-          <DialogDescription>Create a new lead category</DialogDescription>
+          <DialogTitle>Update Lead Category</DialogTitle>
+          <DialogDescription>Update lead category</DialogDescription>
         </DialogStickyHeader>
         <DialogResponsiveBody>
           <LeadCategoryForm
             formId={formId}
             form={form}
-            onSubmit={mutate}
+            onSubmit={handleSubmit}
             isPending={isPending}
           />
         </DialogResponsiveBody>
@@ -84,7 +98,7 @@ export function LeadCategoryCreateDialog() {
             Cancel
           </DialogClose>
           <ButtonSpinner form={formId} type="submit" isLoading={isPending}>
-            Create
+            Update
           </ButtonSpinner>
         </DialogStickyFooter>
       </DialogResponsiveContent>
