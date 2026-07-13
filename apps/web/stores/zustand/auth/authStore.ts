@@ -11,6 +11,7 @@ export interface AuthStoreState {
   session: AuthSession;
   roles: Array<RoleWithOrg>;
   permissions: Array<PermissionWithOrg>;
+  isAdminUser: boolean;
 }
 
 export interface AuthStoreAction {
@@ -21,7 +22,8 @@ export function authStore(
   userData: AuthUser,
   sessionData: AuthSession,
   roles: Array<RoleWithOrg>,
-  permissions: Array<PermissionWithOrg>
+  permissions: Array<PermissionWithOrg>,
+  isAdminUser: boolean
 ) {
   return createStore<AuthStoreState & AuthStoreAction>()(
     devtools(
@@ -32,6 +34,7 @@ export function authStore(
             session: sessionData,
             roles,
             permissions,
+            isAdminUser,
           },
           (set) => ({
             addUserData: (userData) => {
@@ -43,7 +46,6 @@ export function authStore(
           })
         )
       ),
-
       {
         name: "auth-store",
         store: "auth-store",

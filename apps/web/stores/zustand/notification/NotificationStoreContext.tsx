@@ -2,9 +2,11 @@
 
 import { createContext, useContext, useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { StoreApi, useStore } from "zustand";
 
-import { ListNotificationOutput } from "@/features/notification/api/notification.contract";
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
+import { orpcTQClient } from "@/server/orpc.client";
 import {
   notificationStore,
   type NotificationStoreAction,
@@ -17,16 +19,27 @@ const NotificationStoreContext = createContext<StoreApi<
 
 interface NotificationStoreContextProviderProps {
   children: React.ReactNode;
-  initialNotifications: ListNotificationOutput["data"];
 }
 
 export function NotificationStoreContextProvider({
   children,
-  initialNotifications,
 }: NotificationStoreContextProviderProps) {
+  const {
+    data: {
+      data: { data: notifications },
+    },
+  } = useSuspenseQuery(
+    orpcTQClient.notification.list.queryOptions({
+      input: {
+        page: DEFAULT_PAGE_INDEX,
+        limit: DEFAULT_PAGE_SIZE,
+      },
+    })
+  );
+
   const [store] = useState<
     StoreApi<NotificationStoreState & NotificationStoreAction>
-  >(() => notificationStore(initialNotifications));
+  >(() => notificationStore(notifications));
 
   return (
     <NotificationStoreContext.Provider value={store}>

@@ -11,6 +11,7 @@ export const API_MESSAGES = {
   },
   AUTH: {
     REQUEST_RESET_PASSWORD: "Password reset link has been sent to your email.",
+    METADATA: "Auth metadata loaded successfully.",
   },
   NOTIFICATION: {
     GET_NOTIFICATIONS: "Notifications loaded successfully.",

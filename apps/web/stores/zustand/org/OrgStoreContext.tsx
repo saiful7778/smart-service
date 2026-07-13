@@ -2,35 +2,26 @@
 
 import { createContext, useContext, useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { StoreApi, useStore } from "zustand";
 
-import type { OrganizationDataModel } from "@workspace/drizzle/schemas";
+import { orpcTQClient } from "@/server/orpc.client";
 
-import {
-  orgStore,
-  OrgStoreAction,
-  OrgStoreState,
-  StateOrganizationType,
-} from "./orgStore";
+import { orgStore, OrgStoreAction, OrgStoreState } from "./orgStore";
 
 const OrgStoreContext = createContext<StoreApi<
   OrgStoreState & OrgStoreAction
 > | null>(null);
 
-interface OrgStoreProviderProps extends React.PropsWithChildren {
-  organizations: Array<StateOrganizationType>;
-  activeOrg: OrganizationDataModel | undefined;
-  orgRoles: Array<{ id: string; roleName: string }>;
-}
+export function OrgStoreProvider({ children }: { children: React.ReactNode }) {
+  const {
+    data: {
+      data: { orgs, activeOrg, orgRoles },
+    },
+  } = useSuspenseQuery(orpcTQClient.auth.metadata.queryOptions());
 
-export function OrgStoreProvider({
-  children,
-  organizations,
-  activeOrg,
-  orgRoles,
-}: OrgStoreProviderProps) {
   const [store] = useState<StoreApi<OrgStoreState & OrgStoreAction>>(() =>
-    orgStore(organizations, activeOrg, orgRoles)
+    orgStore(orgs, activeOrg, orgRoles)
   );
 
   return (
