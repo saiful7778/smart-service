@@ -51,7 +51,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed:dev": "tsx ./src/seed/dev-seed/index.ts",
-    "db:seed:prod": "tsx ./src/seed/prod-seed/index.ts",
+    "db:seed:prod": "NODE_ENV=production tsx ./src/seed/prod-seed/index.ts",
     "db:generate-dbml": "tsx ./src/generators/dbml-generator.ts",
     "db:generate-sql": "tsx ./src/generators/sql-generator.ts",
     "db:generate-full": "pnpm run db:generate && pnpm run db:generate-dbml && pnpm run db:generate-sql",
