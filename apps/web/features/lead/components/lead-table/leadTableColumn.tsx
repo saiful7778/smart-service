@@ -57,7 +57,6 @@ export function makeLeadTableColumn(
           aria-label="Select row"
         />
       ),
-      size: 40,
       enableSorting: false,
       enableHiding: false,
     },
@@ -209,7 +208,6 @@ export function makeLeadTableColumn(
     {
       id: "actions",
       cell: ({ row }) => <LeadTableRowAction leadData={row.original} />,
-      size: 40,
       enableSorting: false,
       enableHiding: false,
     },

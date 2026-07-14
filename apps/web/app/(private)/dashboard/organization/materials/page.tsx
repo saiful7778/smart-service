@@ -1,46 +1,41 @@
-import { parseAsArrayOf, parseAsIsoDate } from "nuqs/server";
+import { Metadata } from "next";
 
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { JobBinManagementTable } from "@/features/job/components/job-bin-table/JobBinManagementTable";
+import { MaterialManagementTable } from "@/features/material/components/material-table/MaterialManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
-export default async function JobBinPage(
-  props: PageProps<"/dashboard/organization/jobs/bin">
+export const metadata: Metadata = {
+  title: "Materials",
+};
+
+export default async function MaterialsPage(
+  props: PageProps<"/dashboard/organization/materials">
 ) {
   await requireUserPermissionsWithOrgCache([
-    "org.job.manage",
-    "org.job.delete",
+    "org.material.manage",
+    "org.material.list",
   ]);
 
   const queryClient = getQueryClient();
 
-  const filters = await tableQuerySearchParams({
-    deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
-      clearOnDefault: true,
-    }),
-  })(props.searchParams);
+  const filters = await tableQuerySearchParams({})(props.searchParams);
 
-  const searchFields = ["title"];
+  const searchFields = ["name", "sku"];
 
   await queryClient.prefetchQuery(
-    orpcTQClient.job.bin.list.queryOptions({
+    orpcTQClient.material.list.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
         search: filters.search,
+        searchFields,
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
-        searchFields,
-        filter: {
-          deletedAt: filters.deletedAt
-            ? { from: filters.deletedAt[0], to: filters.deletedAt[1] }
-            : undefined,
-        },
       },
     })
   );
@@ -48,12 +43,12 @@ export default async function JobBinPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Recycle bin"
-        shortDescription="jobs recycle bin management"
+        title="Materials"
+        shortDescription="Manage your organization materials"
       >
-        <JobBinManagementTable
-          page={filters.page}
+        <MaterialManagementTable
           limit={filters.limit}
+          page={filters.page}
           search={filters.search}
           searchFields={searchFields}
         />

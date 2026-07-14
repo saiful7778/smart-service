@@ -51,7 +51,6 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -150,7 +149,6 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <JobBinTableRowAction jobData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },

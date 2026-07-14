@@ -23,8 +23,8 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { JobTable } from "./job-table/JobTable";
-import { JobTableContextProvider } from "./job-table/JobTableContext";
+import { JobTable } from "./JobTable";
+import { JobTableContextProvider } from "./JobTableContext";
 
 export function JobManagementTable({
   page,
@@ -121,11 +121,9 @@ export function JobManagementTable({
               setFilters={(filters) => {
                 const serviceAt = filters?.filter?.serviceAt as string[] | null;
                 const revenue = filters?.filter?.receivedRevenue as
-                  | string[]
-                  | null;
+                  string[] | null;
                 const status = filters?.filter?.status as
-                  | JobStatusEnumType[]
-                  | null;
+                  JobStatusEnumType[] | null;
 
                 setFilters({
                   page: filters?.page ?? DEFAULT_PAGE_INDEX,

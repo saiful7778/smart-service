@@ -52,7 +52,6 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -162,7 +161,6 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <LeadBinTableRowAction leadData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },

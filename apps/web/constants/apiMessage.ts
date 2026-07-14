@@ -153,4 +153,8 @@ export const API_MESSAGES = {
       DELETE_ALL: "All jobs deleted permanently.",
     },
   },
+  MATERIAL: {
+    GET_ALL: "Materials loaded successfully.",
+    NOT_FOUND: "Material not found.",
+  },
 };

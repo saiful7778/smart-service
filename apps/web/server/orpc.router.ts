@@ -1,6 +1,7 @@
 import { authRouter } from "@/features/auth/api/auth.router";
 import { jobRouter } from "@/features/job/api/job.router";
 import { leadRouter } from "@/features/lead/api/lead.router";
+import { materialRouter } from "@/features/material/api/material.router";
 import { notificationRouter } from "@/features/notification/api/notification.router";
 import { orgRouter } from "@/features/org/api/org.router";
 import { roleRouter } from "@/features/role/api/role.router";
@@ -16,4 +17,5 @@ export const router = {
   lead: leadRouter,
   notification: notificationRouter,
   job: jobRouter,
+  material: materialRouter,
 };

@@ -46,7 +46,6 @@ export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> 
         </p>
       ),
       meta: { label: "Description" },
-      size: 300,
       enableColumnFilter: false,
       enableSorting: false,
     },

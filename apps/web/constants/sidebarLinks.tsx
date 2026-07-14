@@ -1,4 +1,5 @@
 import {
+  Boxes,
   House,
   List,
   ListTree,
@@ -116,6 +117,22 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             permissions: ["org.job.manage", "org.job.delete"],
             path: "/dashboard/organization/jobs/bin",
             pathRegex: /^\/dashboard\/organization\/jobs\/bin$/,
+          },
+        ],
+      },
+      {
+        title: "Materials",
+        icon: Boxes,
+        permissions: ["org.material.manage", "org.material.list"],
+        path: "/dashboard/organization/materials",
+        pathRegex: /^\/dashboard\/organization\/materials(\/.*)?$/,
+        items: [
+          {
+            icon: List,
+            title: "All Materials",
+            permissions: ["org.material.manage", "org.material.list"],
+            path: "/dashboard/organization/materials",
+            pathRegex: /^\/dashboard\/organization\/materials$/,
           },
         ],
       },

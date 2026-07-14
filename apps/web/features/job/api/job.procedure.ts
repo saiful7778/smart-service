@@ -78,7 +78,8 @@ export const listJobsProcedure = jobImpl.list
           isNull(JobTable.deletedAt),
           where
         )
-      );
+      )
+      .$dynamic();
 
     const [totalCount, jobs] = await Promise.all([
       context.db.$count(

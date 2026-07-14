@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { parseAsArrayOf, parseAsIsoDate } from "nuqs";
 
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
@@ -14,10 +13,9 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { JobBinTable } from "./job-bin-table/JobBinTable";
-import { JobBinTableContextProvider } from "./job-bin-table/JobBinTableContext";
+import { MaterialTable } from "./MaterialTable";
 
-export function JobBinManagementTable({
+export function MaterialManagementTable({
   page,
   limit,
   search,
@@ -26,33 +24,24 @@ export function JobBinManagementTable({
   page: number;
   limit: number;
   search: string;
-  searchFields: string[];
+  searchFields?: string[] | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
     defaultLimit: limit,
-    additionalKeys: {
-      deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
-        clearOnDefault: true,
-      }),
-    },
+    defaultSearch: search,
   });
 
   const { data, isLoading, isError, error, refetch } = useQuery(
-    orpcTQClient.job.bin.list.queryOptions({
+    orpcTQClient.material.list.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
         search: filters.search,
+        searchFields,
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
-        searchFields,
-        filter: {
-          deletedAt: filters.deletedAt
-            ? { from: filters.deletedAt[0], to: filters.deletedAt[1] }
-            : undefined,
-        },
       },
     })
   );
@@ -68,7 +57,7 @@ export function JobBinManagementTable({
         searchValue={search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      ></DataTableGlobalSearch>
+      />
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
@@ -79,36 +68,24 @@ export function JobBinManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <JobBinTableContextProvider data={data.data}>
-            <JobBinTable
-              data={data}
-              filters={{
-                page: filters.page,
-                limit: filters.limit,
-                search: filters.search,
-                order: filters.order ?? undefined,
-                orderField: filters.orderField ?? undefined,
-                filter: {
-                  deletedAt: filters.deletedAt
-                    ? filters.deletedAt.map((date) => date.toISOString())
-                    : null,
-                },
-              }}
-              setFilters={(filters) => {
-                const deletedAt = filters?.filter?.deletedAt as string[] | null;
-
-                setFilters({
-                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
-                  order: filters?.order ?? null,
-                  orderField: filters?.orderField ?? null,
-                  deletedAt: deletedAt
-                    ? deletedAt.map((date) => new Date(date))
-                    : null,
-                });
-              }}
-            />
-          </JobBinTableContextProvider>
+          <MaterialTable
+            data={data}
+            filters={{
+              page: filters.page,
+              limit: filters.limit,
+              search: filters.search,
+              order: filters.order ?? undefined,
+              orderField: filters.orderField ?? undefined,
+            }}
+            setFilters={(filters) => {
+              setFilters({
+                page: filters?.page ?? DEFAULT_PAGE_INDEX,
+                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                order: filters?.order ?? null,
+                orderField: filters?.orderField ?? null,
+              });
+            }}
+          />
         )}
       </QueryStateBoundary>
     </div>

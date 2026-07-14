@@ -56,7 +56,6 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -71,7 +70,7 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
         href={{ pathname: `/dashboard/organization/jobs/${row.original.id}` }}
         className="font-medium text-foreground leading-none hover:underline"
       >
-        {getValue<JobTableRowDataType["title"]>() || "No Name"}
+        {getValue<JobTableRowDataType["title"]>()}
       </Link>
     ),
     meta: { label: "Job name" },
@@ -173,7 +172,6 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <JobTableRowAction jobData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
