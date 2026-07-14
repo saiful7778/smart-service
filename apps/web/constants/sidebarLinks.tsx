@@ -134,6 +134,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             path: "/dashboard/organization/materials",
             pathRegex: /^\/dashboard\/organization\/materials$/,
           },
+          {
+            icon: PlusCircle,
+            title: "Create Material",
+            permissions: ["org.material.manage", "org.material.create"],
+            path: "/dashboard/organization/materials/create",
+            pathRegex: /^\/dashboard\/organization\/materials\/create$/,
+          },
         ],
       },
     ],

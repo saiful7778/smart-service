@@ -1,4 +1,4 @@
-import { implement } from "@orpc/server";
+import { implement, ORPCError } from "@orpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 
 import {
@@ -6,6 +6,7 @@ import {
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
+  InsertMaterial,
   MaterialTable,
   OrganizationMemberTable,
   OrgMemberRoleTable,
@@ -106,4 +107,53 @@ export const listMaterialsProcedure = materialImpl.list
       meta,
       data: materials,
     });
+  });
+
+export const materialCreateProcedure = materialImpl.create
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.material.manage",
+      "org.material.create",
+    ])
+  )
+  .handler(async ({ context, input }) => {
+    const [existMaterial] = await context.db
+      .select({ id: MaterialTable.id })
+      .from(MaterialTable)
+      .where(
+        and(
+          eq(MaterialTable.sku, input.sku),
+          eq(MaterialTable.orgId, context.org.id)
+        )
+      );
+
+    if (existMaterial) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.MATERIAL.EXIST_SKU,
+      });
+    }
+
+    const [materialData] = await context.db
+      .insert(MaterialTable)
+      .values({
+        name: input.name,
+        sku: input.sku,
+        description: input.description,
+        unitPrice: input.unitPrice,
+        costPrice: input.costPrice,
+        stockQuantity: input.stockQuantity,
+        minimumStockLevel: input.minimumStockLevel,
+        unit: input.unit,
+        orgId: context.org.id,
+        createdBy: context.orgMember.id,
+      } satisfies InsertMaterial)
+      .returning();
+
+    if (!materialData) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: API_MESSAGES.MATERIAL.NOT_CREATE,
+      });
+    }
+
+    return apiResponse(API_MESSAGES.MATERIAL.CREATE, materialData);
   });

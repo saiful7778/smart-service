@@ -12,6 +12,7 @@ import {
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
 
+import { materialCreateSchema } from "../material.schema";
 import { materialBaseContract } from "./material.contract-base";
 
 const tags = ["Organization", "Material"] as const;
@@ -58,6 +59,22 @@ export type ListMaterialOutput = InferContractRouterOutputs<
   typeof listMaterialsContract
 >["data"];
 
+const materialCreateContract = materialBaseContract
+  .route({
+    path: "/materials/create",
+    description: "Create new material",
+    tags,
+  })
+  .input(materialCreateSchema)
+  .output(apiOutputZodSchema(selectMaterialSchema));
+export type MaterialCreateInput = InferContractRouterInputs<
+  typeof materialCreateContract
+>;
+export type MaterialCreateOutput = InferContractRouterOutputs<
+  typeof materialCreateContract
+>;
+
 export const materialContract = {
   list: listMaterialsContract,
+  create: materialCreateContract,
 };

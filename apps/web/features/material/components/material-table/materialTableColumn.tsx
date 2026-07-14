@@ -40,10 +40,10 @@ export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
     ),
     cell: ({ row, getValue }) => (
       <div>
-        <div className="font-medium text-foreground leading-none hover:underline">
+        <div className="font-medium text-sm text-foreground leading-none hover:underline">
           {getValue<MaterialTableRowDataType["name"]>()}
         </div>
-        <div className="text-sm text-muted-foreground">{row.original.sku}</div>
+        <div className="text-muted-foreground">{row.original.sku}</div>
       </div>
     ),
     meta: { label: "Material name" },
@@ -117,7 +117,7 @@ export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
       <div>{getValue<MaterialTableRowDataType["unit"]>()}</div>
     ),
     meta: { label: "Unit" },
-    enableSorting: true,
+    enableSorting: false,
   },
   {
     id: "action",
