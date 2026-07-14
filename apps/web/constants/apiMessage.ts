@@ -83,6 +83,7 @@ export const API_MESSAGES = {
     UPDATE: "Lead updated successfully.",
     UPDATE_ADDRESS: "Lead address updated successfully.",
     GET_DETAILS: "Lead details loaded successfully.",
+    EXPORT: "Leads data exported successfully.",
     DELETE: "Lead moved to bin successfully.",
     DELETE_ALL: "All selected leads moved to bin successfully.",
     GET_REVENUE_HISTORY: "Revenue history loaded successfully.",

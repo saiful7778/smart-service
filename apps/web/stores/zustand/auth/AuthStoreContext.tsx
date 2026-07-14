@@ -18,7 +18,11 @@ export function AuthStoreProvider({ children }: { children: React.ReactNode }) {
     data: {
       data: { user, session, roles, permissions, isAdminUser },
     },
-  } = useSuspenseQuery(orpcTQClient.auth.metadata.queryOptions());
+  } = useSuspenseQuery(
+    orpcTQClient.auth.metadata.queryOptions({
+      staleTime: Infinity,
+    })
+  );
 
   const [store] = useState<StoreApi<AuthStoreState & AuthStoreAction>>(() =>
     authStore(user, session, roles, permissions, isAdminUser)

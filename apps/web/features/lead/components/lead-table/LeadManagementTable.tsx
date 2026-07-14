@@ -19,14 +19,17 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
+import { ExportData } from "@/components/ExportData";
+
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { LeadTable } from "./lead-table/LeadTable";
-import { LeadTableContextProvider } from "./lead-table/LeadTableContext";
+import { useLeadExportData } from "../../api/lead.api.hook";
+import { LeadTable } from "./LeadTable";
+import { LeadTableContextProvider } from "./LeadTableContext";
 
-export default function LeadManagementTable({
+export function LeadManagementTable({
   page,
   limit,
   search,
@@ -53,6 +56,8 @@ export default function LeadManagementTable({
       }),
     },
   });
+
+  const { mutate: exportData, isPending } = useLeadExportData();
 
   const { data, isLoading, isError, error, refetch } = useQuery(
     orpcTQClient.lead.list.queryOptions({
@@ -85,7 +90,25 @@ export default function LeadManagementTable({
         searchValue={search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      ></DataTableGlobalSearch>
+      >
+        <ExportData
+          isLoading={isPending}
+          onExport={(format) =>
+            exportData({
+              format,
+              order: filters.order,
+              orderField: filters.orderField,
+              filter: {
+                status: filters.status ?? undefined,
+                categories: filters.categories ?? undefined,
+                createdAt: filters.createdAt
+                  ? { from: filters.createdAt[0], to: filters.createdAt[1] }
+                  : undefined,
+              },
+            })
+          }
+        />
+      </DataTableGlobalSearch>
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
@@ -115,11 +138,9 @@ export default function LeadManagementTable({
               }}
               setFilters={(filters) => {
                 const status = filters?.filter?.status as
-                  | LeadStatusEnumType[]
-                  | null;
+                  LeadStatusEnumType[] | null;
                 const categories = filters?.filter?.leadCategories as
-                  | string[]
-                  | null;
+                  string[] | null;
                 const createdAt = filters?.filter?.createdAt as string[] | null;
 
                 setFilters({

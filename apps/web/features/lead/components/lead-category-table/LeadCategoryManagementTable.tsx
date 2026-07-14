@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { LeadCategoryTable } from "./lead-category-table/LeadCategoryTable";
+import { LeadCategoryTable } from "./LeadCategoryTable";
 
 export function LeadCategoryManagementTable() {
   "use no memo";

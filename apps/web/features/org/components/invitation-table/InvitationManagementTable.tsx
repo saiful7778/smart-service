@@ -15,9 +15,13 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { MembersTable } from "./member-table/MembersTable";
+import {
+  invitationStatusEnum,
+  InvitationStatusEnumType,
+} from "../../org.schema";
+import { InvitationsTable } from "./InvitationsTable";
 
-export function MemberManagementTable({
+export function InvitationManagementTable({
   page,
   limit,
   search,
@@ -34,14 +38,17 @@ export function MemberManagementTable({
     defaultLimit: limit,
     defaultSearch: search,
     additionalKeys: {
-      roleName: parseAsStringLiteral(OrgRoleEnumSchema.options).withOptions({
+      status: parseAsStringLiteral(invitationStatusEnum.options).withOptions({
+        clearOnDefault: true,
+      }),
+      role: parseAsStringLiteral(OrgRoleEnumSchema.options).withOptions({
         clearOnDefault: true,
       }),
     },
   });
 
   const { data, isLoading, isError, error, refetch } = useQuery(
-    orpcTQClient.org.listMember.queryOptions({
+    orpcTQClient.org.listInvitation.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
@@ -50,7 +57,8 @@ export function MemberManagementTable({
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
         filter: {
-          roleName: filters.roleName ?? undefined,
+          status: filters.status ?? undefined,
+          role: filters.role ?? undefined,
         },
       },
     })
@@ -78,27 +86,31 @@ export function MemberManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <MembersTable
+          <InvitationsTable
             data={data}
             filters={{
               page: filters.page,
               limit: filters.limit,
               search: filters.search,
-              order: filters.order ?? undefined,
-              orderField: filters.orderField ?? undefined,
+              order: filters.order,
+              orderField: filters.orderField,
               filter: {
-                roleName: filters.roleName,
+                status: filters.status ? [filters.status] : null,
+                role: filters.role ? [filters.role] : null,
               },
             }}
             setFilters={(filters) => {
-              const roleName = filters?.filter?.roleName as OrgRoleType | null;
+              const roles = filters?.filter?.role as OrgRoleType[] | null;
+              const status = filters?.filter?.status as
+                InvitationStatusEnumType[] | null;
 
               setFilters({
                 page: filters?.page ?? DEFAULT_PAGE_INDEX,
                 limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
-                roleName: roleName ?? null,
+                role: roles?.[0] ?? null,
+                status: status?.[0] ?? null,
               });
             }}
           />

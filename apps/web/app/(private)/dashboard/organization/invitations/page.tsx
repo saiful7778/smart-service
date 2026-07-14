@@ -7,7 +7,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { InvitationManagementTable } from "@/features/org/components/InvitationManagementTable";
+import { InvitationManagementTable } from "@/features/org/components/invitation-table/InvitationManagementTable";
 import { invitationStatusEnum } from "@/features/org/org.schema";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";

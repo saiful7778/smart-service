@@ -22,6 +22,11 @@ import {
 import { FieldGroup } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
 import { useOrgStore } from "@/stores/zustand/org/OrgStoreContext";
 
@@ -63,7 +68,12 @@ export function InviteMemberDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>Invite Member</DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger render={<DialogTrigger render={<Button />} />}>
+          Invite Member
+        </TooltipTrigger>
+        <TooltipContent>Invite member</TooltipContent>
+      </Tooltip>
       <DialogResponsiveContent className="w-full sm:max-w-xl">
         <DialogStickyHeader>
           <DialogTitle>Invite member</DialogTitle>

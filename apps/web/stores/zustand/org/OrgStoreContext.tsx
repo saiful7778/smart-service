@@ -18,7 +18,11 @@ export function OrgStoreProvider({ children }: { children: React.ReactNode }) {
     data: {
       data: { orgs, activeOrg, orgRoles },
     },
-  } = useSuspenseQuery(orpcTQClient.auth.metadata.queryOptions());
+  } = useSuspenseQuery(
+    orpcTQClient.auth.metadata.queryOptions({
+      staleTime: Infinity,
+    })
+  );
 
   const [store] = useState<StoreApi<OrgStoreState & OrgStoreAction>>(() =>
     orgStore(orgs, activeOrg, orgRoles)

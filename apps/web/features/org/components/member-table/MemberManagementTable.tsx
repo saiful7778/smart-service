@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { parseAsArrayOf, parseAsIsoDate } from "nuqs";
+import { parseAsStringLiteral } from "nuqs";
 
+import { OrgRoleEnumSchema, OrgRoleType } from "@workspace/lib/utils";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
 import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
@@ -14,10 +15,9 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { LeadBinTable } from "./lead-bin-table/LeadBinTable";
-import { LeadBinTableContextProvider } from "./lead-bin-table/LeadBinTableContext";
+import { MembersTable } from "./MembersTable";
 
-export function LeadBinManagementTable({
+export function MemberManagementTable({
   page,
   limit,
   search,
@@ -26,32 +26,31 @@ export function LeadBinManagementTable({
   page: number;
   limit: number;
   search: string;
-  searchFields: string[];
+  searchFields?: string[] | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
     defaultLimit: limit,
+    defaultSearch: search,
     additionalKeys: {
-      deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
+      roleName: parseAsStringLiteral(OrgRoleEnumSchema.options).withOptions({
         clearOnDefault: true,
       }),
     },
   });
 
   const { data, isLoading, isError, error, refetch } = useQuery(
-    orpcTQClient.lead.bin.list.queryOptions({
+    orpcTQClient.org.listMember.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
         search: filters.search,
+        searchFields,
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
-        searchFields,
         filter: {
-          deletedAt: filters.deletedAt
-            ? { from: filters.deletedAt[0], to: filters.deletedAt[1] }
-            : undefined,
+          roleName: filters.roleName ?? undefined,
         },
       },
     })
@@ -68,7 +67,7 @@ export function LeadBinManagementTable({
         searchValue={search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      ></DataTableGlobalSearch>
+      />
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
@@ -79,36 +78,30 @@ export function LeadBinManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <LeadBinTableContextProvider data={data.data}>
-            <LeadBinTable
-              data={data}
-              filters={{
-                page: filters.page,
-                limit: filters.limit,
-                search: filters.search,
-                order: filters.order ?? undefined,
-                orderField: filters.orderField ?? undefined,
-                filter: {
-                  deletedAt: filters.deletedAt
-                    ? filters.deletedAt.map((date) => date.toISOString())
-                    : null,
-                },
-              }}
-              setFilters={(filters) => {
-                const deletedAt = filters?.filter?.deletedAt as string[] | null;
+          <MembersTable
+            data={data}
+            filters={{
+              page: filters.page,
+              limit: filters.limit,
+              search: filters.search,
+              order: filters.order ?? undefined,
+              orderField: filters.orderField ?? undefined,
+              filter: {
+                roleName: filters.roleName,
+              },
+            }}
+            setFilters={(filters) => {
+              const roleName = filters?.filter?.roleName as OrgRoleType | null;
 
-                setFilters({
-                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
-                  order: filters?.order ?? null,
-                  orderField: filters?.orderField ?? null,
-                  deletedAt: deletedAt
-                    ? deletedAt.map((date) => new Date(date))
-                    : null,
-                });
-              }}
-            />
-          </LeadBinTableContextProvider>
+              setFilters({
+                page: filters?.page ?? DEFAULT_PAGE_INDEX,
+                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                order: filters?.order ?? null,
+                orderField: filters?.orderField ?? null,
+                roleName: roleName ?? null,
+              });
+            }}
+          />
         )}
       </QueryStateBoundary>
     </div>
