@@ -77,7 +77,15 @@ export function JobTimeUpdateDialog({
           />
         </DialogResponsiveBody>
         <DialogStickyFooter>
-          <DialogClose render={<Button variant="outline" />}>
+          <DialogClose
+            render={
+              <Button
+                variant="outline"
+                disabled={isPending}
+                aria-disabled={isPending}
+              />
+            }
+          >
             Cancel
           </DialogClose>
           <ButtonSpinner form={formId} type="submit" isLoading={isPending}>

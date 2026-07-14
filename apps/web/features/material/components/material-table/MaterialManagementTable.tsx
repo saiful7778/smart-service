@@ -14,6 +14,7 @@ import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { MaterialTable } from "./MaterialTable";
+import { MaterialTableContextProvider } from "./MaterialTableContext";
 
 export function MaterialManagementTable({
   page,
@@ -68,24 +69,26 @@ export function MaterialManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <MaterialTable
-            data={data}
-            filters={{
-              page: filters.page,
-              limit: filters.limit,
-              search: filters.search,
-              order: filters.order ?? undefined,
-              orderField: filters.orderField ?? undefined,
-            }}
-            setFilters={(filters) => {
-              setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
-                order: filters?.order ?? null,
-                orderField: filters?.orderField ?? null,
-              });
-            }}
-          />
+          <MaterialTableContextProvider data={data.data}>
+            <MaterialTable
+              data={data}
+              filters={{
+                page: filters.page,
+                limit: filters.limit,
+                search: filters.search,
+                order: filters.order ?? undefined,
+                orderField: filters.orderField ?? undefined,
+              }}
+              setFilters={(filters) => {
+                setFilters({
+                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
+                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                  order: filters?.order ?? null,
+                  orderField: filters?.orderField ?? null,
+                });
+              }}
+            />
+          </MaterialTableContextProvider>
         )}
       </QueryStateBoundary>
     </div>

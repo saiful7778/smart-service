@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { MaterialCreateForm } from "@/features/material/components/forms/MaterialCreateForm";
+import { MaterialCreateForm } from "@/features/material/components/MaterialCreateForm";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
 export const metadata: Metadata = {

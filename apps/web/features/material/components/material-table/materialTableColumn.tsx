@@ -52,6 +52,18 @@ export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
     enableHiding: false,
   },
   {
+    id: "unit",
+    accessorKey: "unit",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} label="Unit" />
+    ),
+    cell: ({ getValue }) => (
+      <div>{getValue<MaterialTableRowDataType["unit"]>()}</div>
+    ),
+    meta: { label: "Unit" },
+    enableSorting: false,
+  },
+  {
     id: "unitPrice",
     accessorKey: "unitPrice",
     header: ({ column }) => (
@@ -108,20 +120,8 @@ export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
     enableSorting: true,
   },
   {
-    id: "unit",
-    accessorKey: "unit",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Unit" />
-    ),
-    cell: ({ getValue }) => (
-      <div>{getValue<MaterialTableRowDataType["unit"]>()}</div>
-    ),
-    meta: { label: "Unit" },
-    enableSorting: false,
-  },
-  {
     id: "action",
-    cell: () => <MaterialTableRowAction />,
+    cell: ({ row }) => <MaterialTableRowAction materialData={row.original} />,
     enableColumnFilter: false,
     enableSorting: false,
     enableHiding: false,

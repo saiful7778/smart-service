@@ -11,6 +11,7 @@ import {
   OrganizationMemberTable,
   OrgMemberRoleTable,
   RoleTable,
+  UpdateMaterial,
   UserTable,
 } from "@workspace/drizzle/schemas";
 import { apiResponse } from "@workspace/lib/utils";
@@ -156,4 +157,79 @@ export const materialCreateProcedure = materialImpl.create
     }
 
     return apiResponse(API_MESSAGES.MATERIAL.CREATE, materialData);
+  });
+
+export const materialUpdateProcedure = materialImpl.update
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.material.manage",
+      "org.material.update",
+    ])
+  )
+  .handler(async ({ context, input, errors }) => {
+    const { materialId, ...restInput } = input;
+    const [existMaterial] = await context.db
+      .select({ id: MaterialTable.id })
+      .from(MaterialTable)
+      .where(
+        and(
+          eq(MaterialTable.id, materialId),
+          eq(MaterialTable.orgId, context.org.id),
+          isNull(MaterialTable.deletedAt)
+        )
+      );
+
+    if (!existMaterial) {
+      throw errors.NOT_FOUND();
+    }
+
+    const [materialData] = await context.db
+      .update(MaterialTable)
+      .set({
+        ...restInput,
+      } satisfies UpdateMaterial)
+      .where(eq(MaterialTable.id, existMaterial.id))
+      .returning();
+
+    if (!materialData) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: API_MESSAGES.MATERIAL.NOT_UPDATE,
+      });
+    }
+
+    return apiResponse(API_MESSAGES.MATERIAL.UPDATE, materialData);
+  });
+
+export const materialDeleteProcedure = materialImpl.delete
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.material.manage",
+      "org.material.delete",
+    ])
+  )
+  .handler(async ({ context, input, errors }) => {
+    const [existMaterial] = await context.db
+      .select({ id: MaterialTable.id })
+      .from(MaterialTable)
+      .where(
+        and(
+          eq(MaterialTable.id, input.materialId),
+          eq(MaterialTable.orgId, context.org.id),
+          isNull(MaterialTable.deletedAt)
+        )
+      );
+
+    if (!existMaterial) {
+      throw errors.NOT_FOUND();
+    }
+
+    await context.db
+      .update(MaterialTable)
+      .set({
+        deletedAt: new Date(),
+        deletedBy: context.orgMember.id,
+      } satisfies UpdateMaterial)
+      .where(eq(MaterialTable.id, existMaterial.id));
+
+    return apiResponse(API_MESSAGES.MATERIAL.UPDATE, null);
   });

@@ -1,61 +1,31 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import { DollarSign, PackageMinus, PackageOpen } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 
-import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import { FieldGroup } from "@workspace/ui/components/field";
 import { InputAddonField } from "@workspace/ui/components/form-fields/InputAddonField";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
-import { useMaterialCreate } from "../../api/material.api.hook";
-import {
-  materialCreateSchema,
-  MaterialCreateType,
-} from "../../material.schema";
+import { MaterialType } from "../../material.schema";
 
-export function MaterialCreateForm() {
+interface MaterialFormProps {
+  form: UseFormReturn<MaterialType>;
+  formId?: string;
+  isPending?: boolean;
+  onSubmit: (value: MaterialType) => void;
+}
+
+export function MaterialForm({
+  form,
+  formId = "material_form",
+  isPending,
+  onSubmit,
+}: MaterialFormProps) {
   "use no memo";
-  const route = useRouter();
-
-  const form = useForm<MaterialCreateType>({
-    resolver: zodResolver(materialCreateSchema),
-    defaultValues: {
-      name: "",
-      sku: "",
-      description: "",
-      unit: "",
-      unitPrice: "0.00",
-      costPrice: "0.00",
-      stockQuantity: "0",
-      minimumStockLevel: "0",
-    },
-  });
-
-  const { mutate, isPending } = useMaterialCreate<keyof MaterialCreateType>({
-    onSuccess: () => {
-      form.reset();
-      route.push("/dashboard/organization/materials");
-    },
-    onValidationErrors: (fields) => {
-      fields.forEach(({ fieldName, message }) => {
-        form.setError(fieldName, {
-          message,
-        });
-      });
-    },
-  });
-
-  const handleSubmit = (e: MaterialCreateType) => {
-    mutate(e);
-  };
-
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)}>
+    <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <InputField
           control={form.control}
@@ -140,11 +110,6 @@ export function MaterialCreateForm() {
           placeholder="Enter description"
           disabled={isPending}
         />
-        <div className="text-left">
-          <ButtonSpinner type="submit" isLoading={isPending}>
-            Create Material
-          </ButtonSpinner>
-        </div>
       </FieldGroup>
     </form>
   );

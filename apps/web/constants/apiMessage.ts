@@ -156,8 +156,10 @@ export const API_MESSAGES = {
   MATERIAL: {
     GET_ALL: "Materials loaded successfully.",
     CREATE: "Material created successfully.",
+    UPDATE: "Material updated successfully.",
     EXIST_SKU: "Material sku is already exist",
     NOT_CREATE: "Failed to create material. Please try again.",
     NOT_FOUND: "Material not found.",
+    NOT_UPDATE: "Material not update.",
   },
 };
