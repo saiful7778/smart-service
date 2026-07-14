@@ -6,6 +6,7 @@ import {
   leadAddressUpdateProcedure,
   leadAllDeleteProcedure,
   leadCreateProcedure,
+  leadDataExportProcedure,
   leadDeleteProcedure,
   leadDetailsProcedure,
   leadImpl,
@@ -49,6 +50,7 @@ import {
 export const leadRouter = leadImpl.router({
   list: listLeadProcedure,
   listForSearch: listLeadForSearchProcedure,
+  export: leadDataExportProcedure,
   create: leadCreateProcedure,
   update: leadUpdateProcedure,
   updateAddress: leadAddressUpdateProcedure,

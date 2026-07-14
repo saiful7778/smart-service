@@ -3,3 +3,5 @@ export * from "./fieldValidatorZodSchema";
 export * from "./paginateInputZodSchema";
 export * from "./paginateOutputZodSchema";
 export * from "./apiOutputZodSchema";
+export * from "./exportDataInputZodSchema";
+export * from "./exportDataOutputZodSchema";

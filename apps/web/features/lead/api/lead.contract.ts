@@ -16,6 +16,8 @@ import {
 import { LeadStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import {
   apiOutputZodSchema,
+  exportDataInputZodSchema,
+  exportDataOutputZodSchema,
   paginateInputZodSchema,
   paginateOutputZodSchema,
 } from "@workspace/lib/utils";
@@ -109,6 +111,53 @@ const listLeadContract = leadBaseContract
 export type ListLeadInputs = InferContractRouterInputs<typeof listLeadContract>;
 export type ListLeadOutputs = InferContractRouterOutputs<
   typeof listLeadContract
+>["data"];
+
+const leadDataExportContract = leadBaseContract
+  .route({
+    path: "/leads/export-data",
+    description: "Export lead data",
+    tags,
+  })
+  .input(
+    exportDataInputZodSchema<
+      typeof selectLeadSchema & typeof selectCustomerSchema
+    >({
+      orderFields: ["name", "createdAt"],
+      filter: z.object({
+        status: LeadStatusEnumSchema.optional(),
+        categories: z
+          .array(z.string().describe("Service category slug"))
+          .optional(),
+      }),
+    })
+  )
+  .output(
+    apiOutputZodSchema(
+      exportDataOutputZodSchema(
+        selectLeadSchema
+          .pick({
+            id: true,
+            status: true,
+            createdAt: true,
+          })
+          .extend({
+            customer: selectCustomerSchema.pick({
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              company: true,
+            }),
+          })
+      )
+    )
+  );
+export type LeadDataExportInputs = InferContractRouterInputs<
+  typeof leadDataExportContract
+>;
+export type LeadDataExportOutputs = InferContractRouterOutputs<
+  typeof leadDataExportContract
 >["data"];
 
 const listLeadForSearchContract = leadBaseContract
@@ -344,6 +393,7 @@ export type RevenueHistoryOutputs = InferContractRouterOutputs<
 export const leadContract = {
   list: listLeadContract,
   listForSearch: listLeadForSearchContract,
+  export: leadDataExportContract,
   create: leadCreateContract,
   category: leadCategoryContract,
   customer: customerContract,

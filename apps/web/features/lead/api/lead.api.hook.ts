@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+import { downloadFile } from "@workspace/ui/lib/downloadFile";
+
 import {
   DEFAULT_INFINITE_PAGE_SIZE,
   DEFAULT_INFINITE_PAGE_START,
@@ -60,6 +62,38 @@ export function useLeadCreate<TFieldNames>({
       },
       onSettled: () => {
         onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useLeadExportData({
+  onRequestStart,
+  onSuccess,
+  onError,
+}: IApiHookInput = {}) {
+  const toastId = "export_lead_data_toast_id";
+
+  return useMutation(
+    orpcTQClient.lead.export.mutationOptions({
+      onMutate: () => {
+        toast.loading("Exporting...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: ({ message, data }) => {
+        const content =
+          typeof data.data === "string"
+            ? data.data
+            : JSON.stringify(data.data, null, 2);
+
+        downloadFile(content, data.filename, data.contentType);
+        toast.success(message, { id: toastId });
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+        toast.error(message, { id: toastId });
+        onError?.(message);
       },
     })
   );
