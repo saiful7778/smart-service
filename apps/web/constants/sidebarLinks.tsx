@@ -25,6 +25,13 @@ export const adminSidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         pathRegex: /^\/dashboard\/admin$/,
       },
       {
+        title: "All Users",
+        icon: UsersRound,
+        permissions: ["system.user.manage", "system.user.list"],
+        path: "/dashboard/admin/users",
+        pathRegex: /^\/dashboard\/admin\/users(\/.*)?$/,
+      },
+      {
         title: "Roles & Permissions",
         icon: ShieldUser,
         permissions: ["system.role.manage", "system.role.list"],

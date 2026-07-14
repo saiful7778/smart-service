@@ -2,7 +2,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { OrgRoleManagementTable } from "@/features/role/components/OrgRoleManagementTable";
+import { OrgRoleManagementTable } from "@/features/role/components/org-role-table/OrgRoleManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 

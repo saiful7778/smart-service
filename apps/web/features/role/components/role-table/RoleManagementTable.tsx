@@ -11,9 +11,9 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { OrgRoleTable } from "./org-role-table/OrgRoleTable";
+import { RoleTable } from "./RoleTable";
 
-export function OrgRoleManagementTable() {
+export function RoleManagementTable() {
   "use no memo";
   const { filters, setFilters } = useTableQueryState({
     defaultPage: DEFAULT_PAGE_INDEX,
@@ -21,7 +21,7 @@ export function OrgRoleManagementTable() {
   });
 
   const { data, isLoading, isError, error } = useQuery(
-    orpcTQClient.role.listOrgRole.queryOptions()
+    orpcTQClient.role.listRole.queryOptions()
   );
 
   return (
@@ -30,12 +30,12 @@ export function OrgRoleManagementTable() {
       isError={isError}
       error={error}
       data={data?.data}
-      isEmpty={() => false}
+      isEmpty={(d) => d.length === 0}
       loadingFallback={<DataTableSkeleton />}
       emptyFallback={<DataTableEmpty />}
     >
       {(data) => (
-        <OrgRoleTable
+        <RoleTable
           data={data}
           filters={{
             page: filters.page,

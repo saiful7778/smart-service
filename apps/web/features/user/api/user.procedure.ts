@@ -11,7 +11,7 @@ import {
   UserRoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
-import { apiResponse } from "@workspace/lib/utils";
+import { apiResponse, prepareExport } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import {
@@ -39,16 +39,8 @@ export const listUserProcedure = userImpl.list
   .handler(async ({ context, input }) => {
     const { where, orderBy, limit, offset, page } = buildPaginateOptions(
       {
-        id: UserTable.id,
         name: UserTable.name,
         email: UserTable.email,
-        emailVerified: UserTable.emailVerified,
-        image: UserTable.image,
-        role: UserTable.role,
-        roleName: RoleTable.roleName,
-        banned: UserTable.banned,
-        banReason: UserTable.banReason,
-        banExpires: UserTable.banExpires,
         createdAt: UserTable.createdAt,
         updatedAt: UserTable.updatedAt,
       },
@@ -83,7 +75,13 @@ export const listUserProcedure = userImpl.list
       .from(UserTable)
       .leftJoin(lastLoginSq, eq(lastLoginSq.userId, UserTable.id))
       .innerJoin(UserRoleTable, eq(UserRoleTable.userId, UserTable.id))
-      .innerJoin(RoleTable, eq(UserRoleTable.roleId, RoleTable.id))
+      .innerJoin(
+        RoleTable,
+        and(
+          eq(RoleTable.type, "SYSTEM"),
+          eq(UserRoleTable.roleId, RoleTable.id)
+        )
+      )
       .where(where)
       .groupBy(UserTable.id, lastLoginSq.lastLogin);
 
@@ -95,6 +93,65 @@ export const listUserProcedure = userImpl.list
     const meta = buildPaginationMeta(totalCount, users.length, page, limit);
 
     return apiResponse(API_MESSAGES.USER.GET_ALL, { meta, data: users });
+  });
+
+export const userDataExportProcedure = userImpl.export
+  .use(userPermissionMiddleware(["system.user.manage", "system.user.list"]))
+  .handler(async ({ context, input }) => {
+    const { where, orderBy } = buildPaginateOptions(
+      {
+        name: UserTable.name,
+        email: UserTable.email,
+        createdAt: UserTable.createdAt,
+        updatedAt: UserTable.updatedAt,
+      },
+      input
+    );
+
+    const lastLoginSq = context.db
+      .select({
+        userId: UserActivityTable.userId,
+        lastLogin: max(UserActivityTable.loginAt).as("last_login"),
+      })
+      .from(UserActivityTable)
+      .groupBy(UserActivityTable.userId)
+      .as("last_login_sq");
+
+    const results = await context.db
+      .select({
+        id: UserTable.id,
+        name: UserTable.name,
+        email: UserTable.email,
+        emailVerified: UserTable.emailVerified,
+        image: UserTable.image,
+        role: UserTable.role,
+        roles: roleColumnSql,
+        banned: UserTable.banned,
+        banReason: UserTable.banReason,
+        banExpires: UserTable.banExpires,
+        createdAt: UserTable.createdAt,
+        updatedAt: UserTable.updatedAt,
+        lastLogin: lastLoginSq.lastLogin,
+      })
+      .from(UserTable)
+      .leftJoin(lastLoginSq, eq(lastLoginSq.userId, UserTable.id))
+      .innerJoin(UserRoleTable, eq(UserRoleTable.userId, UserTable.id))
+      .innerJoin(
+        RoleTable,
+        and(
+          eq(RoleTable.type, "SYSTEM"),
+          eq(UserRoleTable.roleId, RoleTable.id)
+        )
+      )
+      .where(where)
+      .groupBy(UserTable.id, lastLoginSq.lastLogin)
+      .orderBy(orderBy);
+
+    const exportData = prepareExport(results, input.format, {
+      prefix: "user",
+    });
+
+    return apiResponse(API_MESSAGES.LEAD.EXPORT, exportData);
   });
 
 function daysAgo(days: number) {

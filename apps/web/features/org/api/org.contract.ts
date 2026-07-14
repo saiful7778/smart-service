@@ -63,9 +63,6 @@ const listMemberContract = baseContract
     paginateInputZodSchema<typeof selectUserSchema>({
       searchFields: ["name", "email"],
       orderFields: ["createdAt"],
-      filter: z.object({
-        roleName: OrgRoleEnumSchema.optional(),
-      }),
     })
   )
   .output(apiOutputZodSchema(paginateOutputZodSchema(userProfileSchema)));

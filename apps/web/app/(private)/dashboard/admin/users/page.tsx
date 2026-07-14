@@ -1,28 +1,35 @@
+import { Metadata } from "next";
+
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { MemberManagementTable } from "@/features/org/components/member-table/MemberManagementTable";
+import { UserManagementTable } from "@/features/user/components/user-table/UserManagementTable";
+import { UserStats } from "@/features/user/components/UserStats";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
-export default async function MemberPage(
-  props: PageProps<"/dashboard/organization/members">
+export const metadata: Metadata = {
+  title: "User management",
+};
+
+export default async function UsersPage(
+  props: PageProps<"/dashboard/admin/users">
 ) {
   await requireUserPermissionsWithOrgCache([
-    "org.user.manage",
-    "org.user.list",
+    "system.user.manage",
+    "system.user.list",
   ]);
-
-  const queryClient = getQueryClient();
 
   const filters = await tableQuerySearchParams({})(props.searchParams);
 
   const searchFields = ["name", "email"];
 
-  await queryClient.prefetchQuery(
-    orpcTQClient.org.listMember.queryOptions({
+  const queryclient = getQueryClient();
+
+  await queryclient.prefetchQuery(
+    orpcTQClient.user.list.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
@@ -34,13 +41,16 @@ export default async function MemberPage(
     })
   );
 
+  await queryclient.prefetchQuery(orpcTQClient.user.stats.queryOptions());
+
   return (
-    <HydrateClient client={queryClient}>
+    <HydrateClient client={queryclient}>
       <DashboardShell
-        title="Members"
-        shortDescription="Manage the users who have access to your organization."
+        title="User Management"
+        shortDescription="Manage your users"
       >
-        <MemberManagementTable
+        <UserStats />
+        <UserManagementTable
           page={filters.page}
           limit={filters.limit}
           search={filters.search}
