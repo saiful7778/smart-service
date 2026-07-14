@@ -1,7 +1,7 @@
 import z from "zod";
 
 import { RoleEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { emailField } from "@workspace/lib/utils";
+import { emailField, SystemRoleEnumSchema } from "@workspace/lib/utils";
 
 export const userUpdateSchema = z.object({
   displayRole: z.string().nullable(),
@@ -11,7 +11,9 @@ export type UserUpdateType = z.infer<typeof userUpdateSchema>;
 
 export const roleUpdateSchema = z.object({
   userId: z.uuid(),
-  roleNames: z.array(RoleEnumSchema),
+  roleNames: z
+    .array(SystemRoleEnumSchema)
+    .min(1, "At least one role is required"),
 });
 export type RoleUpdateType = z.infer<typeof roleUpdateSchema>;
 

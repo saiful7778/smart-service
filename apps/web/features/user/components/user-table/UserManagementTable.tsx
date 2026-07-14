@@ -9,23 +9,28 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
+import { ExportData } from "@/components/ExportData";
+
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { MembersTable } from "./MembersTable";
+import { useUserExportData } from "../../api/users.api.hook";
+import { UsersTable } from "./UsersTable";
 
-export function MemberManagementTable({
-  page,
-  limit,
-  search,
-  searchFields,
-}: {
+interface UserManagementTableProps {
   page: number;
   limit: number;
   search: string;
   searchFields?: string[] | undefined;
-}) {
+}
+
+export function UserManagementTable({
+  page,
+  limit,
+  search,
+  searchFields,
+}: UserManagementTableProps) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
@@ -33,8 +38,10 @@ export function MemberManagementTable({
     defaultSearch: search,
   });
 
+  const { mutate: exportData, isPending } = useUserExportData();
+
   const { data, isLoading, isError, error, refetch } = useQuery(
-    orpcTQClient.org.listMember.queryOptions({
+    orpcTQClient.user.list.queryOptions({
       input: {
         page: filters.page,
         limit: filters.limit,
@@ -57,7 +64,18 @@ export function MemberManagementTable({
         searchValue={search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      />
+      >
+        <ExportData
+          isLoading={isPending}
+          onExport={(format) =>
+            exportData({
+              format,
+              order: filters.order,
+              orderField: filters.orderField,
+            })
+          }
+        />
+      </DataTableGlobalSearch>
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
@@ -68,7 +86,7 @@ export function MemberManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <MembersTable
+          <UsersTable
             data={data}
             filters={{
               page: filters.page,

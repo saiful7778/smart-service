@@ -7,9 +7,10 @@ import z from "zod";
 import { selectUserSchema, updateUserSchema } from "@workspace/drizzle/schemas";
 import {
   apiOutputZodSchema,
+  exportDataInputZodSchema,
+  exportDataOutputZodSchema,
   paginateInputZodSchema,
   paginateOutputZodSchema,
-  SystemRoleEnumSchema,
 } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
@@ -38,9 +39,6 @@ const listUserContract = userBaseContract
     paginateInputZodSchema<typeof selectUserSchema>({
       searchFields: ["name", "email"],
       orderFields: ["name", "email", "createdAt", "updatedAt"],
-      filter: z.object({
-        roleName: z.array(SystemRoleEnumSchema).optional(),
-      }),
     })
   )
   .output(
@@ -119,6 +117,34 @@ export type UpdateUserRoleContractOutput = InferContractRouterOutputs<
   typeof updateUserRoleContract
 >["data"];
 
+const userDataExportContract = userBaseContract
+  .route({
+    path: "/users/export-data",
+    description: "Export user data",
+    tags,
+  })
+  .input(
+    exportDataInputZodSchema<typeof selectUserSchema>({
+      orderFields: ["name", "email", "createdAt", "updatedAt"],
+    })
+  )
+  .output(
+    apiOutputZodSchema(
+      exportDataOutputZodSchema(
+        selectUserSchema.extend({
+          lastLogin: z.date().nullable(),
+          roles: z.array(roleSqlSchema),
+        })
+      )
+    )
+  );
+export type UserDataExportInput = InferContractRouterInputs<
+  typeof userDataExportContract
+>;
+export type UserDataExportOutput = InferContractRouterOutputs<
+  typeof userDataExportContract
+>;
+
 const userDetailsContract = userBaseContract
   .route({
     path: "/users/details",
@@ -142,6 +168,7 @@ export type UserDetailsOutput = InferContractRouterOutputs<
 
 export const userContract = {
   list: listUserContract,
+  export: userDataExportContract,
   stats: userStatsContract,
   update: updateUserContract,
   updateRole: updateUserRoleContract,

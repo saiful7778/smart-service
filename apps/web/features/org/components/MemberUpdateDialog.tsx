@@ -60,7 +60,6 @@ export function MemberUpdateDialog({
     onValidationErrors: (fields) => {
       fields.forEach(({ fieldName, message }) => {
         form.setError(fieldName, {
-          type: "manual",
           message,
         });
       });
