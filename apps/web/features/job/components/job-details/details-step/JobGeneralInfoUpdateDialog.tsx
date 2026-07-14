@@ -24,10 +24,10 @@ import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
-import { useJobUpdate } from "../api/job.api.hook";
-import { jobUpdateSchema, JobUpdateType } from "../job.schema";
+import { useJobUpdate } from "../../../api/job.api.hook";
+import { jobUpdateSchema, JobUpdateType } from "../../../job.schema";
 
-interface LeadJobUpdateDialogProps {
+interface JobGeneralInfoUpdateDialogProps {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   leadId: string | null | undefined;
@@ -35,13 +35,13 @@ interface LeadJobUpdateDialogProps {
   initialData: Omit<JobUpdateType, "jobId"> | undefined;
 }
 
-export function LeadJobUpdateDialog({
+export function JobGeneralInfoUpdateDialog({
   open,
   onOpenChange,
   leadId,
   jobId,
   initialData,
-}: LeadJobUpdateDialogProps) {
+}: JobGeneralInfoUpdateDialogProps) {
   "use no memo";
   const form = useForm<JobUpdateType>({
     resolver: zodResolver(jobUpdateSchema),
@@ -52,6 +52,8 @@ export function LeadJobUpdateDialog({
       status: initialData?.status || "scheduled",
     },
   });
+
+  console.log(form.formState.errors);
 
   const { mutate, isPending } = useJobUpdate<keyof JobUpdateType>({
     leadId,

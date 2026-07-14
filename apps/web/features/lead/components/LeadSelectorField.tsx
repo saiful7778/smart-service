@@ -95,6 +95,7 @@ export function LeadSelectorField<TFieldValues extends FieldValues>({
             value={field.value}
             onChange={field.onChange}
             onSearch={setSearch}
+            disabled={disabled}
           >
             <SearchableSelectorTrigger>
               <UserSearch className="size-4" />

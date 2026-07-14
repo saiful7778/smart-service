@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { Briefcase, Clock, Edit, Plus, Trash2 } from "lucide-react";
-import { parseAsBoolean, parseAsIndex, useQueryState } from "nuqs";
+import { Briefcase, Clock, Plus } from "lucide-react";
+import { parseAsIndex, useQueryState } from "nuqs";
 
 import { JobStatusEnumType } from "@workspace/drizzle/zod-db-enums";
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
-import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import {
   Empty,
   EmptyDescription,
@@ -39,22 +37,18 @@ import {
   DEFAULT_INFINITE_PAGE_SIZE,
   DEFAULT_INFINITE_PAGE_START,
 } from "@/constants";
-import { useJobDelete } from "@/features/job/api/job.api.hook";
-import { LeadJobCreateDialog } from "@/features/job/components/LeadJobCreateDialog";
-import { LeadJobUpdateDialog } from "@/features/job/components/LeadJobUpdateDialog";
 import { ListLeadJobsOutput } from "@/features/lead/api/leadJob.contract";
+import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { nameInitials } from "@/utils/nameInitials";
 
 export function JobStep({ leadId }: { leadId: string }) {
-  const [openCreateDialog, setOpenCreateDialog] = useQueryState<boolean>(
-    "create_job_dialog",
-    parseAsBoolean
-      .withDefault(false)
-      .withOptions({ shallow: true, history: "replace" })
-  );
+  const isAllowJobCreate = usePermissionCheckWithOrg([
+    "org.job.manage",
+    "org.job.create",
+  ]);
 
   const [page, setPage] = useQueryState(
     "page",
@@ -76,136 +70,65 @@ export function JobStep({ leadId }: { leadId: string }) {
   );
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold">Jobs</h3>
-            <p className="text-xs text-muted-foreground">
-              Manage jobs for this lead
-            </p>
-          </div>
-          <Button onClick={() => setOpenCreateDialog(true)}>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="space-y-1">
+          <h3 className="text-lg font-bold">Jobs</h3>
+          <p className="text-xs text-muted-foreground">
+            Manage jobs for this lead
+          </p>
+        </div>
+        {isAllowJobCreate && (
+          <Button
+            nativeButton={false}
+            render={
+              <Link
+                href={{
+                  pathname: "/dashboard/organization/jobs/create",
+                  search: `leadId=${leadId}`,
+                }}
+              />
+            }
+          >
             <Plus />
             <span>Create Job</span>
           </Button>
-        </div>
-
-        <QueryStateBoundary
-          data={data?.data}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          isEmpty={(d) => d.data.length === 0}
-          loadingFallback={<JobsSkeleton />}
-          emptyFallback={
-            <Empty className="py-12 border-dashed">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <Briefcase className="size-8" />
-                </EmptyMedia>
-                <EmptyTitle>No jobs yet</EmptyTitle>
-                <EmptyDescription>
-                  This lead hasn&apos;t been converted into any jobs yet.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          }
-        >
-          {({ data, meta }) => (
-            <>
-              <JobList jobs={data} leadId={leadId} />
-              <MetaPagination meta={meta} onPageChange={setPage} />
-            </>
-          )}
-        </QueryStateBoundary>
+        )}
       </div>
-      <LeadJobCreateDialog
-        open={openCreateDialog}
-        onOpenChange={setOpenCreateDialog}
-        leadId={leadId}
-      />
-    </>
-  );
-}
 
-function JobList({
-  leadId,
-  jobs,
-}: {
-  leadId: string;
-  jobs: ListLeadJobsOutput["data"];
-}) {
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
-  const [jobToDeleteId, setJobToDeleteId] = useState<string | null>(null);
-  const [openUpdateDialog, setOpenUpdateDialog] = useQueryState<boolean>(
-    "update_job_dialog",
-    parseAsBoolean
-      .withDefault(false)
-      .withOptions({ shallow: true, history: "replace" })
-  );
-  const [jobToUpdate, setJobToUpdate] = useState<
-    ListLeadJobsOutput["data"][number] | null
-  >(null);
-
-  const { mutate, isPending } = useJobDelete({
-    leadId,
-    onSuccess: () => {
-      setOpenDeleteDialog(false);
-      setJobToDeleteId(null);
-    },
-  });
-
-  const handleDelete = useCallback(() => {
-    if (isPending || !jobToDeleteId) return;
-    mutate({ jobId: jobToDeleteId });
-  }, [mutate, isPending, jobToDeleteId]);
-
-  return (
-    <>
-      <div className="flex flex-col gap-4">
-        {jobs.map((job) => (
-          <JobItem
-            key={job.id}
-            job={job}
-            isDeleting={job.id === jobToDeleteId && isPending}
-            isUpdating={job.id === jobToUpdate?.id && isPending}
-            handleDeleteDialog={() => {
-              setOpenDeleteDialog(true);
-              setJobToDeleteId(job.id);
-            }}
-            handleInfoUpdateDialog={() => {
-              setOpenUpdateDialog(true);
-              setJobToUpdate(job);
-            }}
-          />
-        ))}
-      </div>
-      <DeleteConfirmDialog
-        open={openDeleteDialog}
-        onOpenChange={setOpenDeleteDialog}
-        onConfirm={handleDelete}
-        isLoading={isPending}
-        title="Delete Job"
-        description="Are you sure you want to delete this job?"
-      />
-      <LeadJobUpdateDialog
-        open={openUpdateDialog}
-        onOpenChange={setOpenUpdateDialog}
-        leadId={leadId}
-        jobId={jobToUpdate?.id}
-        initialData={
-          jobToUpdate
-            ? {
-                title: jobToUpdate.title,
-                description: jobToUpdate.description || undefined,
-                status: jobToUpdate.status,
-                serviceAt: jobToUpdate.serviceAt || undefined,
-              }
-            : undefined
+      <QueryStateBoundary
+        data={data?.data}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        isEmpty={(d) => d.data.length === 0}
+        loadingFallback={<JobsSkeleton />}
+        emptyFallback={
+          <Empty className="py-12 border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Briefcase className="size-8" />
+              </EmptyMedia>
+              <EmptyTitle>No jobs yet</EmptyTitle>
+              <EmptyDescription>
+                This lead hasn&apos;t been converted into any jobs yet.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         }
-      />
-    </>
+      >
+        {({ data, meta }) => (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              {data.map((job) => (
+                <JobItem key={job.id} job={job} />
+              ))}
+            </div>
+            <MetaPagination meta={meta} onPageChange={setPage} />
+          </div>
+        )}
+      </QueryStateBoundary>
+    </div>
   );
 }
 
@@ -224,19 +147,9 @@ const statusConfig: Record<
 
 interface JobItemProps {
   job: ListLeadJobsOutput["data"][number];
-  isDeleting: boolean;
-  isUpdating: boolean;
-  handleDeleteDialog: () => void;
-  handleInfoUpdateDialog: () => void;
 }
 
-function JobItem({
-  job,
-  isDeleting,
-  isUpdating,
-  handleDeleteDialog,
-  handleInfoUpdateDialog,
-}: JobItemProps) {
+function JobItem({ job }: JobItemProps) {
   const config = statusConfig[job.status] || {
     variant: "default",
     label: job.status,
@@ -328,29 +241,6 @@ function JobItem({
               </Avatar>
             </div>
           </div>
-        </div>
-
-        <Separator orientation="vertical" />
-
-        <div className="flex flex-col gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleInfoUpdateDialog}
-            disabled={isUpdating}
-          >
-            <Edit />
-            <span className="sr-only">Edit Job</span>
-          </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={handleDeleteDialog}
-            disabled={isDeleting}
-          >
-            <Trash2 />
-            <span className="sr-only">Delete Job</span>
-          </Button>
         </div>
       </CardContent>
     </Card>
