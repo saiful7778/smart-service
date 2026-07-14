@@ -11,7 +11,6 @@ import {
   TabNavigationList,
   TabNavigationTrigger,
 } from "@/components/tab-navigation";
-import { UserAvatar } from "@/components/UserAvatar";
 
 import { AttachmentStep } from "@/features/job/components/job-details/AttachmentStep";
 import { DetailsStep } from "@/features/job/components/job-details/details-step";
@@ -46,22 +45,6 @@ export default async function SingleJobDetailsPage(
         title={data.title}
         shortDescription="Detailed overview of job information and performance."
       >
-        <div className="space-y-2">
-          <div className="text-sm font-bold leading-none">Created by</div>
-          <div className="bg-card py-2 px-3 rounded-lg border shadow-sm w-fit">
-            {data.createdByMember && (
-              <UserAvatar
-                userName={data.createdByMember.name}
-                userEmail={data.createdByMember.email}
-                imageUrl={data.createdByMember.image}
-                userRoles={data.createdByMember.roles}
-                showDetails
-                showRoleDetails
-              />
-            )}
-          </div>
-        </div>
-
         <TabNavigation defaultValue="details">
           <TabNavigationList variant="line">
             <TabNavigationTrigger value="details">

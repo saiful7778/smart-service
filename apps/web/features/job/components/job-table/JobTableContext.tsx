@@ -6,8 +6,8 @@ import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dia
 
 import { useJobDelete } from "../../api/job.api.hook";
 import { ListJobsOutput } from "../../api/job.contract";
+import { JobGeneralInfoUpdateDialog } from "../job-details/details-step/JobGeneralInfoUpdateDialog";
 import { JobTimeUpdateDialog } from "../JobTimeUpdateDialog";
-import { LeadJobUpdateDialog } from "../LeadJobUpdateDialog";
 
 interface JobTableContextProps {
   data: ListJobsOutput["data"];
@@ -114,7 +114,7 @@ export function JobTableContextProvider({
             : undefined
         }
       />
-      <LeadJobUpdateDialog
+      <JobGeneralInfoUpdateDialog
         open={openInfoUpdateDialog}
         onOpenChange={setOpenInfoUpdateDialog}
         leadId={jobToAction?.leadId || undefined}
