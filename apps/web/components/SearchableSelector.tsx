@@ -184,9 +184,11 @@ export function SearchableSelectorTrigger({
     </Button>
   );
 
-  const TriggerWrapper = isMobile ? DrawerTrigger : PopoverTrigger;
+  if (isMobile) {
+    return <DrawerTrigger asChild>{trigger}</DrawerTrigger>;
+  }
 
-  return <TriggerWrapper asChild>{trigger}</TriggerWrapper>;
+  return <PopoverTrigger render={trigger} />;
 }
 
 interface SearchableSelectorContentProps<T> {
