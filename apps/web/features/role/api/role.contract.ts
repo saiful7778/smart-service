@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -12,6 +8,7 @@ import {
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { createOrUpdateOrgRoleSchema } from "../role.schema";
 
@@ -51,10 +48,9 @@ const listRoleContract = baseContract
       )
     )
   );
-export type ListRoleInput = InferContractRouterInputs<typeof listRoleContract>;
-export type ListRoleOutput = InferContractRouterOutputs<
+export type ListRoleContractType = InferContractRouterType<
   typeof listRoleContract
->["data"];
+>;
 
 const listOrgPermissionContract = baseContract
   .route({
@@ -77,12 +73,9 @@ const listOrgPermissionContract = baseContract
       )
     )
   );
-export type ListOrgPermissionInput = InferContractRouterInputs<
+export type ListOrgPermissionContractType = InferContractRouterType<
   typeof listOrgPermissionContract
 >;
-export type ListOrgPermissionOutput = InferContractRouterOutputs<
-  typeof listOrgPermissionContract
->["data"];
 
 const listOrgRoleContract = baseContract
   .route({
@@ -114,12 +107,9 @@ const listOrgRoleContract = baseContract
       )
     )
   );
-export type ListOrgRoleInput = InferContractRouterInputs<
+export type ListOrgRoleContractType = InferContractRouterType<
   typeof listOrgRoleContract
 >;
-export type ListOrgRoleOutput = InferContractRouterOutputs<
-  typeof listOrgRoleContract
->["data"];
 
 const createOrgRoleContract = baseContract
   .route({
@@ -130,12 +120,9 @@ const createOrgRoleContract = baseContract
   })
   .input(createOrUpdateOrgRoleSchema)
   .output(apiOutputZodSchema(selectOrgRoleSchema));
-export type CreateOrgRoleInput = InferContractRouterInputs<
+export type CreateOrgRoleContractType = InferContractRouterType<
   typeof createOrgRoleContract
 >;
-export type CreateOrgRoleOutput = InferContractRouterOutputs<
-  typeof createOrgRoleContract
->["data"];
 
 const updateOrgRoleContract = baseContract
   .route({
@@ -150,12 +137,9 @@ const updateOrgRoleContract = baseContract
     })
   )
   .output(apiOutputZodSchema(selectOrgRoleSchema));
-export type UpdateOrgRoleInput = InferContractRouterInputs<
+export type UpdateOrgRoleContractType = InferContractRouterType<
   typeof updateOrgRoleContract
 >;
-export type UpdateOrgRoleOutput = InferContractRouterOutputs<
-  typeof updateOrgRoleContract
->["data"];
 
 const deleteOrgRoleContract = baseContract
   .route({
@@ -170,12 +154,9 @@ const deleteOrgRoleContract = baseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type DeleteOrgRoleInput = InferContractRouterInputs<
+export type DeleteOrgRoleContractType = InferContractRouterType<
   typeof deleteOrgRoleContract
 >;
-export type DeleteOrgRoleOutput = InferContractRouterOutputs<
-  typeof deleteOrgRoleContract
->["data"];
 
 export const roleContract = {
   listRole: listRoleContract,

@@ -7,49 +7,49 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
-import { ListLeadBinContractType } from "../../api/leadBin.contract";
-import { useLeadBinContext } from "./LeadBinTableContext";
+import { ListMaterialBinContractType } from "../../api/materialBin.contract";
+import { useMaterialBinContext } from "./MaterialBinTableContext";
 
-export function LeadBinTableRowAction({
-  leadData,
+export function MaterialBinTableRowAction({
+  materialData,
 }: {
-  leadData: ListLeadBinContractType["output"]["data"]["data"][number];
+  materialData: ListMaterialBinContractType["output"]["data"]["data"][number];
 }) {
-  const { handleRestoreDialog, handleDeleteDialog } = useLeadBinContext();
+  const { handleRestoreDialog, handleDeleteDialog } = useMaterialBinContext();
   return (
     <div className="flex items-center gap-1">
       <Tooltip>
         <TooltipTrigger
           render={
             <Button
-              onClick={() => handleRestoreDialog(leadData.id)}
+              onClick={() => handleRestoreDialog(materialData.id)}
               size="icon"
               variant="outline"
             />
           }
         >
           <RotateCcw />
-          <span className="sr-only">restore lead</span>
+          <span className="sr-only">restore material</span>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Restore lead</p>
+          <p>Restore material</p>
         </TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger
           render={
             <Button
-              onClick={() => handleDeleteDialog(leadData.id)}
+              onClick={() => handleDeleteDialog(materialData.id)}
               size="icon"
               variant="destructive"
             />
           }
         >
           <Trash2 />
-          <span className="sr-only">delete lead permanently</span>
+          <span className="sr-only">delete material permanently</span>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Delete lead</p>
+          <p>Delete material</p>
         </TooltipContent>
       </Tooltip>
     </div>

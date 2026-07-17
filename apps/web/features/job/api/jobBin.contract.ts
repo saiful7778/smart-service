@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { selectJobSchema } from "@workspace/drizzle/schemas";
@@ -12,6 +8,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { jobBaseContract } from "./job.contract-base";
 
@@ -45,12 +42,9 @@ const listJobBinContract = jobBaseContract
       )
     )
   );
-export type ListJobBinInputs = InferContractRouterInputs<
+export type ListJobBinContractType = InferContractRouterType<
   typeof listJobBinContract
 >;
-export type ListJobBinOutputs = InferContractRouterOutputs<
-  typeof listJobBinContract
->["data"];
 
 const jobRestoreContract = jobBaseContract
   .route({
@@ -64,10 +58,7 @@ const jobRestoreContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobRestoreInputs = InferContractRouterInputs<
-  typeof jobRestoreContract
->;
-export type JobRestoreOutputs = InferContractRouterOutputs<
+export type JobRestoreContractType = InferContractRouterType<
   typeof jobRestoreContract
 >;
 
@@ -83,10 +74,7 @@ const jobAllRestoreContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobAllRestoreInputs = InferContractRouterInputs<
-  typeof jobAllRestoreContract
->;
-export type JobAllRestoreOutputs = InferContractRouterOutputs<
+export type JobAllRestoreContractType = InferContractRouterType<
   typeof jobAllRestoreContract
 >;
 
@@ -102,10 +90,7 @@ const jobBinDeleteContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobBinDeleteInputs = InferContractRouterInputs<
-  typeof jobBinDeleteContract
->;
-export type JobBinDeleteOutputs = InferContractRouterOutputs<
+export type JobBinDeleteContractType = InferContractRouterType<
   typeof jobBinDeleteContract
 >;
 
@@ -121,10 +106,7 @@ const jobAllBinDeleteContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobAllBinDeleteInputs = InferContractRouterInputs<
-  typeof jobAllBinDeleteContract
->;
-export type JobAllBinDeleteOutputs = InferContractRouterOutputs<
+export type JobAllBinDeleteContractType = InferContractRouterType<
   typeof jobAllBinDeleteContract
 >;
 

@@ -11,7 +11,7 @@ import { usePageVisibility } from "@/hooks/use-page-visibility";
 import { orpcTQClient } from "@/server/orpc.client";
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
-import type { ListNotificationOutput } from "../api/notification.contract";
+import type { ListNotificationContractType } from "../api/notification.contract";
 import { chimeSound } from "../data/notification-sound";
 import {
   NOTIFICATION_EVENT,
@@ -35,7 +35,7 @@ export function NotificationProvider({
   );
 
   const addNotification = useCallback(
-    async (notification: ListNotificationOutput["data"][number]) => {
+    async (notification: ListNotificationContractType["output"]["data"]["data"][number]) => {
       queryClient.setQueryData(
         orpcTQClient.notification.list.queryKey({
           input: {},

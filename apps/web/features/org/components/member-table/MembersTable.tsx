@@ -5,11 +5,11 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { ListMemberOutput } from "../../api/org.contract";
+import { ListMemberContractType } from "../../api/org.contract";
 import { memberTableColumn } from "./memberTableColumn";
 
 interface MembersTableProps {
-  data: ListMemberOutput;
+  data: ListMemberContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

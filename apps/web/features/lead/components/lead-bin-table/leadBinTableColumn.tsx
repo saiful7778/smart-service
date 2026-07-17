@@ -13,10 +13,10 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListLeadBinOutputs } from "../../api/leadBin.contract";
+import { ListLeadBinContractType } from "../../api/leadBin.contract";
 import { LeadBinTableRowAction } from "./LeadBinTableRowAction";
 
-type LeadBinTableRowDataType = ListLeadBinOutputs["data"][number];
+type LeadBinTableRowDataType = ListLeadBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   LeadBinTableRowDataType["status"],

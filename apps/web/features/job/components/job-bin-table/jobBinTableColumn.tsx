@@ -13,10 +13,10 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListJobBinOutputs } from "../../api/jobBin.contract";
+import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { JobBinTableRowAction } from "./JobBinTableRowAction";
 
-type JobBinTableRowDataType = ListJobBinOutputs["data"][number];
+type JobBinTableRowDataType = ListJobBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   JobBinTableRowDataType["status"],

@@ -159,9 +159,17 @@ export const API_MESSAGES = {
     GET_DETAILS: "Materials details loaded successfully.",
     CREATE: "Material created successfully.",
     UPDATE: "Material updated successfully.",
+    DELETE: "Material moved to bin successfully.",
+    DELETE_ALL: "All selected materials moved to bin successfully.",
     EXIST_SKU: "Material sku is already exist",
     NOT_CREATE: "Failed to create material. Please try again.",
     NOT_FOUND: "Material not found.",
     NOT_UPDATE: "Material not update.",
+    BIN: {
+      RESTORE: "Material restored successfully.",
+      RESTORE_ALL: "All materials restored successfully.",
+      DELETE: "Material deleted permanently.",
+      DELETE_ALL: "All materials deleted permanently.",
+    },
   },
 };

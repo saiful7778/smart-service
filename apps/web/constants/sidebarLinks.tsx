@@ -141,6 +141,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             path: "/dashboard/organization/materials/create",
             pathRegex: /^\/dashboard\/organization\/materials\/create$/,
           },
+          {
+            title: "Recycle Bin",
+            icon: Trash2,
+            permissions: ["org.material.manage", "org.material.delete"],
+            path: "/dashboard/organization/materials/bin",
+            pathRegex: /^\/dashboard\/organization\/materials\/bin$/,
+          },
         ],
       },
     ],

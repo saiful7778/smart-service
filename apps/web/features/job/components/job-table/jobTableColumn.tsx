@@ -21,10 +21,10 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 
-import { ListJobsOutput } from "../../api/job.contract";
+import { ListJobsContractType } from "../../api/job.contract";
 import { JobTableRowAction } from "./JobTableRowAction";
 
-type JobTableRowDataType = ListJobsOutput["data"][number];
+type JobTableRowDataType = ListJobsContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<JobTableRowDataType["status"], StatusVariant> = {
   draft: "default",

@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { selectJobSchema } from "@workspace/drizzle/schemas";
@@ -13,6 +9,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadBaseContract } from "./lead.contract-base";
 
@@ -57,12 +54,9 @@ const listLeadJobsContract = leadBaseContract
       )
     )
   );
-export type ListLeadJobsInput = InferContractRouterInputs<
+export type ListLeadJobsContractType = InferContractRouterType<
   typeof listLeadJobsContract
 >;
-export type ListLeadJobsOutput = InferContractRouterOutputs<
-  typeof listLeadJobsContract
->["data"];
 
 export const leadJobContract = {
   list: listLeadJobsContract,

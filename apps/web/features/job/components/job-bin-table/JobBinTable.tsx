@@ -15,11 +15,11 @@ import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { useJobBinDeleteAll, useJobRestoreAll } from "../../api/job.api.hook";
-import { ListJobBinOutputs } from "../../api/jobBin.contract";
+import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { jobBinTableColumn } from "./jobBinTableColumn";
 
 interface JobBinTableProps {
-  data: ListJobBinOutputs;
+  data: ListJobBinContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

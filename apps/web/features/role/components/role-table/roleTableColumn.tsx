@@ -5,10 +5,10 @@ import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
-import { ListRoleOutput } from "../../api/role.contract";
+import { ListRoleContractType } from "../../api/role.contract";
 import { PermissionsCell } from "./PermissionsCell";
 
-type RoleTableRowDataType = ListRoleOutput[number];
+type RoleTableRowDataType = ListRoleContractType["output"]["data"][number];
 
 export const roleTableColumn: ColumnType<RoleTableRowDataType> = [
   {

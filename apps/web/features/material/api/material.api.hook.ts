@@ -12,7 +12,7 @@ import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
-import { MaterialCreateInput, MaterialCreateOutput } from "./material.contract";
+import { MaterialCreateContractType } from "./material.contract";
 
 export function useMaterialCreate<TFieldNames>({
   uploadRef,
@@ -38,9 +38,9 @@ export function useMaterialCreate<TFieldNames>({
   });
 
   return useMutation<
-    MaterialCreateOutput,
+    MaterialCreateContractType["output"],
     Error,
-    Omit<MaterialCreateInput, "fileId"> & {
+    Omit<MaterialCreateContractType["input"], "fileId"> & {
       materialImage: File | File[] | null | undefined;
     }
   >({
@@ -149,6 +149,204 @@ export function useMaterialUpdate<TFieldNames>({
   );
 }
 
+export function useMaterialRestore({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "material_restore_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.material.bin.restore.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Restoring...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to restore material", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useMaterialRestoreAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "material_all_restore_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.material.bin.restoreAll.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Restoring...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to restore materials", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useMaterialBinDelete({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "material_bin_delete_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.material.bin.delete.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete material", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useMaterialBinDeleteAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "material_all_bin_delete_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.material.bin.deleteAll.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Deleting...", { id: toastId });
+      },
+      onSuccess: async ({ message }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.bin.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.material.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message ?? "Failed to delete materials", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
 export function useMaterialDelete({
   onRequestStart,
   onRequestEnd,
@@ -180,6 +378,47 @@ export function useMaterialDelete({
         const { message } = formatOrpcError(error);
 
         toast.error(message || "Failed to delete material", { id: toastId });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
+export function useMaterialDeleteAll({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+}: Omit<IApiHookInput, "onValidationErrors">) {
+  const toastId = "material_delete_all_toast_message_id";
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.material.deleteAll.mutationOptions({
+      onMutate: () => {
+        toast.loading("Deleting...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: async ({ message }) => {
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.material.list.queryKey({
+            input: {},
+          }),
+          exact: false,
+        });
+
+        toast.success(message, { id: toastId });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+
+        toast.error(message || "Failed to delete materials", { id: toastId });
 
         onError?.(message);
       },

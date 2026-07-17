@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { selectUserSchema } from "@workspace/drizzle/schemas";
@@ -52,10 +48,9 @@ const listUserContract = userBaseContract
       )
     )
   );
-export type ListUserInput = InferContractRouterInputs<typeof listUserContract>;
-export type ListUserOutput = InferContractRouterOutputs<
+export type ListUserContractType = InferContractRouterType<
   typeof listUserContract
->["data"];
+>;
 
 const userStatsContract = userBaseContract
   .route({
@@ -77,12 +72,9 @@ const userStatsContract = userBaseContract
       })
     )
   );
-export type UserStatsInput = InferContractRouterInputs<
+export type UserStatsContractType = InferContractRouterType<
   typeof userStatsContract
 >;
-export type UserStatsOutput = InferContractRouterOutputs<
-  typeof userStatsContract
->["data"];
 
 const profileUpdateContract = baseContract
   .route({
@@ -129,10 +121,7 @@ const userDataExportContract = userBaseContract
       )
     )
   );
-export type UserDataExportInput = InferContractRouterInputs<
-  typeof userDataExportContract
->;
-export type UserDataExportOutput = InferContractRouterOutputs<
+export type UserDataExportContractType = InferContractRouterType<
   typeof userDataExportContract
 >;
 
@@ -150,12 +139,9 @@ const userDetailsContract = userBaseContract
       })
     )
   );
-export type UserDetailsInput = InferContractRouterInputs<
+export type UserDetailsContractType = InferContractRouterType<
   typeof userDetailsContract
 >;
-export type UserDetailsOutput = InferContractRouterOutputs<
-  typeof userDetailsContract
->["data"];
 
 export const userContract = {
   list: listUserContract,

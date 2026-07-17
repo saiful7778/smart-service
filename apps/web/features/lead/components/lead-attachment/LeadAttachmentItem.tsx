@@ -34,11 +34,11 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { useGetDownloadUrl } from "@/features/upload/api/upload.api.hook";
 import { formatBytes } from "@/utils/formatBytes";
 
-import { ListLeadAttachmentOutput } from "../../api/leadAttachment.contract";
-import { ListLeadAttachmentBinOutput } from "../../api/leadAttachmentBin.contract";
+import { ListLeadAttachmentContractType } from "../../api/leadAttachment.contract";
+import { ListLeadAttachmentBinContractType } from "../../api/leadAttachmentBin.contract";
 import { useLeadAttachmentContext } from "./LeadAttachmentContext";
 
-type LeadAttachmentItem = ListLeadAttachmentOutput[number];
+type LeadAttachmentItem = ListLeadAttachmentContractType["output"]["data"][number];
 
 function getFileIcon(mimeType: string): React.ReactNode {
   if (mimeType.startsWith("image/")) return <FileImage />;
@@ -176,7 +176,7 @@ export function LeadAttachmentItem({ attachment }: LeadAttachmentItemProps) {
   );
 }
 
-type LeadAttachmentBinItem = ListLeadAttachmentBinOutput[number];
+type LeadAttachmentBinItem = ListLeadAttachmentBinContractType["output"]["data"][number];
 
 interface LeadAttachmentBinItemProps {
   attachment: LeadAttachmentBinItem;

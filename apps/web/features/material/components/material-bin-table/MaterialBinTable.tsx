@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback } from "react";
 
-import { CirclePlus, Trash2 } from "lucide-react";
+import { RotateCcw, Trash2 } from "lucide-react";
 
-import { Button } from "@workspace/ui/components/button";
 import { DataTable } from "@workspace/ui/components/data-table/data-table";
 import {
   DataTableActionBar,
@@ -16,32 +14,22 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
+import { useMaterialBinDeleteAll, useMaterialRestoreAll } from "../../api/material.api.hook";
+import { ListMaterialBinContractType } from "../../api/materialBin.contract";
+import { materialBinTableColumn } from "./materialBinTableColumn";
 
-import { useMaterialDeleteAll } from "../../api/material.api.hook";
-import { ListMaterialContractType } from "../../api/material.contract";
-import { materialTableColumn } from "./materialTableColumn";
-
-interface MaterialTableProps {
-  data: ListMaterialContractType["output"]["data"];
+interface MaterialBinTableProps {
+  data: ListMaterialBinContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }
 
-export function MaterialTable({
-  data,
-  filters,
-  setFilters,
-}: MaterialTableProps) {
+export function MaterialBinTable({ data, filters, setFilters }: MaterialBinTableProps) {
   "use no memo";
-  const isAllowCreate = usePermissionCheckWithOrg([
-    "org.material.manage",
-    "org.material.create",
-  ]);
 
   const table = useDataTable({
     data: data.data,
-    columns: materialTableColumn,
+    columns: materialBinTableColumn,
     pageCount: data.meta.pageCount,
     filters,
     setFilters,
@@ -52,7 +40,17 @@ export function MaterialTable({
     },
   });
 
-  const { mutate: deleteAll, isPending: isDeleting } = useMaterialDeleteAll({});
+  const { mutate: restoreAll, isPending: isRestoring } = useMaterialRestoreAll({});
+  const { mutate: deleteAll, isPending: isDeleting } = useMaterialBinDeleteAll({});
+
+  const handleRestoreAll = useCallback(() => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedIds = selectedRows.map((row) => row.original.id);
+
+    restoreAll({ materialIds: selectedIds });
+
+    table.toggleAllRowsSelected(false);
+  }, [table, restoreAll]);
 
   const handleDeleteAll = useCallback(() => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -69,6 +67,13 @@ export function MaterialTable({
       actionBar={
         <DataTableActionBar table={table}>
           <DataTableActionBarAction
+            onClick={handleRestoreAll}
+            isPending={isRestoring}
+          >
+            <RotateCcw className="size-4" />
+            <span>Restore All</span>
+          </DataTableActionBarAction>
+          <DataTableActionBarAction
             onClick={handleDeleteAll}
             isPending={isDeleting}
             variant="destructive"
@@ -80,21 +85,7 @@ export function MaterialTable({
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table}>
-        {isAllowCreate && (
-          <Button
-            nativeButton={false}
-            render={
-              <Link
-                href={{ pathname: "/dashboard/organization/materials/create" }}
-              />
-            }
-          >
-            <CirclePlus />
-            <span>Create material</span>
-          </Button>
-        )}
-      </DataTableToolbar>
+      <DataTableToolbar table={table} />
     </DataTable>
   );
 }

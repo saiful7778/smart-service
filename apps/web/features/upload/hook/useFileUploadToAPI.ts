@@ -6,7 +6,7 @@ import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
 import { useConfirmUpload, useGetUploadUrl } from "../api/upload.api.hook";
-import { ConfirmUploadOutput } from "../api/upload.contract";
+import { ConfirmUploadContractType } from "../api/upload.contract";
 
 export type ProgressType = {
   loaded: number;
@@ -29,7 +29,7 @@ export function useFileUploadToAPI({
   const { mutateAsync: confirmUpload } = useConfirmUpload({});
 
   return useMutation<
-    ConfirmUploadOutput,
+    ConfirmUploadContractType["output"],
     Error,
     {
       file: File;

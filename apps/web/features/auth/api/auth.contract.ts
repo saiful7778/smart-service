@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -11,6 +7,7 @@ import {
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { forgetPasswordSchema, userBannedSchema } from "../auth.schema";
 
@@ -91,9 +88,9 @@ const authMetadataContract = baseContract
       })
     )
   );
-export type AuthMetadataOutput = InferContractRouterOutputs<
+export type AuthMetadataContractType = InferContractRouterType<
   typeof authMetadataContract
->["data"];
+>;
 
 const requestResetPasswordContract = baseContract
   .route({
@@ -102,12 +99,9 @@ const requestResetPasswordContract = baseContract
   })
   .input(forgetPasswordSchema)
   .output(apiOutputZodSchema(z.null()));
-export type RequestResetPasswordInput = InferContractRouterInputs<
+export type RequestResetPasswordContractType = InferContractRouterType<
   typeof requestResetPasswordContract
 >;
-export type RequestResetPasswordOutput = InferContractRouterOutputs<
-  typeof requestResetPasswordContract
->["data"];
 
 const userBanContract = baseContract
   .route({
@@ -117,10 +111,7 @@ const userBanContract = baseContract
   })
   .input(userBannedSchema)
   .output(apiOutputZodSchema(z.null()));
-export type UserBanInput = InferContractRouterInputs<typeof userBanContract>;
-export type UserBanOutput = InferContractRouterOutputs<
-  typeof userBanContract
->["data"];
+export type UserBanContractType = InferContractRouterType<typeof userBanContract>;
 
 export const authContract = {
   metadata: authMetadataContract,

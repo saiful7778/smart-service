@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { selectMaterialSchema } from "@workspace/drizzle/schemas";
@@ -16,6 +12,7 @@ import { InferContractRouterType } from "@/types/orpc.types";
 
 import { materialSchema } from "../material.schema";
 import { materialBaseContract } from "./material.contract-base";
+import { materialBinContract } from "./materialBin.contract";
 
 const tags = ["Organization", "Material"] as const;
 
@@ -50,12 +47,9 @@ const listMaterialsContract = materialBaseContract
       )
     )
   );
-export type ListMaterialInput = InferContractRouterInputs<
+export type ListMaterialContractType = InferContractRouterType<
   typeof listMaterialsContract
 >;
-export type ListMaterialOutput = InferContractRouterOutputs<
-  typeof listMaterialsContract
->["data"];
 
 const materialDetailsContract = materialBaseContract
   .route({
@@ -98,10 +92,7 @@ const materialCreateContract = materialBaseContract
   })
   .input(materialSchema.extend({ fileId: z.uuid().optional() }))
   .output(apiOutputZodSchema(selectMaterialSchema));
-export type MaterialCreateInput = InferContractRouterInputs<
-  typeof materialCreateContract
->;
-export type MaterialCreateOutput = InferContractRouterOutputs<
+export type MaterialCreateContractType = InferContractRouterType<
   typeof materialCreateContract
 >;
 
@@ -113,26 +104,32 @@ const materialUpdateContract = materialBaseContract
   })
   .input(materialSchema.extend({ materialId: z.uuid() }))
   .output(apiOutputZodSchema(selectMaterialSchema));
-export type MaterialUpdateInput = InferContractRouterInputs<
-  typeof materialUpdateContract
->;
-export type MaterialUpdateOutput = InferContractRouterOutputs<
+export type MaterialUpdateContractType = InferContractRouterType<
   typeof materialUpdateContract
 >;
 
 const materialDeleteContract = materialBaseContract
   .route({
     path: "/materials/delete",
-    description: "Delete new material",
+    description: "Delete material",
     tags,
   })
   .input(z.object({ materialId: z.uuid() }))
   .output(apiOutputZodSchema(z.null()));
-export type MaterialDeleteInput = InferContractRouterInputs<
+export type MaterialDeleteContractType = InferContractRouterType<
   typeof materialDeleteContract
 >;
-export type MaterialDeleteOutput = InferContractRouterOutputs<
-  typeof materialDeleteContract
+
+const materialAllDeleteContract = materialBaseContract
+  .route({
+    path: "/materials/delete/all",
+    description: "Delete all material",
+    tags,
+  })
+  .input(z.object({ materialIds: z.array(z.uuid()) }))
+  .output(apiOutputZodSchema(z.null()));
+export type MaterialAllDeleteContractType = InferContractRouterType<
+  typeof materialAllDeleteContract
 >;
 
 export const materialContract = {
@@ -141,4 +138,6 @@ export const materialContract = {
   create: materialCreateContract,
   update: materialUpdateContract,
   delete: materialDeleteContract,
+  deleteAll: materialAllDeleteContract,
+  bin: materialBinContract,
 };

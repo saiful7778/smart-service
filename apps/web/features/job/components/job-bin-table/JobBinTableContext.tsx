@@ -2,12 +2,11 @@
 
 import { createContext, useCallback, useContext, useState } from "react";
 
-import { RotateCcw } from "lucide-react";
-
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
+import { RestoreConfirmDialog } from "@workspace/ui/components/restore-confirm-dialog";
 
 import { useJobBinDelete, useJobRestore } from "../../api/job.api.hook";
-import { ListJobBinOutputs } from "../../api/jobBin.contract";
+import { ListJobBinContractType } from "../../api/jobBin.contract";
 
 interface JobBinTableContextProps {
   handleDeleteDialog: (jobId: string) => void;
@@ -17,7 +16,7 @@ interface JobBinTableContextProps {
 const JobBinTableContext = createContext<JobBinTableContextProps | null>(null);
 
 interface JobBinTableContextProviderProps extends React.PropsWithChildren {
-  data: ListJobBinOutputs["data"];
+  data: ListJobBinContractType["output"]["data"]["data"];
 }
 
 export function JobBinTableContextProvider({
@@ -27,7 +26,7 @@ export function JobBinTableContextProvider({
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [jobToAction, setJobToAction] = useState<
-    ListJobBinOutputs["data"][number] | null
+    ListJobBinContractType["output"]["data"]["data"][number] | null
   >(null);
 
   const { mutate: deleteJob, isPending: isDeleting } = useJobBinDelete({
@@ -80,15 +79,11 @@ export function JobBinTableContextProvider({
     >
       {children}
 
-      <DeleteConfirmDialog
+      <RestoreConfirmDialog
         open={openRestoreDialog}
         onOpenChange={setOpenRestoreDialog}
         onConfirm={handleRestore}
         isLoading={isRestoring}
-        icon={<RotateCcw className="size-4 text-primary" />}
-        title="Restore Item"
-        description="Are you sure you want to restore this item? It will become active again."
-        confirmText="Restore"
       />
       <DeleteConfirmDialog
         open={openDeleteDialog}

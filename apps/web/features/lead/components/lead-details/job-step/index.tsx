@@ -37,7 +37,7 @@ import {
   DEFAULT_INFINITE_PAGE_SIZE,
   DEFAULT_INFINITE_PAGE_START,
 } from "@/constants";
-import { ListLeadJobsOutput } from "@/features/lead/api/leadJob.contract";
+import { ListLeadJobsContractType } from "@/features/lead/api/leadJob.contract";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
@@ -146,7 +146,7 @@ const statusConfig: Record<
 } as const;
 
 interface JobItemProps {
-  job: ListLeadJobsOutput["data"][number];
+  job: ListLeadJobsContractType["output"]["data"]["data"][number];
 }
 
 function JobItem({ job }: JobItemProps) {

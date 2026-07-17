@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -11,6 +7,7 @@ import {
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadBaseContract } from "./lead.contract-base";
 
@@ -57,12 +54,9 @@ const listLeadAttachmentBinContract = leadBaseContract
       )
     )
   );
-export type ListLeadAttachmentBinInputs = InferContractRouterInputs<
+export type ListLeadAttachmentBinContractType = InferContractRouterType<
   typeof listLeadAttachmentBinContract
 >;
-export type ListLeadAttachmentBinOutput = InferContractRouterOutputs<
-  typeof listLeadAttachmentBinContract
->["data"];
 
 const leadAttachmentRestoreContract = leadBaseContract
   .route({
@@ -78,10 +72,7 @@ const leadAttachmentRestoreContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAttachmentRestoreInputs = InferContractRouterInputs<
-  typeof leadAttachmentRestoreContract
->;
-export type LeadAttachmentRestoreOutputs = InferContractRouterOutputs<
+export type LeadAttachmentRestoreContractType = InferContractRouterType<
   typeof leadAttachmentRestoreContract
 >;
 
@@ -99,10 +90,7 @@ const leadAttachmentBinDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAttachmentBinDeleteInputs = InferContractRouterInputs<
-  typeof leadAttachmentBinDeleteContract
->;
-export type LeadAttachmentBinDeleteOutputs = InferContractRouterOutputs<
+export type LeadAttachmentBinDeleteContractType = InferContractRouterType<
   typeof leadAttachmentBinDeleteContract
 >;
 

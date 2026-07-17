@@ -21,10 +21,10 @@ import { UserAvatarImage } from "@/components/UserAvatar";
 import { RoutePathType } from "@/types";
 import { nameInitials } from "@/utils/nameInitials";
 
-import { ListLeadNotesOutputs } from "../../api/leadNote.contract";
+import { ListLeadNotesContractType } from "../../api/leadNote.contract";
 
 interface LeadNoteItemProps {
-  note: ListLeadNotesOutputs["data"][number];
+  note: ListLeadNotesContractType["output"]["data"]["data"][number];
   handleDeleteDialog: (noteId: string) => void;
   handleUpdateDialog: (noteId: string) => void;
 }

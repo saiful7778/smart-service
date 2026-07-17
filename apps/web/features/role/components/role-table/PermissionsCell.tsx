@@ -18,9 +18,9 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
-import { ListRoleOutput } from "../../api/role.contract";
+import { ListRoleContractType } from "../../api/role.contract";
 
-type Permission = ListRoleOutput[number]["permissions"][number];
+type Permission = ListRoleContractType["output"]["data"][number]["permissions"][number];
 
 function PermissionBadge({
   resource,

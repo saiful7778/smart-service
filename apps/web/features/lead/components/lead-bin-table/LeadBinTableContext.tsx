@@ -2,12 +2,11 @@
 
 import { createContext, useCallback, useContext, useState } from "react";
 
-import { RotateCcw } from "lucide-react";
-
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
+import { RestoreConfirmDialog } from "@workspace/ui/components/restore-confirm-dialog";
 
 import { useLeadBinDelete, useLeadRestore } from "../../api/lead.api.hook";
-import { ListLeadBinOutputs } from "../../api/leadBin.contract";
+import { ListLeadBinContractType } from "../../api/leadBin.contract";
 
 interface LeadBinTableContextProps {
   handleDeleteDialog: (leadId: string) => void;
@@ -19,7 +18,7 @@ const LeadBinTableContext = createContext<LeadBinTableContextProps | null>(
 );
 
 interface LeadBinTableContextProviderProps extends React.PropsWithChildren {
-  data: ListLeadBinOutputs["data"];
+  data: ListLeadBinContractType["output"]["data"]["data"];
 }
 
 export function LeadBinTableContextProvider({
@@ -29,7 +28,7 @@ export function LeadBinTableContextProvider({
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [leadToAction, setLeadToAction] = useState<
-    ListLeadBinOutputs["data"][number] | null
+    ListLeadBinContractType["output"]["data"]["data"][number] | null
   >(null);
 
   const { mutate: deleteLead, isPending: isDeleting } = useLeadBinDelete({
@@ -82,15 +81,11 @@ export function LeadBinTableContextProvider({
     >
       {children}
 
-      <DeleteConfirmDialog
+      <RestoreConfirmDialog
         open={openRestoreDialog}
         onOpenChange={setOpenRestoreDialog}
         onConfirm={handleRestore}
         isLoading={isRestoring}
-        icon={<RotateCcw className="size-4 text-primary" />}
-        title="Restore Item"
-        description="Are you sure you want to restore this item? It will become active again."
-        confirmText="Restore"
       />
       <DeleteConfirmDialog
         open={openDeleteDialog}

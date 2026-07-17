@@ -5,11 +5,11 @@ import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
-import { ListOrgRoleOutput } from "../../api/role.contract";
+import { ListOrgRoleContractType } from "../../api/role.contract";
 import { PermissionsCell } from "../role-table/PermissionsCell";
 import { OrgRoleTableRowAction } from "./OrgRoleTableRowAction";
 
-type RoleTableRowDataType = ListOrgRoleOutput[number];
+type RoleTableRowDataType = ListOrgRoleContractType["output"]["data"][number];
 
 export const orgRoleTableColumn: ColumnType<RoleTableRowDataType> = [
   {

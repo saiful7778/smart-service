@@ -6,10 +6,10 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 
-import { ListMaterialOutput } from "../../api/material.contract";
+import { ListMaterialContractType } from "../../api/material.contract";
 import { MaterialTableRowAction } from "./MaterialTableRowAction";
 
-type MaterialTableRowDataType = ListMaterialOutput["data"][number];
+type MaterialTableRowDataType = ListMaterialContractType["output"]["data"]["data"][number];
 
 export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
   {

@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -345,5 +345,43 @@ export const materialDeleteProcedure = materialImpl.delete
         .where(eq(MaterialTable.id, existMaterial.id));
     });
 
-    return apiResponse(API_MESSAGES.MATERIAL.UPDATE, null);
+    return apiResponse(API_MESSAGES.MATERIAL.DELETE, null);
+  });
+
+export const materialAllDeleteProcedure = materialImpl.deleteAll
+  .use(
+    orgMemberPermissionsMiddleware([
+      "org.material.manage",
+      "org.material.delete",
+    ])
+  )
+  .handler(async ({ context, input, errors }) => {
+    const existMaterials = await context.db
+      .select({ id: MaterialTable.id })
+      .from(MaterialTable)
+      .where(
+        and(
+          eq(MaterialTable.orgId, context.org.id),
+          inArray(MaterialTable.id, input.materialIds),
+          isNull(MaterialTable.deletedAt)
+        )
+      );
+
+    if (existMaterials.length === 0) {
+      throw errors.BAD_REQUEST();
+    }
+
+    const materialIds = existMaterials.map(({ id }) => id);
+
+    await context.db.transaction(async (tx) => {
+      await tx
+        .update(MaterialTable)
+        .set({
+          deletedAt: new Date(),
+          deletedBy: context.orgMember.id,
+        } satisfies UpdateMaterial)
+        .where(inArray(MaterialTable.id, materialIds));
+    });
+
+    return apiResponse(API_MESSAGES.MATERIAL.DELETE_ALL, null);
   });

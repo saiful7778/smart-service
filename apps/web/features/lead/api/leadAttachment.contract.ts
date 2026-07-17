@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -73,12 +69,9 @@ const listLeadAttachmentContract = leadBaseContract
       )
     )
   );
-export type ListLeadAttachmentInputs = InferContractRouterInputs<
+export type ListLeadAttachmentContractType = InferContractRouterType<
   typeof listLeadAttachmentContract
 >;
-export type ListLeadAttachmentOutput = InferContractRouterOutputs<
-  typeof listLeadAttachmentContract
->["data"];
 
 const leadAttachmentDeleteContract = leadBaseContract
   .route({
@@ -94,12 +87,9 @@ const leadAttachmentDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAttachmentDeleteInputs = InferContractRouterInputs<
+export type LeadAttachmentDeleteContractType = InferContractRouterType<
   typeof leadAttachmentDeleteContract
 >;
-export type LeadAttachmentDeleteOutput = InferContractRouterOutputs<
-  typeof leadAttachmentDeleteContract
->["data"];
 
 export const leadAttachmentContract = {
   list: listLeadAttachmentContract,

@@ -22,11 +22,11 @@ import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { useLeadDeleteAll } from "../../api/lead.api.hook";
-import { ListLeadOutputs } from "../../api/lead.contract";
+import { ListLeadContractType } from "../../api/lead.contract";
 import { makeLeadTableColumn } from "./leadTableColumn";
 
 interface LeadTableProps {
-  data: ListLeadOutputs;
+  data: ListLeadContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

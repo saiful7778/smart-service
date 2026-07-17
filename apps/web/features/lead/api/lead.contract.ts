@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -106,10 +102,9 @@ const listLeadContract = leadBaseContract
       )
     )
   );
-export type ListLeadInputs = InferContractRouterInputs<typeof listLeadContract>;
-export type ListLeadOutputs = InferContractRouterOutputs<
+export type ListLeadContractType = InferContractRouterType<
   typeof listLeadContract
->["data"];
+>;
 
 const leadDataExportContract = leadBaseContract
   .route({
@@ -151,12 +146,9 @@ const leadDataExportContract = leadBaseContract
       )
     )
   );
-export type LeadDataExportInputs = InferContractRouterInputs<
+export type LeadDataExportContractType = InferContractRouterType<
   typeof leadDataExportContract
 >;
-export type LeadDataExportOutputs = InferContractRouterOutputs<
-  typeof leadDataExportContract
->["data"];
 
 const listLeadForSearchContract = leadBaseContract
   .route({
@@ -189,12 +181,9 @@ const listLeadForSearchContract = leadBaseContract
       )
     )
   );
-export type ListLeadForSearchInputs = InferContractRouterInputs<
+export type ListLeadForSearchContractType = InferContractRouterType<
   typeof listLeadForSearchContract
 >;
-export type ListLeadForSearchOutputs = InferContractRouterOutputs<
-  typeof listLeadForSearchContract
->["data"];
 
 const leadUpdateContract = leadBaseContract
   .route({
@@ -209,12 +198,9 @@ const leadUpdateContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(selectLeadSchema));
-export type LeadUpdateInputs = InferContractRouterInputs<
+export type LeadUpdateContractType = InferContractRouterType<
   typeof leadUpdateContract
 >;
-export type LeadUpdateOutputs = InferContractRouterOutputs<
-  typeof leadUpdateContract
->["data"];
 
 const leadAddressUpdateContract = leadBaseContract
   .route({
@@ -230,10 +216,7 @@ const leadAddressUpdateContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAddressUpdateInputs = InferContractRouterInputs<
-  typeof leadAddressUpdateContract
->;
-export type LeadAddressUpdateOutputs = InferContractRouterInputs<
+export type LeadAddressUpdateContractType = InferContractRouterType<
   typeof leadAddressUpdateContract
 >;
 
@@ -298,12 +281,9 @@ const leadDetailsContract = leadBaseContract
         })
     )
   );
-export type LeadDetailsInputs = InferContractRouterInputs<
+export type LeadDetailsContractType = InferContractRouterType<
   typeof leadDetailsContract
 >;
-export type LeadDetailsOutputs = InferContractRouterOutputs<
-  typeof leadDetailsContract
->["data"];
 
 const leadDeleteContract = leadBaseContract
   .route({
@@ -317,10 +297,7 @@ const leadDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadDeleteInputs = InferContractRouterInputs<
-  typeof leadDeleteContract
->;
-export type LeadDeleteOutputs = InferContractRouterOutputs<
+export type LeadDeleteContractType = InferContractRouterType<
   typeof leadDeleteContract
 >;
 
@@ -336,10 +313,7 @@ const leadAllDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAllDeleteInputs = InferContractRouterInputs<
-  typeof leadAllDeleteContract
->;
-export type LeadAllDeleteOutputs = InferContractRouterOutputs<
+export type LeadAllDeleteContractType = InferContractRouterType<
   typeof leadAllDeleteContract
 >;
 
@@ -381,12 +355,9 @@ const revenueHistoryContract = leadBaseContract
       )
     )
   );
-export type RevenueHistoryInputs = InferContractRouterInputs<
+export type RevenueHistoryContractType = InferContractRouterType<
   typeof revenueHistoryContract
 >;
-export type RevenueHistoryOutputs = InferContractRouterOutputs<
-  typeof revenueHistoryContract
->["data"];
 
 export const leadContract = {
   list: listLeadContract,

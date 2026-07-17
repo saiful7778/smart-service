@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -64,12 +60,9 @@ const listMemberContract = baseContract
     })
   )
   .output(apiOutputZodSchema(paginateOutputZodSchema(userProfileSchema)));
-export type ListMemberInput = InferContractRouterInputs<
+export type ListMemberContractType = InferContractRouterType<
   typeof listMemberContract
 >;
-export type ListMemberOutput = InferContractRouterOutputs<
-  typeof listMemberContract
->["data"];
 
 const listMemberForSearchContract = baseContract
   .route({
@@ -84,12 +77,9 @@ const listMemberForSearchContract = baseContract
     })
   )
   .output(apiOutputZodSchema(z.array(userProfileSchema)));
-export type ListMemberForSearchInput = InferContractRouterInputs<
+export type ListMemberForSearchContractType = InferContractRouterType<
   typeof listMemberForSearchContract
 >;
-export type ListMemberForSearchOutput = InferContractRouterOutputs<
-  typeof listMemberForSearchContract
->["data"];
 
 const inviteMemberContract = baseContract
   .route({
@@ -99,12 +89,9 @@ const inviteMemberContract = baseContract
   })
   .input(inviteOrgMemberSchema)
   .output(apiOutputZodSchema(z.null()));
-export type InviteMemberInput = InferContractRouterInputs<
+export type InviteMemberContractType = InferContractRouterType<
   typeof inviteMemberContract
 >;
-export type InviteMemberOutput = InferContractRouterOutputs<
-  typeof inviteMemberContract
->["data"];
 
 const acceptOrRejectInvitationContract = baseContract
   .route({
@@ -119,12 +106,9 @@ const acceptOrRejectInvitationContract = baseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type AcceptInvitationInput = InferContractRouterInputs<
+export type AcceptInvitationContractType = InferContractRouterType<
   typeof acceptOrRejectInvitationContract
 >;
-export type AcceptInvitationOutput = InferContractRouterOutputs<
-  typeof acceptOrRejectInvitationContract
->["data"];
 
 const listInvitationContract = baseContract
   .route({
@@ -156,12 +140,9 @@ const listInvitationContract = baseContract
       )
     )
   );
-export type ListInvitationInput = InferContractRouterInputs<
+export type ListInvitationContractType = InferContractRouterType<
   typeof listInvitationContract
 >;
-export type ListInvitationOutput = InferContractRouterOutputs<
-  typeof listInvitationContract
->["data"];
 
 const updateMemberContract = baseContract
   .route({
@@ -171,12 +152,9 @@ const updateMemberContract = baseContract
   })
   .input(updateMemberSchema)
   .output(apiOutputZodSchema(selectOrgMemberSchema));
-export type UpdateMemberInput = InferContractRouterInputs<
+export type UpdateMemberContractType = InferContractRouterType<
   typeof updateMemberContract
 >;
-export type UpdateMemberOutput = InferContractRouterOutputs<
-  typeof updateMemberContract
->["data"];
 
 const updateInvitationContract = baseContract
   .route({
@@ -186,12 +164,9 @@ const updateInvitationContract = baseContract
   })
   .input(updateInvitationSchema)
   .output(apiOutputZodSchema(selectInvitationSchema));
-export type UpdateInvitationInput = InferContractRouterInputs<
+export type UpdateInvitationContractType = InferContractRouterType<
   typeof updateInvitationContract
 >;
-export type UpdateInvitationOutput = InferContractRouterOutputs<
-  typeof updateInvitationContract
->["data"];
 
 const deleteInvitationContract = baseContract
   .route({
@@ -205,12 +180,9 @@ const deleteInvitationContract = baseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type DeleteInvitationInput = InferContractRouterInputs<
+export type DeleteInvitationContractType = InferContractRouterType<
   typeof deleteInvitationContract
 >;
-export type DeleteInvitationOutput = InferContractRouterOutputs<
-  typeof deleteInvitationContract
->["data"];
 
 export const orgContract = {
   create: createOrgContract,
