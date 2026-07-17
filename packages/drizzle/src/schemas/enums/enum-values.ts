@@ -157,3 +157,13 @@ export const JOB_ASSIGNMENT_ROLE = [
   "supervisor", // Supervising employee
   "trainee", // Employee in training
 ] as const;
+
+export const PRIVATE_ENTITY_TYPES = [
+  "lead_attachment",
+  "job_attachment",
+  "material_file",
+  "lead_payment",
+  "job_payment",
+] as const;
+
+export const PUBLIC_ENTITY_TYPES = ["profile_image", "org_logo"] as const;

@@ -12,6 +12,8 @@ import {
   NOTIFICATION_CATEGORY,
   NOTIFICATION_LEVEL,
   PERMISSION_LEVEL,
+  PRIVATE_ENTITY_TYPES,
+  PUBLIC_ENTITY_TYPES,
   RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
@@ -70,3 +72,18 @@ export const JobAssignmentRoleEnumSchema = z.enum(JOB_ASSIGNMENT_ROLE);
 export type JobAssignmentRoleEnumType = z.infer<
   typeof JobAssignmentRoleEnumSchema
 >;
+
+export const publicEntityTypeEnumSchema = z.enum(PUBLIC_ENTITY_TYPES);
+export type PublicEntityTypeEnumType = z.infer<
+  typeof publicEntityTypeEnumSchema
+>;
+
+export const privateEntityTypeEnumSchema = z.enum(PRIVATE_ENTITY_TYPES);
+export type PrivateEntityTypeEnumType = z.infer<
+  typeof privateEntityTypeEnumSchema
+>;
+
+export const entityTypeEnumSchema = publicEntityTypeEnumSchema.or(
+  privateEntityTypeEnumSchema
+);
+export type EntityTypeEnumType = z.infer<typeof entityTypeEnumSchema>;
