@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { RefObject } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -354,6 +355,8 @@ export function useMaterialDelete({
   onError,
 }: Omit<IApiHookInput, "onValidationErrors">) {
   const toastId = "material_delete_toast_message_id";
+  const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
 
   return useMutation(
@@ -369,6 +372,9 @@ export function useMaterialDelete({
           }),
           exact: false,
         });
+        if (pathname !== "/dashboard/organization/materials") {
+          router.push("/dashboard/organization/materials");
+        }
 
         toast.success(message, { id: toastId });
 
