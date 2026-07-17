@@ -1,11 +1,12 @@
 import { eq } from "drizzle-orm";
 
 import type { DatabaseType } from "@workspace/drizzle/client";
-import { FileTable, InsertFile } from "@workspace/drizzle/schemas";
+import { FileTable } from "@workspace/drizzle/schemas";
+import { EntityTypeEnumType } from "@workspace/drizzle/zod-db-enums";
 
 export async function assignFileEntityByFileKey(
   fileKey: string,
-  inputData: Pick<InsertFile, "entityType" | "entityId">,
+  inputData: { entityType: EntityTypeEnumType; entityId: string },
   database: DatabaseType
 ) {
   await database
@@ -19,7 +20,7 @@ export async function assignFileEntityByFileKey(
 
 export async function assignFileEntityById(
   id: string,
-  inputData: Pick<InsertFile, "entityType" | "entityId">,
+  inputData: { entityType: EntityTypeEnumType; entityId: string },
   database: DatabaseType
 ) {
   await database

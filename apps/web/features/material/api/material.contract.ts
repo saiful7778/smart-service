@@ -12,6 +12,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { materialSchema } from "../material.schema";
 import { materialBaseContract } from "./material.contract-base";
@@ -33,23 +34,19 @@ const listMaterialsContract = materialBaseContract
   .output(
     apiOutputZodSchema(
       paginateOutputZodSchema(
-        selectMaterialSchema
-          .pick({
-            id: true,
-            name: true,
-            sku: true,
-            description: true,
-            unitPrice: true,
-            costPrice: true,
-            stockQuantity: true,
-            minimumStockLevel: true,
-            unit: true,
-            createdAt: true,
-            updatedAt: true,
-          })
-          .extend({
-            createdByMember: userProfileSchema,
-          })
+        selectMaterialSchema.pick({
+          id: true,
+          name: true,
+          sku: true,
+          description: true,
+          unitPrice: true,
+          costPrice: true,
+          stockQuantity: true,
+          minimumStockLevel: true,
+          unit: true,
+          createdAt: true,
+          updatedAt: true,
+        })
       )
     )
   );
@@ -60,13 +57,46 @@ export type ListMaterialOutput = InferContractRouterOutputs<
   typeof listMaterialsContract
 >["data"];
 
+const materialDetailsContract = materialBaseContract
+  .route({
+    path: "/materials/details",
+    description: "Material details",
+    tags,
+  })
+  .input(z.object({ materialId: z.uuid() }))
+  .output(
+    apiOutputZodSchema(
+      selectMaterialSchema
+        .pick({
+          id: true,
+          name: true,
+          sku: true,
+          description: true,
+          unitPrice: true,
+          costPrice: true,
+          stockQuantity: true,
+          minimumStockLevel: true,
+          unit: true,
+          createdAt: true,
+          updatedAt: true,
+        })
+        .extend({
+          imageUrl: z.string().optional(),
+          createdByMember: userProfileSchema,
+        })
+    )
+  );
+export type MaterialDetailsContractType = InferContractRouterType<
+  typeof materialDetailsContract
+>;
+
 const materialCreateContract = materialBaseContract
   .route({
     path: "/materials/create",
     description: "Create new material",
     tags,
   })
-  .input(materialSchema)
+  .input(materialSchema.extend({ fileId: z.uuid().optional() }))
   .output(apiOutputZodSchema(selectMaterialSchema));
 export type MaterialCreateInput = InferContractRouterInputs<
   typeof materialCreateContract
@@ -107,6 +137,7 @@ export type MaterialDeleteOutput = InferContractRouterOutputs<
 
 export const materialContract = {
   list: listMaterialsContract,
+  details: materialDetailsContract,
   create: materialCreateContract,
   update: materialUpdateContract,
   delete: materialDeleteContract,

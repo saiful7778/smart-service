@@ -106,7 +106,6 @@ export const listLeadAttachmentBinProcedure = leadImpl.attachment.bin.list
           originalName: FileTable.originalName,
           mimeType: FileTable.mimeType,
           size: FileTable.size,
-          url: FileTable.url,
           uploadedAt: FileTable.uploadedAt,
         },
       })

@@ -5,12 +5,11 @@ import {
 import z from "zod";
 
 import { insertFileSchema } from "@workspace/drizzle/schemas";
+import { entityTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { baseContract } from "@/server/orpc.contract-base";
-
-import { entityTypeEnumSchema } from "../determineStorageType";
 
 const uploadBaseContract = baseContract.errors({
   NOT_FOUND: {
@@ -32,7 +31,7 @@ const getSignedUploadUrlContract = uploadBaseContract
     z.object({
       filename: z.string().min(1).max(255),
       entityType: entityTypeEnumSchema,
-      mimeType: z.string().min(1),
+      path: z.string(),
     })
   )
   .output(
@@ -41,7 +40,7 @@ const getSignedUploadUrlContract = uploadBaseContract
         signedUrl: z.url(),
         key: z.string(),
         token: z.string(),
-        expiresAt: z.date(),
+        path: z.string(),
       })
     )
   );
@@ -68,6 +67,7 @@ const getSignedDownloadUrlContract = uploadBaseContract
     apiOutputZodSchema(
       z.object({
         signedUrl: z.url(),
+        expiresAt: z.date().optional(),
       })
     )
   );
@@ -95,6 +95,7 @@ const confirmUploadContract = uploadBaseContract
         entityId: true,
       })
       .extend({
+        path: z.string(),
         entityType: entityTypeEnumSchema,
       })
   )
@@ -102,7 +103,6 @@ const confirmUploadContract = uploadBaseContract
     apiOutputZodSchema(
       z.object({
         id: z.uuid(),
-        url: z.string().optional(),
         key: z.string(),
       })
     )
@@ -123,8 +123,9 @@ const assignFileEntityContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: z.string().min(1),
+      entityType: entityTypeEnumSchema,
       entityId: z.uuid(),
+      path: z.string(),
     })
   )
   .output(apiOutputZodSchema(z.null()));
@@ -145,6 +146,7 @@ const deleteUploadContract = uploadBaseContract
     z.object({
       key: z.string().min(1),
       entityType: entityTypeEnumSchema,
+      path: z.string(),
     })
   )
   .output(apiOutputZodSchema(z.null()));

@@ -11,6 +11,7 @@ import {
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadAttachmentUploadSchema } from "../lead.schema";
 import { leadBaseContract } from "./lead.contract-base";
@@ -27,12 +28,9 @@ const leadAttachmentCreateContract = leadBaseContract
   })
   .input(leadAttachmentUploadSchema.extend({ fileId: z.uuid() }))
   .output(apiOutputZodSchema(selectLeadAttachmentSchema));
-export type LeadAttachmentCreateInputs = InferContractRouterInputs<
+export type LeadAttachmentCreateContractType = InferContractRouterType<
   typeof leadAttachmentCreateContract
 >;
-export type LeadAttachmentCreateOutput = InferContractRouterOutputs<
-  typeof leadAttachmentCreateContract
->["data"];
 
 const listLeadAttachmentContract = leadBaseContract
   .route({
@@ -69,7 +67,6 @@ const listLeadAttachmentContract = leadBaseContract
               originalName: true,
               mimeType: true,
               size: true,
-              url: true,
               uploadedAt: true,
             }),
           })

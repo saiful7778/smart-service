@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { EntityTypeEnumType } from "@workspace/drizzle/zod-db-enums";
+
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
 import { useConfirmUpload, useGetUploadUrl } from "../api/upload.api.hook";
 import { ConfirmUploadOutput } from "../api/upload.contract";
-import { EntityTypeEnumType } from "../determineStorageType";
 
 export type ProgressType = {
   loaded: number;
@@ -30,16 +31,21 @@ export function useFileUploadToAPI({
   return useMutation<
     ConfirmUploadOutput,
     Error,
-    { file: File; entityType: EntityTypeEnumType; entityId?: string }
+    {
+      file: File;
+      path: string;
+      entityType: EntityTypeEnumType;
+      entityId?: string;
+    }
   >({
     mutationKey: ["upload-file"],
-    mutationFn: async ({ file, entityType, entityId }) => {
+    mutationFn: async ({ file, path, entityType, entityId }) => {
       const {
         data: { signedUrl, key },
       } = await getUploadUrl({
         filename: file.name,
-        mimeType: file.type,
         entityType,
+        path,
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -69,6 +75,7 @@ export function useFileUploadToAPI({
 
       return confirmUpload({
         key,
+        path,
         filename: file.name,
         originalName: file.name,
         mimeType: file.type,

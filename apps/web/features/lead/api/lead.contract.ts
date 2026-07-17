@@ -23,6 +23,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { createLeadSchema, leadAddressSchema } from "../lead.schema";
 import { customerContract } from "./customer.contract";
@@ -43,12 +44,9 @@ const leadCreateContract = leadBaseContract
   })
   .input(createLeadSchema)
   .output(apiOutputZodSchema(selectLeadSchema));
-export type LeadCreateInputs = InferContractRouterInputs<
+export type LeadCreateContractType = InferContractRouterType<
   typeof leadCreateContract
 >;
-export type LeadCreateOutputs = InferContractRouterOutputs<
-  typeof leadCreateContract
->["data"];
 
 const listLeadContract = leadBaseContract
   .route({

@@ -78,3 +78,5 @@ export const DEFAULT_PAGE_SIZE = 20;
 
 export const DEFAULT_INFINITE_PAGE_START = 1;
 export const DEFAULT_INFINITE_PAGE_SIZE = 10;
+
+export const DEFAULT_FILE_CACHE_TIMEOUT = 3600;

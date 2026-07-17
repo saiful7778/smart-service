@@ -33,7 +33,7 @@ export interface FileUploadValidation {
 
 export interface FileUploadProps {
   /** Current value: a URL string, a File object, or null. */
-  value?: string | string[] | File | File[] | null | undefined;
+  value: string | string[] | File | File[] | null | undefined;
   /** Called whenever the selected file changes. */
   onChange: (file: File | File[] | null | undefined) => void;
   /** Called with a validation error message when a file is rejected. */

@@ -51,7 +51,6 @@ const listLeadAttachmentBinContract = leadBaseContract
               originalName: true,
               mimeType: true,
               size: true,
-              url: true,
               uploadedAt: true,
             }),
           })

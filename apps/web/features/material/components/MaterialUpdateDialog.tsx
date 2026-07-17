@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pen } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@workspace/ui/components/button";
@@ -17,13 +14,7 @@ import {
   DialogStickyFooter,
   DialogStickyHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@workspace/ui/components/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@workspace/ui/components/tooltip";
 
 import { useMaterialUpdate } from "../api/material.api.hook";
 import { materialSchema, MaterialType } from "../material.schema";
@@ -32,15 +23,17 @@ import { MaterialForm } from "./forms/MaterialForm";
 interface MaterialUpdateDialogProps {
   materialId: string;
   initialData: MaterialType;
+  open: boolean;
+  setOpen: (value: boolean) => void;
 }
 
 export function MaterialUpdateDialog({
   materialId,
   initialData,
+  open,
+  setOpen,
 }: MaterialUpdateDialogProps) {
   "use no memo";
-  const [open, setOpen] = useState<boolean>(false);
-
   const form = useForm<MaterialType>({
     resolver: zodResolver(materialSchema),
     defaultValues: {
@@ -77,20 +70,6 @@ export function MaterialUpdateDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <DialogTrigger render={<Button size="icon" variant="outline" />} />
-          }
-        >
-          <Pen />
-          <span className="sr-only">update material</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Update</p>
-        </TooltipContent>
-      </Tooltip>
-
       <DialogResponsiveContent className="w-full sm:max-w-2xl">
         <DialogStickyHeader>
           <DialogTitle>Update Material</DialogTitle>

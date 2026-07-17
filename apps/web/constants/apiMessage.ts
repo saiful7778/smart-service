@@ -50,6 +50,7 @@ export const API_MESSAGES = {
     GET_ALL: "Users loaded successfully.",
     GET_STATS: "User statistics loaded successfully.",
     GET_DETAILS: "User details loaded successfully.",
+    PROFILE_UPDATE: "Profile updated successfully.",
     UPDATE: "User updated successfully.",
     NOT_FOUND: "User not found.",
     NOT_MATCHED: "User information doesn't match our records.",
@@ -155,6 +156,7 @@ export const API_MESSAGES = {
   },
   MATERIAL: {
     GET_ALL: "Materials loaded successfully.",
+    GET_DETAILS: "Materials details loaded successfully.",
     CREATE: "Material created successfully.",
     UPDATE: "Material updated successfully.",
     EXIST_SKU: "Material sku is already exist",

@@ -1,15 +1,22 @@
+import { RefObject } from "react";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { downloadFile } from "@workspace/ui/lib/downloadFile";
 
+import { FileUploadRef } from "@/components/FileUpload";
+
 import {
   DEFAULT_INFINITE_PAGE_SIZE,
   DEFAULT_INFINITE_PAGE_START,
 } from "@/constants";
+import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
+
+import { LeadAttachmentCreateContractType } from "./leadAttachment.contract";
 
 export function useLeadCreate<TFieldNames>({
   onRequestStart,
@@ -631,52 +638,80 @@ export function useLeadNoteDelete({
 }
 
 export function useLeadAttachmentCreate<TFieldNames>({
+  uploadRef,
   onRequestStart,
   onRequestEnd,
   onSuccess,
   onError,
   onValidationErrors,
-}: IApiHookInput<TFieldNames>) {
+}: IApiHookInput<TFieldNames> & {
+  uploadRef: RefObject<FileUploadRef | null>;
+}) {
   const toastId = "upload_attachment_toast_message";
   const queryclient = useQueryClient();
 
-  return useMutation(
-    orpcTQClient.lead.attachment.create.mutationOptions({
-      onMutate: () => {
-        toast.loading("Uploading...", { id: toastId });
-        onRequestStart?.();
-      },
-      onSuccess: async ({ message }, { leadId, jobId }) => {
-        toast.success(message, { id: toastId });
-
-        await queryclient.invalidateQueries({
-          queryKey: orpcTQClient.lead.attachment.list.queryKey({
-            input: { leadId, jobId },
-          }),
-          exact: false,
-        });
-
-        onSuccess?.(message);
-      },
-      onError: (error) => {
-        const { message, type, fieldErrors } =
-          formatOrpcError<TFieldNames>(error);
-
-        if (type === "validation") {
-          onValidationErrors?.(fieldErrors ?? []);
-        }
-
-        toast.error(message ?? "Failed to upload attachment", {
-          id: toastId,
-        });
-
-        onError?.(message);
-      },
-      onSettled: () => {
-        onRequestEnd?.();
-      },
-    })
+  const { mutateAsync: createAttachment } = useMutation(
+    orpcTQClient.lead.attachment.create.mutationOptions()
   );
+  const { mutateAsync: uploadFile } = useFileUploadToAPI({
+    onSuccess: () => {
+      uploadRef.current?.clearFiles();
+      uploadRef.current?.clearErrors();
+    },
+  });
+
+  return useMutation<
+    LeadAttachmentCreateContractType["output"],
+    Error,
+    Omit<LeadAttachmentCreateContractType["input"], "fileId"> & {
+      fileValue: File | File[];
+    }
+  >({
+    mutationKey: ["attachment-create"],
+    mutationFn: async ({ fileValue, ...restInput }) => {
+      const { data } = await uploadFile({
+        file: Array.isArray(fileValue) ? fileValue[0]! : fileValue,
+        entityId: (restInput.jobId ?? restInput.leadId)!,
+        entityType: restInput.jobId ? "job_attachment" : "lead_attachment",
+        path: restInput.jobId ? "job_attachment" : "lead_attachment",
+      });
+
+      return createAttachment({ ...restInput, fileId: data.id });
+    },
+    onMutate: () => {
+      toast.loading("Uploading...", { id: toastId });
+      onRequestStart?.();
+    },
+    onSuccess: async ({ message }, { leadId, jobId }) => {
+      toast.success(message, { id: toastId });
+
+      await queryclient.invalidateQueries({
+        queryKey: orpcTQClient.lead.attachment.list.queryKey({
+          input: { leadId, jobId },
+        }),
+        exact: false,
+      });
+
+      onSuccess?.(message);
+    },
+    onError: (error) => {
+      const { message, type, fieldErrors } =
+        formatOrpcError<TFieldNames>(error);
+
+      if (type === "validation") {
+        onValidationErrors?.(fieldErrors ?? []);
+      }
+
+      toast.error(message ?? "Failed to upload attachment", {
+        id: toastId,
+      });
+
+      onError?.(message);
+    },
+    onSettled: () => {
+      onRequestEnd?.();
+    },
+  });
 }
 
 export function useLeadAttachmentDelete({

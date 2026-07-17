@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
@@ -40,9 +42,14 @@ export const materialTableColumn: ColumnType<MaterialTableRowDataType> = [
     ),
     cell: ({ row, getValue }) => (
       <div>
-        <div className="font-medium text-sm text-foreground leading-none hover:underline">
+        <Link
+          href={{
+            pathname: `/dashboard/organization/materials/${row.original.id}`,
+          }}
+          className="font-medium text-sm text-foreground leading-none hover:underline"
+        >
           {getValue<MaterialTableRowDataType["name"]>()}
-        </div>
+        </Link>
         <div className="text-muted-foreground">{row.original.sku}</div>
       </div>
     ),

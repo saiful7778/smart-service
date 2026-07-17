@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 
 import { Asterisk, Info } from "lucide-react";
 
@@ -14,20 +14,20 @@ import {
 import { FileUpload, FileUploadProps, FileUploadRef } from "../FileUpload";
 
 interface FileUploadFieldProps extends FileUploadProps {
-  label?: string;
   ref?: React.Ref<FileUploadRef> | undefined;
-  requiredField?: boolean;
+  label?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
+  requiredField?: boolean;
   fieldError?: string | null | undefined;
 }
 
 export function FileUploadField({
   label,
   disabled,
-  requiredField,
   description,
   isDescriptionInfoIconShow,
+  requiredField,
   fieldError,
   ...props
 }: FileUploadFieldProps) {
@@ -55,4 +55,15 @@ export function FileUploadField({
       {fieldError && <FieldError errors={[{ message: fieldError }]} />}
     </Field>
   );
+}
+
+export function useFileUploadState() {
+  "use no memo";
+  const [fileValue, setFileValue] = useState<File | File[] | null | undefined>(
+    () => null
+  );
+  const [fileError, setFileError] = useState<string | null>(null);
+  const uploadRef = useRef<FileUploadRef>(null);
+
+  return { fileValue, setFileValue, fileError, setFileError, uploadRef };
 }

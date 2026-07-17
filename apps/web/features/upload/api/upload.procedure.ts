@@ -6,6 +6,7 @@ import { apiResponse } from "@workspace/lib/utils";
 
 import { privateStorage, publicStorage } from "@/lib/storage";
 
+import { DEFAULT_FILE_CACHE_TIMEOUT } from "@/constants";
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { authMiddleware } from "@/server/middleware/auth.middleware";
 import { errorMiddleware } from "@/server/middleware/error.middleware";
@@ -27,65 +28,80 @@ export const getSignedUploadUrlProcedure =
   uploadImpl.getSignedUploadUrl.handler(async ({ input }) => {
     const storageType = determineStorageType(input.entityType);
 
-    let signedUrl: {
-      signedUrl: string;
-      key: string;
-      token: string;
-      expiresAt: Date;
-    };
+    const storage = storageType === "public" ? publicStorage : privateStorage;
 
-    if (storageType === "private") {
-      signedUrl = await privateStorage.getSignedUploadUrl(
-        input.filename,
-        input.entityType
-      );
-    } else {
-      signedUrl = await publicStorage.getSignedUploadUrl(
-        input.filename,
-        input.entityType
-      );
-    }
+    const signedUrl = await storage.getSignedUploadUrl(
+      input.filename,
+      input.path
+    );
 
     return apiResponse(API_MESSAGES.UPLOAD.GET_SIGNED_URL, {
       signedUrl: signedUrl.signedUrl,
       key: signedUrl.key,
       token: signedUrl.token,
-      expiresAt: signedUrl.expiresAt,
+      path: signedUrl.path,
     });
   });
 
 export const getSignedDownloadUrlProcedure =
-  uploadImpl.getSignedDownloadUrl.handler(async ({ input }) => {
+  uploadImpl.getSignedDownloadUrl.handler(async ({ input, context }) => {
     const storageType = determineStorageType(input.entityType);
-    let signedUrl: string;
 
-    if (storageType === "private") {
-      signedUrl = await privateStorage.getSignedDownloadUrl(
-        input.key,
-        input.entityType
-      );
+    const cacheKey = `signed_url:${storageType}:${input.key}`;
+    const imageUrlCache = await context.redisClient.get<string>(cacheKey);
+
+    let signedUrl: {
+      signedUrl: string;
+      expiresAt?: Date;
+    };
+
+    if (imageUrlCache) {
+      signedUrl = {
+        signedUrl: imageUrlCache,
+        expiresAt: undefined,
+      };
     } else {
-      signedUrl = await publicStorage.getSignedDownloadUrl(
+      const storage = storageType === "public" ? publicStorage : privateStorage;
+      signedUrl = await storage.getSignedDownloadUrl(
         input.key,
         input.entityType
       );
+
+      if (storageType === "private") {
+        let ttl = DEFAULT_FILE_CACHE_TIMEOUT;
+
+        if (signedUrl.expiresAt) {
+          const expiresInSeconds = Math.floor(
+            signedUrl.expiresAt.getTime() / 1000
+          );
+          const nowInSeconds = Math.floor(Date.now() / 1000);
+
+          ttl = expiresInSeconds - nowInSeconds - 60;
+
+          if (ttl < 60) ttl = 300;
+        }
+        await context.redisClient.set(cacheKey, signedUrl.signedUrl, {
+          ex: ttl,
+        });
+      } else {
+        await context.redisClient.set(cacheKey, signedUrl.signedUrl);
+      }
     }
 
     return apiResponse(API_MESSAGES.UPLOAD.GET_DOWNLOAD_URL, {
-      signedUrl,
+      signedUrl: signedUrl.signedUrl,
+      expiresAt: signedUrl?.expiresAt,
     });
   });
 
 export const confirmUploadProcedure = uploadImpl.confirm.handler(
-  async ({ input, context }) => {
+  async ({ input, context, errors }) => {
     const storageType = determineStorageType(input.entityType);
+    const storage = storageType === "public" ? publicStorage : privateStorage;
 
-    let url: string | undefined = undefined;
-    if (storageType === "public") {
-      url = await publicStorage.getSignedDownloadUrl(
-        input.key,
-        input.entityType
-      );
+    const fileInfo = await storage.find(input.key, input.path);
+    if (!fileInfo) {
+      throw errors.NOT_FOUND();
     }
 
     const [newFile] = await context.db
@@ -99,7 +115,6 @@ export const confirmUploadProcedure = uploadImpl.confirm.handler(
         uploadedBy: context.user.id,
         entityType: input.entityType,
         entityId: input.entityId,
-        ...(url && { url }),
       })
       .returning({ id: FileTable.id });
 
@@ -109,8 +124,18 @@ export const confirmUploadProcedure = uploadImpl.confirm.handler(
       });
     }
 
+    if (storageType === "public") {
+      const fileDownloadUrl = await storage.getSignedDownloadUrl(
+        input.key,
+        input.path
+      );
+
+      const cacheKey = `signed_url:${storageType}:${input.key}`;
+
+      await context.redisClient.set(cacheKey, fileDownloadUrl);
+    }
+
     return apiResponse(API_MESSAGES.UPLOAD.CONFIRM_UPLOAD, {
-      url,
       key: input.key,
       id: newFile.id,
     });
@@ -126,6 +151,15 @@ export const assignFileEntityProcedure = uploadImpl.assignEntity.handler(
       .limit(1);
 
     if (!existFile) {
+      throw errors.NOT_FOUND();
+    }
+
+    const storageType = determineStorageType(input.entityType);
+
+    const storage = storageType === "public" ? publicStorage : privateStorage;
+
+    const isExist = await storage.exists(input.key, input.path);
+    if (!isExist) {
       throw errors.NOT_FOUND();
     }
 
@@ -156,12 +190,14 @@ export const deleteUploadProcedure = uploadImpl.delete.handler(
     }
 
     const storageType = determineStorageType(input.entityType);
+    const storage = storageType === "public" ? publicStorage : privateStorage;
 
-    if (storageType === "public") {
-      await publicStorage.delete(existFile.key, input.entityType);
-    } else {
-      await privateStorage.delete(existFile.key, input.entityType);
+    const isExist = await storage.exists(input.key, input.path);
+    if (!isExist) {
+      throw errors.NOT_FOUND();
     }
+
+    await storage.delete(existFile.key, input.path);
 
     await context.db.delete(FileTable).where(eq(FileTable.id, existFile.id));
 

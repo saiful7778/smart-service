@@ -4,7 +4,7 @@ import {
 } from "@orpc/contract";
 import z from "zod";
 
-import { selectUserSchema, updateUserSchema } from "@workspace/drizzle/schemas";
+import { selectUserSchema } from "@workspace/drizzle/schemas";
 import {
   apiOutputZodSchema,
   exportDataInputZodSchema,
@@ -15,9 +15,10 @@ import {
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { baseContract } from "@/server/orpc.contract-base";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { roleSqlSchema } from "../user.api-schema";
-import { roleUpdateSchema } from "../user.schema";
+import { profileUpdateSchema, roleUpdateSchema } from "../user.schema";
 
 const userBaseContract = baseContract.errors({
   NOT_FOUND: {
@@ -83,26 +84,19 @@ export type UserStatsOutput = InferContractRouterOutputs<
   typeof userStatsContract
 >["data"];
 
-const updateUserContract = userBaseContract
+const profileUpdateContract = baseContract
   .route({
-    path: "/users/update",
-    description: "Update user",
+    path: "/auth/profile-update",
+    description: "Update profile",
     tags,
   })
-  .input(
-    updateUserSchema.extend({
-      userId: z.uuid(),
-    })
-  )
+  .input(profileUpdateSchema.extend({ imageId: z.uuid().optional() }))
   .output(apiOutputZodSchema(selectUserSchema));
-export type UpdateUserContractInput = InferContractRouterInputs<
-  typeof updateUserContract
+export type ProfileUpdateContractType = InferContractRouterType<
+  typeof profileUpdateContract
 >;
-export type UpdateUserContractOutput = InferContractRouterOutputs<
-  typeof updateUserContract
->["data"];
 
-const updateUserRoleContract = userBaseContract
+const userRoleUpdateContract = userBaseContract
   .route({
     path: "/users/update/role",
     description: "Update role",
@@ -110,12 +104,9 @@ const updateUserRoleContract = userBaseContract
   })
   .input(roleUpdateSchema)
   .output(apiOutputZodSchema(z.null()));
-export type UpdateUserRoleContractInput = InferContractRouterInputs<
-  typeof updateUserRoleContract
+export type UserRoleUpdateContractType = InferContractRouterType<
+  typeof userRoleUpdateContract
 >;
-export type UpdateUserRoleContractOutput = InferContractRouterOutputs<
-  typeof updateUserRoleContract
->["data"];
 
 const userDataExportContract = userBaseContract
   .route({
@@ -170,7 +161,7 @@ export const userContract = {
   list: listUserContract,
   export: userDataExportContract,
   stats: userStatsContract,
-  update: updateUserContract,
-  updateRole: updateUserRoleContract,
+  updateRole: userRoleUpdateContract,
+  updateProfile: profileUpdateContract,
   details: userDetailsContract,
 };

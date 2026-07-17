@@ -19,6 +19,7 @@ import {
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
 import { baseContract } from "@/server/orpc.contract-base";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import {
   createOrgSchema,
@@ -36,7 +37,7 @@ const createOrgContract = baseContract
     description: "Create new organization",
     tags,
   })
-  .input(createOrgSchema)
+  .input(createOrgSchema.extend({ imageId: z.uuid().optional() }))
   .output(
     apiOutputZodSchema(
       selectOrganizationSchema.pick({
@@ -46,12 +47,9 @@ const createOrgContract = baseContract
       })
     )
   );
-export type CreateOrgInput = InferContractRouterInputs<
+export type CreateOrgContractType = InferContractRouterType<
   typeof createOrgContract
 >;
-export type CreateOrgOutput = InferContractRouterOutputs<
-  typeof createOrgContract
->["data"];
 
 const listMemberContract = baseContract
   .route({

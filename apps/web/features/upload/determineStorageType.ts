@@ -1,29 +1,16 @@
-import z from "zod";
-
-export const PRIVATE_ENTITY_TYPES = [
-  "lead_attachment",
-  "job_attachment",
-  "material_file",
-  "lead_payment",
-  "job_payment",
-] as const;
-export type PrivateEntityType = (typeof PRIVATE_ENTITY_TYPES)[number];
-
-export const PUBLIC_ENTITY_TYPES = ["profile_image", "org_logo"] as const;
-export type PublicEntityType = (typeof PUBLIC_ENTITY_TYPES)[number];
-
-export const entityTypeEnumSchema = z
-  .enum(PRIVATE_ENTITY_TYPES)
-  .or(z.enum(PUBLIC_ENTITY_TYPES));
-export type EntityTypeEnumType = z.infer<typeof entityTypeEnumSchema>;
+import {
+  EntityTypeEnumType,
+  privateEntityTypeEnumSchema,
+  publicEntityTypeEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 
 export function determineStorageType(
-  entityType: PrivateEntityType | PublicEntityType
+  entityType: EntityTypeEnumType
 ): "public" | "private" {
-  if (PRIVATE_ENTITY_TYPES.includes(entityType as PrivateEntityType)) {
+  if (privateEntityTypeEnumSchema.safeParse(entityType)) {
     return "private";
   }
-  if (PUBLIC_ENTITY_TYPES.includes(entityType as PublicEntityType)) {
+  if (publicEntityTypeEnumSchema.safeParse(entityType)) {
     return "public";
   }
 

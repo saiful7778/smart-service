@@ -61,7 +61,7 @@ export function MaterialTable({
       <DataTableToolbar table={table}>
         {isAllowCreate && (
           <Button
-            nativeButton={true}
+            nativeButton={false}
             render={
               <Link
                 href={{ pathname: "/dashboard/organization/materials/create" }}
