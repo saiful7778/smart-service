@@ -1,10 +1,14 @@
 import type { NextRequest } from "next/server";
 
-import type { InferRouterOutputs } from "@orpc/server";
-import type { AnyRouter } from "@orpc/server";
+import type {
+  AnyContractRouter,
+  InferContractRouterInputs,
+  InferContractRouterOutputs,
+} from "@orpc/contract";
 
 import type { DatabaseType } from "@workspace/drizzle/client";
 import type { PinoLoggerType } from "@workspace/lib/logger";
+import { ExtendedRedis } from "@workspace/lib/redis";
 import type { ServerSupabaseClient } from "@workspace/lib/supabase/server-client";
 
 import type {
@@ -14,12 +18,10 @@ import type {
   RoleWithOrg,
 } from "@/types";
 
-export type InferProcedureOutput<T extends AnyRouter> =
-  InferRouterOutputs<T>["data"];
-
 export interface ORPCContext {
   reqHeaders: Readonly<NextRequest["headers"]>;
   db: Readonly<DatabaseType>;
+  redisClient: ExtendedRedis;
   logger: PinoLoggerType;
   user: AuthUser | null;
   session: AuthSession | null;
@@ -27,3 +29,8 @@ export interface ORPCContext {
   permissions: Array<PermissionWithOrg> | null;
   supabaseClient: ServerSupabaseClient;
 }
+
+export type InferContractRouterType<T extends AnyContractRouter> = {
+  input: InferContractRouterInputs<T>;
+  output: InferContractRouterOutputs<T>;
+};

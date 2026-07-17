@@ -6,6 +6,7 @@ import { createRouterClient } from "@orpc/server";
 
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { redisClient } from "@/lib/redis-client";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 
 import { router } from "./orpc.router";
@@ -21,6 +22,7 @@ export const orpcServerClient = createRouterClient(router, {
   context: async () => ({
     reqHeaders: await headers(),
     db,
+    redisClient,
     logger,
     user: null,
     session: null,
