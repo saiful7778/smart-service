@@ -27,6 +27,7 @@ import { JobTable } from "../job";
 import { OrganizationMemberTable, OrganizationTable } from "../org";
 import { LeadAttachmentTable } from "./leadAttachment.table";
 import { LeadCategoryJoinTable } from "./leadCategoryJoin.table";
+import { LeadEstimateTable } from "./leadEstimate.table";
 import { LeadNoteTable } from "./leadNote.table";
 import { LeadRevenueHistoryTable } from "./leadRevenueHistory.table";
 
@@ -104,7 +105,6 @@ export const LeadRelations = relations(LeadTable, ({ one, many }) => ({
     references: [CustomerTable.id],
     relationName: "LeadToCustomer",
   }),
-
   createdByMember: one(OrganizationMemberTable, {
     fields: [LeadTable.createdBy],
     references: [OrganizationMemberTable.id],
@@ -120,7 +120,6 @@ export const LeadRelations = relations(LeadTable, ({ one, many }) => ({
     references: [OrganizationMemberTable.id],
     relationName: "LeadToDeletedBy",
   }),
-
   addresses: many(LeadAddressTable, {
     relationName: "LeadAddressToLead",
   }),
@@ -138,6 +137,9 @@ export const LeadRelations = relations(LeadTable, ({ one, many }) => ({
   }),
   jobs: many(JobTable, {
     relationName: "JobToLead",
+  }),
+  leadEstimates: many(LeadEstimateTable, {
+    relationName: "LeadEstimateToLead",
   }),
 }));
 

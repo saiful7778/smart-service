@@ -1,9 +1,10 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
 CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."JobAssignmentRoleEnum" AS ENUM('primary', 'secondary', 'supervisor', 'trainee');
 CREATE TYPE "public"."JobAssignmentStatusEnum" AS ENUM('active', 'completed', 'cancelled', 'pending', 'declined');
 CREATE TYPE "public"."JobStatusEnum" AS ENUM('draft', 'scheduled', 'in_progress', 'on_hold', 'needs_review', 'completed', 'cancelled');
+CREATE TYPE "public"."LeadEstimateStatusEnum" AS ENUM('draft', 'approved', 'sent', 'viewed', 'accepted', 'declined', 'expired', 'cancelled', 'converted');
 CREATE TYPE "public"."LeadRevenueTypeEnum" AS ENUM('expected', 'invoiced', 'received');
 CREATE TYPE "public"."LeadSourceEnum" AS ENUM('manual', 'webhook', 'iframe');
 CREATE TYPE "public"."LeadStatusEnum" AS ENUM('new', 'contacted', 'qualified', 'nurture', 'converted', 'lost', 'cancelled', 'disqualified');
@@ -71,7 +72,6 @@ CREATE TABLE "files" (
 	"original_name" varchar(255) NOT NULL,
 	"mime_type" varchar(127) NOT NULL,
 	"size" bigint NOT NULL,
-	"url" text,
 	"uploaded_by" uuid,
 	"entity_type" varchar(50),
 	"entity_id" uuid,
@@ -361,6 +361,41 @@ CREATE TABLE "lead_category_joins" (
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
+CREATE TABLE "lead_estimates" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"lead_id" uuid,
+	"job_id" uuid,
+	"name" varchar(255) NOT NULL,
+	"description" text,
+	"status" "LeadEstimateStatusEnum" DEFAULT 'draft' NOT NULL,
+	"discount" numeric(12, 2) DEFAULT '0',
+	"tax_rate" numeric(5, 2) DEFAULT '0',
+	"subtotal" numeric(12, 2) DEFAULT '0',
+	"tax_amount" numeric(12, 2) DEFAULT '0',
+	"total_amount" numeric(12, 2) DEFAULT '0' NOT NULL,
+	"valid_until" timestamp (3) with time zone,
+	"notes" text,
+	"terms" text,
+	"created_by" uuid,
+	"updated_by" uuid,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp (3) with time zone,
+	"deleted_by" uuid
+);
+
+CREATE TABLE "lead_estimate_materials" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"estimate_id" uuid NOT NULL,
+	"material_id" uuid NOT NULL,
+	"quantity" numeric(12, 2) NOT NULL,
+	"total_price" numeric(12, 2) NOT NULL,
+	"notes" text,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
 CREATE TABLE "materials" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"org_id" uuid NOT NULL,
@@ -611,6 +646,14 @@ ALTER TABLE "lead_categories" ADD CONSTRAINT "lead_category_created_by_fkey" FOR
 ALTER TABLE "lead_categories" ADD CONSTRAINT "lead_category_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "lead_category_joins" ADD CONSTRAINT "lead_category_join_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "lead_category_joins" ADD CONSTRAINT "lead_category_join_lead_category_fkey" FOREIGN KEY ("lead_category_id") REFERENCES "public"."lead_categories"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "lead_estimate_materials" ADD CONSTRAINT "lead_estimate_material_estimate_fkey" FOREIGN KEY ("estimate_id") REFERENCES "public"."lead_estimates"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "lead_estimate_materials" ADD CONSTRAINT "lead_estimate_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "materials" ADD CONSTRAINT "material_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "materials" ADD CONSTRAINT "material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "materials" ADD CONSTRAINT "material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
@@ -763,6 +806,18 @@ CREATE INDEX "lead_category_created_at_idx" ON "lead_categories" USING btree ("c
 CREATE UNIQUE INDEX "lead_category_join_unique" ON "lead_category_joins" USING btree ("lead_id","lead_category_id");
 CREATE INDEX "lead_category_join_lead_id_idx" ON "lead_category_joins" USING btree ("lead_id");
 CREATE INDEX "lead_category_join_lead_category_id_idx" ON "lead_category_joins" USING btree ("lead_category_id");
+CREATE INDEX "lead_estimate_org_id_idx" ON "lead_estimates" USING btree ("org_id");
+CREATE INDEX "lead_estimate_lead_id_idx" ON "lead_estimates" USING btree ("lead_id");
+CREATE INDEX "lead_estimate_job_id_idx" ON "lead_estimates" USING btree ("job_id");
+CREATE INDEX "lead_estimate_status_idx" ON "lead_estimates" USING btree ("status");
+CREATE INDEX "lead_estimate_created_at_idx" ON "lead_estimates" USING btree ("created_at");
+CREATE INDEX "lead_estimate_created_by_idx" ON "lead_estimates" USING btree ("created_by");
+CREATE INDEX "lead_estimate_deleted_by_idx" ON "lead_estimates" USING btree ("deleted_by");
+CREATE INDEX "lead_estimate_deleted_at_idx" ON "lead_estimates" USING btree ("deleted_at");
+CREATE INDEX "lead_estimate_material_estimate_id_idx" ON "lead_estimate_materials" USING btree ("estimate_id");
+CREATE INDEX "lead_estimate_material_material_id_idx" ON "lead_estimate_materials" USING btree ("material_id");
+CREATE INDEX "lead_estimate_material_quantity_idx" ON "lead_estimate_materials" USING btree ("quantity");
+CREATE INDEX "lead_estimate_material_created_at_idx" ON "lead_estimate_materials" USING btree ("created_at");
 CREATE INDEX "material_org_id_idx" ON "materials" USING btree ("org_id");
 CREATE INDEX "material_created_by_idx" ON "materials" USING btree ("created_by");
 CREATE INDEX "material_updated_by_idx" ON "materials" USING btree ("updated_by");

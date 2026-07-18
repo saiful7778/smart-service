@@ -6,6 +6,7 @@ import {
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
+  LEAD_ESTIMATE_STATUS,
   LEAD_REVENUE_TYPE,
   LEAD_SOURCE,
   LEAD_STATUS,
@@ -87,3 +88,8 @@ export const entityTypeEnumSchema = publicEntityTypeEnumSchema.or(
   privateEntityTypeEnumSchema
 );
 export type EntityTypeEnumType = z.infer<typeof entityTypeEnumSchema>;
+
+export const leadEstimateStatusEnumSchema = z.enum(LEAD_ESTIMATE_STATUS);
+export type LeadEstimateStatusEnumType = z.infer<
+  typeof leadEstimateStatusEnumSchema
+>;
