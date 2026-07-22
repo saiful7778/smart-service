@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { Asterisk } from "lucide-react";
 import {
@@ -31,6 +31,7 @@ interface PhoneInputFieldProps<
   requiredField?: boolean;
   defaultCountry?: Country;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function PhoneInputField<TFieldValues extends FieldValues>({
@@ -41,6 +42,7 @@ function PhoneInputField<TFieldValues extends FieldValues>({
   requiredField = false,
   disabled,
   onValueChange,
+  valueModifier,
   ...props
 }: PhoneInputFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -62,6 +64,7 @@ function PhoneInputField<TFieldValues extends FieldValues>({
             field={field}
             fieldState={fieldState}
             onValueChange={onValueChange}
+            valueModifier={valueModifier}
             id={fieldId}
             {...props}
           />
@@ -87,6 +90,7 @@ interface PhoneInputFieldRenderProps<
   fieldState: ControllerFieldState;
   id: string;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function PhoneInputFieldRender<TFieldValues extends FieldValues>({
@@ -94,9 +98,15 @@ function PhoneInputFieldRender<TFieldValues extends FieldValues>({
   fieldState,
   id,
   onValueChange,
+  valueModifier,
   disabled = false,
   ...props
 }: PhoneInputFieldRenderProps<TFieldValues>) {
+  const filedValue = useMemo(
+    () => (valueModifier ? valueModifier(field.value) : field.value),
+    [field, valueModifier]
+  );
+
   const handleChange = useCallback(
     (value: string) => {
       field.onChange(value);
@@ -109,6 +119,7 @@ function PhoneInputFieldRender<TFieldValues extends FieldValues>({
     <PhoneInput
       {...props}
       {...field}
+      value={filedValue}
       onChange={handleChange}
       id={id}
       aria-invalid={fieldState.invalid}

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useId } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { Asterisk } from "lucide-react";
 import {
@@ -28,6 +28,7 @@ interface PasswordInputFieldProps<
   description?: string;
   requiredField?: boolean;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function PasswordInputField<TFieldValues extends FieldValues>({
@@ -38,6 +39,7 @@ function PasswordInputField<TFieldValues extends FieldValues>({
   requiredField = false,
   disabled = false,
   onValueChange,
+  valueModifier,
   ...props
 }: PasswordInputFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -60,6 +62,7 @@ function PasswordInputField<TFieldValues extends FieldValues>({
             fieldState={fieldState}
             id={fieldId}
             onValueChange={onValueChange}
+            valueModifier={valueModifier}
             disabled={disabled}
             {...props}
           />
@@ -85,6 +88,7 @@ interface PasswordInputFieldRenderProps<
   fieldState: ControllerFieldState;
   id: string;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function PasswordInputFieldRender<TFieldValues extends FieldValues>({
@@ -92,9 +96,15 @@ function PasswordInputFieldRender<TFieldValues extends FieldValues>({
   fieldState,
   id,
   onValueChange,
+  valueModifier,
   disabled = false,
   ...props
 }: PasswordInputFieldRenderProps<TFieldValues>) {
+  const filedValue = useMemo(
+    () => (valueModifier ? valueModifier(field.value) : field.value),
+    [field, valueModifier]
+  );
+
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
@@ -111,6 +121,7 @@ function PasswordInputFieldRender<TFieldValues extends FieldValues>({
   return (
     <PasswordInput
       {...field}
+      value={filedValue}
       onChange={handleChange}
       {...props}
       id={id}

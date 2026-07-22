@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { Asterisk, Info } from "lucide-react";
 import {
@@ -26,6 +26,7 @@ interface InputFieldProps<
   name: Path<TFieldValues>;
   control: Control<TFieldValues>;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
   label?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
@@ -36,6 +37,7 @@ function InputField<TFieldValues extends FieldValues>({
   name,
   control,
   onValueChange,
+  valueModifier,
   label,
   description,
   isDescriptionInfoIconShow = false,
@@ -63,6 +65,7 @@ function InputField<TFieldValues extends FieldValues>({
             fieldState={fieldState}
             id={fieldId}
             onValueChange={onValueChange}
+            valueModifier={valueModifier}
             disabled={disabled}
             {...props}
           />
@@ -89,6 +92,7 @@ interface InputFieldRenderProps<
   fieldState: ControllerFieldState;
   id: string;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function InputFieldRender<TFieldValues extends FieldValues>({
@@ -96,9 +100,15 @@ function InputFieldRender<TFieldValues extends FieldValues>({
   fieldState,
   id,
   onValueChange,
+  valueModifier,
   disabled = false,
   ...props
 }: InputFieldRenderProps<TFieldValues>) {
+  const filedValue = useMemo(
+    () => (valueModifier ? valueModifier(field.value) : field.value),
+    [field, valueModifier]
+  );
+
   const handleOnChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
       event.preventDefault();
@@ -115,6 +125,7 @@ function InputFieldRender<TFieldValues extends FieldValues>({
   return (
     <Input
       {...field}
+      value={filedValue}
       onChange={handleOnChange}
       {...props}
       id={id}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { Asterisk, Info } from "lucide-react";
 import {
@@ -36,6 +36,7 @@ interface InputAddonFieldProps<
   firstAddon?: React.ReactNode;
   secondAddon?: React.ReactNode;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
 }
 
 function InputAddonField<TFieldValues extends FieldValues>({
@@ -49,6 +50,7 @@ function InputAddonField<TFieldValues extends FieldValues>({
   firstAddon,
   secondAddon,
   onValueChange,
+  valueModifier,
   ...props
 }: InputAddonFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -71,6 +73,7 @@ function InputAddonField<TFieldValues extends FieldValues>({
             fieldState={fieldState}
             id={fieldId}
             onValueChange={onValueChange}
+            valueModifier={valueModifier}
             disabled={disabled}
             firstAddon={firstAddon}
             secondAddon={secondAddon}
@@ -99,6 +102,7 @@ interface InputAddonFieldRenderProps<
   fieldState: ControllerFieldState;
   id: string;
   onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
   firstAddon?: React.ReactNode;
   secondAddon?: React.ReactNode;
 }
@@ -108,11 +112,17 @@ function InputAddonFieldRender<TFieldValues extends FieldValues>({
   fieldState,
   id,
   onValueChange,
+  valueModifier,
   disabled = false,
   firstAddon,
   secondAddon,
   ...props
 }: InputAddonFieldRenderProps<TFieldValues>) {
+  const filedValue = useMemo(
+    () => (valueModifier ? valueModifier(field.value) : field.value),
+    [field, valueModifier]
+  );
+
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
@@ -130,6 +140,7 @@ function InputAddonFieldRender<TFieldValues extends FieldValues>({
     <InputGroup>
       <InputGroupInput
         {...field}
+        value={filedValue}
         onChange={handleChange}
         {...props}
         id={id}
