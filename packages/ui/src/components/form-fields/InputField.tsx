@@ -25,7 +25,7 @@ interface InputFieldProps<
 > extends React.ComponentProps<"input"> {
   name: Path<TFieldValues>;
   control: Control<TFieldValues>;
-  onInputChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
   label?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
@@ -35,28 +35,48 @@ interface InputFieldProps<
 function InputField<TFieldValues extends FieldValues>({
   name,
   control,
-  onInputChange,
+  onValueChange,
   label,
   description,
   isDescriptionInfoIconShow = false,
   requiredField = false,
+  disabled = false,
   ...props
 }: InputFieldProps<TFieldValues>) {
+  const fieldId = useId();
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <InputFieldRender
-          field={field}
-          fieldState={fieldState}
-          onInputChange={onInputChange}
-          label={label}
-          description={description}
-          isDescriptionInfoIconShow={isDescriptionInfoIconShow}
-          requiredField={requiredField}
-          {...props}
-        />
+        <Field data-invalid={fieldState.invalid}>
+          {label && (
+            <FieldLabel htmlFor={fieldId} aria-disabled={disabled}>
+              {label}
+              {requiredField && (
+                <Asterisk className="-mt-2 size-3 text-destructive" />
+              )}
+            </FieldLabel>
+          )}
+          <InputFieldRender
+            field={field}
+            fieldState={fieldState}
+            id={fieldId}
+            onValueChange={onValueChange}
+            disabled={disabled}
+            {...props}
+          />
+          {description && (
+            <FieldDescription
+              className="flex items-start gap-1.5"
+              aria-disabled={disabled}
+            >
+              {isDescriptionInfoIconShow && <Info className="mt-0.5 size-4" />}
+              {description}
+            </FieldDescription>
+          )}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );
@@ -67,26 +87,18 @@ interface InputFieldRenderProps<
 > extends React.ComponentProps<"input"> {
   field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
   fieldState: ControllerFieldState;
-  onInputChange?: (value: string) => void;
-  label?: string;
-  description?: string;
-  isDescriptionInfoIconShow?: boolean;
-  requiredField?: boolean;
+  id: string;
+  onValueChange?: (value: string) => void;
 }
 
 function InputFieldRender<TFieldValues extends FieldValues>({
   field,
   fieldState,
-  onInputChange,
-  label,
-  description,
-  isDescriptionInfoIconShow,
-  requiredField,
+  id,
+  onValueChange,
   disabled = false,
   ...props
 }: InputFieldRenderProps<TFieldValues>) {
-  const fieldId = useId();
-
   const handleOnChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
       event.preventDefault();
@@ -95,40 +107,20 @@ function InputFieldRender<TFieldValues extends FieldValues>({
       const value = event.target.value;
 
       field.onChange(value);
-      onInputChange?.(value);
+      onValueChange?.(value);
     },
-    [field, onInputChange]
+    [field, onValueChange]
   );
 
   return (
-    <Field data-invalid={fieldState.invalid}>
-      {label && (
-        <FieldLabel htmlFor={fieldId} aria-disabled={disabled}>
-          {label}
-          {requiredField && (
-            <Asterisk className="-mt-2 size-3 text-destructive" />
-          )}
-        </FieldLabel>
-      )}
-      <Input
-        {...field}
-        onChange={handleOnChange}
-        {...props}
-        id={fieldId}
-        aria-invalid={fieldState.invalid}
-        disabled={disabled}
-      />
-      {description && (
-        <FieldDescription
-          className="flex items-start gap-1.5"
-          aria-disabled={disabled}
-        >
-          {isDescriptionInfoIconShow && <Info className="mt-0.5 size-4" />}
-          {description}
-        </FieldDescription>
-      )}
-      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-    </Field>
+    <Input
+      {...field}
+      onChange={handleOnChange}
+      {...props}
+      id={id}
+      aria-invalid={fieldState.invalid}
+      disabled={disabled}
+    />
   );
 }
 

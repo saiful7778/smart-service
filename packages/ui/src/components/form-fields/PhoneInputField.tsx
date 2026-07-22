@@ -1,9 +1,16 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId } from "react";
 
 import { Asterisk } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 import type { Country } from "react-phone-number-input";
 
 import {
@@ -23,6 +30,7 @@ interface PhoneInputFieldProps<
   description?: string;
   requiredField?: boolean;
   defaultCountry?: Country;
+  onValueChange?: (value: string) => void;
 }
 
 function PhoneInputField<TFieldValues extends FieldValues>({
@@ -32,6 +40,7 @@ function PhoneInputField<TFieldValues extends FieldValues>({
   description,
   requiredField = false,
   disabled,
+  onValueChange,
   ...props
 }: PhoneInputFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -49,12 +58,12 @@ function PhoneInputField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <PhoneInput
-            {...props}
-            {...field}
+          <PhoneInputFieldRender
+            field={field}
+            fieldState={fieldState}
+            onValueChange={onValueChange}
             id={fieldId}
-            aria-invalid={fieldState.invalid}
-            disabled={disabled}
+            {...props}
           />
           {description && (
             <FieldDescription
@@ -67,6 +76,43 @@ function PhoneInputField<TFieldValues extends FieldValues>({
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
+    />
+  );
+}
+
+interface PhoneInputFieldRenderProps<
+  TFieldValues extends FieldValues,
+> extends React.ComponentProps<"input"> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  onValueChange?: (value: string) => void;
+}
+
+function PhoneInputFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  onValueChange,
+  disabled = false,
+  ...props
+}: PhoneInputFieldRenderProps<TFieldValues>) {
+  const handleChange = useCallback(
+    (value: string) => {
+      field.onChange(value);
+      onValueChange?.(value);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <PhoneInput
+      {...props}
+      {...field}
+      onChange={handleChange}
+      id={id}
+      aria-invalid={fieldState.invalid}
+      disabled={disabled}
     />
   );
 }

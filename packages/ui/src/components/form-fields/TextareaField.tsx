@@ -1,8 +1,15 @@
 "use client";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 
 import { Asterisk, Info } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import {
   Field,
@@ -21,6 +28,7 @@ interface TextareaFieldProps<
   description?: string;
   isDescriptionInfoIconShow?: boolean;
   requiredField?: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 function TextareaField<TFieldValues extends FieldValues>({
@@ -31,6 +39,7 @@ function TextareaField<TFieldValues extends FieldValues>({
   isDescriptionInfoIconShow = false,
   requiredField = false,
   disabled,
+  onValueChange,
   ...props
 }: TextareaFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -48,12 +57,13 @@ function TextareaField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <Textarea
-            {...field}
-            {...props}
+          <TextareaFieldRender
+            field={field}
+            fieldState={fieldState}
             id={fieldId}
-            aria-invalid={fieldState.invalid}
+            onValueChange={onValueChange}
             disabled={disabled}
+            {...props}
           />
           {description && (
             <FieldDescription
@@ -67,6 +77,48 @@ function TextareaField<TFieldValues extends FieldValues>({
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
+    />
+  );
+}
+
+interface TextareaFieldRenderProps<
+  TFieldValues extends FieldValues,
+> extends React.ComponentProps<"textarea"> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  onValueChange?: (value: string) => void;
+}
+
+function TextareaFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  onValueChange,
+  disabled = false,
+  ...props
+}: TextareaFieldRenderProps<TFieldValues>) {
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const value = event.target.value;
+
+      field.onChange(value);
+      onValueChange?.(value);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <Textarea
+      {...field}
+      onChange={handleChange}
+      {...props}
+      id={id}
+      aria-invalid={fieldState.invalid}
+      disabled={disabled}
     />
   );
 }
