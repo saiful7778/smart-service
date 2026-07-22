@@ -3,7 +3,7 @@
 import { useCallback, useId, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { Asterisk, Info, UserSearch } from "lucide-react";
+import { Asterisk, Boxes, Info } from "lucide-react";
 import {
   Control,
   Controller,
@@ -147,7 +147,7 @@ function MaterialSelectorFieldRender<TFieldValues extends FieldValues>({
       disabled={disabled}
     >
       <SearchableSelectorTrigger id={id} aria-invalid={fieldState.invalid}>
-        <UserSearch className="size-4" />
+        <Boxes className="size-4" />
         {field.value ? (
           <span className="truncate">
             {data?.data?.find(({ id }) => id === field.value)?.name}
@@ -171,7 +171,7 @@ function MaterialSelectorFieldRender<TFieldValues extends FieldValues>({
         emptyFallback={
           <SearchableSelectorEmpty
             message="No materials found"
-            icon={<UserSearch className="size-8 opacity-20" />}
+            icon={<Boxes className="size-8 opacity-20" />}
           />
         }
       >
