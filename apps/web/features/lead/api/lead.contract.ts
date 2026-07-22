@@ -26,6 +26,7 @@ import { customerContract } from "./customer.contract";
 import { leadBaseContract } from "./lead.contract-base";
 import { leadAttachmentContract } from "./leadAttachment.contract";
 import { leadBinContract } from "./leadBin.contract";
+import { leadEstimateContract } from "./leadEstimate.contract";
 import { leadCategoryContract } from "./leadCategory.contract";
 import { leadJobContract } from "./leadJob.contract";
 import { leadNoteContract } from "./leadNote.contract";
@@ -375,5 +376,6 @@ export const leadContract = {
   note: leadNoteContract,
   job: leadJobContract,
   attachment: leadAttachmentContract,
+  estimate: leadEstimateContract,
   bin: leadBinContract,
 };

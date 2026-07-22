@@ -33,7 +33,7 @@ import {
   LeadAttachmentUploadType,
 } from "@/features/lead/lead.schema";
 
-import { useLeadAttachmentCreate } from "../../api/lead.api.hook";
+import { useLeadAttachmentCreate } from "../../api/leadAttachment.api.hook";
 
 export function LeadAttachmentUploadDialog({
   leadId,

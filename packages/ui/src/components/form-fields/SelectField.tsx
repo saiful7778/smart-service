@@ -141,7 +141,7 @@ function SelectFieldRender<TFieldValues extends FieldValues>({
       </SelectTrigger>
       <SelectContent>
         {options.map(({ value, label }) => (
-          <SelectItem key={`${name}.${value}`} value={value}>
+          <SelectItem key={`${id}.${value}`} value={value}>
             {label}
           </SelectItem>
         ))}
