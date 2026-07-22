@@ -1,49 +1,47 @@
 import type { AnyColumn, InferColumnsDataTypes, SQL } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 
-/**
- * Builds a COALESCE(jsonb_agg(DISTINCT jsonb_build_object(...)) FILTER (WHERE ...), '[]') SQL fragment.
- *
- * @param columns - Record of { jsonKey: column } mappings to include in the JSON object.
- * @param filterColumn - Column to check IS NOT NULL for the FILTER clause (defaults to first column).
- * @returns Typed SQL fragment returning an array of objects.
- */
-export function jsonbAgg<TColumns extends Record<string, AnyColumn>>(
-  columns: TColumns,
-  filterColumn?: AnyColumn
-): SQL<InferColumnsDataTypes<TColumns>[]> {
-  const entries = Object.entries(columns);
-  const filterCol = filterColumn ?? entries[0]?.[1];
-
-  return sql<
-    InferColumnsDataTypes<TColumns>[]
-  >`COALESCE(jsonb_agg(DISTINCT ${jsonbBuildObject(
-    columns
-  )}) FILTER (WHERE ${filterCol} IS NOT NULL), '[]')`;
+function joinSql(values: (SQL | AnyColumn)[], separator: SQL): SQL {
+  return sql.join(values, separator);
 }
 
-/**
- * Builds a jsonb_build_object SQL fragment with literal keys.
- */
+export function coalesce<T>(values: (SQL | AnyColumn)[]): SQL<T> {
+  return sql<T>`COALESCE(${joinSql(values, sql`, `)})`;
+}
+
 export function jsonbBuildObject<TColumns extends Record<string, AnyColumn>>(
   columns: TColumns
 ): SQL<InferColumnsDataTypes<TColumns>> {
   const entries = Object.entries(columns);
 
-  const parts: SQL[] = [];
+  const parts: (SQL | AnyColumn)[] = entries.flatMap(([key, col]) => [
+    sql`${sql.raw(`'${key}'`)}`,
+    col,
+  ]);
 
-  entries.forEach(([key, col], index) => {
-    if (index > 0) {
-      parts.push(sql`, `);
-    }
+  return sql<
+    InferColumnsDataTypes<TColumns>
+  >`jsonb_build_object(${joinSql(parts, sql`, `)})`;
+}
 
-    parts.push(sql`${sql.raw(`'${key}'`)}`);
-    parts.push(sql`, `);
-    parts.push(sql`${col}`);
-  });
+export function jsonbAgg<TColumns extends Record<string, AnyColumn>>(
+  columns: TColumns,
+  filterColumn?: AnyColumn
+): SQL<InferColumnsDataTypes<TColumns>[]> {
+  const entries = Object.entries(columns);
 
-  return sql<InferColumnsDataTypes<TColumns>>`jsonb_build_object(${sql.join(
-    parts,
-    sql``
-  )})`;
+  // Safely extract filterColumn without mutating inputs
+  const filterCol = filterColumn ?? entries[0]?.[1];
+
+  // Declaratively build the array of arguments for coalesce
+  const aggregatedJson = sql<InferColumnsDataTypes<TColumns>[]>`
+    jsonb_agg(DISTINCT ${jsonbBuildObject(columns)}) FILTER (WHERE ${filterCol} IS NOT NULL)
+  `;
+
+  const fallbackJson = sql<InferColumnsDataTypes<TColumns>[]>`'[]'`;
+
+  return coalesce<InferColumnsDataTypes<TColumns>[]>([
+    aggregatedJson,
+    fallbackJson,
+  ]);
 }
