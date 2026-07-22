@@ -1,10 +1,17 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Asterisk, Info, UserSearch } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import {
   Field,
@@ -46,19 +53,6 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
   disabled = false,
 }: CustomerSelectorFieldProps<TFieldValues>) {
   const fieldId = useId();
-  const [search, setSearch] = useState<string | undefined>(undefined);
-
-  const { data, isLoading, isError, error } = useQuery(
-    orpcTQClient.lead.customer.listForSearch.queryOptions({
-      input: {
-        search,
-        searchFields: ["name", "email"],
-        page: DEFAULT_PAGE_INDEX,
-        limit: 5,
-      },
-    })
-  );
-
   return (
     <Controller
       name={name}
@@ -73,64 +67,12 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <SearchableSelector
-            value={field.value}
-            onChange={field.onChange}
-            onSearch={setSearch}
-          >
-            <SearchableSelectorTrigger>
-              <UserSearch className="size-4" />
-              {field.value ? (
-                <span className="truncate">
-                  {data?.data?.data?.find(({ id }) => id === field.value)?.name}
-                </span>
-              ) : (
-                <span className="text-muted-foreground">Select Customer</span>
-              )}
-            </SearchableSelectorTrigger>
-            <SearchableSelectorContent
-              data={data?.data?.data}
-              isLoading={isLoading}
-              isError={isError}
-              error={error}
-              title="Select Customer"
-              description="Select a customer"
-              loadingFallback={
-                <SearchableSelectorLoadingSkeleton>
-                  <Skeleton className="h-8" />
-                </SearchableSelectorLoadingSkeleton>
-              }
-              emptyFallback={
-                <SearchableSelectorEmpty
-                  message="No customers found"
-                  icon={<UserSearch className="size-8 opacity-20" />}
-                />
-              }
-            >
-              {(item) => (
-                <SearchableSelectorItem
-                  item={item}
-                  getItemId={(customer) => customer.id}
-                >
-                  <span className="flex flex-col items-start justify-center gap-0">
-                    <span className="flex gap-1 items-center">
-                      <span>{item.name}</span>
-                      {item.phone && (
-                        <span className="text-muted-foreground">
-                          {`(${item.phone})`}
-                        </span>
-                      )}
-                    </span>
-                    {item.email && (
-                      <span className="text-muted-foreground">
-                        {item.email}
-                      </span>
-                    )}
-                  </span>
-                </SearchableSelectorItem>
-              )}
-            </SearchableSelectorContent>
-          </SearchableSelector>
+          <CustomerSelectorFieldRender
+            field={field}
+            fieldState={fieldState}
+            id={fieldId}
+            disabled={disabled}
+          />
           {description && (
             <FieldDescription
               className="flex items-start gap-1.5"
@@ -144,5 +86,101 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
         </Field>
       )}
     />
+  );
+}
+
+interface CustomerSelectorFieldRenderProps<TFieldValues extends FieldValues> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  disabled?: boolean;
+  placeholder?: string;
+}
+
+function CustomerSelectorFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  disabled = false,
+  placeholder = "Select Customer",
+}: CustomerSelectorFieldRenderProps<TFieldValues>) {
+  const [search, setSearch] = useState<string | undefined>(undefined);
+
+  const { data, isLoading, isError, error } = useQuery(
+    orpcTQClient.lead.customer.listForSearch.queryOptions({
+      input: {
+        search,
+        searchFields: ["name", "email"],
+        page: DEFAULT_PAGE_INDEX,
+        limit: 5,
+      },
+    })
+  );
+
+  const handleOnChange = useCallback(
+    (value: string | undefined) => {
+      field.onChange(value);
+    },
+    [field]
+  );
+
+  return (
+    <SearchableSelector
+      value={field.value}
+      onChange={handleOnChange}
+      onSearch={setSearch}
+      disabled={disabled}
+    >
+      <SearchableSelectorTrigger id={id} aria-invalid={fieldState.invalid}>
+        <UserSearch className="size-4" />
+        {field.value ? (
+          <span className="truncate">
+            {data?.data?.data?.find(({ id }) => id === field.value)?.name}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">{placeholder}</span>
+        )}
+      </SearchableSelectorTrigger>
+      <SearchableSelectorContent
+        data={data?.data?.data}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        title={placeholder}
+        description="Select a customer"
+        loadingFallback={
+          <SearchableSelectorLoadingSkeleton>
+            <Skeleton className="h-8" />
+          </SearchableSelectorLoadingSkeleton>
+        }
+        emptyFallback={
+          <SearchableSelectorEmpty
+            message="No customers found"
+            icon={<UserSearch className="size-8 opacity-20" />}
+          />
+        }
+      >
+        {(item) => (
+          <SearchableSelectorItem
+            item={item}
+            getItemId={(customer) => customer.id}
+          >
+            <span className="flex flex-col items-start justify-center gap-0">
+              <span className="flex gap-1 items-center">
+                <span>{item.name}</span>
+                {item.phone && (
+                  <span className="text-muted-foreground">
+                    {`(${item.phone})`}
+                  </span>
+                )}
+              </span>
+              {item.email && (
+                <span className="text-muted-foreground">{item.email}</span>
+              )}
+            </span>
+          </SearchableSelectorItem>
+        )}
+      </SearchableSelectorContent>
+    </SearchableSelector>
   );
 }

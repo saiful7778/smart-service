@@ -60,21 +60,39 @@ export function MaterialSelectorField<TFieldValues extends FieldValues>({
   requiredField,
   disabled = false,
 }: MaterialSelectorFieldProps<TFieldValues>) {
+  const fieldId = useId();
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <MaterialSelectorFieldRender
-          field={field}
-          fieldState={fieldState}
-          onSelected={onSelected}
-          label={label}
-          description={description}
-          isDescriptionInfoIconShow={isDescriptionInfoIconShow}
-          requiredField={requiredField}
-          disabled={disabled}
-        />
+        <Field data-invalid={fieldState.invalid}>
+          {label && (
+            <FieldLabel htmlFor={fieldId} aria-disabled={disabled}>
+              {label}
+              {requiredField && (
+                <Asterisk className="-mt-2 size-3 text-destructive" />
+              )}
+            </FieldLabel>
+          )}
+          <MaterialSelectorFieldRender
+            field={field}
+            fieldState={fieldState}
+            id={fieldId}
+            onSelected={onSelected}
+            disabled={disabled}
+          />
+          {description && (
+            <FieldDescription
+              className="flex items-start gap-1.5"
+              aria-disabled={disabled}
+            >
+              {isDescriptionInfoIconShow && <Info className="mt-0.5 size-4" />}
+              {description}
+            </FieldDescription>
+          )}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );
@@ -83,28 +101,23 @@ export function MaterialSelectorField<TFieldValues extends FieldValues>({
 interface MaterialSelectorFieldRenderProps<TFieldValues extends FieldValues> {
   field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
   fieldState: ControllerFieldState;
+  id: string;
   onSelected?: (
     value:
       ListMaterialForSearchContractType["output"]["data"][number] | undefined
   ) => void;
-  label?: string;
-  description?: string;
-  isDescriptionInfoIconShow?: boolean;
-  requiredField?: boolean;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 function MaterialSelectorFieldRender<TFieldValues extends FieldValues>({
   field,
   fieldState,
+  id,
   onSelected,
-  label,
-  description,
-  isDescriptionInfoIconShow,
-  requiredField,
   disabled = false,
+  placeholder = "Select Material",
 }: MaterialSelectorFieldRenderProps<TFieldValues>) {
-  const fieldId = useId();
   const [search, setSearch] = useState<string | undefined>(undefined);
 
   const { data, isLoading, isError, error } = useQuery(
@@ -127,79 +140,59 @@ function MaterialSelectorFieldRender<TFieldValues extends FieldValues>({
   );
 
   return (
-    <Field data-invalid={fieldState.invalid}>
-      {label && (
-        <FieldLabel htmlFor={fieldId} aria-disabled={disabled}>
-          {label}
-          {requiredField && (
-            <Asterisk className="-mt-2 size-3 text-destructive" />
-          )}
-        </FieldLabel>
-      )}
-      <SearchableSelector
-        value={field.value}
-        onChange={handleOnChange}
-        onSearch={setSearch}
-        disabled={disabled}
+    <SearchableSelector
+      value={field.value}
+      onChange={handleOnChange}
+      onSearch={setSearch}
+      disabled={disabled}
+    >
+      <SearchableSelectorTrigger id={id} aria-invalid={fieldState.invalid}>
+        <UserSearch className="size-4" />
+        {field.value ? (
+          <span className="truncate">
+            {data?.data?.find(({ id }) => id === field.value)?.name}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">{placeholder}</span>
+        )}
+      </SearchableSelectorTrigger>
+      <SearchableSelectorContent
+        data={data?.data}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        title={placeholder}
+        description="Select a Material"
+        loadingFallback={
+          <SearchableSelectorLoadingSkeleton>
+            <Skeleton className="h-8" />
+          </SearchableSelectorLoadingSkeleton>
+        }
+        emptyFallback={
+          <SearchableSelectorEmpty
+            message="No materials found"
+            icon={<UserSearch className="size-8 opacity-20" />}
+          />
+        }
       >
-        <SearchableSelectorTrigger>
-          <UserSearch className="size-4" />
-          {field.value ? (
-            <span className="truncate">
-              {data?.data?.find(({ id }) => id === field.value)?.name}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">Select Material</span>
-          )}
-        </SearchableSelectorTrigger>
-        <SearchableSelectorContent
-          data={data?.data}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          title="Select Material"
-          description="Select a Material"
-          loadingFallback={
-            <SearchableSelectorLoadingSkeleton>
-              <Skeleton className="h-8" />
-            </SearchableSelectorLoadingSkeleton>
-          }
-          emptyFallback={
-            <SearchableSelectorEmpty
-              message="No materialss found"
-              icon={<UserSearch className="size-8 opacity-20" />}
-            />
-          }
-        >
-          {(item) => (
-            <SearchableSelectorItem
-              item={item}
-              getItemId={(material) => material.id}
-            >
-              <span className="flex flex-col">
-                <span className="leading-normal text-sm">{item.name}</span>
-                <span className="text-muted-foreground">{`SKU: ${item.sku}`}</span>
-                <span className="text-muted-foreground leading-none text-xs">
-                  {`Price: ${formatCurrency(Number(item.unitPrice))} / ${item.unit}`}
-                </span>
-                <span className="text-muted-foreground leading-none text-xs">
-                  {`Stock: ${item.stockQuantity}`}
-                </span>
+        {(item) => (
+          <SearchableSelectorItem
+            item={item}
+            getItemId={(material) => material.id}
+          >
+            <span className="flex flex-col">
+              <span className="leading-normal text-sm">{item.name}</span>
+              <span className="text-muted-foreground">{`SKU: ${item.sku}`}</span>
+              <span className="text-muted-foreground leading-none text-xs">
+                {`Price: ${formatCurrency(Number(item.unitPrice))} / ${item.unit}`}
               </span>
-            </SearchableSelectorItem>
-          )}
-        </SearchableSelectorContent>
-      </SearchableSelector>
-      {description && (
-        <FieldDescription
-          className="flex items-start gap-1.5"
-          aria-disabled={disabled}
-        >
-          {isDescriptionInfoIconShow && <Info className="mt-0.5 size-4" />}
-          {description}
-        </FieldDescription>
-      )}
-      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-    </Field>
+              <span className="text-muted-foreground leading-none text-xs">
+                {`Stock: ${item.stockQuantity}`}
+              </span>
+            </span>
+          </SearchableSelectorItem>
+        )}
+      </SearchableSelectorContent>
+    </SearchableSelector>
   );
 }
