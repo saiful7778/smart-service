@@ -51,6 +51,38 @@ export type ListMaterialContractType = InferContractRouterType<
   typeof listMaterialsContract
 >;
 
+const listMaterialForSearchContract = materialBaseContract
+  .route({
+    path: "/materials/search",
+    description: "Search materials",
+    tags,
+  })
+  .input(
+    paginateInputZodSchema<typeof selectMaterialSchema>({
+      orderFields: [],
+      searchFields: ["name", "sku"],
+    })
+  )
+  .output(
+    apiOutputZodSchema(
+      z.array(
+        selectMaterialSchema.pick({
+          id: true,
+          name: true,
+          sku: true,
+          unitPrice: true,
+          costPrice: true,
+          stockQuantity: true,
+          minimumStockLevel: true,
+          unit: true,
+        })
+      )
+    )
+  );
+export type ListMaterialForSearchContractType = InferContractRouterType<
+  typeof listMaterialForSearchContract
+>;
+
 const materialDetailsContract = materialBaseContract
   .route({
     path: "/materials/details",
@@ -134,6 +166,7 @@ export type MaterialAllDeleteContractType = InferContractRouterType<
 
 export const materialContract = {
   list: listMaterialsContract,
+  listForSearch: listMaterialForSearchContract,
   details: materialDetailsContract,
   create: materialCreateContract,
   update: materialUpdateContract,

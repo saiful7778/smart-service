@@ -101,6 +101,42 @@ export const listMaterialsProcedure = materialImpl.list
     });
   });
 
+export const listMaterialsForSearchProcedure = materialImpl.listForSearch
+  .use(
+    orgMemberPermissionsMiddleware(["org.material.manage", "org.material.list"])
+  )
+  .handler(async ({ context, input }) => {
+    const { where } = buildPaginateOptions(
+      {
+        name: MaterialTable.name,
+        sku: MaterialTable.sku,
+      },
+      input
+    );
+
+    const materials = await context.db
+      .select({
+        id: MaterialTable.id,
+        name: MaterialTable.name,
+        sku: MaterialTable.sku,
+        unitPrice: MaterialTable.unitPrice,
+        costPrice: MaterialTable.costPrice,
+        stockQuantity: MaterialTable.stockQuantity,
+        minimumStockLevel: MaterialTable.minimumStockLevel,
+        unit: MaterialTable.unit,
+      })
+      .from(MaterialTable)
+      .where(
+        and(
+          eq(MaterialTable.orgId, context.org.id),
+          isNull(MaterialTable.deletedAt),
+          where
+        )
+      );
+
+    return apiResponse(API_MESSAGES.MATERIAL.GET_ALL_FOR_SEARCH, materials);
+  });
+
 export const materialDetailsProcedure = materialImpl.details
   .use(
     orgMemberPermissionsMiddleware(["org.material.manage", "org.material.read"])

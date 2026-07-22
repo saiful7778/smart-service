@@ -1,4 +1,5 @@
 import {
+  listMaterialsForSearchProcedure,
   listMaterialsProcedure,
   materialAllDeleteProcedure,
   materialCreateProcedure,
@@ -17,6 +18,7 @@ import {
 
 export const materialRouter = materialImpl.router({
   list: listMaterialsProcedure,
+  listForSearch: listMaterialsForSearchProcedure,
   details: materialDetailsProcedure,
   create: materialCreateProcedure,
   update: materialUpdateProcedure,
