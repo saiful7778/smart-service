@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId } from "react";
 
 import { Asterisk, Info } from "lucide-react";
 
@@ -55,15 +55,4 @@ export function FileUploadField({
       {fieldError && <FieldError errors={[{ message: fieldError }]} />}
     </Field>
   );
-}
-
-export function useFileUploadState() {
-  "use no memo";
-  const [fileValue, setFileValue] = useState<File | File[] | null | undefined>(
-    () => null
-  );
-  const [fileError, setFileError] = useState<string | null>(null);
-  const uploadRef = useRef<FileUploadRef>(null);
-
-  return { fileValue, setFileValue, fileError, setFileError, uploadRef };
 }

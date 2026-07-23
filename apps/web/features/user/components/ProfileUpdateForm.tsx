@@ -7,10 +7,8 @@ import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import { FieldGroup } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 
-import {
-  FileUploadField,
-  useFileUploadState,
-} from "@/components/form-fields/FileUploadField";
+import { useFileUploadState } from "@/components/FileUpload";
+import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
@@ -18,6 +16,7 @@ import { useProfileUpdate } from "../api/users.api.hook";
 import { profileUpdateSchema, ProfileUpdateType } from "../user.schema";
 
 export function ProfileUpdateForm() {
+  "use no memo";
   const user = useAuthStore((state) => state.user!);
 
   const { fileValue, setFileValue, fileError, setFileError, uploadRef } =

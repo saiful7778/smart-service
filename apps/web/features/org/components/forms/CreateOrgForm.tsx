@@ -15,10 +15,8 @@ import {
 } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 
-import {
-  FileUploadField,
-  useFileUploadState,
-} from "@/components/form-fields/FileUploadField";
+import { useFileUploadState } from "@/components/FileUpload";
+import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { toSlug } from "@/utils/toSlug";

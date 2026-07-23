@@ -7,10 +7,8 @@ import { useForm } from "react-hook-form";
 
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 
-import {
-  FileUploadField,
-  useFileUploadState,
-} from "@/components/form-fields/FileUploadField";
+import { useFileUploadState } from "@/components/FileUpload";
+import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import { RoutePathType } from "@/types";
 

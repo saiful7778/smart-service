@@ -23,10 +23,8 @@ import { FieldGroup } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
-import {
-  FileUploadField,
-  useFileUploadState,
-} from "@/components/form-fields/FileUploadField";
+import { useFileUploadState } from "@/components/FileUpload";
+import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import {
   leadAttachmentUploadSchema,
