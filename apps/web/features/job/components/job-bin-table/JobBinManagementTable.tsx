@@ -32,6 +32,7 @@ export function JobBinManagementTable({
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
     defaultLimit: limit,
+    defaultSearch: search,
     additionalKeys: {
       deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
         clearOnDefault: true,
@@ -65,7 +66,7 @@ export function JobBinManagementTable({
   return (
     <div className="space-y-3">
       <DataTableGlobalSearch
-        searchValue={search}
+        searchValue={filters.search}
         setSearchValue={globalSearch}
         refresh={refetch}
       ></DataTableGlobalSearch>

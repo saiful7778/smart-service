@@ -13,7 +13,7 @@ import { DashboardShell } from "@/components/shared/DashboardShell";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
-import { EstimateCreateForm } from "@/features/lead/components/lead-estimate/EstimateCreateForm";
+import { LeadEstimateCreateForm } from "@/features/lead/components/lead-estimate/LeadEstimateCreateForm";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
 export const metadata: Metadata = {
@@ -90,7 +90,7 @@ export default async function EstimateCreatePage(
       backUrl={redirectUrl.toString()}
       className="max-w-4xl w-full mx-auto"
     >
-      <EstimateCreateForm
+      <LeadEstimateCreateForm
         leadId={leadId}
         jobId={jobId}
         redirectTo={redirectUrl.toString()}

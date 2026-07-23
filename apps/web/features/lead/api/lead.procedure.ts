@@ -27,6 +27,8 @@ import {
   LeadAttachmentTable,
   LeadCategoryJoinTable,
   LeadCategoryTable,
+  LeadEstimateMaterialTable,
+  LeadEstimateTable,
   LeadRevenueHistoryTable,
   LeadTable,
   OrganizationMemberTable,
@@ -39,6 +41,7 @@ import { apiResponse, prepareExport } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
+import { increaseStock } from "@/features/lead/api/estimate-stock.helper";
 import { authMiddleware } from "@/server/middleware/auth.middleware";
 import { errorMiddleware } from "@/server/middleware/error.middleware";
 import { loggerMiddleware } from "@/server/middleware/logger.middleware";
@@ -835,6 +838,57 @@ export const leadDeleteProcedure = leadImpl.delete
             jobAttachments.map(({ id }) => id)
           )
         );
+
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            eq(LeadEstimateTable.leadId, existLead.id),
+            isNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+      }
     });
 
     return apiResponse(API_MESSAGES.LEAD.DELETE, null);
@@ -913,6 +967,57 @@ export const leadAllDeleteProcedure = leadImpl.deleteAll
             jobAttachments.map(({ id }) => id)
           )
         );
+
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            inArray(LeadEstimateTable.leadId, leadIds),
+            isNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+      }
     });
 
     return apiResponse(API_MESSAGES.LEAD.DELETE_ALL, null);

@@ -65,7 +65,7 @@ export function LeadBinManagementTable({
   return (
     <div className="space-y-3">
       <DataTableGlobalSearch
-        searchValue={search}
+        searchValue={filters.search}
         setSearchValue={globalSearch}
         refresh={refetch}
       ></DataTableGlobalSearch>

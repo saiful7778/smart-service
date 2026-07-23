@@ -1,7 +1,7 @@
 import z from "zod";
 
 import { insertFileSchema } from "@workspace/drizzle/schemas";
-import { entityTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { EntityTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
@@ -27,7 +27,7 @@ const getSignedUploadUrlContract = uploadBaseContract
   .input(
     z.object({
       filename: z.string().min(1).max(255),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
       path: z.string(),
     })
   )
@@ -54,7 +54,7 @@ const getSignedDownloadUrlContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
     })
   )
   .output(
@@ -87,7 +87,7 @@ const confirmUploadContract = uploadBaseContract
       })
       .extend({
         path: z.string(),
-        entityType: entityTypeEnumSchema,
+        entityType: EntityTypeEnumSchema,
       })
   )
   .output(
@@ -111,7 +111,7 @@ const assignFileEntityContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
       entityId: z.uuid(),
       path: z.string(),
     })
@@ -130,7 +130,7 @@ const deleteUploadContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
       path: z.string(),
     })
   )

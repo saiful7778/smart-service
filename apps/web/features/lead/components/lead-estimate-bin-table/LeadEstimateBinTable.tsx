@@ -20,9 +20,9 @@ import {
 } from "@/features/lead/api/leadEstimate.api.hook";
 import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
 
-import { estimateBinTableColumn } from "./estimateBinTableColumn";
+import { leadEstimateBinTableColumn } from "./leadEstimateBinTableColumn";
 
-interface EstimateBinTableProps {
+interface LeadEstimateBinTableProps {
   data: ListLeadEstimateBinContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
@@ -30,17 +30,17 @@ interface EstimateBinTableProps {
   jobId: string | null | undefined;
 }
 
-export function EstimateBinTable({
+export function LeadEstimateBinTable({
   data,
   filters,
   setFilters,
   leadId,
   jobId,
-}: EstimateBinTableProps) {
+}: LeadEstimateBinTableProps) {
   "use no memo";
   const table = useDataTable({
     data: data.data,
-    columns: estimateBinTableColumn,
+    columns: leadEstimateBinTableColumn,
     pageCount: data.meta.pageCount,
     filters,
     setFilters,

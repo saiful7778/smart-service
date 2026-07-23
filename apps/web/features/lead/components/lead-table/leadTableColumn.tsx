@@ -20,7 +20,8 @@ import { ListLeadContractType } from "../../api/lead.contract";
 import { ListLeadCategoriesForSearchContractType } from "../../api/leadCategory.contract";
 import { LeadTableRowAction } from "./LeadTableRowAction";
 
-type LeadTableRowDataType = ListLeadContractType["output"]["data"]["data"][number];
+type LeadTableRowDataType =
+  ListLeadContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
   {
@@ -35,7 +36,7 @@ const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
   };
 
 export function makeLeadTableColumn(
-  leadCategories: ListLeadCategoriesForSearchContractType["output"]["data"],
+  leadCategories: ListLeadCategoriesForSearchContractType["output"]["data"]
 ): ColumnType<LeadTableRowDataType> {
   return [
     {
@@ -87,7 +88,7 @@ export function makeLeadTableColumn(
       },
       meta: { label: "Lead info" },
       enableColumnFilter: false,
-      enableSorting: true,
+      enableSorting: false,
       enableHiding: false,
     },
     {

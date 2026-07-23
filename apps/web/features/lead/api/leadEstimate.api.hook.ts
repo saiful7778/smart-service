@@ -78,8 +78,6 @@ export function useLeadEstimateUpdate<TFieldNames>({
         onRequestStart?.();
       },
       onSuccess: async ({ message }, { leadId, jobId }) => {
-        toast.success(message, { id: toastId });
-
         await queryclient.invalidateQueries({
           queryKey: orpcTQClient.lead.estimate.list.queryKey({
             input: { leadId, jobId },
@@ -94,6 +92,7 @@ export function useLeadEstimateUpdate<TFieldNames>({
           exact: false,
         });
 
+        toast.success(message, { id: toastId });
         onSuccess?.(message);
       },
       onError: (error) => {

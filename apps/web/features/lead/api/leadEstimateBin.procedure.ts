@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/client";
-import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 
-import { DatabaseType } from "@workspace/drizzle/client";
 import {
   buildPaginateOptions,
   buildPaginationMeta,
@@ -11,73 +10,14 @@ import {
   LeadEstimateMaterialTable,
   LeadEstimateTable,
   LeadTable,
-  MaterialTable,
 } from "@workspace/drizzle/schemas";
 import { apiResponse } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
 
+import { increaseStock, reduceStock } from "./estimate-stock.helper";
 import { leadImpl } from "./lead.procedure";
-
-async function increaseStock(
-  database: DatabaseType,
-  materials: Array<{ materialId: string; quantity: string | number }>
-) {
-  for (const mat of materials) {
-    if (!mat.materialId) continue;
-    const qty = Number(mat.quantity);
-    await database
-      .update(MaterialTable)
-      .set({
-        stockQuantity: sql`${MaterialTable.stockQuantity} + ${qty}`,
-      })
-      .where(eq(MaterialTable.id, mat.materialId));
-  }
-}
-
-async function reduceStock(
-  database: DatabaseType,
-  materials: Array<{ materialId: string; quantity: string | number }>
-) {
-  const materialIds = materials.map((m) => m.materialId);
-  const existingMaterials = await database
-    .select({
-      id: MaterialTable.id,
-      stockQuantity: MaterialTable.stockQuantity,
-    })
-    .from(MaterialTable)
-    .where(
-      and(
-        inArray(MaterialTable.id, materialIds),
-        isNull(MaterialTable.deletedAt)
-      )
-    );
-
-  for (const mat of materials) {
-    const existing = existingMaterials.find(
-      (e: { id: string }) => e.id === mat.materialId
-    );
-    if (!existing) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: `${API_MESSAGES.ESTIMATE.INSUFFICIENT_STOCK}Material not found`,
-      });
-    }
-    const currentStock = Number(existing.stockQuantity);
-    const qty = Number(mat.quantity);
-    if (currentStock < qty) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: `${API_MESSAGES.ESTIMATE.INSUFFICIENT_STOCK}insufficient stock`,
-      });
-    }
-    await database
-      .update(MaterialTable)
-      .set({
-        stockQuantity: sql`${MaterialTable.stockQuantity} - ${qty}`,
-      })
-      .where(eq(MaterialTable.id, mat.materialId));
-  }
-}
 
 export const listLeadEstimateBinProcedure = leadImpl.estimate.bin.list
   .use((...args) => {

@@ -1,7 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { parseAsStringLiteral } from "nuqs";
 
+import {
+  LeadEstimateStatusEnumSchema,
+  LeadEstimateStatusEnumType,
+} from "@workspace/drizzle/zod-db-enums";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
 import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
@@ -13,32 +18,51 @@ import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { EstimateTable } from "./EstimateTable";
+import { LeadEstimateBinTable } from "./LeadEstimateBinTable";
 
-export function EstimateManagementTable({
+export function LeadEstimateBinManagementTable({
   leadId,
   jobId,
+  page,
+  limit,
+  search = "",
+  searchFields,
 }: {
   leadId: string | null | undefined;
   jobId: string | null | undefined;
+  page?: number;
+  limit?: number;
+  search?: string;
+  searchFields?: string[];
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: DEFAULT_PAGE_INDEX,
-    defaultLimit: DEFAULT_PAGE_SIZE,
+    defaultPage: page ?? DEFAULT_PAGE_INDEX,
+    defaultLimit: limit ?? DEFAULT_PAGE_SIZE,
+    defaultSearch: search,
+    additionalKeys: {
+      status: parseAsStringLiteral(
+        LeadEstimateStatusEnumSchema.options
+      ).withOptions({
+        clearOnDefault: true,
+      }),
+    },
   });
 
   const { data, isLoading, isError, error, refetch } = useQuery(
-    orpcTQClient.lead.estimate.list.queryOptions({
+    orpcTQClient.lead.estimate.bin.list.queryOptions({
       input: {
+        leadId,
+        jobId,
         page: filters.page,
         limit: filters.limit,
         search: filters.search,
-        searchFields: ["name"],
+        searchFields: searchFields ?? ["name"],
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
-        leadId,
-        jobId,
+        filter: {
+          status: filters.status ?? undefined,
+        },
       },
     })
   );
@@ -65,7 +89,7 @@ export function EstimateManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <EstimateTable
+          <LeadEstimateBinTable
             leadId={leadId}
             jobId={jobId}
             data={data}
@@ -75,13 +99,20 @@ export function EstimateManagementTable({
               search: filters.search,
               order: filters.order ?? undefined,
               orderField: filters.orderField ?? undefined,
+              filter: {
+                status: filters.status,
+              },
             }}
             setFilters={(filters) => {
+              const status = filters?.filter?.status as
+                LeadEstimateStatusEnumType[] | null;
+
               setFilters({
                 page: filters?.page ?? DEFAULT_PAGE_INDEX,
                 limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
+                status: status && status?.length > 0 ? status[0] : null,
               });
             }}
           />

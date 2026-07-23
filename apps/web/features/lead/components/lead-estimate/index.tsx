@@ -15,8 +15,8 @@ import {
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
-import { EstimateBinManagementTable } from "./estimate-bin-table/EstimateBinManagementTable";
-import { EstimateManagementTable } from "./estimate-table/EstimateManagementTable";
+import { LeadEstimateBinManagementTable } from "../lead-estimate-bin-table/LeadEstimateBinManagementTable";
+import { LeadEstimateManagementTable } from "../lead-estimate-table/LeadEstimateManagementTable";
 
 export function LeadEstimate({
   leadId,
@@ -55,12 +55,12 @@ export function LeadEstimate({
                   pathname: "/dashboard/organization/estimates/create",
                   query: {
                     ...(leadId && {
-                      leadId: leadId,
-                      redirectTo: `/dashboard/organization/leads/${leadId}?tab=estimates`,
+                      leadId,
+                      redirectTo: `/dashboard/organization/leads/${leadId}`,
                     }),
                     ...(jobId && {
-                      jobId: jobId,
-                      redirectTo: `/dashboard/organization/jobs/${jobId}?tab=estimates`,
+                      jobId,
+                      redirectTo: `/dashboard/organization/jobs/${jobId}`,
                     }),
                   },
                 }}
@@ -87,10 +87,10 @@ export function LeadEstimate({
 
         <div>
           <TabNavigationContent value="all">
-            <EstimateManagementTable leadId={leadId} jobId={jobId} />
+            <LeadEstimateManagementTable leadId={leadId} jobId={jobId} />
           </TabNavigationContent>
           <TabNavigationContent value="bin">
-            <EstimateBinManagementTable leadId={leadId} jobId={jobId} />
+            <LeadEstimateBinManagementTable leadId={leadId} jobId={jobId} />
           </TabNavigationContent>
         </div>
       </TabNavigation>

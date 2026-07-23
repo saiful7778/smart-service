@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/client";
-import { and, countDistinct, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
-import { DatabaseType } from "@workspace/drizzle/client";
 import {
   buildPaginateOptions,
   buildPaginationMeta,
@@ -25,66 +24,8 @@ import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
 import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
 
+import { increaseStock, reduceStock } from "./estimate-stock.helper";
 import { leadImpl } from "./lead.procedure";
-
-async function reduceStock(
-  database: DatabaseType,
-  materials: Array<{ materialId: string; quantity: string | number }>
-) {
-  const materialIds = materials.map((m) => m.materialId);
-  const existingMaterials = await database
-    .select({
-      id: MaterialTable.id,
-      stockQuantity: MaterialTable.stockQuantity,
-    })
-    .from(MaterialTable)
-    .where(
-      and(
-        inArray(MaterialTable.id, materialIds),
-        isNull(MaterialTable.deletedAt)
-      )
-    );
-
-  for (const mat of materials) {
-    const existing = existingMaterials.find(
-      (e: { id: string }) => e.id === mat.materialId
-    );
-    if (!existing) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: `${API_MESSAGES.ESTIMATE.INSUFFICIENT_STOCK}Material not found`,
-      });
-    }
-    const currentStock = Number(existing.stockQuantity);
-    const qty = Number(mat.quantity);
-    if (currentStock < qty) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: `${API_MESSAGES.ESTIMATE.INSUFFICIENT_STOCK}insufficient stock`,
-      });
-    }
-    await database
-      .update(MaterialTable)
-      .set({
-        stockQuantity: sql`${MaterialTable.stockQuantity} - ${qty}`,
-      })
-      .where(eq(MaterialTable.id, mat.materialId));
-  }
-}
-
-async function increaseStock(
-  database: DatabaseType,
-  materials: Array<{ materialId: string; quantity: string | number }>
-) {
-  for (const mat of materials) {
-    if (!mat.materialId) continue;
-    const qty = Number(mat.quantity);
-    await database
-      .update(MaterialTable)
-      .set({
-        stockQuantity: sql`${MaterialTable.stockQuantity} + ${qty}`,
-      })
-      .where(eq(MaterialTable.id, mat.materialId));
-  }
-}
 
 export const leadEstimateCreateProcedure = leadImpl.estimate.create
   .use((...args) => {
@@ -292,10 +233,6 @@ export const listLeadEstimateProcedure = leadImpl.estimate.list
     )(...args);
   })
   .handler(async ({ context, input, errors }) => {
-    if (!input?.leadId && !input?.jobId) {
-      throw errors.BAD_REQUEST();
-    }
-
     const whereSQL = [
       eq(LeadEstimateTable.orgId, context.org.id),
       isNull(LeadEstimateTable.deletedAt),
@@ -343,6 +280,7 @@ export const listLeadEstimateProcedure = leadImpl.estimate.list
     const { limit, offset, orderBy, page, where } = buildPaginateOptions(
       {
         name: LeadEstimateTable.name,
+        status: LeadEstimateTable.status,
         totalAmount: LeadEstimateTable.totalAmount,
         createdAt: LeadEstimateTable.createdAt,
       },
@@ -359,7 +297,6 @@ export const listLeadEstimateProcedure = leadImpl.estimate.list
         leadId: LeadEstimateTable.leadId,
         jobId: LeadEstimateTable.jobId,
         name: LeadEstimateTable.name,
-        description: LeadEstimateTable.description,
         status: LeadEstimateTable.status,
         discount: LeadEstimateTable.discount,
         taxRate: LeadEstimateTable.taxRate,
@@ -367,19 +304,11 @@ export const listLeadEstimateProcedure = leadImpl.estimate.list
         taxAmount: LeadEstimateTable.taxAmount,
         totalAmount: LeadEstimateTable.totalAmount,
         validUntil: LeadEstimateTable.validUntil,
-        notes: LeadEstimateTable.notes,
-        terms: LeadEstimateTable.terms,
         createdAt: LeadEstimateTable.createdAt,
         updatedAt: LeadEstimateTable.updatedAt,
-        totalMaterials: countDistinct(LeadEstimateMaterialTable.materialId),
       })
       .from(LeadEstimateTable)
-      .innerJoin(
-        LeadEstimateMaterialTable,
-        eq(LeadEstimateMaterialTable.estimateId, LeadEstimateTable.id)
-      )
       .where(and(...whereSQL))
-      .groupBy(LeadEstimateTable.id)
       .$dynamic();
 
     const [totalCount, estimates] = await Promise.all([

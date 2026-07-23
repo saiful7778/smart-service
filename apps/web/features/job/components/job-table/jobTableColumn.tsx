@@ -24,7 +24,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { ListJobsContractType } from "../../api/job.contract";
 import { JobTableRowAction } from "./JobTableRowAction";
 
-type JobTableRowDataType = ListJobsContractType["output"]["data"]["data"][number];
+type JobTableRowDataType =
+  ListJobsContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<JobTableRowDataType["status"], StatusVariant> = {
   draft: "default",
@@ -75,7 +76,7 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
     ),
     meta: { label: "Job name" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {

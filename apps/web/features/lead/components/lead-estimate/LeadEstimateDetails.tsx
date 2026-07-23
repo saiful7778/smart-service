@@ -57,17 +57,17 @@ const statusColorMap: Record<string, string> = {
     "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
 };
 
-interface EstimateDetailsProps {
+interface LeadEstimateDetailsProps {
   estimateData: LeadEstimateDetailsContractType["output"]["data"];
   leadId: string | null;
   jobId: string | null;
 }
 
-export function EstimateDetails({
+export function LeadEstimateDetails({
   estimateData,
   leadId,
   jobId,
-}: EstimateDetailsProps) {
+}: LeadEstimateDetailsProps) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const isAllowUpdate = usePermissionCheckWithOrg(

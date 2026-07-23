@@ -16,7 +16,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListLeadBinContractType } from "../../api/leadBin.contract";
 import { LeadBinTableRowAction } from "./LeadBinTableRowAction";
 
-type LeadBinTableRowDataType = ListLeadBinContractType["output"]["data"]["data"][number];
+type LeadBinTableRowDataType =
+  ListLeadBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   LeadBinTableRowDataType["status"],
@@ -79,7 +80,7 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
     },
     meta: { label: "Lead info" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {

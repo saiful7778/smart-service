@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
-import { Edit, Eye, Trash } from "lucide-react";
+import { RotateCcw, Trash } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
@@ -13,16 +12,19 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
-import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook";
-import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
+import {
+  useLeadEstimateBinDelete,
+  useLeadEstimateRestore,
+} from "@/features/lead/api/leadEstimate.api.hook";
+import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
-export function EstimateTableRowAction({
+export function LeadEstimateBinTableRowAction({
   estimateData,
 }: {
-  estimateData: ListLeadEstimateContractType["output"]["data"]["data"][number];
+  estimateData: ListLeadEstimateBinContractType["output"]["data"]["data"][number];
 }) {
-  const isAllowUpdate = usePermissionCheckWithOrg(
+  const isAllowRestore = usePermissionCheckWithOrg(
     estimateData.leadId
       ? ["org.lead_estimate.manage", "org.lead_estimate.update"]
       : estimateData.jobId
@@ -47,11 +49,18 @@ export function EstimateTableRowAction({
           ]
   );
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
 
   const { mutate: deleteEstimate, isPending: isDeleting } =
-    useLeadEstimateDelete({
+    useLeadEstimateBinDelete({
       onSuccess: () => {
         setOpenDeleteDialog(false);
+      },
+    });
+  const { mutate: restoreEstimate, isPending: isRestoring } =
+    useLeadEstimateRestore({
+      onSuccess: () => {
+        setOpenRestoreDialog(false);
       },
     });
 
@@ -63,77 +72,45 @@ export function EstimateTableRowAction({
     });
   };
 
+  const handleRestore = () => {
+    restoreEstimate({
+      leadId: estimateData.leadId,
+      jobId: estimateData.jobId,
+      estimateId: estimateData.id,
+    });
+  };
+
   return (
     <div className="flex items-center gap-2">
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              nativeButton={false}
-              size="icon"
-              render={
-                <Link
-                  href={{
-                    pathname: `/dashboard/organization/estimates/${estimateData.id}`,
-                    query: {
-                      ...(estimateData.leadId && {
-                        leadId: estimateData.leadId,
-                        redirectTo: `/dashboard/organization/leads/${estimateData.leadId}`,
-                      }),
-                      ...(estimateData.jobId && {
-                        jobId: estimateData.jobId,
-                        redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}`,
-                      }),
-                    },
-                  }}
-                />
-              }
-            />
-          }
-        >
-          <Eye />
-          <span className="sr-only">view details</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>View details</p>
-        </TooltipContent>
-      </Tooltip>
-      {isAllowUpdate && (
+      {isAllowRestore && (
         <>
           <Tooltip>
             <TooltipTrigger
               render={
                 <Button
-                  nativeButton={false}
+                  onClick={() => setOpenRestoreDialog(true)}
                   size="icon"
-                  variant="secondary"
-                  render={
-                    <Link
-                      href={{
-                        pathname: `/dashboard/organization/estimates/${estimateData.id}/update`,
-                        query: {
-                          ...(estimateData.leadId && {
-                            leadId: estimateData.leadId,
-                            redirectTo: `/dashboard/organization/leads/${estimateData.leadId}`,
-                          }),
-                          ...(estimateData.jobId && {
-                            jobId: estimateData.jobId,
-                            redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}`,
-                          }),
-                        },
-                      }}
-                    />
-                  }
+                  variant="outline"
                 />
               }
             >
-              <Edit />
-              <span className="sr-only">update estimate</span>
+              <RotateCcw />
+              <span className="sr-only">restore estimate</span>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Update estimate</p>
+              <p>Restore estimate</p>
             </TooltipContent>
           </Tooltip>
+          <DeleteConfirmDialog
+            open={openRestoreDialog}
+            onOpenChange={setOpenRestoreDialog}
+            onConfirm={handleRestore}
+            isLoading={isRestoring}
+            icon={<RotateCcw className="size-4 text-primary" />}
+            title="Restore Estimate"
+            description="Are you sure you want to restore this estimate? It will become active again."
+            confirmText="Restore"
+          />
         </>
       )}
       {isAllowDelete && (
@@ -152,16 +129,17 @@ export function EstimateTableRowAction({
               <span className="sr-only">delete estimate</span>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Delete estimate</p>
+              <p>Permanently delete</p>
             </TooltipContent>
           </Tooltip>
           <DeleteConfirmDialog
-            title="Delete Estimate"
-            description="Are you sure you want to delete this estimate?"
             open={openDeleteDialog}
             onOpenChange={setOpenDeleteDialog}
             onConfirm={handleDelete}
             isLoading={isDeleting}
+            title="Delete Permanently?"
+            description="This estimate will be permanently deleted from the bin and cannot be recovered. Are you sure you want to continue?"
+            confirmText="Delete Permanently"
           />
         </>
       )}

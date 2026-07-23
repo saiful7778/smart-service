@@ -9,7 +9,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
-import { EstimateDetails } from "@/features/lead/components/lead-estimate/EstimateDetails";
+import { LeadEstimateDetails } from "@/features/lead/components/lead-estimate/LeadEstimateDetails";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
@@ -70,7 +70,11 @@ export default async function EstimateDetailsPage(
         title={data.name}
         shortDescription="Detailed overview of estimate information."
       >
-        <EstimateDetails estimateData={data} leadId={leadId} jobId={jobId} />
+        <LeadEstimateDetails
+          estimateData={data}
+          leadId={leadId}
+          jobId={jobId}
+        />
       </DashboardShell>
     </HydrateClient>
   );

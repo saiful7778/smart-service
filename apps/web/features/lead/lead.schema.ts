@@ -1,7 +1,7 @@
 import z from "zod";
 
 import {
-  leadEstimateStatusEnumSchema,
+  LeadEstimateStatusEnumSchema,
   LeadSourceEnumSchema,
   LeadStatusEnumSchema,
 } from "@workspace/drizzle/zod-db-enums";
@@ -142,7 +142,7 @@ export type LeadAttachmentUploadType = z.infer<
 export const leadEstimateFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().optional(),
-  status: leadEstimateStatusEnumSchema,
+  status: LeadEstimateStatusEnumSchema,
   discount: z
     .string()
     .optional()

@@ -2,7 +2,10 @@ import Link from "next/link";
 
 import { formatDate } from "date-fns";
 
-import { LeadEstimateStatusEnumType } from "@workspace/drizzle/zod-db-enums";
+import {
+  LeadEstimateStatusEnumSchema,
+  LeadEstimateStatusEnumType,
+} from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { Checkbox } from "@workspace/ui/components/checkbox";
@@ -12,7 +15,7 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
 import { formatCurrency } from "@/utils/formatCurrency";
 
-import { EstimateTableRowAction } from "./EstimateTableRowAction";
+import { LeadEstimateTableRowAction } from "./LeadEstimateTableRowAction";
 
 type EstimateTableRowDataType =
   ListLeadEstimateContractType["output"]["data"]["data"][number];
@@ -33,7 +36,7 @@ const statusColorMap: Record<LeadEstimateStatusEnumType, string> = {
     "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
 };
 
-export const estimateTableColumn: ColumnType<EstimateTableRowDataType> = [
+export const leadEstimateTableColumn: ColumnType<EstimateTableRowDataType> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -103,7 +106,16 @@ export const estimateTableColumn: ColumnType<EstimateTableRowDataType> = [
         </Badge>
       );
     },
-    meta: { label: "Status" },
+    meta: {
+      label: "Status",
+      variant: "select",
+      options: LeadEstimateStatusEnumSchema.options.map((option) => ({
+        value: option,
+        label: formatEnumValue(option),
+      })),
+      placeholder: "Select Status",
+    },
+    enableColumnFilter: true,
     enableSorting: false,
   },
   {
@@ -139,7 +151,9 @@ export const estimateTableColumn: ColumnType<EstimateTableRowDataType> = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <EstimateTableRowAction estimateData={row.original} />,
+    cell: ({ row }) => (
+      <LeadEstimateTableRowAction estimateData={row.original} />
+    ),
     enableSorting: false,
     enableHiding: false,
   },

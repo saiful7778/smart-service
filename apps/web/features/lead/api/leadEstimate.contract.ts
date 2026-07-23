@@ -5,6 +5,7 @@ import {
   selectLeadEstimateSchema,
   selectMaterialSchema,
 } from "@workspace/drizzle/schemas";
+import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import {
   apiOutputZodSchema,
   paginateInputZodSchema,
@@ -66,6 +67,9 @@ const listLeadEstimateContract = leadBaseContract
     paginateInputZodSchema<typeof selectLeadEstimateSchema>({
       orderFields: ["totalAmount", "createdAt"],
       searchFields: ["name"],
+      filter: z.object({
+        status: LeadEstimateStatusEnumSchema.optional(),
+      }),
     }).extend({
       leadId: z.uuid().nullable().optional(),
       jobId: z.uuid().nullable().optional(),
@@ -74,28 +78,21 @@ const listLeadEstimateContract = leadBaseContract
   .output(
     apiOutputZodSchema(
       paginateOutputZodSchema(
-        selectLeadEstimateSchema
-          .pick({
-            id: true,
-            leadId: true,
-            jobId: true,
-            name: true,
-            description: true,
-            status: true,
-            discount: true,
-            taxRate: true,
-            subtotal: true,
-            taxAmount: true,
-            totalAmount: true,
-            validUntil: true,
-            notes: true,
-            terms: true,
-            createdAt: true,
-            updatedAt: true,
-          })
-          .extend({
-            totalMaterials: z.number(),
-          })
+        selectLeadEstimateSchema.pick({
+          id: true,
+          leadId: true,
+          jobId: true,
+          name: true,
+          status: true,
+          discount: true,
+          taxRate: true,
+          subtotal: true,
+          taxAmount: true,
+          totalAmount: true,
+          validUntil: true,
+          createdAt: true,
+          updatedAt: true,
+        })
       )
     )
   );

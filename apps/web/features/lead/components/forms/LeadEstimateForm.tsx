@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Plus, Trash } from "lucide-react";
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 
-import { leadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -96,7 +96,7 @@ export function LeadEstimateForm({
             name="status"
             label="Status"
             placeholder="Select status"
-            options={leadEstimateStatusEnumSchema.options.map((value) => ({
+            options={LeadEstimateStatusEnumSchema.options.map((value) => ({
               value,
               label: formatEnumValue(value),
             }))}

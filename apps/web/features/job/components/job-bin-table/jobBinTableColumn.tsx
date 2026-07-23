@@ -16,7 +16,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { JobBinTableRowAction } from "./JobBinTableRowAction";
 
-type JobBinTableRowDataType = ListJobBinContractType["output"]["data"]["data"][number];
+type JobBinTableRowDataType =
+  ListJobBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   JobBinTableRowDataType["status"],
@@ -67,7 +68,7 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
     ),
     meta: { label: "Job name" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {

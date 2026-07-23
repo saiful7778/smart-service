@@ -5,51 +5,56 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 
 import { RoutePathType } from "@/types";
 
-import { useLeadEstimateUpdate } from "../../api/leadEstimate.api.hook";
+import { useLeadEstimateCreate } from "../../api/leadEstimate.api.hook";
 import {
   leadEstimateFormSchema,
   LeadEstimateFormType,
 } from "../../lead.schema";
 import { LeadEstimateForm } from "../forms/LeadEstimateForm";
 
-interface EstimateUpdateFormProps {
-  estimateId: string;
-  initialData: LeadEstimateFormType;
+interface LeadEstimateCreateFormProps {
   leadId: string | null | undefined;
   jobId: string | null | undefined;
   redirectTo: string | null | undefined;
 }
 
-export function EstimateUpdateForm({
-  estimateId,
-  initialData,
+export function LeadEstimateCreateForm({
   leadId,
   jobId,
   redirectTo,
-}: EstimateUpdateFormProps) {
+}: LeadEstimateCreateFormProps) {
   "use no memo";
   const router = useRouter();
 
   const form = useForm<LeadEstimateFormType>({
     resolver: zodResolver(leadEstimateFormSchema),
     defaultValues: {
-      name: initialData.name,
-      description: initialData?.description || "",
-      status: initialData.status,
-      discount: initialData?.discount || "",
-      taxRate: initialData?.taxRate || "",
-      validUntil: initialData?.validUntil,
-      notes: initialData?.notes || "",
-      terms: initialData?.terms || "",
-      materials: initialData.materials,
+      name: "",
+      description: "",
+      status: "draft",
+      discount: "",
+      taxRate: "",
+      validUntil: undefined,
+      notes: "",
+      terms: "",
+      materials: [
+        {
+          materialId: "",
+          unitPrice: "",
+          quantity: "",
+          totalPrice: "",
+          notes: "",
+        },
+      ],
     },
   });
 
-  const { mutate, isPending } = useLeadEstimateUpdate<
+  const { mutate, isPending } = useLeadEstimateCreate<
     keyof LeadEstimateFormType
   >({
     onSuccess: () => {
@@ -70,13 +75,12 @@ export function EstimateUpdateForm({
   const onSubmit = (values: LeadEstimateFormType) => {
     mutate({
       ...values,
-      estimateId,
       leadId,
       jobId,
     });
   };
 
-  const formId = "lead_estimate_update_form";
+  const formId = "lead_estimate_create_form";
 
   return (
     <div>
@@ -87,13 +91,22 @@ export function EstimateUpdateForm({
         isLoading={isPending}
       />
       <div className="flex items-center justify-end gap-2 mt-2">
+        <Button
+          form={formId}
+          type="reset"
+          size="lg"
+          variant="outline"
+          onClick={() => form.reset()}
+        >
+          Reset
+        </Button>
         <ButtonSpinner
           form={formId}
           type="submit"
           size="lg"
           isLoading={isPending}
         >
-          Update
+          Create
         </ButtonSpinner>
       </div>
     </div>

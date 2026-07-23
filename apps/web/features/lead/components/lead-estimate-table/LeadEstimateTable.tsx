@@ -17,9 +17,9 @@ import { FiltersType } from "@workspace/ui/types/data-table";
 import { useLeadEstimateDeleteAll } from "@/features/lead/api/leadEstimate.api.hook";
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
 
-import { estimateTableColumn } from "./estimateTableColumn";
+import { leadEstimateTableColumn } from "./leadEstimateTableColumn";
 
-interface EstimateTableProps {
+interface LeadEstimateTableProps {
   data: ListLeadEstimateContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
@@ -27,17 +27,17 @@ interface EstimateTableProps {
   jobId: string | null | undefined;
 }
 
-export function EstimateTable({
+export function LeadEstimateTable({
   data,
   filters,
   setFilters,
   leadId,
   jobId,
-}: EstimateTableProps) {
+}: LeadEstimateTableProps) {
   "use no memo";
   const table = useDataTable({
     data: data.data,
-    columns: estimateTableColumn,
+    columns: leadEstimateTableColumn,
     pageCount: data.meta.pageCount,
     filters,
     setFilters,
