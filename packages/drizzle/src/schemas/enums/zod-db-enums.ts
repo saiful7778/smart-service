@@ -74,22 +74,22 @@ export type JobAssignmentRoleEnumType = z.infer<
   typeof JobAssignmentRoleEnumSchema
 >;
 
-export const publicEntityTypeEnumSchema = z.enum(PUBLIC_ENTITY_TYPES);
+export const PublicEntityTypeEnumSchema = z.enum(PUBLIC_ENTITY_TYPES);
 export type PublicEntityTypeEnumType = z.infer<
-  typeof publicEntityTypeEnumSchema
+  typeof PublicEntityTypeEnumSchema
 >;
 
-export const privateEntityTypeEnumSchema = z.enum(PRIVATE_ENTITY_TYPES);
+export const PrivateEntityTypeEnumSchema = z.enum(PRIVATE_ENTITY_TYPES);
 export type PrivateEntityTypeEnumType = z.infer<
-  typeof privateEntityTypeEnumSchema
+  typeof PrivateEntityTypeEnumSchema
 >;
 
-export const entityTypeEnumSchema = publicEntityTypeEnumSchema.or(
-  privateEntityTypeEnumSchema
+export const EntityTypeEnumSchema = PublicEntityTypeEnumSchema.or(
+  PrivateEntityTypeEnumSchema
 );
-export type EntityTypeEnumType = z.infer<typeof entityTypeEnumSchema>;
+export type EntityTypeEnumType = z.infer<typeof EntityTypeEnumSchema>;
 
-export const leadEstimateStatusEnumSchema = z.enum(LEAD_ESTIMATE_STATUS);
+export const LeadEstimateStatusEnumSchema = z.enum(LEAD_ESTIMATE_STATUS);
 export type LeadEstimateStatusEnumType = z.infer<
-  typeof leadEstimateStatusEnumSchema
+  typeof LeadEstimateStatusEnumSchema
 >;
