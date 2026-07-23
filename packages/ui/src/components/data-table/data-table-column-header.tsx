@@ -62,17 +62,21 @@ export function DataTableColumnHeader<TData, TValue>({
           <span>{label}</span>
           {canSort &&
             (isSorted === "desc" ? (
-              columnMeta?.variant === "number" ? (
+              columnMeta?.variant === "number" ||
+              columnMeta?.variant === "range" ? (
                 <ArrowDown01 />
-              ) : columnMeta?.variant === "date" ? (
+              ) : columnMeta?.variant === "date" ||
+                columnMeta?.variant === "dateRange" ? (
                 <ArrowDown01 />
               ) : (
                 <ArrowDownAZ />
               )
             ) : isSorted === "asc" ? (
-              columnMeta?.variant === "number" ? (
+              columnMeta?.variant === "number" ||
+              columnMeta?.variant === "range" ? (
                 <ArrowUp01 />
-              ) : columnMeta?.variant === "date" ? (
+              ) : columnMeta?.variant === "date" ||
+                columnMeta?.variant === "dateRange" ? (
                 <ArrowUp01 />
               ) : (
                 <ArrowUpAZ />
@@ -90,12 +94,14 @@ export function DataTableColumnHeader<TData, TValue>({
                   checked={isSorted === "asc"}
                   onClick={() => column.toggleSorting(false)}
                 >
-                  {columnMeta?.variant === "number" ? (
+                  {columnMeta?.variant === "number" ||
+                  columnMeta?.variant === "range" ? (
                     <>
                       <ArrowDown01 />
                       <span>0 - 1</span>
                     </>
-                  ) : columnMeta?.variant === "date" ? (
+                  ) : columnMeta?.variant === "date" ||
+                    columnMeta?.variant === "dateRange" ? (
                     <>
                       <ArrowDown01 />
                       <span>Oldest first</span>
@@ -112,12 +118,14 @@ export function DataTableColumnHeader<TData, TValue>({
                   checked={isSorted === "desc"}
                   onClick={() => column.toggleSorting(true)}
                 >
-                  {columnMeta?.variant === "number" ? (
+                  {columnMeta?.variant === "number" ||
+                  columnMeta?.variant === "range" ? (
                     <>
                       <ArrowUp01 />
                       <span>1 - 0</span>
                     </>
-                  ) : columnMeta?.variant === "date" ? (
+                  ) : columnMeta?.variant === "date" ||
+                    columnMeta?.variant === "dateRange" ? (
                     <>
                       <ArrowUp01 />
                       <span>Newest first</span>
