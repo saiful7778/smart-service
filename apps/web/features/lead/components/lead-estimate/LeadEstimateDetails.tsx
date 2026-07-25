@@ -11,6 +11,7 @@ import {
   Info,
   Package,
   Pen,
+  Send,
   Trash,
 } from "lucide-react";
 
@@ -38,8 +39,9 @@ import { UserAvatar } from "@/components/UserAvatar";
 
 import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook";
 import { LeadEstimateDetailsContractType } from "@/features/lead/api/leadEstimate.contract";
+import { SendEstimateDialog } from "@/features/lead/components/lead-estimate/SendEstimateDialog";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 const statusColorMap: Record<string, string> = {
   draft:
@@ -69,6 +71,7 @@ export function LeadEstimateDetails({
   jobId,
 }: LeadEstimateDetailsProps) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openSendDialog, setOpenSendDialog] = useState(false);
 
   const isAllowUpdate = usePermissionCheckWithOrg(
     leadId
@@ -143,6 +146,21 @@ export function LeadEstimateDetails({
             <Pen />
             <span>Update</span>
           </Button>
+        )}
+        {isAllowUpdate && (
+          <>
+            <Button onClick={() => setOpenSendDialog(true)} size="lg">
+              <Send />
+              <span>Send</span>
+            </Button>
+            <SendEstimateDialog
+              estimateId={estimateData.id}
+              leadId={leadId}
+              jobId={jobId}
+              open={openSendDialog}
+              onOpenChange={setOpenSendDialog}
+            />
+          </>
         )}
         {isAllowDelete && (
           <>

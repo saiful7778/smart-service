@@ -41,7 +41,7 @@ import { ListLeadJobsContractType } from "@/features/lead/api/leadJob.contract";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 import { nameInitials } from "@/utils/nameInitials";
 
 export function JobStep({ leadId }: { leadId: string }) {

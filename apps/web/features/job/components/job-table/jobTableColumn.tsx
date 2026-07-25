@@ -19,7 +19,7 @@ import {
 } from "@workspace/ui/components/tooltip";
 import { ColumnType } from "@workspace/ui/types/data-table";
 
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { ListJobsContractType } from "../../api/job.contract";
 import { JobTableRowAction } from "./JobTableRowAction";

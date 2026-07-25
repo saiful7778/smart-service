@@ -30,7 +30,7 @@ import {
 } from "@workspace/ui/components/table";
 
 import { MaterialSelectorField } from "@/features/material/components/MaterialSelectorField";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { LeadEstimateFormType } from "../../lead.schema";
 

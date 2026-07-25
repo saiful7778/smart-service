@@ -18,7 +18,7 @@ import {
 } from "@workspace/ui/components/tooltip";
 
 import { JobRevenueUpdateDialog } from "@/features/job/components/JobRevenueUpdateDialog";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { RevenueHistoryDialog } from "./RevenueHistories";
 

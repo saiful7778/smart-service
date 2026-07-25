@@ -1,5 +1,7 @@
 import { Column, Hr, Row, Text } from "react-email";
 
+import { formatCurrency } from "@workspace/lib/utils";
+
 import {
   EmailHeading,
   EmailInfoCard,
@@ -7,7 +9,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface EstimateSentMailProps {
+export interface EstimateSentMailProps {
   clientName: string;
   appName: string;
   supportMail: string;
@@ -20,6 +22,7 @@ interface EstimateSentMailProps {
     amount: number;
   }>;
   subtotal: number;
+  discount: number;
   tax: number;
   total: number;
   approveUrl: string;
@@ -35,6 +38,7 @@ export default function EstimateSentMail({
   validUntil,
   lineItems,
   subtotal,
+  discount,
   tax,
   total,
   estimatePdfUrl,
@@ -77,10 +81,10 @@ export default function EstimateSentMail({
               {item.qty}
             </Column>
             <Column className="text-left text-muted-foreground w-[30%]">
-              ${item.rate.toFixed(2)}
+              {formatCurrency(item.rate)}
             </Column>
             <Column className="text-right font-medium w-[20%]">
-              ${item.amount.toFixed(2)}
+              {formatCurrency(item.amount)}
             </Column>
           </Row>
         ))}
@@ -92,26 +96,36 @@ export default function EstimateSentMail({
             Subtotal
           </Column>
           <Column className="text-right text-sm w-[20%] font-medium">
-            ${subtotal.toFixed(2)}
+            {formatCurrency(subtotal)}
           </Column>
         </Row>
+        {discount > 0 && (
+          <Row>
+            <Column className="text-right text-sm text-muted-foreground w-[80%]">
+              Discount
+            </Column>
+            <Column className="text-right text-sm w-[20%] font-medium">
+              {`-${formatCurrency(discount)}`}
+            </Column>
+          </Row>
+        )}
         <Row>
           <Column className="text-right text-sm text-muted-foreground w-[80%]">
             Tax
           </Column>
           <Column className="text-right text-sm w-[20%] font-medium">
-            ${tax.toFixed(2)}
+            {formatCurrency(tax)}
           </Column>
         </Row>
 
         <Hr />
 
-        <Row className="justify-end">
+        <Row>
           <Column className="text-right text-base w-[80%] font-bold">
             Total
           </Column>
           <Column className="text-right text-base font-bold w-[20%]">
-            ${total.toFixed(2)}
+            {formatCurrency(total)}
           </Column>
         </Row>
       </EmailInfoCard>
@@ -138,6 +152,7 @@ EstimateSentMail.PreviewProps = {
     { description: "Service 2", qty: 2, rate: 50, amount: 100 },
   ],
   subtotal: 200,
+  discount: 10,
   tax: 20,
-  total: 220,
+  total: 210,
 } as EstimateSentMailProps;
