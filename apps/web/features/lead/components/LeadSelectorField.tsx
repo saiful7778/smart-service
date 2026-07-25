@@ -1,10 +1,17 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Asterisk, Info, UserSearch } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import { LeadStatusEnumType } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
@@ -64,19 +71,6 @@ export function LeadSelectorField<TFieldValues extends FieldValues>({
   disabled = false,
 }: LeadSelectorFieldProps<TFieldValues>) {
   const fieldId = useId();
-  const [search, setSearch] = useState<string | undefined>(undefined);
-
-  const { data, isLoading, isError, error } = useQuery(
-    orpcTQClient.lead.listForSearch.queryOptions({
-      input: {
-        search,
-        searchFields: ["name", "email", "phone"],
-        page: DEFAULT_PAGE_INDEX,
-        limit: 5,
-      },
-    })
-  );
-
   return (
     <Controller
       name={name}
@@ -91,56 +85,12 @@ export function LeadSelectorField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <SearchableSelector
-            value={field.value}
-            onChange={field.onChange}
-            onSearch={setSearch}
-          >
-            <SearchableSelectorTrigger>
-              <UserSearch className="size-4" />
-              {field.value ? (
-                <span className="truncate">
-                  {
-                    data?.data?.find(({ id }) => id === field.value)?.customer
-                      .name
-                  }
-                </span>
-              ) : (
-                <span className="text-muted-foreground">Select Lead</span>
-              )}
-            </SearchableSelectorTrigger>
-            <SearchableSelectorContent
-              data={data?.data}
-              isLoading={isLoading}
-              isError={isError}
-              error={error}
-              title="Select Lead"
-              description="Select a lead"
-              loadingFallback={
-                <SearchableSelectorLoadingSkeleton>
-                  <Skeleton className="h-8" />
-                </SearchableSelectorLoadingSkeleton>
-              }
-              emptyFallback={
-                <SearchableSelectorEmpty
-                  message="No leads found"
-                  icon={<UserSearch className="size-8 opacity-20" />}
-                />
-              }
-            >
-              {(item) => (
-                <SearchableSelectorItem
-                  item={item}
-                  getItemId={(lead) => lead.id}
-                >
-                  <span>{item.customer.name}</span>
-                  <Status variant={statusVariantMap[item.status] || "default"}>
-                    <StatusLabel>{formatEnumValue(item.status)}</StatusLabel>
-                  </Status>
-                </SearchableSelectorItem>
-              )}
-            </SearchableSelectorContent>
-          </SearchableSelector>
+          <LeadSelectorFieldRender
+            field={field}
+            fieldState={fieldState}
+            id={fieldId}
+            disabled={disabled}
+          />
           {description && (
             <FieldDescription
               className="flex items-start gap-1.5"
@@ -154,5 +104,89 @@ export function LeadSelectorField<TFieldValues extends FieldValues>({
         </Field>
       )}
     />
+  );
+}
+
+interface LeadSelectorFieldRenderProps<TFieldValues extends FieldValues> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  disabled?: boolean;
+  placeholder?: string;
+}
+
+function LeadSelectorFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  disabled = false,
+  placeholder = "Select Lead",
+}: LeadSelectorFieldRenderProps<TFieldValues>) {
+  const [search, setSearch] = useState<string | undefined>(undefined);
+
+  const { data, isLoading, isError, error } = useQuery(
+    orpcTQClient.lead.listForSearch.queryOptions({
+      input: {
+        search,
+        searchFields: ["name", "email", "phone"],
+        page: DEFAULT_PAGE_INDEX,
+        limit: 5,
+      },
+    })
+  );
+
+  const handleOnChange = useCallback(
+    (value: string | undefined) => {
+      field.onChange(value);
+    },
+    [field]
+  );
+
+  return (
+    <SearchableSelector
+      value={field.value}
+      onChange={handleOnChange}
+      onSearch={setSearch}
+      disabled={disabled}
+    >
+      <SearchableSelectorTrigger id={id} aria-invalid={fieldState.invalid}>
+        <UserSearch className="size-4" />
+        {field.value ? (
+          <span className="truncate">
+            {data?.data?.find(({ id }) => id === field.value)?.customer.name}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">{placeholder}</span>
+        )}
+      </SearchableSelectorTrigger>
+      <SearchableSelectorContent
+        data={data?.data}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        title={placeholder}
+        description="Select a lead"
+        loadingFallback={
+          <SearchableSelectorLoadingSkeleton>
+            <Skeleton className="h-8" />
+          </SearchableSelectorLoadingSkeleton>
+        }
+        emptyFallback={
+          <SearchableSelectorEmpty
+            message="No leads found"
+            icon={<UserSearch className="size-8 opacity-20" />}
+          />
+        }
+      >
+        {(item) => (
+          <SearchableSelectorItem item={item} getItemId={(lead) => lead.id}>
+            <span>{item.customer.name}</span>
+            <Status variant={statusVariantMap[item.status] || "default"}>
+              <StatusLabel>{formatEnumValue(item.status)}</StatusLabel>
+            </Status>
+          </SearchableSelectorItem>
+        )}
+      </SearchableSelectorContent>
+    </SearchableSelector>
   );
 }

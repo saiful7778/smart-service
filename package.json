@@ -40,8 +40,10 @@
     "docker:dev:down": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml down"
   },
   "devDependencies": {
+    "@storybook/addon-vitest": "catalog:",
     "@supabase/supabase-js": "catalog:",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@vitest/browser-playwright": "catalog:",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*",

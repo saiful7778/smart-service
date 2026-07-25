@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
-import { useNotificationStore } from "@/stores/zustand/notification/NotificationStoreContext";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
@@ -54,20 +53,17 @@ export function useNotificationMarkAsRead<TFieldNames>({
   onRequestStart,
 }: Omit<IApiHookInput<TFieldNames>, "onValidationErrors"> = {}) {
   const queryClient = useQueryClient();
-  const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
 
   return useMutation(
     orpcTQClient.notification.markAsRead.mutationOptions({
       onMutate: () => {
         onRequestStart?.();
       },
-      onSuccess: async ({ message }, { ids }) => {
+      onSuccess: async ({ message }) => {
         await queryClient.invalidateQueries({
           queryKey: orpcTQClient.notification.list.queryKey({ input: {} }),
           exact: false,
         });
-
-        markAllAsRead(ids);
 
         onSuccess?.(message);
       },

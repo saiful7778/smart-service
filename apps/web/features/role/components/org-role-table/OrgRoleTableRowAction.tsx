@@ -1,13 +1,13 @@
 "use client";
 
-import { ListOrgRoleOutput } from "../../api/role.contract";
+import { ListOrgRoleContractType } from "../../api/role.contract";
 import { DeleteOrgRole } from "../DeleteOrgRole";
 import { UpdateOrgRoleDialog } from "../UpdateOrgRoleDialog";
 
 export function OrgRoleTableRowAction({
   roleData,
 }: {
-  roleData: ListOrgRoleOutput[number];
+  roleData: ListOrgRoleContractType["output"]["data"][number];
 }) {
   "use no memo";
   return (

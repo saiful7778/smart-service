@@ -14,6 +14,8 @@ import {
   JobAddressTable,
   JobTable,
   LeadAttachmentTable,
+  LeadEstimateMaterialTable,
+  LeadEstimateTable,
   LeadRevenueHistoryTable,
   LeadTable,
   OrganizationMemberTable,
@@ -26,6 +28,7 @@ import { apiResponse } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
+import { increaseStock } from "@/features/lead/api/estimate-stock.helper";
 import { authMiddleware } from "@/server/middleware/auth.middleware";
 import { errorMiddleware } from "@/server/middleware/error.middleware";
 import { loggerMiddleware } from "@/server/middleware/logger.middleware";
@@ -78,7 +81,8 @@ export const listJobsProcedure = jobImpl.list
           isNull(JobTable.deletedAt),
           where
         )
-      );
+      )
+      .$dynamic();
 
     const [totalCount, jobs] = await Promise.all([
       context.db.$count(
@@ -414,6 +418,57 @@ export const jobDeleteProcedure = jobImpl.delete
           );
       }
 
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            eq(LeadEstimateTable.jobId, existJob.id),
+            isNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+      }
+
       await tx
         .update(JobTable)
         .set({
@@ -486,6 +541,57 @@ export const jobAllDeleteProcedure = jobImpl.deleteAll
             inArray(
               LeadAttachmentTable.id,
               jobAttachments.map(({ id }) => id)
+            )
+          );
+      }
+
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            inArray(LeadEstimateTable.jobId, jobIds),
+            isNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: new Date(),
+            deletedBy: context.orgMember.id,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
             )
           );
       }

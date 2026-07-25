@@ -30,7 +30,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 
 import { UserProfileType } from "@/features/user/user.api-schema";
 
-import { LeadJobUpdateDialog } from "../../LeadJobUpdateDialog";
+import { JobGeneralInfoUpdateDialog } from "./JobGeneralInfoUpdateDialog";
 
 interface JobGeneralInfoProps {
   leadId: string | null | undefined;
@@ -160,7 +160,7 @@ export function JobGeneralInfo({
           </div>
         </CardContent>
       </Card>
-      <LeadJobUpdateDialog
+      <JobGeneralInfoUpdateDialog
         open={openUpdateDialog}
         onOpenChange={setOpenUpdateDialog}
         leadId={leadId}

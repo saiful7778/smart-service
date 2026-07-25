@@ -2,14 +2,10 @@
 
 import { createContext, useContext, useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { StoreApi, useStore } from "zustand";
 
-import type {
-  AuthSession,
-  AuthUser,
-  PermissionWithOrg,
-  RoleWithOrg,
-} from "@/types";
+import { orpcTQClient } from "@/server/orpc.client";
 
 import { authStore, AuthStoreAction, AuthStoreState } from "./authStore";
 
@@ -17,22 +13,19 @@ const AuthStoreContext = createContext<StoreApi<
   AuthStoreState & AuthStoreAction
 > | null>(null);
 
-interface AuthStoreProviderProps extends React.PropsWithChildren {
-  user: AuthUser;
-  session: AuthSession;
-  roles: Array<RoleWithOrg>;
-  permissions: Array<PermissionWithOrg>;
-}
+export function AuthStoreProvider({ children }: { children: React.ReactNode }) {
+  const {
+    data: {
+      data: { user, session, roles, permissions, isAdminUser },
+    },
+  } = useSuspenseQuery(
+    orpcTQClient.auth.metadata.queryOptions({
+      staleTime: Infinity,
+    })
+  );
 
-export function AuthStoreProvider({
-  children,
-  user,
-  session,
-  roles,
-  permissions,
-}: AuthStoreProviderProps) {
   const [store] = useState<StoreApi<AuthStoreState & AuthStoreAction>>(() =>
-    authStore(user, session, roles, permissions)
+    authStore(user, session, roles, permissions, isAdminUser)
   );
 
   return (

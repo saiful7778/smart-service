@@ -1,9 +1,16 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { Asterisk, Info } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import {
   Field,
@@ -18,6 +25,8 @@ interface InputFieldProps<
 > extends React.ComponentProps<"input"> {
   name: Path<TFieldValues>;
   control: Control<TFieldValues>;
+  onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
   label?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
@@ -27,11 +36,13 @@ interface InputFieldProps<
 function InputField<TFieldValues extends FieldValues>({
   name,
   control,
+  onValueChange,
+  valueModifier,
   label,
   description,
   isDescriptionInfoIconShow = false,
   requiredField = false,
-  disabled,
+  disabled = false,
   ...props
 }: InputFieldProps<TFieldValues>) {
   const fieldId = useId();
@@ -49,12 +60,14 @@ function InputField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <Input
-            {...field}
-            {...props}
+          <InputFieldRender
+            field={field}
+            fieldState={fieldState}
             id={fieldId}
-            aria-invalid={fieldState.invalid}
+            onValueChange={onValueChange}
+            valueModifier={valueModifier}
             disabled={disabled}
+            {...props}
           />
           {description && (
             <FieldDescription
@@ -68,6 +81,56 @@ function InputField<TFieldValues extends FieldValues>({
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
+    />
+  );
+}
+
+interface InputFieldRenderProps<
+  TFieldValues extends FieldValues,
+> extends React.ComponentProps<"input"> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  onValueChange?: (value: string) => void;
+  valueModifier?: (value: string) => string;
+}
+
+function InputFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  onValueChange,
+  valueModifier,
+  disabled = false,
+  ...props
+}: InputFieldRenderProps<TFieldValues>) {
+  const filedValue = useMemo(
+    () => (valueModifier ? valueModifier(field.value) : field.value),
+    [field, valueModifier]
+  );
+
+  const handleOnChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const value = event.target.value;
+
+      field.onChange(value);
+      onValueChange?.(value);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <Input
+      {...field}
+      value={filedValue}
+      onChange={handleOnChange}
+      {...props}
+      id={id}
+      aria-invalid={fieldState.invalid}
+      disabled={disabled}
     />
   );
 }

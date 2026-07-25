@@ -61,12 +61,6 @@ export const resetPasswordSchema = z
   });
 export type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
 
-export const profileUpdateSchema = z.object({
-  name: z.string(),
-  email: emailField({ fieldName: "email" }),
-});
-export type ProfileUpdateType = z.infer<typeof profileUpdateSchema>;
-
 export const updatePasswordSchema = z
   .object({
     currentPassword: passwordField({

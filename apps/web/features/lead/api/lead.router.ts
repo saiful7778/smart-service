@@ -6,6 +6,7 @@ import {
   leadAddressUpdateProcedure,
   leadAllDeleteProcedure,
   leadCreateProcedure,
+  leadDataExportProcedure,
   leadDeleteProcedure,
   leadDetailsProcedure,
   leadImpl,
@@ -38,6 +39,21 @@ import {
   listLeadCategoriesForSearchProcedure,
   listLeadCategoriesProcedure,
 } from "./leadCategory.procedure";
+import {
+  leadEstimateCreateProcedure,
+  leadEstimateDeleteAllProcedure,
+  leadEstimateDeleteProcedure,
+  leadEstimateDetailsProcedure,
+  leadEstimateUpdateProcedure,
+  listLeadEstimateProcedure,
+} from "./leadEstimate.procedure";
+import {
+  leadEstimateBinDeleteAllProcedure,
+  leadEstimateBinDeleteProcedure,
+  leadEstimateRestoreAllProcedure,
+  leadEstimateRestoreProcedure,
+  listLeadEstimateBinProcedure,
+} from "./leadEstimateBin.procedure";
 import { listLeadJobsProcedure } from "./leadJob.procedure";
 import {
   leadNoteCreateProcedure,
@@ -49,6 +65,7 @@ import {
 export const leadRouter = leadImpl.router({
   list: listLeadProcedure,
   listForSearch: listLeadForSearchProcedure,
+  export: leadDataExportProcedure,
   create: leadCreateProcedure,
   update: leadUpdateProcedure,
   updateAddress: leadAddressUpdateProcedure,
@@ -84,6 +101,21 @@ export const leadRouter = leadImpl.router({
       list: listLeadAttachmentBinProcedure,
       delete: leadAttachmentBinDeleteProcedure,
       restore: leadAttachmentRestoreProcedure,
+    },
+  },
+  estimate: {
+    list: listLeadEstimateProcedure,
+    details: leadEstimateDetailsProcedure,
+    create: leadEstimateCreateProcedure,
+    update: leadEstimateUpdateProcedure,
+    delete: leadEstimateDeleteProcedure,
+    deleteAll: leadEstimateDeleteAllProcedure,
+    bin: {
+      list: listLeadEstimateBinProcedure,
+      restore: leadEstimateRestoreProcedure,
+      restoreAll: leadEstimateRestoreAllProcedure,
+      delete: leadEstimateBinDeleteProcedure,
+      deleteAll: leadEstimateBinDeleteAllProcedure,
     },
   },
   bin: {

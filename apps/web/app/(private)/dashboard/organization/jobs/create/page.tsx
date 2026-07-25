@@ -12,11 +12,17 @@ export const metadata: Metadata = {
   title: "Create Job",
 };
 
-export default async function CreateJobPage() {
+export default async function CreateJobPage(
+  props: PageProps<"/dashboard/organization/jobs/create">
+) {
   await requireUserPermissionsWithOrgCache([
     "org.job.manage",
     "org.job.create",
   ]);
+
+  const searchParams = await props.searchParams;
+  const leadId = (searchParams?.leadId ?? undefined) as string | undefined;
+
   const queryClient = getQueryClient();
 
   await queryClient.ensureQueryData(
@@ -27,7 +33,7 @@ export default async function CreateJobPage() {
     <HydrateClient client={queryClient}>
       <DashboardShell title="Create Job" shortDescription="Create a new job">
         <div className="max-w-4xl w-full mx-auto">
-          <JobCreateForm />
+          <JobCreateForm leadId={leadId} />
         </div>
       </DashboardShell>
     </HydrateClient>

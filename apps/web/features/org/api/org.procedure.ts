@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -7,6 +7,7 @@ import {
 } from "@workspace/drizzle/paginate-query";
 import {
   AddressTable,
+  FileTable,
   InsertAddress,
   InsertOrgAddress,
   InvitationTable,
@@ -29,7 +30,7 @@ import { env } from "@/lib/env";
 import { mailProvider } from "@/lib/mail";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
-import { assignFileEntityByFileKey } from "@/features/upload/assignFileEntity";
+import { resolveFileUrl } from "@/features/upload/resolveFileUrl";
 import { userProfileColumns } from "@/features/user/user.api-schema";
 import {
   authMiddleware,
@@ -53,54 +54,64 @@ export const orgImpl = implement(orgContract)
 export const createOrgProcedure = orgImpl.create
   .use(userPermissionMiddleware(["self.org.create"]))
   .handler(async ({ context, input }) => {
-    if (context.user.id !== input.userId) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.USER.NOT_MATCHED,
-      });
-    }
-
+    const { address, ...restInput } = input;
     const org = await context.db.transaction(async (tx) => {
+      let imageUrl: string | undefined = undefined;
+
+      if (restInput?.imageId) {
+        const [existFile] = await context.db
+          .select({ key: FileTable.key, entityType: FileTable.entityType })
+          .from(FileTable)
+          .where(
+            and(
+              eq(FileTable.id, restInput.imageId),
+              eq(FileTable.uploadedBy, context.user.id),
+              isNull(FileTable.deletedAt)
+            )
+          )
+          .limit(1);
+
+        if (!existFile) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: API_MESSAGES.UPLOAD.NOT_FOUND,
+          });
+        }
+
+        imageUrl = await resolveFileUrl(existFile, {
+          redisClient: context.redisClient,
+        });
+      }
+
       const org = await auth.api.createOrganization({
         body: {
-          name: input.name,
-          slug: input.slug,
-          logo: input.logoUrl,
+          name: restInput.name,
+          slug: restInput.slug,
+          logo: imageUrl,
           userId: context.user.id,
-          email: input.email,
-          phone: input.phone,
+          email: restInput.email,
+          phone: restInput.phone,
           keepCurrentActiveOrganization: false,
         },
         headers: context.reqHeaders,
       });
       context.logger.info(API_MESSAGES.ORG.CREATE);
 
-      if (input.logoKey) {
-        await assignFileEntityByFileKey(
-          input.logoKey,
-          {
-            entityType: "organization",
-            entityId: org.id,
-          },
-          tx
-        );
-      }
-
-      const [address] = await tx
+      const [addressData] = await tx
         .insert(AddressTable)
         .values({
-          line1: input.line1,
-          city: input.city,
-          state: input.state,
-          zipCode: input.zipCode,
-          latitude: input.latitude,
-          longitude: input.longitude,
-          placeId: input.placeId,
+          line1: address.line1,
+          city: address.city,
+          state: address.state,
+          zipCode: address.zipCode,
+          latitude: address.latitude,
+          longitude: address.longitude,
+          placeId: address.placeId,
         } as InsertAddress)
         .returning({ id: AddressTable.id });
 
       await tx.insert(OrgAddressTable).values({
         orgId: org.id,
-        addressId: address!.id,
+        addressId: addressData!.id,
         isPrimary: true,
       } as InsertOrgAddress);
 
@@ -136,7 +147,6 @@ export const listMemberProcedure = orgImpl.listMember
       {
         name: UserTable.name,
         email: UserTable.email,
-        roleName: RoleTable.roleName,
         createdAt: OrganizationMemberTable.createdAt,
       },
       input
@@ -155,7 +165,6 @@ export const listMemberProcedure = orgImpl.listMember
       .where(
         and(eq(OrganizationMemberTable.organizationId, context.org.id), where)
       )
-      .groupBy(UserTable.id, OrganizationMemberTable.id)
       .$dynamic();
 
     const [totalCount, members] = await Promise.all([
@@ -388,47 +397,37 @@ export const updateMemberProcedure = orgImpl.updateMember
     }> = [];
 
     await Promise.all(
-      input.roleNames.map(async (roleName) => {
-        if (OrgRoleEnumSchema.safeParse(roleName.value).success) {
-          const [roleData] = await context.db
-            .select({
-              id: RoleTable.id,
-              roleName: RoleTable.roleName,
-            })
-            .from(RoleTable)
-            .where(eq(RoleTable.roleName, roleName.value as OrgRoleType))
-            .limit(1);
+      input.roleIds.map(async (roleId) => {
+        const [roleData] = await context.db
+          .select({
+            id: RoleTable.id,
+            roleName: RoleTable.roleName,
+          })
+          .from(RoleTable)
+          .where(eq(RoleTable.id, roleId))
+          .limit(1);
 
-          if (!roleData) {
-            throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
-            });
-          }
-
+        if (roleData) {
           rolesData.push({
             id: roleData.id,
             roleName: roleData.roleName,
             type: "system",
           });
-        } else {
-          const [roleData] = await context.db
-            .select({
-              id: OrgRoleTable.id,
-              roleName: OrgRoleTable.role,
-            })
-            .from(OrgRoleTable)
-            .where(eq(OrgRoleTable.role, roleName.value))
-            .limit(1);
+        }
 
-          if (!roleData) {
-            throw new ORPCError("BAD_REQUEST", {
-              message: API_MESSAGES.USER.ROLE.NOT_FOUND,
-            });
-          }
+        const [orgRoleData] = await context.db
+          .select({
+            id: OrgRoleTable.id,
+            roleName: OrgRoleTable.role,
+          })
+          .from(OrgRoleTable)
+          .where(eq(OrgRoleTable.id, roleId))
+          .limit(1);
 
+        if (orgRoleData) {
           rolesData.push({
-            id: roleData.id,
-            roleName: roleData.roleName,
+            id: orgRoleData.id,
+            roleName: orgRoleData.roleName,
             type: "custom",
           });
         }

@@ -101,26 +101,37 @@ export const leadAttachmentCreateProcedure = leadImpl.attachment.create
       });
     }
 
-    const [attachment] = await context.db
-      .insert(LeadAttachmentTable)
-      .values({
-        leadId,
-        jobId,
-        fileId: existFile.id,
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        uploadedBy: context.orgMember.id,
-      })
-      .returning();
+    const attachmentData = await context.db.transaction(async (tx) => {
+      const [attachmentData] = await tx
+        .insert(LeadAttachmentTable)
+        .values({
+          leadId,
+          jobId,
+          fileId: existFile.id,
+          title: input.title,
+          description: input.description,
+          category: input.category,
+          uploadedBy: context.orgMember.id,
+        })
+        .returning();
 
-    if (!attachment) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: API_MESSAGES.LEAD.ATTACHMENT.NOT_CREATE,
-      });
-    }
+      if (!attachmentData) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: API_MESSAGES.LEAD.ATTACHMENT.NOT_CREATE,
+        });
+      }
 
-    return apiResponse(API_MESSAGES.LEAD.ATTACHMENT.CREATE, attachment);
+      await tx
+        .update(FileTable)
+        .set({
+          entityId: attachmentData.id,
+        })
+        .where(eq(FileTable.id, existFile.id));
+
+      return attachmentData;
+    });
+
+    return apiResponse(API_MESSAGES.LEAD.ATTACHMENT.CREATE, attachmentData);
   });
 
 export const listLeadAttachmentProcedure = leadImpl.attachment.list
@@ -208,7 +219,6 @@ export const listLeadAttachmentProcedure = leadImpl.attachment.list
           originalName: FileTable.originalName,
           mimeType: FileTable.mimeType,
           size: FileTable.size,
-          url: FileTable.url,
           uploadedAt: FileTable.uploadedAt,
         },
       })

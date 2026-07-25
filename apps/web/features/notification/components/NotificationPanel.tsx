@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Bell, CheckCheck } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
@@ -14,7 +15,8 @@ import {
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { Separator } from "@workspace/ui/components/separator";
 
-import { useNotificationStore } from "@/stores/zustand/notification/NotificationStoreContext";
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
+import { orpcTQClient } from "@/server/orpc.client";
 
 import { useNotificationMarkAsRead } from "../api/notification.api.hook";
 import { NotificationItem } from "./NotificationItem";
@@ -22,19 +24,31 @@ import { NotificationItem } from "./NotificationItem";
 export function NotificationPanel() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const notifications = useNotificationStore((state) => state.notifications);
+  const {
+    data: {
+      data: { data: notifications },
+    },
+  } = useSuspenseQuery(
+    orpcTQClient.notification.list.queryOptions({
+      input: {
+        page: DEFAULT_PAGE_INDEX,
+        limit: DEFAULT_PAGE_SIZE,
+      },
+    })
+  );
 
   const { mutate: markAsRead, isPending } = useNotificationMarkAsRead();
 
-  const unreadCount = useMemo(() => {
-    return notifications.filter((n) => !n.isRead).length;
-  }, [notifications]);
+  const unreadNotifications = useMemo(
+    () => notifications.filter((n) => !n.isRead),
+    [notifications]
+  );
 
   const handleMarkAllAsRead = useCallback(() => {
     markAsRead({
-      ids: notifications.filter((n) => !n.isRead).map((n) => n.id),
+      ids: unreadNotifications.map((n) => n.id),
     });
-  }, [markAsRead, notifications]);
+  }, [markAsRead, unreadNotifications]);
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -44,14 +58,14 @@ export function NotificationPanel() {
             size="icon-lg"
             variant="secondary"
             className="relative cursor-pointer"
-          >
-            <Bell />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 size-3 rounded-full bg-accent z-10" />
-            )}
-          </Button>
+          />
         }
-      />
+      >
+        <Bell />
+        {unreadNotifications.length > 0 && (
+          <span className="absolute -top-1 -right-1 size-3 rounded-full bg-accent z-10" />
+        )}
+      </PopoverTrigger>
       <PopoverContent align="end" side="bottom" className="w-100 gap-0 p-0">
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2">
@@ -60,18 +74,17 @@ export function NotificationPanel() {
             <span className="text-sm font-semibold tracking-tight select-none">
               Notifications
             </span>
-            {unreadCount > 0 && (
+            {unreadNotifications.length > 0 && (
               <span className="rounded-full size-4 inline-flex items-center justify-center bg-secondary text-secondary-foreground px-1.5 text-[10px] font-bold">
-                {unreadCount}
+                {unreadNotifications.length}
               </span>
             )}
           </div>
           <Button
             variant="secondary"
-            size="xs"
+            size="sm"
             onClick={handleMarkAllAsRead}
-            disabled={isPending || unreadCount === 0}
-            aria-disabled={isPending || unreadCount === 0}
+            disabled={isPending || unreadNotifications.length === 0}
           >
             <CheckCheck />
             <span>Mark all read</span>
@@ -94,15 +107,12 @@ export function NotificationPanel() {
         <div className="flex items-center justify-center p-1 border-t">
           <Button
             className="w-full cursor-pointer"
-            size="xs"
             variant="ghost"
             nativeButton={false}
-            render={
-              <Link href={{ pathname: "/dashboard/notifications" }}>
-                Read All Notifications
-              </Link>
-            }
-          />
+            render={<Link href={{ pathname: "/dashboard/notifications" }} />}
+          >
+            Read All Notifications
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

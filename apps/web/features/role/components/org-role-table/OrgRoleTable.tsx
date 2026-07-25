@@ -7,12 +7,12 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { ListOrgRoleOutput } from "../../api/role.contract";
+import { ListOrgRoleContractType } from "../../api/role.contract";
 import { CreateOrgRoleDialog } from "../CreateOrgRoleDialog";
 import { orgRoleTableColumn } from "./orgRoleTableColumn";
 
 interface OrgRoleTableProps {
-  data: ListOrgRoleOutput;
+  data: ListOrgRoleContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

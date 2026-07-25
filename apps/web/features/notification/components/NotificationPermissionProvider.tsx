@@ -20,7 +20,6 @@ import { registerServiceWorker } from "@/lib/service-worker";
 
 import useLocalStorage from "@/hooks/use-local-storage";
 import { orpcClient } from "@/server/orpc.client";
-import { useNotificationStore } from "@/stores/zustand/notification/NotificationStoreContext";
 import { detectDevice, type DevicePlatform } from "@/utils/detectDevice";
 
 import {
@@ -99,19 +98,16 @@ export function NotificationPermissionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const permission = useNotificationStore((state) => state.permission);
-  const updatePermission = useNotificationStore(
-    (state) => state.updatePermission
-  );
+  const [permission, setPermission] =
+    useState<NotificationPermission>("default");
 
-  // Stable — detectDevice() reads UA, no need to re-run on re-render
   const [{ platform }] = useState(() => detectDevice());
 
   const requestPermission =
     useCallback(async (): Promise<NotificationPermission> => {
       try {
         const result = await requestPlatformPermission(platform);
-        updatePermission(result);
+        setPermission(result);
 
         if (result === "granted") {
           await subscribePushSubscription();
@@ -124,13 +120,15 @@ export function NotificationPermissionProvider({
         console.error("Notification permission request failed:", error);
         return "denied";
       }
-    }, [platform, updatePermission]);
+    }, [platform, setPermission]);
 
   // On mount: sync current permission state into store.
   // Never auto-prompt — let the card handle that via user gesture.
   useEffect(() => {
-    updatePermission(checkPermission());
-  }, [updatePermission]);
+    queueMicrotask(() => {
+      setPermission(checkPermission());
+    });
+  }, []);
 
   // Show the prompt card if:
   // - push is supported on this platform

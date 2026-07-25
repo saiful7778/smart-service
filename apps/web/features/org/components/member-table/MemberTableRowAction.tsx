@@ -3,13 +3,13 @@
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
-import { ListMemberOutput } from "../../api/org.contract";
+import { ListMemberContractType } from "../../api/org.contract";
 import { MemberUpdateDialog } from "../MemberUpdateDialog";
 
 export function MemberTableRowAction({
   memberData,
 }: {
-  memberData: ListMemberOutput["data"][number];
+  memberData: ListMemberContractType["output"]["data"]["data"][number];
 }) {
   const authUser = useAuthStore((state) => state.user);
   const isAllowUpdate = usePermissionCheckWithOrg([
@@ -23,7 +23,7 @@ export function MemberTableRowAction({
       {!isCurrentUser && isAllowUpdate && (
         <MemberUpdateDialog
           memberId={memberData.orgMemberId}
-          roleNames={memberData.roles.map((role) => role.roleName)}
+          roleIds={memberData.roles.map(({ id }) => id)}
         />
       )}
     </div>

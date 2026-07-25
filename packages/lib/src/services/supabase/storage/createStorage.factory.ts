@@ -1,5 +1,5 @@
-import { StorageService } from "./Storage.service";
-import type { IStorageService, StorageServiceConfigs } from "./types";
+import { type IStorageService, StorageService } from "./Storage.service";
+import type { StorageServiceConfigs } from "./types";
 
 export function createStorage({
   supabaseClient,

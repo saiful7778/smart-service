@@ -5,3 +5,5 @@ export * from "./leadNote.table";
 export * from "./leadRevenueHistory.table";
 export * from "./leadCategory.table";
 export * from "./leadCategoryJoin.table";
+export * from "./leadEstimate.table";
+export * from "./leadEstimateMaterial.table";

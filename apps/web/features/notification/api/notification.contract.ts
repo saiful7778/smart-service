@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -19,6 +15,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { notificationUpdateSchema } from "../notification.schema";
 
@@ -44,12 +41,9 @@ const listNotificationContract = baseContract
   .output(
     apiOutputZodSchema(paginateOutputZodSchema(selectNotificationSchema))
   );
-export type ListNotificationInput = InferContractRouterInputs<
+export type ListNotificationContractType = InferContractRouterType<
   typeof listNotificationContract
 >;
-export type ListNotificationOutput = InferContractRouterOutputs<
-  typeof listNotificationContract
->["data"];
 
 const settingsDetailsContract = baseContract
   .route({
@@ -70,12 +64,9 @@ const settingsDetailsContract = baseContract
       )
     )
   );
-export type SettingsDetailsInput = InferContractRouterInputs<
+export type SettingsDetailsContractType = InferContractRouterType<
   typeof settingsDetailsContract
 >;
-export type SettingsDetailsOutput = InferContractRouterOutputs<
-  typeof settingsDetailsContract
->["data"];
 
 const updateSettingsContract = baseContract
   .route({
@@ -85,12 +76,9 @@ const updateSettingsContract = baseContract
   })
   .input(notificationUpdateSchema)
   .output(apiOutputZodSchema(z.null()));
-export type UpdateSettingsInput = InferContractRouterInputs<
+export type UpdateSettingsContractType = InferContractRouterType<
   typeof updateSettingsContract
 >;
-export type UpdateSettingsOutput = InferContractRouterOutputs<
-  typeof updateSettingsContract
->["data"];
 
 const markAsReadContract = baseContract
   .route({
@@ -100,12 +88,9 @@ const markAsReadContract = baseContract
   })
   .input(z.object({ ids: z.array(z.uuid()) }))
   .output(apiOutputZodSchema(z.null()));
-export type MarkAsReadInput = InferContractRouterInputs<
+export type MarkAsReadContractType = InferContractRouterType<
   typeof markAsReadContract
 >;
-export type MarkAsReadOutput = InferContractRouterOutputs<
-  typeof markAsReadContract
->["data"];
 
 const subscribePushNotificationContract = baseContract
   .route({
@@ -122,12 +107,9 @@ const subscribePushNotificationContract = baseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type SubscribePushNotificationInput = InferContractRouterInputs<
+export type SubscribePushNotificationContractType = InferContractRouterType<
   typeof subscribePushNotificationContract
 >;
-export type SubscribePushNotificationOutput = InferContractRouterOutputs<
-  typeof subscribePushNotificationContract
->["data"];
 
 const unsubscribePushNotificationContract = baseContract
   .route({
@@ -136,12 +118,9 @@ const unsubscribePushNotificationContract = baseContract
     tags,
   })
   .output(apiOutputZodSchema(z.null()));
-export type UnsubscribePushNotificationInput = InferContractRouterInputs<
+export type UnsubscribePushNotificationContractType = InferContractRouterType<
   typeof unsubscribePushNotificationContract
 >;
-export type UnsubscribePushNotificationOutput = InferContractRouterOutputs<
-  typeof unsubscribePushNotificationContract
->["data"];
 
 export const notificationContract = {
   list: listNotificationContract,

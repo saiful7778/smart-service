@@ -1,4 +1,5 @@
 import {
+  Boxes,
   House,
   List,
   ListTree,
@@ -23,6 +24,13 @@ export const adminSidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard/admin",
         pathRegex: /^\/dashboard\/admin$/,
+      },
+      {
+        title: "All Users",
+        icon: UsersRound,
+        permissions: ["system.user.manage", "system.user.list"],
+        path: "/dashboard/admin/users",
+        pathRegex: /^\/dashboard\/admin\/users(\/.*)?$/,
       },
       {
         title: "Roles & Permissions",
@@ -109,6 +117,36 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
             permissions: ["org.job.manage", "org.job.delete"],
             path: "/dashboard/organization/jobs/bin",
             pathRegex: /^\/dashboard\/organization\/jobs\/bin$/,
+          },
+        ],
+      },
+      {
+        title: "Materials",
+        icon: Boxes,
+        permissions: ["org.material.manage", "org.material.list"],
+        path: "/dashboard/organization/materials",
+        pathRegex: /^\/dashboard\/organization\/materials(\/.*)?$/,
+        items: [
+          {
+            icon: List,
+            title: "All Materials",
+            permissions: ["org.material.manage", "org.material.list"],
+            path: "/dashboard/organization/materials",
+            pathRegex: /^\/dashboard\/organization\/materials$/,
+          },
+          {
+            icon: PlusCircle,
+            title: "Create Material",
+            permissions: ["org.material.manage", "org.material.create"],
+            path: "/dashboard/organization/materials/create",
+            pathRegex: /^\/dashboard\/organization\/materials\/create$/,
+          },
+          {
+            title: "Recycle Bin",
+            icon: Trash2,
+            permissions: ["org.material.manage", "org.material.delete"],
+            path: "/dashboard/organization/materials/bin",
+            pathRegex: /^\/dashboard\/organization\/materials\/bin$/,
           },
         ],
       },

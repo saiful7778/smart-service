@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadCloud } from "lucide-react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
 
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
@@ -24,16 +23,15 @@ import { FieldGroup } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
-import { FileUploadRef } from "@/components/FileUpload";
+import { useFileUploadState } from "@/components/FileUpload";
 import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import {
   leadAttachmentUploadSchema,
   LeadAttachmentUploadType,
 } from "@/features/lead/lead.schema";
-import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 
-import { useLeadAttachmentCreate } from "../../api/lead.api.hook";
+import { useLeadAttachmentCreate } from "../../api/leadAttachment.api.hook";
 
 export function LeadAttachmentUploadDialog({
   leadId,
@@ -44,12 +42,8 @@ export function LeadAttachmentUploadDialog({
 }) {
   "use no memo";
   const [open, setOpen] = useState<boolean>(false);
-  const uploadRef = useRef<FileUploadRef>(null);
-  const [attachmentValue, setAttachmentValue] = useState<
-    File | File[] | null | undefined
-  >(undefined);
-  const [attachmentError, setAttachmentError] = useState<string | null>(null);
-  const toastId = "upload_attachment_toast_message";
+  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
+    useFileUploadState();
 
   const form = useForm<LeadAttachmentUploadType>({
     resolver: zodResolver(leadAttachmentUploadSchema),
@@ -62,57 +56,34 @@ export function LeadAttachmentUploadDialog({
     },
   });
 
-  const { mutateAsync: uploadFileToAPI, isPending: isUploading } =
-    useFileUploadToAPI({
-      onRequestStart: () => {
-        toast.loading("Uploading...", { id: toastId });
-      },
-      onSuccess: () => {
-        toast.success("Uploaded successfully", { id: toastId });
-      },
-      onError: (errorMessage) => {
-        toast.error(errorMessage, { id: toastId });
-      },
-    });
-
-  const { mutate: createAttachment, isPending: isCreating } =
-    useLeadAttachmentCreate<keyof LeadAttachmentUploadType>({
-      onSuccess: () => {
-        form.reset();
-        uploadRef.current?.clearFiles();
-        uploadRef.current?.clearErrors();
-        setOpen(false);
-      },
-      onValidationErrors: (fields) => {
-        fields.forEach(({ fieldName, message }) => {
-          form.setError(fieldName, {
-            message,
-          });
+  const { mutate, isPending } = useLeadAttachmentCreate<
+    keyof LeadAttachmentUploadType
+  >({
+    uploadRef,
+    onSuccess: () => {
+      form.reset();
+      setOpen(false);
+    },
+    onValidationErrors: (fields) => {
+      fields.forEach(({ fieldName, message }) => {
+        form.setError(fieldName, {
+          message,
         });
-      },
-    });
+      });
+    },
+  });
 
   const handleSubmit = async (e: LeadAttachmentUploadType) => {
-    if (!attachmentValue) {
-      setAttachmentError("Please select a file");
+    if (!fileValue) {
+      setFileError("Please select a file");
       return;
     }
 
-    const { data } = await uploadFileToAPI({
-      file: Array.isArray(attachmentValue)
-        ? attachmentValue[0]!
-        : attachmentValue,
-      entityId: (e.jobId ?? e.leadId)!,
-      entityType: e.jobId ? "job_attachment" : "lead_attachment",
-    });
-
-    createAttachment({
+    mutate({
       ...e,
-      fileId: data.id,
+      fileValue,
     });
   };
-
-  const isPending = isUploading || isCreating;
 
   const formId = "attachment_upload_form";
 
@@ -135,12 +106,12 @@ export function LeadAttachmentUploadDialog({
               <FileUploadField
                 label="Attchment"
                 variant="any"
-                value={attachmentValue}
-                onChange={setAttachmentValue}
+                value={fileValue}
+                onChange={setFileValue}
                 ref={uploadRef}
                 disabled={isPending}
-                onError={setAttachmentError}
-                fieldError={attachmentError}
+                fieldError={fileError}
+                onError={setFileError}
               />
               <InputField
                 control={form.control}

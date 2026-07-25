@@ -22,6 +22,7 @@
     "./rate-limit/mock": "./tests/rate-limit.mock.ts",
     "./logger": "./src/services/logger/index.ts",
     "./qstash": "./src/services/qstash/index.ts",
+    "./qstash/error": "./src/services/qstash/QstashError.ts",
     "./utils": "./src/utils/index.ts",
     "./supabase/browser-client": "./src/services/supabase/browser-client.ts",
     "./supabase/server-client": "./src/services/supabase/server-client.ts",

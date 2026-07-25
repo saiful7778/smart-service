@@ -33,13 +33,13 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 
 import { useJobUpdate } from "../../api/job.api.hook";
-import { ListJobsOutput } from "../../api/job.contract";
+import { ListJobsContractType } from "../../api/job.contract";
 import { useJobTableContext } from "./JobTableContext";
 
 export function JobTableRowAction({
   jobData,
 }: {
-  jobData: ListJobsOutput["data"][number];
+  jobData: ListJobsContractType["output"]["data"]["data"][number];
 }) {
   const {
     handleDeleteJobDialog,

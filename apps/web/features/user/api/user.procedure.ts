@@ -6,14 +6,18 @@ import {
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
+  FileTable,
   RoleTable,
   UserActivityTable,
   UserRoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
-import { apiResponse } from "@workspace/lib/utils";
+import { apiResponse, prepareExport } from "@workspace/lib/utils";
+
+import { auth } from "@/lib/better-auth/auth";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
+import { resolveFileUrl } from "@/features/upload/resolveFileUrl";
 import {
   authMiddleware,
   userPermissionMiddleware,
@@ -39,16 +43,8 @@ export const listUserProcedure = userImpl.list
   .handler(async ({ context, input }) => {
     const { where, orderBy, limit, offset, page } = buildPaginateOptions(
       {
-        id: UserTable.id,
         name: UserTable.name,
         email: UserTable.email,
-        emailVerified: UserTable.emailVerified,
-        image: UserTable.image,
-        role: UserTable.role,
-        roleName: RoleTable.roleName,
-        banned: UserTable.banned,
-        banReason: UserTable.banReason,
-        banExpires: UserTable.banExpires,
         createdAt: UserTable.createdAt,
         updatedAt: UserTable.updatedAt,
       },
@@ -83,7 +79,13 @@ export const listUserProcedure = userImpl.list
       .from(UserTable)
       .leftJoin(lastLoginSq, eq(lastLoginSq.userId, UserTable.id))
       .innerJoin(UserRoleTable, eq(UserRoleTable.userId, UserTable.id))
-      .innerJoin(RoleTable, eq(UserRoleTable.roleId, RoleTable.id))
+      .innerJoin(
+        RoleTable,
+        and(
+          eq(RoleTable.type, "SYSTEM"),
+          eq(UserRoleTable.roleId, RoleTable.id)
+        )
+      )
       .where(where)
       .groupBy(UserTable.id, lastLoginSq.lastLogin);
 
@@ -95,6 +97,65 @@ export const listUserProcedure = userImpl.list
     const meta = buildPaginationMeta(totalCount, users.length, page, limit);
 
     return apiResponse(API_MESSAGES.USER.GET_ALL, { meta, data: users });
+  });
+
+export const userDataExportProcedure = userImpl.export
+  .use(userPermissionMiddleware(["system.user.manage", "system.user.list"]))
+  .handler(async ({ context, input }) => {
+    const { where, orderBy } = buildPaginateOptions(
+      {
+        name: UserTable.name,
+        email: UserTable.email,
+        createdAt: UserTable.createdAt,
+        updatedAt: UserTable.updatedAt,
+      },
+      input
+    );
+
+    const lastLoginSq = context.db
+      .select({
+        userId: UserActivityTable.userId,
+        lastLogin: max(UserActivityTable.loginAt).as("last_login"),
+      })
+      .from(UserActivityTable)
+      .groupBy(UserActivityTable.userId)
+      .as("last_login_sq");
+
+    const results = await context.db
+      .select({
+        id: UserTable.id,
+        name: UserTable.name,
+        email: UserTable.email,
+        emailVerified: UserTable.emailVerified,
+        image: UserTable.image,
+        role: UserTable.role,
+        roles: roleColumnSql,
+        banned: UserTable.banned,
+        banReason: UserTable.banReason,
+        banExpires: UserTable.banExpires,
+        createdAt: UserTable.createdAt,
+        updatedAt: UserTable.updatedAt,
+        lastLogin: lastLoginSq.lastLogin,
+      })
+      .from(UserTable)
+      .leftJoin(lastLoginSq, eq(lastLoginSq.userId, UserTable.id))
+      .innerJoin(UserRoleTable, eq(UserRoleTable.userId, UserTable.id))
+      .innerJoin(
+        RoleTable,
+        and(
+          eq(RoleTable.type, "SYSTEM"),
+          eq(UserRoleTable.roleId, RoleTable.id)
+        )
+      )
+      .where(where)
+      .groupBy(UserTable.id, lastLoginSq.lastLogin)
+      .orderBy(orderBy);
+
+    const exportData = prepareExport(results, input.format, {
+      prefix: "user",
+    });
+
+    return apiResponse(API_MESSAGES.LEAD.EXPORT, exportData);
   });
 
 function daysAgo(days: number) {
@@ -183,22 +244,71 @@ export const userStatsProcedure = userImpl.stats
     });
   });
 
-export const updateUserProcedure = userImpl.update
-  .use(userPermissionMiddleware(["system.user.manage", "system.user.update"]))
-  .handler(async ({ input, context, errors }) => {
-    const { userId, ...data } = input;
+export const profileUpdateProcedure = userImpl.updateProfile
+  .use(userPermissionMiddleware(["self.user.manage", "self.user.update"]))
+  .handler(async ({ context, input }) => {
+    const userData = await context.db.transaction(async (tx) => {
+      let imageUrl: string | undefined = undefined;
 
-    const [user] = await context.db
-      .update(UserTable)
-      .set(data)
-      .where(eq(UserTable.id, userId))
-      .returning();
+      if (input?.imageId) {
+        const [existFile] = await tx
+          .select({
+            key: FileTable.key,
+            entityType: FileTable.entityType,
+          })
+          .from(FileTable)
+          .where(eq(FileTable.id, input.imageId));
 
-    if (!user) {
-      throw errors.NOT_FOUND();
-    }
+        if (!existFile) {
+          throw new ORPCError("NOT_FOUND", {
+            message: API_MESSAGES.UPLOAD.NOT_FOUND,
+          });
+        }
 
-    return apiResponse(API_MESSAGES.USER.UPDATE, user);
+        imageUrl = await resolveFileUrl(existFile, {
+          redisClient: context.redisClient,
+        });
+
+        await tx
+          .update(FileTable)
+          .set({
+            entityId: context.user.id,
+          })
+          .where(eq(FileTable.id, input.imageId));
+      }
+
+      await auth.api.updateUser({
+        body: {
+          image: imageUrl ?? context.user.image,
+          name: input.name,
+        },
+        headers: context.reqHeaders,
+      });
+
+      const [userData] = await tx
+        .select()
+        .from(UserTable)
+        .where(eq(UserTable.id, context.user.id));
+
+      if (!userData) {
+        throw new ORPCError("NOT_FOUND", {
+          message: API_MESSAGES.USER.NOT_FOUND,
+        });
+      }
+
+      if (input?.imageId) {
+        await tx
+          .update(FileTable)
+          .set({
+            entityId: userData.id,
+          })
+          .where(eq(FileTable.id, input.imageId));
+      }
+
+      return userData;
+    });
+
+    return apiResponse(API_MESSAGES.USER.PROFILE_UPDATE, userData);
   });
 
 export const updateUserRoleProcedure = userImpl.updateRole

@@ -1,7 +1,8 @@
 import {
   listUserProcedure,
-  updateUserProcedure,
+  profileUpdateProcedure,
   updateUserRoleProcedure,
+  userDataExportProcedure,
   userDetailsProcedure,
   userImpl,
   userStatsProcedure,
@@ -9,8 +10,9 @@ import {
 
 export const userRouter = userImpl.router({
   list: listUserProcedure,
+  export: userDataExportProcedure,
   stats: userStatsProcedure,
-  update: updateUserProcedure,
   updateRole: updateUserRoleProcedure,
+  updateProfile: profileUpdateProcedure,
   details: userDetailsProcedure,
 });

@@ -33,14 +33,14 @@ async function main() {
   const addresses = await seedAddress();
 
   const orgs = await seedOrganization(addresses);
-  const { orgRoles, orgSystemRoles } = await seedOrgRoles(orgs);
+  const orgRoles = await seedOrgRoles(orgs);
 
   const rolesAndPermissions = await seedRolePermission(
-    [...roles, ...orgSystemRoles],
+    roles,
     permissions
   );
 
-  const orgMembers = await seedOrgMember(orgs, users, orgSystemRoles);
+  const orgMembers = await seedOrgMember(orgs, users, roles);
   const leadCategories = await seedLeadCategory(orgs, orgMembers);
 
   const customers = await seedCustomer(orgMembers);
@@ -57,7 +57,6 @@ async function main() {
   console.log(`Accounts: ${accounts.length}`);
   console.log(`Files: ${files.length}`);
   console.log(`Organizations: ${orgs.length}`);
-  console.log(`Org System Roles: ${orgSystemRoles.length}`);
   console.log(`Org Roles: ${orgRoles.length}`);
   console.log(`Org Members: ${orgMembers.length}`);
   console.log(`Lead Categories: ${leadCategories.length}`);

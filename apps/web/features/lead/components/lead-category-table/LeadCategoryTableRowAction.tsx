@@ -15,13 +15,13 @@ import {
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
 import { useLeadCategoryDelete } from "../../api/lead.api.hook";
-import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
+import { ListLeadCategoriesContractType } from "../../api/leadCategory.contract";
 import { LeadCategoryUpdateDialog } from "../LeadCategoryUpdateDialog";
 
 export function LeadCategoryTableRowAction({
   category,
 }: {
-  category: ListLeadCategoriesOutput[number];
+  category: ListLeadCategoriesContractType["output"]["data"][number];
 }) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const isAllowUpdate = usePermissionCheckWithOrg([

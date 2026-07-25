@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -15,6 +11,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadBaseContract } from "./lead.contract-base";
 
@@ -56,12 +53,9 @@ const listLeadBinContract = leadBaseContract
       )
     )
   );
-export type ListLeadBinInputs = InferContractRouterInputs<
+export type ListLeadBinContractType = InferContractRouterType<
   typeof listLeadBinContract
 >;
-export type ListLeadBinOutputs = InferContractRouterOutputs<
-  typeof listLeadBinContract
->["data"];
 
 const leadRestoreContract = leadBaseContract
   .route({
@@ -75,10 +69,7 @@ const leadRestoreContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadRestoreInputs = InferContractRouterInputs<
-  typeof leadRestoreContract
->;
-export type LeadRestoreOutputs = InferContractRouterOutputs<
+export type LeadRestoreContractType = InferContractRouterType<
   typeof leadRestoreContract
 >;
 
@@ -94,10 +85,7 @@ const leadAllRestoreContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAllRestoreInputs = InferContractRouterInputs<
-  typeof leadAllRestoreContract
->;
-export type LeadAllRestoreOutputs = InferContractRouterOutputs<
+export type LeadAllRestoreContractType = InferContractRouterType<
   typeof leadAllRestoreContract
 >;
 
@@ -113,10 +101,7 @@ const leadBinDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadBinDeleteInputs = InferContractRouterInputs<
-  typeof leadBinDeleteContract
->;
-export type LeadBinDeleteOutputs = InferContractRouterOutputs<
+export type LeadBinDeleteContractType = InferContractRouterType<
   typeof leadBinDeleteContract
 >;
 
@@ -132,10 +117,7 @@ const leadAllBinDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAllBinDeleteInputs = InferContractRouterInputs<
-  typeof leadAllBinDeleteContract
->;
-export type LeadAllBinDeleteOutputs = InferContractRouterOutputs<
+export type LeadAllBinDeleteContractType = InferContractRouterType<
   typeof leadAllBinDeleteContract
 >;
 

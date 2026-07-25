@@ -5,12 +5,12 @@ import { createContext, useCallback, useContext, useState } from "react";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 
 import { useJobDelete } from "../../api/job.api.hook";
-import { ListJobsOutput } from "../../api/job.contract";
+import { ListJobsContractType } from "../../api/job.contract";
+import { JobGeneralInfoUpdateDialog } from "../job-details/details-step/JobGeneralInfoUpdateDialog";
 import { JobTimeUpdateDialog } from "../JobTimeUpdateDialog";
-import { LeadJobUpdateDialog } from "../LeadJobUpdateDialog";
 
 interface JobTableContextProps {
-  data: ListJobsOutput["data"];
+  data: ListJobsContractType["output"]["data"]["data"];
   handleDeleteJobDialog: (jobId: string) => void;
   isDeletingJob: boolean;
   handleTimeUpdateDialog: (jobId: string) => void;
@@ -20,7 +20,7 @@ interface JobTableContextProps {
 const JobTableContext = createContext<JobTableContextProps | null>(null);
 
 interface JobTableContextProviderProps {
-  data: ListJobsOutput["data"];
+  data: ListJobsContractType["output"]["data"]["data"];
   children: React.ReactNode;
 }
 
@@ -34,7 +34,7 @@ export function JobTableContextProvider({
     useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [jobToAction, setJobToAction] = useState<
-    ListJobsOutput["data"][number] | null
+    ListJobsContractType["output"]["data"]["data"][number] | null
   >(null);
 
   const handleDeleteJobDialog = useCallback(
@@ -114,7 +114,7 @@ export function JobTableContextProvider({
             : undefined
         }
       />
-      <LeadJobUpdateDialog
+      <JobGeneralInfoUpdateDialog
         open={openInfoUpdateDialog}
         onOpenChange={setOpenInfoUpdateDialog}
         leadId={jobToAction?.leadId || undefined}

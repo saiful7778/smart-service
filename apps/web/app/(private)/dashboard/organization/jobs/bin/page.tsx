@@ -5,7 +5,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { JobBinManagementTable } from "@/features/job/components/JobBinManagementTable";
+import { JobBinManagementTable } from "@/features/job/components/job-bin-table/JobBinManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 

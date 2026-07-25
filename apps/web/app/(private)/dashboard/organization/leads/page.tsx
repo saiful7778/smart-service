@@ -14,7 +14,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import LeadManagementTable from "@/features/lead/components/LeadManagementTable";
+import { LeadManagementTable } from "@/features/lead/components/lead-table/LeadManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 

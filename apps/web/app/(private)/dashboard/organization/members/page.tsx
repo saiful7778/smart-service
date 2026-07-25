@@ -1,13 +1,9 @@
-import { parseAsStringLiteral } from "nuqs/server";
-
-import { OrgRoleEnumSchema } from "@workspace/lib/utils";
-
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/DashboardShell";
 
-import { MemberManagementTable } from "@/features/org/components/MemberManagementTable";
+import { MemberManagementTable } from "@/features/org/components/member-table/MemberManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
@@ -21,11 +17,7 @@ export default async function MemberPage(
 
   const queryClient = getQueryClient();
 
-  const filters = await tableQuerySearchParams({
-    roleName: parseAsStringLiteral(OrgRoleEnumSchema.options).withOptions({
-      clearOnDefault: true,
-    }),
-  })(props.searchParams);
+  const filters = await tableQuerySearchParams({})(props.searchParams);
 
   const searchFields = ["name", "email"];
 
@@ -38,9 +30,6 @@ export default async function MemberPage(
         searchFields,
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
-        filter: {
-          roleName: filters.roleName ?? undefined,
-        },
       },
     })
   );

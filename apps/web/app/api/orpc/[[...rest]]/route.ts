@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { redisClient } from "@/lib/redis-client";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 
 import { openAPIHandler } from "@/server/orpc.handler";
@@ -14,6 +15,7 @@ async function handleRequest(request: NextRequest) {
     context: {
       reqHeaders: request.headers,
       db,
+      redisClient,
       logger,
       user: null,
       session: null,

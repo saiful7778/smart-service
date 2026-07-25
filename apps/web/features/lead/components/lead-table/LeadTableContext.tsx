@@ -7,11 +7,11 @@ import toast from "react-hot-toast";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 
 import { useLeadDelete } from "../../api/lead.api.hook";
-import { ListLeadOutputs } from "../../api/lead.contract";
+import { ListLeadContractType } from "../../api/lead.contract";
 import { GeneralInfoUpdateDialog } from "../lead-details/details-step/GeneralInfo";
 
 interface LeadTableContextProps {
-  data: ListLeadOutputs["data"];
+  data: ListLeadContractType["output"]["data"]["data"];
   handleGeneralUpdateDialog: (leadId: string) => void;
   handleDeleteDialog: (leadId: string) => void;
 }
@@ -22,7 +22,7 @@ const LeadTableContext = createContext<LeadTableContextProps | undefined>(
 
 interface LeadTableContextProviderProps {
   children: React.ReactNode;
-  data: ListLeadOutputs["data"];
+  data: ListLeadContractType["output"]["data"]["data"];
 }
 
 export function LeadTableContextProvider({
@@ -32,7 +32,7 @@ export function LeadTableContextProvider({
   const [openGeneralUpdateDialog, setOpenGeneralUpdateDialog] =
     useState<boolean>(false);
   const [leadToAction, setLeadToAction] = useState<
-    ListLeadOutputs["data"][number] | null
+    ListLeadContractType["output"]["data"]["data"][number] | null
   >(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 

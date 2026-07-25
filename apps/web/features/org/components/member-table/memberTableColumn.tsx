@@ -1,14 +1,14 @@
-import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
+import { formatEnumValue } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListMemberOutput } from "../../api/org.contract";
+import { ListMemberContractType } from "../../api/org.contract";
 import { MemberTableRowAction } from "./MemberTableRowAction";
 
-type MemberTableRowDataType = ListMemberOutput["data"][number];
+type MemberTableRowDataType = ListMemberContractType["output"]["data"]["data"][number];
 
 export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
   {
@@ -30,10 +30,10 @@ export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
     enableSorting: false,
   },
   {
-    id: "roleName",
+    id: "roles",
     accessorKey: "roles",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Organization Role" />
+      <DataTableColumnHeader column={column} label="Roles" />
     ),
     cell: ({ getValue }) => {
       const roles = getValue<MemberTableRowDataType["roles"]>();
@@ -48,15 +48,9 @@ export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
       );
     },
     meta: {
-      label: "Organization Role",
-      variant: "select",
-      placeholder: "Role",
-      options: OrgRoleEnumSchema.options.map((value) => ({
-        value,
-        label: formatEnumValue(value),
-      })),
+      label: "Roles",
     },
-    enableColumnFilter: true,
+    enableColumnFilter: false,
     enableSorting: false,
   },
   {

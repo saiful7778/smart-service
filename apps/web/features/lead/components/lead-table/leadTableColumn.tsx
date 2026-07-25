@@ -16,11 +16,12 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import TruncatedList from "@/components/TruncatedList";
 
-import { ListLeadOutputs } from "../../api/lead.contract";
-import { ListLeadCategoriesForSearchOutput } from "../../api/leadCategory.contract";
+import { ListLeadContractType } from "../../api/lead.contract";
+import { ListLeadCategoriesForSearchContractType } from "../../api/leadCategory.contract";
 import { LeadTableRowAction } from "./LeadTableRowAction";
 
-type LeadTableRowDataType = ListLeadOutputs["data"][number];
+type LeadTableRowDataType =
+  ListLeadContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
   {
@@ -35,7 +36,7 @@ const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
   };
 
 export function makeLeadTableColumn(
-  leadCategories: ListLeadCategoriesForSearchOutput
+  leadCategories: ListLeadCategoriesForSearchContractType["output"]["data"]
 ): ColumnType<LeadTableRowDataType> {
   return [
     {
@@ -57,7 +58,6 @@ export function makeLeadTableColumn(
           aria-label="Select row"
         />
       ),
-      size: 40,
       enableSorting: false,
       enableHiding: false,
     },
@@ -88,7 +88,7 @@ export function makeLeadTableColumn(
       },
       meta: { label: "Lead info" },
       enableColumnFilter: false,
-      enableSorting: true,
+      enableSorting: false,
       enableHiding: false,
     },
     {
@@ -209,7 +209,6 @@ export function makeLeadTableColumn(
     {
       id: "actions",
       cell: ({ row }) => <LeadTableRowAction leadData={row.original} />,
-      size: 40,
       enableSorting: false,
       enableHiding: false,
     },

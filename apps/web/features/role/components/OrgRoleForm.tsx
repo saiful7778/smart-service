@@ -27,7 +27,7 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
 import { orpcTQClient } from "@/server/orpc.client";
 
-import { ListOrgPermissionOutput } from "../api/role.contract";
+import { ListOrgPermissionContractType } from "../api/role.contract";
 import { permissionList } from "../permission.constants";
 import { CreateOrUpdateOrgRoleType } from "../role.schema";
 
@@ -98,7 +98,7 @@ function SelectPermissions({
   selectedPermissions,
   onSelectPermission,
 }: {
-  permissions: ListOrgPermissionOutput;
+  permissions: ListOrgPermissionContractType["output"]["data"];
   selectedPermissions: Array<string>;
   onSelectPermission: (id: string[]) => void;
 }) {

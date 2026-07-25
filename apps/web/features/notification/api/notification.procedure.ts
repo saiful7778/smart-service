@@ -11,6 +11,7 @@ import {
   PushSubscriptionTable,
 } from "@workspace/drizzle/schemas";
 import { NotificationCategoryEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { apiResponse } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { authMiddleware } from "@/server/middleware/auth.middleware";
@@ -63,14 +64,10 @@ export const listNotificationProcedure = notificationImpl.list.handler(
       limit
     );
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.GET_NOTIFICATIONS,
-      success: true,
-      data: {
-        meta,
-        data: notifications,
-      },
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.GET_NOTIFICATIONS, {
+      meta,
+      data: notifications,
+    });
   }
 );
 
@@ -91,11 +88,7 @@ export const settingsDetailsProcedure = notificationImpl.settings.handler(
       };
     });
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.GET_SETTINGS,
-      success: true,
-      data: settings,
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.GET_SETTINGS, settings);
   }
 );
 
@@ -122,11 +115,7 @@ export const updateSettingsProcedure = notificationImpl.updateSettings.handler(
         },
       });
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.UPDATE_SETTINGS,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.UPDATE_SETTINGS, null);
   }
 );
 
@@ -145,11 +134,7 @@ export const markAsReadProcedure = notificationImpl.markAsRead.handler(
         )
       );
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.MARK_AS_READ,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.MARK_AS_READ, null);
   }
 );
 
@@ -173,11 +158,7 @@ export const subscribePushNotificationProcedure =
         },
       });
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.SUBSCRIBE_PUSH,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.SUBSCRIBE_PUSH, null);
   });
 
 export const unsubscribePushNotificationProcedure =
@@ -186,9 +167,5 @@ export const unsubscribePushNotificationProcedure =
       .delete(PushSubscriptionTable)
       .where(eq(PushSubscriptionTable.userId, context.user.id));
 
-    return {
-      message: API_MESSAGES.NOTIFICATION.UNSUBSCRIBE_PUSH,
-      success: true,
-      data: null,
-    };
+    return apiResponse(API_MESSAGES.NOTIFICATION.UNSUBSCRIBE_PUSH, null);
   });

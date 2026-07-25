@@ -22,16 +22,6 @@ export const AUTH_ROUTES: Array<RoutePathType> = [
   RESET_PASSWORD_PATH,
 ];
 
-export const navItems: Array<{
-  name: string;
-  href: RoutePathType;
-}> = [
-  { name: "Home", href: "/" },
-  { name: "Features", href: "/features" },
-  { name: "Pricing", href: "/pricing" },
-  { name: "Contact", href: "/contact" },
-];
-
 export const footerContent = {
   pages: [
     { label: "Features", href: "/features" },
@@ -44,10 +34,7 @@ export const footerContent = {
   ],
 };
 
-export const PUBLIC_ROUTES: Array<RoutePathType> = [
-  ...AUTH_ROUTES,
-  ...navItems.map((item) => item.href),
-];
+export const PUBLIC_ROUTES: Array<RoutePathType> = [...AUTH_ROUTES];
 
 export const SUPPORTED_OAUTH_PROVIDERS = ["google"] as const;
 
@@ -91,3 +78,5 @@ export const DEFAULT_PAGE_SIZE = 20;
 
 export const DEFAULT_INFINITE_PAGE_START = 1;
 export const DEFAULT_INFINITE_PAGE_SIZE = 10;
+
+export const DEFAULT_FILE_CACHE_TIMEOUT = 3600;

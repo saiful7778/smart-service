@@ -15,7 +15,7 @@ export type AuthUser = {
   emailVerified: boolean;
   name: string;
   image?: string | null | undefined;
-  banned: boolean | null | undefined;
+  banned?: boolean | null | undefined;
   role?: string | null | undefined;
   banReason?: string | null | undefined;
   banExpires?: Date | null | undefined;
@@ -51,9 +51,9 @@ export interface IApiHookInput<TFieldNames = string> {
 export interface RoleWithOrg {
   roleName: RoleEnumType | string;
   source: "SYSTEM" | "ORG";
-  orgId: string | undefined;
-  orgName: string | undefined;
-  orgSlug: string | undefined;
+  orgId?: string | undefined;
+  orgName?: string | undefined;
+  orgSlug?: string | undefined;
 }
 
 export interface PermissionWithOrg extends Pick<
@@ -61,9 +61,9 @@ export interface PermissionWithOrg extends Pick<
   "name" | "level" | "resource" | "action"
 > {
   source: "SYSTEM" | "ORG";
-  orgId: string | undefined;
-  orgName: string | undefined;
-  orgSlug: string | undefined;
+  orgId?: string | undefined;
+  orgName?: string | undefined;
+  orgSlug?: string | undefined;
 }
 
 export type RoutePathType = __next_route_internal_types__.RouteImpl<RouteType>;

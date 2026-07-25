@@ -46,6 +46,7 @@ interface SearchableSelectorContextProps {
   searchValue: string;
   handleSearchChange: (searchValue: string) => void;
   value: string | undefined;
+  disabled?: boolean;
 }
 
 const SearchableSelectorContext =
@@ -68,6 +69,7 @@ interface SearchableSelectorProps extends React.PropsWithChildren {
   onChange: (value: string | undefined) => void;
   onSearch: (searchValue: string) => void;
   searchDebounceMs?: number;
+  disabled?: boolean;
 }
 
 export function SearchableSelector({
@@ -78,6 +80,7 @@ export function SearchableSelector({
   onChange,
   onSearch,
   searchDebounceMs = 500,
+  disabled = false,
 }: SearchableSelectorProps) {
   const isMobile = useIsMobile();
   const [searchValue, setSearchValue] = useState("");
@@ -89,8 +92,11 @@ export function SearchableSelector({
   });
 
   const handleSetOpen = useCallback(
-    (val: boolean | ((prev: boolean) => boolean)) => setOpen(val),
-    [setOpen]
+    (val: boolean | ((prev: boolean) => boolean)) => {
+      if (disabled) return;
+      setOpen(val);
+    },
+    [setOpen, disabled]
   );
 
   const debouncedSearch = useDebouncedCallback(
@@ -123,6 +129,7 @@ export function SearchableSelector({
       searchValue,
       handleSearchChange,
       value,
+      disabled,
     }),
     [
       isMobile,
@@ -132,6 +139,7 @@ export function SearchableSelector({
       searchValue,
       handleSearchChange,
       value,
+      disabled,
     ]
   );
 
@@ -155,7 +163,7 @@ export function SearchableSelectorTrigger({
   children,
   ...props
 }: SearchableSelectorTriggerProps) {
-  const { open, isMobile } = useSearchableSelectorContext();
+  const { open, isMobile, disabled } = useSearchableSelectorContext();
 
   const trigger = (
     <Button
@@ -167,6 +175,8 @@ export function SearchableSelectorTrigger({
       )}
       aria-expanded={open}
       data-open={open ? "true" : undefined}
+      disabled={disabled}
+      aria-disabled={disabled}
       {...props}
     >
       {children}
@@ -174,9 +184,11 @@ export function SearchableSelectorTrigger({
     </Button>
   );
 
-  const TriggerWrapper = isMobile ? DrawerTrigger : PopoverTrigger;
+  if (isMobile) {
+    return <DrawerTrigger asChild>{trigger}</DrawerTrigger>;
+  }
 
-  return <TriggerWrapper asChild>{trigger}</TriggerWrapper>;
+  return <PopoverTrigger render={trigger} />;
 }
 
 interface SearchableSelectorContentProps<T> {

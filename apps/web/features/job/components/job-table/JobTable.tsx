@@ -17,11 +17,11 @@ import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { useJobDeleteAll } from "../../api/job.api.hook";
-import { ListJobsOutput } from "../../api/job.contract";
+import { ListJobsContractType } from "../../api/job.contract";
 import { jobTableColumn } from "./jobTableColumn";
 
 interface JobTableProps {
-  data: ListJobsOutput;
+  data: ListJobsContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

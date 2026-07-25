@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 
 import { FileIcon, ImageUp, UploadCloud, XIcon } from "lucide-react";
 
@@ -15,6 +22,17 @@ import {
   useFileUpload,
 } from "@/hooks/use-file-upload";
 import { formatBytes } from "@/utils/formatBytes";
+
+export function useFileUploadState() {
+  "use no memo";
+  const [fileValue, setFileValue] = useState<File | File[] | null | undefined>(
+    () => null
+  );
+  const [fileError, setFileError] = useState<string | null>(null);
+  const uploadRef = useRef<FileUploadRef>(null);
+
+  return { fileValue, setFileValue, fileError, setFileError, uploadRef };
+}
 
 export type FileUploadVariant = "image" | "document" | "any";
 
@@ -33,7 +51,7 @@ export interface FileUploadValidation {
 
 export interface FileUploadProps {
   /** Current value: a URL string, a File object, or null. */
-  value?: string | string[] | File | File[] | null | undefined;
+  value: string | string[] | File | File[] | null | undefined;
   /** Called whenever the selected file changes. */
   onChange: (file: File | File[] | null | undefined) => void;
   /** Called with a validation error message when a file is rejected. */

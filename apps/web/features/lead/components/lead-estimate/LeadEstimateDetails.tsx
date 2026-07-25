@@ -1,0 +1,382 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+
+import { formatDate } from "date-fns";
+import {
+  Banknote,
+  Calendar,
+  FileText,
+  Info,
+  Package,
+  Pen,
+  Trash,
+} from "lucide-react";
+
+import { formatEnumValue } from "@workspace/lib/utils";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
+import { Separator } from "@workspace/ui/components/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+
+import { UserAvatar } from "@/components/UserAvatar";
+
+import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook";
+import { LeadEstimateDetailsContractType } from "@/features/lead/api/leadEstimate.contract";
+import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
+import { formatCurrency } from "@/utils/formatCurrency";
+
+const statusColorMap: Record<string, string> = {
+  draft:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  viewed:
+    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+  accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  approved:
+    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+  declined: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+  cancelled: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
+  converted:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+};
+
+interface LeadEstimateDetailsProps {
+  estimateData: LeadEstimateDetailsContractType["output"]["data"];
+  leadId: string | null;
+  jobId: string | null;
+}
+
+export function LeadEstimateDetails({
+  estimateData,
+  leadId,
+  jobId,
+}: LeadEstimateDetailsProps) {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const isAllowUpdate = usePermissionCheckWithOrg(
+    leadId
+      ? ["org.lead_estimate.manage", "org.lead_estimate.update"]
+      : jobId
+        ? ["org.job_estimate.manage", "org.job_estimate.update"]
+        : [
+            "org.lead_estimate.manage",
+            "org.lead_estimate.update",
+            "org.job_estimate.manage",
+            "org.job_estimate.update",
+          ]
+  );
+
+  const isAllowDelete = usePermissionCheckWithOrg(
+    leadId
+      ? ["org.lead_estimate.manage", "org.lead_estimate.delete"]
+      : jobId
+        ? ["org.job_estimate.manage", "org.job_estimate.delete"]
+        : [
+            "org.lead_estimate.manage",
+            "org.lead_estimate.delete",
+            "org.job_estimate.manage",
+            "org.job_estimate.delete",
+          ]
+  );
+
+  const { mutate: deleteEstimate, isPending: isDeleting } =
+    useLeadEstimateDelete({
+      onSuccess: () => {
+        setOpenDeleteDialog(false);
+      },
+    });
+
+  const handleDelete = () => {
+    deleteEstimate({
+      leadId,
+      jobId,
+      estimateId: estimateData.id,
+    });
+  };
+
+  const subtotal = Number(estimateData.subtotal || "0");
+  const discount = Number(estimateData.discount || "0");
+  const taxRate = Number(estimateData.taxRate || "0");
+  const taxAmount = Number(estimateData.taxAmount || "0");
+  const totalAmount = Number(estimateData.totalAmount);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2 items-center">
+        {isAllowUpdate && (
+          <Button
+            nativeButton={false}
+            size="lg"
+            render={
+              <Link
+                href={{
+                  pathname: `/dashboard/organization/estimates/${estimateData.id}/update`,
+                  query: {
+                    ...(estimateData.leadId && {
+                      leadId: estimateData.leadId,
+                    }),
+                    ...(estimateData.jobId && {
+                      jobId: estimateData.jobId,
+                    }),
+                  },
+                }}
+              />
+            }
+          >
+            <Pen />
+            <span>Update</span>
+          </Button>
+        )}
+        {isAllowDelete && (
+          <>
+            <Button
+              onClick={() => setOpenDeleteDialog(true)}
+              size="lg"
+              variant="destructive"
+            >
+              <Trash />
+              <span>Delete</span>
+            </Button>
+            <DeleteConfirmDialog
+              title="Delete Estimate"
+              description="Are you sure you want to delete this estimate? This action cannot be undone."
+              open={openDeleteDialog}
+              onOpenChange={setOpenDeleteDialog}
+              onConfirm={handleDelete}
+              isLoading={isDeleting}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-7 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Info className="size-4" />
+                <span>Estimate Overview</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <span className="text-sm text-muted-foreground">:</span>
+                <Badge className={statusColorMap[estimateData.status]}>
+                  {formatEnumValue(estimateData.status)}
+                </Badge>
+              </div>
+              {estimateData.description && (
+                <div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    Description
+                  </div>
+                  <div className="text-sm">{estimateData.description}</div>
+                </div>
+              )}
+              {estimateData.validUntil && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    Valid Until
+                  </span>
+                  <span className="text-sm text-muted-foreground">:</span>
+                  <span className="text-sm">
+                    {formatDate(estimateData.validUntil, "PP")}
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {estimateData.notes && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <FileText className="size-4" />
+                  Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">
+                  {estimateData.notes}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {estimateData.terms && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <FileText className="size-4" />
+                  Terms & Conditions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">
+                  {estimateData.terms}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Package className="size-4" />
+                <span>{`Materials (${estimateData.materials.length})`}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {estimateData.materials.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">
+                  No materials added to this estimate.
+                </p>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Material</TableHead>
+                        <TableHead className="text-right">Qty</TableHead>
+                        <TableHead className="text-right">Unit Price</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {estimateData.materials.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {item.material.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {item.material.sku}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.quantity}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            ${formatCurrency(Number(item.material.unitPrice))}
+                          </TableCell>
+                          <TableCell className="text-right font-medium">
+                            {formatCurrency(Number(item.totalPrice))}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="col-span-12 lg:col-span-5 space-y-6">
+          <Card className="relative overflow-hidden">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Banknote className="text-accent size-4" />
+                Financial Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">{formatCurrency(subtotal)}</span>
+              </div>
+              {discount > 0 && (
+                <>
+                  <Separator />
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span className="font-medium text-red-500">
+                      {`-${formatCurrency(discount)}`}
+                    </span>
+                  </div>
+                </>
+              )}
+              {taxRate > 0 && (
+                <>
+                  <Separator />
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">
+                      {`Tax (${taxRate}%)`}
+                    </span>
+                    <span className="font-medium">
+                      {formatCurrency(taxAmount)}
+                    </span>
+                  </div>
+                </>
+              )}
+              <Separator />
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold">Total Amount</span>
+                <span className="text-lg font-bold text-primary">
+                  {formatCurrency(totalAmount)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Object Metadata</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <UserAvatar
+                className="size-10"
+                userName={estimateData.createdByMember.name}
+                userEmail={estimateData.createdByMember.email}
+                imageUrl={estimateData.createdByMember.image}
+                userRoles={estimateData.createdByMember.roles}
+                showDetails
+                showRoleDetails
+              />
+              <Separator />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase mb-1">
+                    Created At
+                  </div>
+                  <div className="text-xs font-medium">
+                    {formatDate(estimateData.createdAt, "PP - p")}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase mb-1">
+                    Last Updated
+                  </div>
+                  <div className="text-xs font-medium">
+                    {formatDate(estimateData.updatedAt, "PP - p")}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

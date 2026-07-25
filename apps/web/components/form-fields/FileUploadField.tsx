@@ -14,20 +14,20 @@ import {
 import { FileUpload, FileUploadProps, FileUploadRef } from "../FileUpload";
 
 interface FileUploadFieldProps extends FileUploadProps {
-  label?: string;
   ref?: React.Ref<FileUploadRef> | undefined;
-  requiredField?: boolean;
+  label?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
+  requiredField?: boolean;
   fieldError?: string | null | undefined;
 }
 
 export function FileUploadField({
   label,
   disabled,
-  requiredField,
   description,
   isDescriptionInfoIconShow,
+  requiredField,
   fieldError,
   ...props
 }: FileUploadFieldProps) {

@@ -27,6 +27,7 @@ import { JobAddressTable } from "../address/jobAddress.table";
 import { CustomerTable } from "../customer";
 import {
   LeadAttachmentTable,
+  LeadEstimateTable,
   LeadNoteTable,
   LeadRevenueHistoryTable,
   LeadTable,
@@ -181,6 +182,7 @@ export const JobRelations = relations(JobTable, ({ one, many }) => ({
   timeEntries: many(JobTimeEntryTable, {
     relationName: "JobTimeEntryToJob",
   }),
+  leadEstimates: many(LeadEstimateTable, { relationName: "LeadEstimateToJob" }),
 }));
 
 export const insertJobSchema = createInsertSchema(JobTable).omit({

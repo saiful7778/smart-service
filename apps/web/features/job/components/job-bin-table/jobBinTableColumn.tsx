@@ -13,10 +13,11 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListJobBinOutputs } from "../../api/jobBin.contract";
+import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { JobBinTableRowAction } from "./JobBinTableRowAction";
 
-type JobBinTableRowDataType = ListJobBinOutputs["data"][number];
+type JobBinTableRowDataType =
+  ListJobBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   JobBinTableRowDataType["status"],
@@ -51,7 +52,6 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -68,7 +68,7 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
     ),
     meta: { label: "Job name" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {
@@ -150,7 +150,6 @@ export const jobBinTableColumn: ColumnType<JobBinTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <JobBinTableRowAction jobData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },

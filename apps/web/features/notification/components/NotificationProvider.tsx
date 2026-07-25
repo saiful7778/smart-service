@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 
+import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { supabaseBrowserClient } from "@/lib/supabase/browser-client";
 
 import { usePageVisibility } from "@/hooks/use-page-visibility";
+import { orpcTQClient } from "@/server/orpc.client";
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
-import { useNotificationStore } from "@/stores/zustand/notification/NotificationStoreContext";
 
-import type { ListNotificationOutput } from "../api/notification.contract";
+import type { ListNotificationContractType } from "../api/notification.contract";
 import { chimeSound } from "../data/notification-sound";
 import {
   NOTIFICATION_EVENT,
@@ -24,9 +25,8 @@ export function NotificationProvider({
 }) {
   const authUser = useAuthStore((state) => state.user!);
   const { isVisible } = usePageVisibility();
-  const addNotifications = useNotificationStore(
-    (state) => state.addNotifications
-  );
+  const queryClient = useQueryClient();
+
   const toastId = "notification_toast_message";
 
   const channelName = useMemo(
@@ -34,9 +34,35 @@ export function NotificationProvider({
     [authUser.id]
   );
 
-  const addNotificationToStore = useCallback(
-    (notification: ListNotificationOutput["data"][number]) => {
-      addNotifications(notification);
+  const addNotification = useCallback(
+    async (notification: ListNotificationContractType["output"]["data"]["data"][number]) => {
+      queryClient.setQueryData(
+        orpcTQClient.notification.list.queryKey({
+          input: {},
+        }),
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          const currentNotifications = oldData.data.data;
+          const lastNotification = currentNotifications[0];
+
+          if (lastNotification?.id === notification.id) {
+            return oldData;
+          }
+
+          return {
+            ...oldData,
+            data: {
+              meta: {
+                ...oldData.data.meta,
+                totalCount: oldData.data.meta.totalCount + 1,
+              },
+              data: [notification, ...currentNotifications],
+            },
+          };
+        }
+      );
+
       if (isVisible) {
         toast(notification.title, {
           icon: "🔔",
@@ -47,15 +73,21 @@ export function NotificationProvider({
           .then(() => {})
           .catch(() => {});
       }
+
+      await queryClient.invalidateQueries({
+        queryKey: orpcTQClient.notification.list.queryKey({
+          input: {},
+        }),
+      });
     },
-    [addNotifications, isVisible]
+    [isVisible, queryClient]
   );
 
   useEffect(() => {
     const channel = supabaseBrowserClient
       .channel(channelName)
-      .on("broadcast", { event: NOTIFICATION_EVENT }, ({ payload }) => {
-        addNotificationToStore(payload);
+      .on("broadcast", { event: NOTIFICATION_EVENT }, async ({ payload }) => {
+        await addNotification(payload);
       })
       .subscribe((status, err) => {
         if (err) {
@@ -67,7 +99,7 @@ export function NotificationProvider({
     return () => {
       supabaseBrowserClient.removeChannel(channel);
     };
-  }, [channelName, addNotificationToStore]);
+  }, [channelName, addNotification]);
 
   return children;
 }

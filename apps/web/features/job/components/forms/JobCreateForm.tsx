@@ -47,7 +47,7 @@ import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
 
 import { useJobCreate } from "../../api/job.api.hook";
-import { ListServicingsOutput } from "../../api/job.contract";
+import { ListServicingsContractType } from "../../api/job.contract";
 import { jobCreateSchema, JobCreateType } from "../../job.schema";
 
 const steps: Array<{
@@ -92,7 +92,7 @@ const animationVariants: Variants = {
   },
 };
 
-export function JobCreateForm() {
+export function JobCreateForm({ leadId }: { leadId?: string | undefined }) {
   "use no memo";
   const [step, setStep] = useState<string>("details");
   const router = useRouter();
@@ -106,6 +106,7 @@ export function JobCreateForm() {
     defaultValues: {
       title: "",
       description: "",
+      leadId,
       status: "scheduled",
       expectedRevenue: "0.00",
       invoicedRevenue: "0.00",
@@ -199,6 +200,7 @@ export function JobCreateForm() {
             isPending={isPending}
             control={form.control}
             servicings={servicings.data}
+            leadId={leadId}
           />
           {/* details section step end */}
 
@@ -246,11 +248,13 @@ function DetailsStep({
   control,
   value,
   servicings,
+  leadId,
 }: {
   isPending: boolean;
   control: Control<JobCreateType>;
   value: string;
-  servicings: ListServicingsOutput;
+  servicings: ListServicingsContractType["output"]["data"];
+  leadId?: string | undefined;
 }) {
   const statusOptions = useMemo(
     () =>
@@ -284,7 +288,7 @@ function DetailsStep({
             name="leadId"
             label="Select Lead"
             description="Select a lead for the job"
-            disabled={isPending}
+            disabled={!!leadId || isPending}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField

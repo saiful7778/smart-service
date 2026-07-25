@@ -19,7 +19,7 @@ import { CustomerTable } from "../customer";
 import { JobTable } from "../job/job.table";
 import { JobCategoryTable } from "../job/jobCategory.table";
 import { JobScheduleTable } from "../job/jobSchedule.table";
-import { LeadCategoryTable } from "../lead";
+import { LeadCategoryTable, LeadEstimateTable } from "../lead";
 import { LeadTable } from "../lead/lead.table";
 import { LeadNoteTable } from "../lead/leadNote.table";
 import { MaterialTable } from "../material";
@@ -100,6 +100,9 @@ export const OrganizationRelations = relations(
     }),
     jobSchedules: many(JobScheduleTable, {
       relationName: "JobScheduleToOrg",
+    }),
+    leadEstimates: many(LeadEstimateTable, {
+      relationName: "LeadEstimateToOrg",
     }),
   })
 );
