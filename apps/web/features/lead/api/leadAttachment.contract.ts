@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -11,6 +7,7 @@ import {
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadAttachmentUploadSchema } from "../lead.schema";
 import { leadBaseContract } from "./lead.contract-base";
@@ -27,12 +24,9 @@ const leadAttachmentCreateContract = leadBaseContract
   })
   .input(leadAttachmentUploadSchema.extend({ fileId: z.uuid() }))
   .output(apiOutputZodSchema(selectLeadAttachmentSchema));
-export type LeadAttachmentCreateInputs = InferContractRouterInputs<
+export type LeadAttachmentCreateContractType = InferContractRouterType<
   typeof leadAttachmentCreateContract
 >;
-export type LeadAttachmentCreateOutput = InferContractRouterOutputs<
-  typeof leadAttachmentCreateContract
->["data"];
 
 const listLeadAttachmentContract = leadBaseContract
   .route({
@@ -69,19 +63,15 @@ const listLeadAttachmentContract = leadBaseContract
               originalName: true,
               mimeType: true,
               size: true,
-              url: true,
               uploadedAt: true,
             }),
           })
       )
     )
   );
-export type ListLeadAttachmentInputs = InferContractRouterInputs<
+export type ListLeadAttachmentContractType = InferContractRouterType<
   typeof listLeadAttachmentContract
 >;
-export type ListLeadAttachmentOutput = InferContractRouterOutputs<
-  typeof listLeadAttachmentContract
->["data"];
 
 const leadAttachmentDeleteContract = leadBaseContract
   .route({
@@ -97,12 +87,9 @@ const leadAttachmentDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadAttachmentDeleteInputs = InferContractRouterInputs<
+export type LeadAttachmentDeleteContractType = InferContractRouterType<
   typeof leadAttachmentDeleteContract
 >;
-export type LeadAttachmentDeleteOutput = InferContractRouterOutputs<
-  typeof leadAttachmentDeleteContract
->["data"];
 
 export const leadAttachmentContract = {
   list: listLeadAttachmentContract,

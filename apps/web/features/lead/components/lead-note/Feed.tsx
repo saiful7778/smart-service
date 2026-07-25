@@ -10,7 +10,7 @@ import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dia
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 
 import { useLeadNoteDelete } from "../../api/lead.api.hook";
-import { ListLeadNotesOutputs } from "../../api/leadNote.contract";
+import { ListLeadNotesContractType } from "../../api/leadNote.contract";
 import { LeadNoteUpdateDialog } from "./LeadNoteUpdateDialog";
 import { LeadNoteSkeleton } from "./LoadingSkeleton";
 import { LeadNoteItem } from "./NoteItem";
@@ -18,7 +18,7 @@ import { LeadNoteItem } from "./NoteItem";
 interface FeedProps {
   leadId: string | null | undefined;
   jobId: string | null | undefined;
-  notes: ListLeadNotesOutputs["data"];
+  notes: ListLeadNotesContractType["output"]["data"]["data"];
   fetchNextPage: () => void;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
@@ -35,7 +35,7 @@ export function Feed({
   const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [noteToAction, setNoteToAction] = useState<
-    ListLeadNotesOutputs["data"][number] | null
+    ListLeadNotesContractType["output"]["data"]["data"][number] | null
   >(null);
 
   const { ref } = useIntersectionObserver<HTMLDivElement>({
@@ -88,7 +88,7 @@ export function Feed({
   );
 
   const groupedNotes = useMemo(() => {
-    const groups = new Map<string, ListLeadNotesOutputs["data"]>();
+    const groups = new Map<string, ListLeadNotesContractType["output"]["data"]["data"]>();
 
     notes.forEach((note) => {
       const date = new Date(note.createdAt);

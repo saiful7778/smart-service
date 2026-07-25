@@ -5,10 +5,10 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListMemberOutput } from "../../api/org.contract";
+import { ListMemberContractType } from "../../api/org.contract";
 import { MemberTableRowAction } from "./MemberTableRowAction";
 
-type MemberTableRowDataType = ListMemberOutput["data"][number];
+type MemberTableRowDataType = ListMemberContractType["output"]["data"]["data"][number];
 
 export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
   {

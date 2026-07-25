@@ -3,10 +3,10 @@ import type Mail from "nodemailer/lib/mailer";
 
 import {
   IQstashService,
-  QstashError,
   QstashService,
   QstashServiceConfig,
 } from "@workspace/lib/qstash";
+import { QstashError } from "@workspace/lib/qstash/error";
 
 import { MailError } from "./MailError";
 import type {

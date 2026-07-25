@@ -7,10 +7,10 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
+import { ListLeadCategoriesContractType } from "../../api/leadCategory.contract";
 import { LeadCategoryTableRowAction } from "./LeadCategoryTableRowAction";
 
-type LeadCategoryTableRowDataType = ListLeadCategoriesOutput[number];
+type LeadCategoryTableRowDataType = ListLeadCategoriesContractType["output"]["data"][number];
 
 export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> =
   [
@@ -46,7 +46,6 @@ export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> 
         </p>
       ),
       meta: { label: "Description" },
-      size: 300,
       enableColumnFilter: false,
       enableSorting: false,
     },

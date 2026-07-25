@@ -44,6 +44,7 @@ export function LeadManagementTable({
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
     defaultLimit: limit,
+    defaultSearch: search,
     additionalKeys: {
       status: parseAsStringLiteral(LeadStatusEnumSchema.options).withOptions({
         clearOnDefault: true,
@@ -87,7 +88,7 @@ export function LeadManagementTable({
   return (
     <div className="space-y-3">
       <DataTableGlobalSearch
-        searchValue={search}
+        searchValue={filters.search}
         setSearchValue={globalSearch}
         refresh={refetch}
       >

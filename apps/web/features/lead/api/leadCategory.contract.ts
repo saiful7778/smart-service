@@ -1,13 +1,10 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { selectLeadCategorySchema } from "@workspace/drizzle/schemas";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadCategorySchema } from "../lead.schema";
 import { leadBaseContract } from "./lead.contract-base";
@@ -39,12 +36,9 @@ const listLeadCategoriesContract = leadBaseContract
       )
     )
   );
-export type ListLeadCategoriesInput = InferContractRouterInputs<
+export type ListLeadCategoriesContractType = InferContractRouterType<
   typeof listLeadCategoriesContract
 >;
-export type ListLeadCategoriesOutput = InferContractRouterOutputs<
-  typeof listLeadCategoriesContract
->["data"];
 
 const listLeadCategoriesForSearchContract = leadBaseContract
   .route({
@@ -69,12 +63,9 @@ const listLeadCategoriesForSearchContract = leadBaseContract
       )
     )
   );
-export type ListLeadCategoriesForSearchInput = InferContractRouterInputs<
+export type ListLeadCategoriesForSearchContractType = InferContractRouterType<
   typeof listLeadCategoriesForSearchContract
 >;
-export type ListLeadCategoriesForSearchOutput = InferContractRouterOutputs<
-  typeof listLeadCategoriesForSearchContract
->["data"];
 
 const leadCategoryCreateContract = leadBaseContract
   .route({
@@ -84,12 +75,9 @@ const leadCategoryCreateContract = leadBaseContract
   })
   .input(leadCategorySchema)
   .output(apiOutputZodSchema(selectLeadCategorySchema));
-export type LeadCategoryCreateInput = InferContractRouterInputs<
+export type LeadCategoryCreateContractType = InferContractRouterType<
   typeof leadCategoryCreateContract
 >;
-export type LeadCategoryCreateOutput = InferContractRouterOutputs<
-  typeof leadCategoryCreateContract
->["data"];
 
 const leadCategoryUpdateContract = leadBaseContract
   .route({
@@ -99,12 +87,9 @@ const leadCategoryUpdateContract = leadBaseContract
   })
   .input(leadCategorySchema.extend({ categoryId: z.uuid() }))
   .output(apiOutputZodSchema(selectLeadCategorySchema));
-export type LeadCategoryUpdateInput = InferContractRouterInputs<
+export type LeadCategoryUpdateContractType = InferContractRouterType<
   typeof leadCategoryUpdateContract
 >;
-export type LeadCategoryUpdateOutput = InferContractRouterOutputs<
-  typeof leadCategoryUpdateContract
->["data"];
 
 const leadCategoryDeleteContract = leadBaseContract
   .route({
@@ -114,12 +99,9 @@ const leadCategoryDeleteContract = leadBaseContract
   })
   .input(z.object({ categoryId: z.uuid() }))
   .output(apiOutputZodSchema(z.null()));
-export type LeadCategoryDeleteInput = InferContractRouterInputs<
+export type LeadCategoryDeleteContractType = InferContractRouterType<
   typeof leadCategoryDeleteContract
 >;
-export type LeadCategoryDeleteOutput = InferContractRouterOutputs<
-  typeof leadCategoryDeleteContract
->["data"];
 
 export const leadCategoryContract = {
   list: listLeadCategoriesContract,

@@ -1,37 +1,57 @@
 import { RotateCcw, Trash2 } from "lucide-react";
 
-import DataTableRowMenu from "@workspace/ui/components/data-table/data-table-row-menu";
+import { Button } from "@workspace/ui/components/button";
 import {
-  DropdownMenuGroup,
-  DropdownMenuItem,
-} from "@workspace/ui/components/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
-import { ListJobBinOutputs } from "../../api/jobBin.contract";
+import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { useJobBinContext } from "./JobBinTableContext";
 
 export function JobBinTableRowAction({
   jobData,
 }: {
-  jobData: ListJobBinOutputs["data"][number];
+  jobData: ListJobBinContractType["output"]["data"]["data"][number];
 }) {
   const { handleRestoreDialog, handleDeleteDialog } = useJobBinContext();
   return (
-    <>
-      <DataTableRowMenu>
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => handleRestoreDialog(jobData.id)}>
-            <RotateCcw className="size-4" />
-            <span>Restore</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleDeleteDialog(jobData.id)}
-            variant="destructive"
-          >
-            <Trash2 className="size-4" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DataTableRowMenu>
-    </>
+    <div className="flex items-center gap-1">
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={() => handleRestoreDialog(jobData.id)}
+              size="icon"
+              variant="outline"
+            />
+          }
+        >
+          <RotateCcw />
+          <span className="sr-only">restore job</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Restore job</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={() => handleDeleteDialog(jobData.id)}
+              size="icon"
+              variant="destructive"
+            />
+          }
+        >
+          <Trash2 />
+          <span className="sr-only">delete job permanently</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Delete job</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }

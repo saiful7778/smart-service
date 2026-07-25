@@ -1,8 +1,15 @@
 "use client";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 
 import { Asterisk, Info } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import {
   Field,
@@ -30,6 +37,7 @@ interface SelectFieldProps<TFieldValues extends FieldValues> {
   options: { value: string; label: string }[];
   disabled?: boolean;
   isDescriptionInfoIconShow?: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 function SelectField<TFieldValues extends FieldValues>({
@@ -43,8 +51,10 @@ function SelectField<TFieldValues extends FieldValues>({
   requiredField = false,
   isDescriptionInfoIconShow = false,
   disabled,
+  onValueChange,
 }: SelectFieldProps<TFieldValues>) {
   const fieldId = useId();
+
   return (
     <Controller
       name={name}
@@ -59,28 +69,16 @@ function SelectField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <Select
-            name={field.name}
-            value={field.value}
-            onValueChange={field.onChange}
-            items={options}
-          >
-            <SelectTrigger
-              id={fieldId}
-              aria-invalid={fieldState.invalid}
-              className={cn("w-full", className)}
-              disabled={disabled}
-            >
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map(({ value, label }) => (
-                <SelectItem key={`${name}.${value}`} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SelectFieldRender
+            field={field}
+            fieldState={fieldState}
+            onValueChange={onValueChange}
+            id={fieldId}
+            className={className}
+            options={options}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
           {description && (
             <FieldDescription
               className="flex items-start gap-1.5"
@@ -94,6 +92,61 @@ function SelectField<TFieldValues extends FieldValues>({
         </Field>
       )}
     />
+  );
+}
+
+interface SelectFieldRenderProps<TFieldValues extends FieldValues> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  className?: string;
+  placeholder?: string;
+  options: { value: string; label: string }[];
+  disabled?: boolean;
+  onValueChange?: (value: string) => void;
+}
+
+function SelectFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  className,
+  options,
+  placeholder,
+  disabled,
+  onValueChange,
+}: SelectFieldRenderProps<TFieldValues>) {
+  const handleValueChange = useCallback(
+    (value: never[] | null) => {
+      field.onChange(value);
+      onValueChange?.(value as unknown as string);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <Select
+      name={field.name}
+      value={field.value}
+      onValueChange={handleValueChange}
+      items={options}
+    >
+      <SelectTrigger
+        id={id}
+        aria-invalid={fieldState.invalid}
+        className={cn("w-full", className)}
+        disabled={disabled}
+      >
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map(({ value, label }) => (
+          <SelectItem key={`${id}.${value}`} value={value}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

@@ -1,6 +1,7 @@
 import z from "zod";
 
 import {
+  LeadEstimateStatusEnumSchema,
   LeadSourceEnumSchema,
   LeadStatusEnumSchema,
 } from "@workspace/drizzle/zod-db-enums";
@@ -137,3 +138,56 @@ export const leadAttachmentUploadSchema = z.object({
 export type LeadAttachmentUploadType = z.infer<
   typeof leadAttachmentUploadSchema
 >;
+
+export const leadEstimateFormSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  description: z.string().optional(),
+  status: LeadEstimateStatusEnumSchema,
+  discount: z
+    .string()
+    .optional()
+    .refine((value) => {
+      if (!value) return true;
+      return Number(value) >= 0;
+    }, "discount must be greater than or equal to 0"),
+  taxRate: z
+    .string()
+    .optional()
+    .refine((value) => {
+      if (!value) return true;
+      return Number(value) >= 0;
+    }, "tax rate must be greater than or equal to 0"),
+  validUntil: z.date().optional(),
+  notes: z.string().optional(),
+  terms: z.string().optional(),
+  materials: z
+    .array(
+      z.object({
+        materialId: z.uuid().describe("Material ID"),
+        unitPrice: z
+          .string()
+          .refine((value) => {
+            if (!value) return true;
+            return Number(value) >= 0;
+          }, "Unit Price must be greater than or equal to 0")
+          .describe("Unit Price of material"),
+        quantity: z
+          .string()
+          .refine((value) => {
+            if (!value) return true;
+            return Number(value) >= 0;
+          }, "Quantity must be greater than or equal to 0")
+          .describe("Quantity of material"),
+        totalPrice: z
+          .string()
+          .refine((value) => {
+            if (!value) return true;
+            return Number(value) >= 0;
+          }, "Total Price must be greater than or equal to 0")
+          .describe("Total Price of material"),
+        notes: z.string().optional(),
+      })
+    )
+    .min(1, "At least one material is required"),
+});
+export type LeadEstimateFormType = z.infer<typeof leadEstimateFormSchema>;

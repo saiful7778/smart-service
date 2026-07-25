@@ -1,16 +1,12 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import { insertFileSchema } from "@workspace/drizzle/schemas";
+import { EntityTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { baseContract } from "@/server/orpc.contract-base";
-
-import { entityTypeEnumSchema } from "../determineStorageType";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 const uploadBaseContract = baseContract.errors({
   NOT_FOUND: {
@@ -31,8 +27,8 @@ const getSignedUploadUrlContract = uploadBaseContract
   .input(
     z.object({
       filename: z.string().min(1).max(255),
-      entityType: entityTypeEnumSchema,
-      mimeType: z.string().min(1),
+      entityType: EntityTypeEnumSchema,
+      path: z.string(),
     })
   )
   .output(
@@ -41,16 +37,13 @@ const getSignedUploadUrlContract = uploadBaseContract
         signedUrl: z.url(),
         key: z.string(),
         token: z.string(),
-        expiresAt: z.date(),
+        path: z.string(),
       })
     )
   );
-export type GetSignedUploadUrlInput = InferContractRouterInputs<
+export type GetSignedUploadUrlContractType = InferContractRouterType<
   typeof getSignedUploadUrlContract
 >;
-export type GetSignedUploadUrlOutput = InferContractRouterOutputs<
-  typeof getSignedUploadUrlContract
->["data"];
 
 const getSignedDownloadUrlContract = uploadBaseContract
   .route({
@@ -61,22 +54,20 @@ const getSignedDownloadUrlContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
     })
   )
   .output(
     apiOutputZodSchema(
       z.object({
         signedUrl: z.url(),
+        expiresAt: z.date().optional(),
       })
     )
   );
-export type GetSignedDownloadUrlInput = InferContractRouterInputs<
+export type GetSignedDownloadUrlContractType = InferContractRouterType<
   typeof getSignedDownloadUrlContract
 >;
-export type GetSignedDownloadUrlOutput = InferContractRouterOutputs<
-  typeof getSignedDownloadUrlContract
->["data"];
 
 const confirmUploadContract = uploadBaseContract
   .route({
@@ -95,22 +86,19 @@ const confirmUploadContract = uploadBaseContract
         entityId: true,
       })
       .extend({
-        entityType: entityTypeEnumSchema,
+        path: z.string(),
+        entityType: EntityTypeEnumSchema,
       })
   )
   .output(
     apiOutputZodSchema(
       z.object({
         id: z.uuid(),
-        url: z.string().optional(),
         key: z.string(),
       })
     )
   );
-export type ConfirmUploadInput = InferContractRouterInputs<
-  typeof confirmUploadContract
->;
-export type ConfirmUploadOutput = InferContractRouterOutputs<
+export type ConfirmUploadContractType = InferContractRouterType<
   typeof confirmUploadContract
 >;
 
@@ -123,17 +111,15 @@ const assignFileEntityContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: z.string().min(1),
+      entityType: EntityTypeEnumSchema,
       entityId: z.uuid(),
+      path: z.string(),
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type AssignFileEntityInput = InferContractRouterInputs<
+export type AssignFileEntityContractType = InferContractRouterType<
   typeof assignFileEntityContract
 >;
-export type AssignFileEntityOutput = InferContractRouterOutputs<
-  typeof assignFileEntityContract
->["data"];
 
 const deleteUploadContract = uploadBaseContract
   .route({
@@ -144,16 +130,14 @@ const deleteUploadContract = uploadBaseContract
   .input(
     z.object({
       key: z.string().min(1),
-      entityType: entityTypeEnumSchema,
+      entityType: EntityTypeEnumSchema,
+      path: z.string(),
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type DeleteUploadInput = InferContractRouterInputs<
+export type DeleteUploadContractType = InferContractRouterType<
   typeof deleteUploadContract
 >;
-export type DeleteUploadOutput = InferContractRouterOutputs<
-  typeof deleteUploadContract
->["data"];
 
 export const uploadContract = {
   getSignedUploadUrl: getSignedUploadUrlContract,

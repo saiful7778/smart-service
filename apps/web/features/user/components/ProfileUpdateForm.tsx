@@ -1,40 +1,26 @@
 "use client";
 
-import { useRef, useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
 
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import { FieldGroup } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
 
-import { authClient } from "@/lib/better-auth/auth-client";
-
-import { FileUploadRef } from "@/components/FileUpload";
+import { useFileUploadState } from "@/components/FileUpload";
 import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
-import { useAssignFileEntity } from "@/features/upload/api/upload.api.hook";
-import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
+import { useProfileUpdate } from "../api/users.api.hook";
 import { profileUpdateSchema, ProfileUpdateType } from "../user.schema";
 
 export function ProfileUpdateForm() {
-  const toastId = "update_profile_toast_message";
-  const [isLoading, setIsLoading] = useState(false);
+  "use no memo";
   const user = useAuthStore((state) => state.user!);
-  const uploadRef = useRef<FileUploadRef>(null);
 
-  const [profileImageValue, setProfileImageValue] = useState<
-    string | File | File[] | null | undefined
-  >(() => user?.image);
-  const [profileImageError, setProfileImageError] = useState<string | null>(
-    null
-  );
-
-  const addUserData = useAuthStore((state) => state.addUserData);
+  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
+    useFileUploadState();
 
   const form = useForm<ProfileUpdateType>({
     resolver: zodResolver(profileUpdateSchema),
@@ -44,68 +30,21 @@ export function ProfileUpdateForm() {
     },
   });
 
-  const { mutateAsync: uploadFileToAPI } = useFileUploadToAPI({
-    onRequestStart: () => {
-      setIsLoading(true);
-      toast.loading("Uploading profile image...", { id: toastId });
-    },
-    onSuccess: () => {
-      toast.success("Profile image uploaded successfully", { id: toastId });
-      uploadRef.current?.clearFiles();
-      uploadRef.current?.clearErrors();
-    },
-    onError: (errorMessage) => {
-      setIsLoading(false);
-      toast.error(errorMessage, { id: toastId });
+  const { mutateAsync, isPending } = useProfileUpdate<keyof ProfileUpdateType>({
+    uploadRef,
+    onValidationErrors: (fields) => {
+      fields.forEach(({ fieldName, message }) => {
+        form.setError(fieldName, {
+          message,
+        });
+      });
     },
   });
 
-  const assignFileEntity = useAssignFileEntity();
-
   const handleSubmit = async (e: ProfileUpdateType) => {
-    let profileImageUrl: string | undefined = user?.image ?? undefined;
-    let profileImageKey: string | undefined = undefined;
-
-    if (profileImageValue && profileImageValue instanceof File) {
-      const { data } = await uploadFileToAPI({
-        file: profileImageValue,
-        entityType: "profile_image",
-      });
-      profileImageUrl = data?.url;
-      profileImageKey = data.key;
-    }
-
-    return authClient.updateUser({
-      name: e.name,
-      image: profileImageUrl,
-      fetchOptions: {
-        onRequest: () => {
-          setIsLoading(true);
-          toast.loading("Updating profile...", { id: toastId });
-        },
-        onSuccess: () => {
-          setIsLoading(false);
-          if (profileImageKey) {
-            assignFileEntity.mutate({
-              entityId: user.id,
-              entityType: "user",
-              key: profileImageKey,
-            });
-          }
-          addUserData({
-            ...user,
-            image: profileImageUrl,
-            name: e.name,
-          });
-          toast.success("Profile updated", { id: toastId });
-        },
-        onError: ({ error }) => {
-          setIsLoading(false);
-          toast.error(error.message || "Something went wrong", {
-            id: toastId,
-          });
-        },
-      },
+    mutateAsync({
+      ...e,
+      profileImage: fileValue,
     });
   };
 
@@ -115,12 +54,12 @@ export function ProfileUpdateForm() {
         <FileUploadField
           label="Profile image"
           variant="image"
-          value={profileImageValue}
-          onChange={setProfileImageValue}
+          value={fileValue}
+          onChange={setFileValue}
           ref={uploadRef}
-          disabled={isLoading}
-          onError={setProfileImageError}
-          fieldError={profileImageError}
+          disabled={isPending}
+          fieldError={fileError}
+          onError={setFileError}
         />
         <InputField
           control={form.control}
@@ -128,7 +67,7 @@ export function ProfileUpdateForm() {
           type="text"
           label="Name"
           placeholder="Name"
-          disabled={isLoading}
+          disabled={isPending}
         />
         <InputField
           control={form.control}
@@ -139,7 +78,7 @@ export function ProfileUpdateForm() {
           description="you can't update your email address."
           disabled
         />
-        <ButtonSpinner className="w-fit" type="submit" isLoading={isLoading}>
+        <ButtonSpinner className="w-fit" type="submit" isLoading={isPending}>
           Submit
         </ButtonSpinner>
       </FieldGroup>

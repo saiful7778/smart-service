@@ -13,13 +13,13 @@ import {
 
 import { usePermissionCheck } from "@/hooks/use-permission-check";
 
-import { ListUserOutput } from "../../api/user.contract";
+import { ListUserContractType } from "../../api/user.contract";
 import UserUpdateDialog from "../UserUpdateDialog";
 
 export default function UserTableRowAction({
   userData,
 }: {
-  userData: ListUserOutput["data"][number];
+  userData: ListUserContractType["output"]["data"]["data"][number];
 }) {
   const isAllowUpdate = usePermissionCheck([
     "self.user.manage",

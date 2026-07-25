@@ -5,12 +5,12 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { ListInvitationOutput } from "../../api/org.contract";
+import { ListInvitationContractType } from "../../api/org.contract";
 import { InviteMemberDialog } from "../InviteMemberDialog";
 import { invitationTableColumn } from "./invitationTableColumn";
 
 interface InvitationsTableProps {
-  data: ListInvitationOutput;
+  data: ListInvitationContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

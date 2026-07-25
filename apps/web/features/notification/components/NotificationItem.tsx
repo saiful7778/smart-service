@@ -19,7 +19,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 
 import { useNotificationMarkAsRead } from "../api/notification.api.hook";
-import { ListNotificationOutput } from "../api/notification.contract";
+import { ListNotificationContractType } from "../api/notification.contract";
 
 const CATEGORY_CONFIG: Record<string, { label: string; Icon: LucideIcon }> = {
   SYSTEM: { label: "System", Icon: Settings2 },
@@ -64,7 +64,7 @@ function timeAgo(date: string | Date) {
 }
 
 interface NotificationItemProps extends React.ComponentProps<"div"> {
-  notification: ListNotificationOutput["data"][number];
+  notification: ListNotificationContractType["output"]["data"]["data"][number];
 }
 
 export function NotificationItem({

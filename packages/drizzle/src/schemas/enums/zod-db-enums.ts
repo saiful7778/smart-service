@@ -6,12 +6,15 @@ import {
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
+  LEAD_ESTIMATE_STATUS,
   LEAD_REVENUE_TYPE,
   LEAD_SOURCE,
   LEAD_STATUS,
   NOTIFICATION_CATEGORY,
   NOTIFICATION_LEVEL,
   PERMISSION_LEVEL,
+  PRIVATE_ENTITY_TYPES,
+  PUBLIC_ENTITY_TYPES,
   RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
@@ -69,4 +72,24 @@ export type JobAssignmentStatusEnumType = z.infer<
 export const JobAssignmentRoleEnumSchema = z.enum(JOB_ASSIGNMENT_ROLE);
 export type JobAssignmentRoleEnumType = z.infer<
   typeof JobAssignmentRoleEnumSchema
+>;
+
+export const PublicEntityTypeEnumSchema = z.enum(PUBLIC_ENTITY_TYPES);
+export type PublicEntityTypeEnumType = z.infer<
+  typeof PublicEntityTypeEnumSchema
+>;
+
+export const PrivateEntityTypeEnumSchema = z.enum(PRIVATE_ENTITY_TYPES);
+export type PrivateEntityTypeEnumType = z.infer<
+  typeof PrivateEntityTypeEnumSchema
+>;
+
+export const EntityTypeEnumSchema = PublicEntityTypeEnumSchema.or(
+  PrivateEntityTypeEnumSchema
+);
+export type EntityTypeEnumType = z.infer<typeof EntityTypeEnumSchema>;
+
+export const LeadEstimateStatusEnumSchema = z.enum(LEAD_ESTIMATE_STATUS);
+export type LeadEstimateStatusEnumType = z.infer<
+  typeof LeadEstimateStatusEnumSchema
 >;

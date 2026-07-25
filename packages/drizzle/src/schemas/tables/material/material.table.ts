@@ -23,6 +23,7 @@ import {
   db_updated_at,
 } from "../../../db-utils";
 import { JobMaterialTable } from "../job/jobMaterial.table";
+import { LeadEstimateMaterialTable } from "../lead";
 import { OrganizationTable } from "../org/organization.table";
 import { OrganizationMemberTable } from "../org/organizationMember.table";
 import { MaterialFileTable } from "./materialFile.table";
@@ -115,6 +116,9 @@ export const MaterialRelations = relations(MaterialTable, ({ one, many }) => ({
   }),
   materialFiles: many(MaterialFileTable, {
     relationName: "MaterialFileToMaterial",
+  }),
+  leadEstimateMaterials: many(LeadEstimateMaterialTable, {
+    relationName: "LeadEstimateMaterialToMaterial",
   }),
 }));
 

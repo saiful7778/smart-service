@@ -33,14 +33,14 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 
 import { useLeadUpdate } from "../../api/lead.api.hook";
-import { ListLeadOutputs } from "../../api/lead.contract";
+import { ListLeadContractType } from "../../api/lead.contract";
 import { RevenueHistoryDialog } from "../lead-details/details-step/RevenueHistories";
 import { useLeadTableContext } from "./LeadTableContext";
 
 export function LeadTableRowAction({
   leadData,
 }: {
-  leadData: ListLeadOutputs["data"][number];
+  leadData: ListLeadContractType["output"]["data"]["data"][number];
 }) {
   const [openRevenueHistoryDialog, setOpenRevenueHistoryDialog] =
     useState<boolean>(false);

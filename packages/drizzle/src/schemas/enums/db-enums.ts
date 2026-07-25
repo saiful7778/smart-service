@@ -6,6 +6,7 @@ import {
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
+  LEAD_ESTIMATE_STATUS,
   LEAD_REVENUE_TYPE,
   LEAD_SOURCE,
   LEAD_STATUS,
@@ -50,6 +51,11 @@ export const LeadSourceEnum = pgEnum("LeadSourceEnum", LEAD_SOURCE);
 export const LeadStatusEnum = pgEnum("LeadStatusEnum", LEAD_STATUS);
 
 export const JobStatusEnum = pgEnum("JobStatusEnum", JOB_STATUS);
+
+export const LeadEstimateStatusEnum = pgEnum(
+  "LeadEstimateStatusEnum",
+  LEAD_ESTIMATE_STATUS
+);
 
 export const LeadRevenueTypeEnum = pgEnum(
   "LeadRevenueTypeEnum",

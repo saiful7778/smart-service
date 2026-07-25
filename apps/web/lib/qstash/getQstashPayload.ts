@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { QstashError } from "@workspace/lib/qstash";
+import { QstashError } from "@workspace/lib/qstash/error";
 
 export async function getQstashPayload<
   T extends { messageId?: string; sourceMessageId?: string },

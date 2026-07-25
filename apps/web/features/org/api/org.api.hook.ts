@@ -1,43 +1,83 @@
+import { RefObject } from "react";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+import { FileUploadRef } from "@/components/FileUpload";
+
+import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
+import { CreateOrgContractType } from "./org.contract";
+
 export function useOrgCreate<TFieldNames>({
-  toastId = "create_org_toast_message",
+  uploadRef,
   onRequestStart,
   onSuccess,
   onError,
   onValidationErrors,
-}: IApiHookInput<TFieldNames> & { toastId?: string }) {
-  return useMutation(
-    orpcTQClient.org.create.mutationOptions({
-      onMutate: () => {
-        toast.loading("Creating organization...", { id: toastId });
-        onRequestStart?.();
-      },
-      onSuccess: ({ message }) => {
-        toast.success(message, { id: toastId });
-        onSuccess?.(message);
-      },
-      onError: (error) => {
-        const { message, type, fieldErrors } =
-          formatOrpcError<TFieldNames>(error);
+}: IApiHookInput<TFieldNames> & {
+  uploadRef: RefObject<FileUploadRef | null>;
+}) {
+  const toastId = "create_org_toast_message";
 
-        if (type === "validation") {
-          onValidationErrors?.(fieldErrors ?? []);
-        }
-
-        toast.error(message ?? "Failed to create organization", {
-          id: toastId,
-        });
-
-        onError?.(message);
-      },
-    })
+  const { mutateAsync: createOrg } = useMutation(
+    orpcTQClient.org.create.mutationOptions()
   );
+  const { mutateAsync: uploadImage } = useFileUploadToAPI({
+    onSuccess: () => {
+      uploadRef.current?.clearFiles();
+      uploadRef.current?.clearErrors();
+    },
+  });
+
+  return useMutation<
+    CreateOrgContractType["output"],
+    Error,
+    Omit<CreateOrgContractType["input"], "imageId"> & {
+      logoImage: File | File[] | null | undefined;
+    }
+  >({
+    mutationKey: ["org-create"],
+    mutationFn: async ({ logoImage, ...restInput }) => {
+      let imageId: string | undefined = undefined;
+
+      if (logoImage) {
+        const { data } = await uploadImage({
+          file: Array.isArray(logoImage) ? logoImage[0]! : logoImage,
+          entityType: "org_logo",
+          path: "org_logo",
+        });
+        imageId = data.id;
+      }
+
+      return createOrg({ ...restInput, imageId });
+    },
+    onMutate: () => {
+      toast.loading("Creating...", { id: toastId });
+      onRequestStart?.();
+    },
+    onSuccess: ({ message }) => {
+      toast.success(message, { id: toastId });
+      onSuccess?.(message);
+    },
+    onError: (error) => {
+      const { message, type, fieldErrors } =
+        formatOrpcError<TFieldNames>(error);
+
+      if (type === "validation") {
+        onValidationErrors?.(fieldErrors ?? []);
+      }
+
+      toast.error(message ?? "Failed to create organization", {
+        id: toastId,
+      });
+
+      onError?.(message);
+    },
+  });
 }
 
 export function useInviteOrgMember<TFieldNames>({

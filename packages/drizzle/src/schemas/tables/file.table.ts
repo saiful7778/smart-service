@@ -4,7 +4,6 @@ import {
   foreignKey,
   index,
   pgTable,
-  text,
   timestamp,
   uuid,
   varchar,
@@ -17,6 +16,7 @@ import {
 import z from "zod";
 
 import { db_id, db_soft_delete } from "../../db-utils";
+import { EntityTypeEnumType } from "../enums/zod-db-enums";
 import { UserTable } from "./user";
 
 export const FileTable = pgTable(
@@ -28,9 +28,10 @@ export const FileTable = pgTable(
     originalName: varchar("original_name", { length: 255 }).notNull(),
     mimeType: varchar("mime_type", { length: 127 }).notNull(),
     size: bigint("size", { mode: "number" }).notNull(), // Size in bytes
-    url: text("url"), // Public/download URL (can be regenerated)
     uploadedBy: uuid("uploaded_by"),
-    entityType: varchar("entity_type", { length: 50 }), // e.g., 'post', 'avatar', 'product', 'lead', 'property'
+    entityType: varchar("entity_type", {
+      length: 50,
+    }).$type<EntityTypeEnumType>(),
     entityId: uuid("entity_id"), // ID of the associated entity
     uploadedAt: timestamp("uploaded_at", {
       withTimezone: true,

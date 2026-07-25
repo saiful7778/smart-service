@@ -4,7 +4,6 @@ import z from "zod";
 import { OrgRoleEnumSchema } from "@workspace/lib/utils";
 
 export const createOrgSchema = z.object({
-  userId: z.uuid(),
   name: z
     .string()
     .min(2, "Name must be at least 2 characters")
@@ -19,15 +18,15 @@ export const createOrgSchema = z.object({
     ),
   email: z.email(),
   phone: z.string().optional(),
-  logoUrl: z.url().optional(),
-  logoKey: z.string().optional(),
-  line1: z.string().min(1, "Address 1 is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "Zip Code is required"),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  placeId: z.string().optional(),
+  address: z.object({
+    line1: z.string().min(1, "Address 1 is required"),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    zipCode: z.string().min(1, "Zip Code is required"),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    placeId: z.string().optional(),
+  }),
 });
 export type CreateOrgType = z.infer<typeof createOrgSchema>;
 

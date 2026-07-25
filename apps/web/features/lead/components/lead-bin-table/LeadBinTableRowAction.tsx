@@ -1,37 +1,57 @@
 import { RotateCcw, Trash2 } from "lucide-react";
 
-import DataTableRowMenu from "@workspace/ui/components/data-table/data-table-row-menu";
+import { Button } from "@workspace/ui/components/button";
 import {
-  DropdownMenuGroup,
-  DropdownMenuItem,
-} from "@workspace/ui/components/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 
-import { ListLeadBinOutputs } from "../../api/leadBin.contract";
+import { ListLeadBinContractType } from "../../api/leadBin.contract";
 import { useLeadBinContext } from "./LeadBinTableContext";
 
 export function LeadBinTableRowAction({
   leadData,
 }: {
-  leadData: ListLeadBinOutputs["data"][number];
+  leadData: ListLeadBinContractType["output"]["data"]["data"][number];
 }) {
   const { handleRestoreDialog, handleDeleteDialog } = useLeadBinContext();
   return (
-    <>
-      <DataTableRowMenu>
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => handleRestoreDialog(leadData.id)}>
-            <RotateCcw className="size-4" />
-            <span>Restore</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleDeleteDialog(leadData.id)}
-            variant="destructive"
-          >
-            <Trash2 className="size-4" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DataTableRowMenu>
-    </>
+    <div className="flex items-center gap-1">
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={() => handleRestoreDialog(leadData.id)}
+              size="icon"
+              variant="outline"
+            />
+          }
+        >
+          <RotateCcw />
+          <span className="sr-only">restore lead</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Restore lead</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={() => handleDeleteDialog(leadData.id)}
+              size="icon"
+              variant="destructive"
+            />
+          }
+        >
+          <Trash2 />
+          <span className="sr-only">delete lead permanently</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Delete lead</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }

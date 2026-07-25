@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -16,6 +12,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import {
   jobCreateSchema,
@@ -90,10 +87,9 @@ const listJobsContract = jobBaseContract
       )
     )
   );
-export type ListJobsInput = InferContractRouterInputs<typeof listJobsContract>;
-export type ListJobsOutput = InferContractRouterOutputs<
+export type ListJobsContractType = InferContractRouterType<
   typeof listJobsContract
->["data"];
+>;
 
 const jobCreateContract = jobBaseContract
   .route({
@@ -103,10 +99,7 @@ const jobCreateContract = jobBaseContract
   })
   .input(jobCreateSchema)
   .output(apiOutputZodSchema(selectJobSchema));
-export type JobCreateInput = InferContractRouterInputs<
-  typeof jobCreateContract
->;
-export type JobCreateOutput = InferContractRouterOutputs<
+export type JobCreateContractType = InferContractRouterType<
   typeof jobCreateContract
 >;
 
@@ -118,12 +111,9 @@ const jobUpdateContract = jobBaseContract
   })
   .input(jobUpdateSchema)
   .output(apiOutputZodSchema(selectJobSchema));
-export type JobUpdateInput = InferContractRouterInputs<
+export type JobUpdateContractType = InferContractRouterType<
   typeof jobUpdateContract
 >;
-export type JobUpdateOutput = InferContractRouterOutputs<
-  typeof jobUpdateContract
->["data"];
 
 const jobUpdateRevenueContract = jobBaseContract
   .route({
@@ -133,12 +123,9 @@ const jobUpdateRevenueContract = jobBaseContract
   })
   .input(jobRevenueUpdateSchema)
   .output(apiOutputZodSchema(selectJobSchema));
-export type JobUpdateRevenueInput = InferContractRouterInputs<
+export type JobUpdateRevenueContractType = InferContractRouterType<
   typeof jobUpdateRevenueContract
 >;
-export type JobUpdateRevenueOutput = InferContractRouterOutputs<
-  typeof jobUpdateRevenueContract
->["data"];
 
 const jobDeleteContract = jobBaseContract
   .route({
@@ -152,12 +139,9 @@ const jobDeleteContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobDeleteInput = InferContractRouterInputs<
+export type JobDeleteContractType = InferContractRouterType<
   typeof jobDeleteContract
 >;
-export type JobDeleteOutput = InferContractRouterOutputs<
-  typeof jobDeleteContract
->["data"];
 
 const jobAllDeleteContract = jobBaseContract
   .route({
@@ -171,12 +155,9 @@ const jobAllDeleteContract = jobBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type JobAllDeleteInput = InferContractRouterInputs<
+export type JobAllDeleteContractType = InferContractRouterType<
   typeof jobAllDeleteContract
 >;
-export type JobAllDeleteOutput = InferContractRouterOutputs<
-  typeof jobAllDeleteContract
->["data"];
 
 const listServicingsContract = jobBaseContract
   .route({
@@ -185,12 +166,9 @@ const listServicingsContract = jobBaseContract
     tags,
   })
   .output(apiOutputZodSchema(z.record(z.string(), z.number())));
-export type ListServicingsInput = InferContractRouterInputs<
+export type ListServicingsContractType = InferContractRouterType<
   typeof listServicingsContract
 >;
-export type ListServicingsOutput = InferContractRouterOutputs<
-  typeof listServicingsContract
->["data"];
 
 const jobDetailsContract = jobBaseContract
   .route({
@@ -238,12 +216,9 @@ const jobDetailsContract = jobBaseContract
         })
     )
   );
-export type JobDetailsInput = InferContractRouterInputs<
+export type JobDetailsContractType = InferContractRouterType<
   typeof jobDetailsContract
 >;
-export type JobDetailsOutput = InferContractRouterOutputs<
-  typeof jobDetailsContract
->["data"];
 
 export const jobContract = {
   list: listJobsContract,

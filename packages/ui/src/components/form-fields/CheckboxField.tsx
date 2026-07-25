@@ -1,9 +1,16 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId } from "react";
 
 import { Asterisk, Info } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
@@ -22,6 +29,7 @@ interface CheckboxFieldProps<TFieldValues extends FieldValues> {
   isDescriptionInfoIconShow?: boolean;
   requiredField?: boolean;
   disabled?: boolean;
+  onValueChange?: (value: boolean) => void;
 }
 
 export function CheckboxField<TFieldValues extends FieldValues>({
@@ -32,6 +40,7 @@ export function CheckboxField<TFieldValues extends FieldValues>({
   isDescriptionInfoIconShow = false,
   requiredField = false,
   disabled,
+  onValueChange,
 }: CheckboxFieldProps<TFieldValues>) {
   const fieldId = useId();
   return (
@@ -40,11 +49,11 @@ export function CheckboxField<TFieldValues extends FieldValues>({
       control={control}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid} orientation="horizontal">
-          <Checkbox
+          <CheckboxFieldRender
             id={fieldId}
-            checked={field.value}
-            onCheckedChange={field.onChange}
-            aria-invalid={fieldState.invalid}
+            field={field}
+            fieldState={fieldState}
+            onValueChange={onValueChange}
             disabled={disabled}
           />
           <FieldContent>
@@ -69,6 +78,40 @@ export function CheckboxField<TFieldValues extends FieldValues>({
           </FieldContent>
         </Field>
       )}
+    />
+  );
+}
+
+interface CheckboxFieldRenderProps<TFieldValues extends FieldValues> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  fieldState: ControllerFieldState;
+  id: string;
+  onValueChange?: (value: boolean) => void;
+  disabled?: boolean;
+}
+
+function CheckboxFieldRender<TFieldValues extends FieldValues>({
+  field,
+  fieldState,
+  id,
+  onValueChange,
+  disabled,
+}: CheckboxFieldRenderProps<TFieldValues>) {
+  const handleCheckedChange = useCallback(
+    (checked: boolean | "indeterminate") => {
+      field.onChange(checked);
+      onValueChange?.(checked === true);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <Checkbox
+      id={id}
+      checked={field.value}
+      onCheckedChange={handleCheckedChange}
+      aria-invalid={fieldState.invalid}
+      disabled={disabled}
     />
   );
 }

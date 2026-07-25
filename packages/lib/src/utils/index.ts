@@ -1,3 +1,4 @@
+export * from "./formatCurrency";
 export * from "./formatEnum";
 export * from "./enums";
 export * from "./zod";

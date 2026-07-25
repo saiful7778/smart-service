@@ -8,14 +8,14 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListInvitationOutput } from "../../api/org.contract";
+import { ListInvitationContractType } from "../../api/org.contract";
 import {
   invitationStatusEnum,
   InvitationStatusEnumType,
 } from "../../org.schema";
 import { InvitationTableRowAction } from "./InvitationTableRowAction";
 
-type InvitationTableRowDataType = ListInvitationOutput["data"][number];
+type InvitationTableRowDataType = ListInvitationContractType["output"]["data"]["data"][number];
 
 const statusColors: Record<InvitationStatusEnumType, string> = {
   pending:

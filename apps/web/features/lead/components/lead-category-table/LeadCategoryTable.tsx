@@ -7,12 +7,12 @@ import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
-import { ListLeadCategoriesOutput } from "../../api/leadCategory.contract";
+import { ListLeadCategoriesContractType } from "../../api/leadCategory.contract";
 import { LeadCategoryCreateDialog } from "../LeadCategoryCreateDialog";
 import { leadCategoryTableColumns } from "./leadCategoryTableColumn";
 
 interface LeadCategoryTableProps {
-  data: ListLeadCategoriesOutput;
+  data: ListLeadCategoriesContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: FiltersType) => void;
 }

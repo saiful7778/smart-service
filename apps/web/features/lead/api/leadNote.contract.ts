@@ -1,7 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
 import z from "zod";
 
 import {
@@ -16,6 +12,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { leadNoteSchema } from "@/features/lead/lead.schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadBaseContract } from "./lead.contract-base";
 
@@ -66,12 +63,9 @@ const listLeadNotesContract = leadBaseContract
       )
     )
   );
-export type ListLeadNotesInputs = InferContractRouterInputs<
+export type ListLeadNotesContractType = InferContractRouterType<
   typeof listLeadNotesContract
 >;
-export type ListLeadNotesOutputs = InferContractRouterOutputs<
-  typeof listLeadNotesContract
->["data"];
 
 const leadNoteCreateContract = leadBaseContract
   .route({
@@ -81,12 +75,9 @@ const leadNoteCreateContract = leadBaseContract
   })
   .input(leadNoteSchema)
   .output(apiOutputZodSchema(selectLeadNoteSchema));
-export type LeadNoteCreateInputs = InferContractRouterInputs<
+export type LeadNoteCreateContractType = InferContractRouterType<
   typeof leadNoteCreateContract
 >;
-export type LeadNoteCreateOutputs = InferContractRouterOutputs<
-  typeof leadNoteCreateContract
->["data"];
 
 const leadNoteUpdateContract = leadBaseContract
   .route({
@@ -100,12 +91,9 @@ const leadNoteUpdateContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(selectLeadNoteSchema));
-export type LeadNoteUpdateInputs = InferContractRouterInputs<
+export type LeadNoteUpdateContractType = InferContractRouterType<
   typeof leadNoteUpdateContract
 >;
-export type LeadNoteUpdateOutputs = InferContractRouterOutputs<
-  typeof leadNoteUpdateContract
->["data"];
 
 const leadNoteDeleteContract = leadBaseContract
   .route({
@@ -121,12 +109,9 @@ const leadNoteDeleteContract = leadBaseContract
     })
   )
   .output(apiOutputZodSchema(z.null()));
-export type LeadNoteDeleteInputs = InferContractRouterInputs<
+export type LeadNoteDeleteContractType = InferContractRouterType<
   typeof leadNoteDeleteContract
 >;
-export type LeadNoteDeleteOutputs = InferContractRouterOutputs<
-  typeof leadNoteDeleteContract
->["data"];
 
 export const leadNoteContract = {
   list: listLeadNotesContract,

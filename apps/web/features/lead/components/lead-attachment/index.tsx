@@ -55,7 +55,7 @@ export function LeadAttachment({
         )}
       </div>
 
-      <TabNavigation paramName="state" defaultValue="all">
+      <TabNavigation paramName="attachment-state" defaultValue="all">
         <TabNavigationList>
           <TabNavigationTrigger value="all">
             <Table className="size-4" />

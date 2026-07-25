@@ -13,10 +13,11 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListLeadBinOutputs } from "../../api/leadBin.contract";
+import { ListLeadBinContractType } from "../../api/leadBin.contract";
 import { LeadBinTableRowAction } from "./LeadBinTableRowAction";
 
-type LeadBinTableRowDataType = ListLeadBinOutputs["data"][number];
+type LeadBinTableRowDataType =
+  ListLeadBinContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<
   LeadBinTableRowDataType["status"],
@@ -52,7 +53,6 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -80,7 +80,7 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
     },
     meta: { label: "Lead info" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {
@@ -162,7 +162,6 @@ export const leadBinTableColumn: ColumnType<LeadBinTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <LeadBinTableRowAction leadData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },

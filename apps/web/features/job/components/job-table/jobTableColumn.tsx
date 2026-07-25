@@ -21,10 +21,11 @@ import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 
-import { ListJobsOutput } from "../../api/job.contract";
+import { ListJobsContractType } from "../../api/job.contract";
 import { JobTableRowAction } from "./JobTableRowAction";
 
-type JobTableRowDataType = ListJobsOutput["data"][number];
+type JobTableRowDataType =
+  ListJobsContractType["output"]["data"]["data"][number];
 
 const statusVariantMap: Record<JobTableRowDataType["status"], StatusVariant> = {
   draft: "default",
@@ -56,7 +57,6 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
         aria-label="Select row"
       />
     ),
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },
@@ -71,12 +71,12 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
         href={{ pathname: `/dashboard/organization/jobs/${row.original.id}` }}
         className="font-medium text-foreground leading-none hover:underline"
       >
-        {getValue<JobTableRowDataType["title"]>() || "No Name"}
+        {getValue<JobTableRowDataType["title"]>()}
       </Link>
     ),
     meta: { label: "Job name" },
     enableColumnFilter: false,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {
@@ -173,7 +173,6 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
   {
     id: "actions",
     cell: ({ row }) => <JobTableRowAction jobData={row.original} />,
-    size: 40,
     enableSorting: false,
     enableHiding: false,
   },

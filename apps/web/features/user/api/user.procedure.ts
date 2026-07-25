@@ -6,6 +6,7 @@ import {
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
+  FileTable,
   RoleTable,
   UserActivityTable,
   UserRoleTable,
@@ -13,7 +14,10 @@ import {
 } from "@workspace/drizzle/schemas";
 import { apiResponse, prepareExport } from "@workspace/lib/utils";
 
+import { auth } from "@/lib/better-auth/auth";
+
 import { API_MESSAGES } from "@/constants/apiMessage";
+import { resolveFileUrl } from "@/features/upload/resolveFileUrl";
 import {
   authMiddleware,
   userPermissionMiddleware,
@@ -240,22 +244,71 @@ export const userStatsProcedure = userImpl.stats
     });
   });
 
-export const updateUserProcedure = userImpl.update
-  .use(userPermissionMiddleware(["system.user.manage", "system.user.update"]))
-  .handler(async ({ input, context, errors }) => {
-    const { userId, ...data } = input;
+export const profileUpdateProcedure = userImpl.updateProfile
+  .use(userPermissionMiddleware(["self.user.manage", "self.user.update"]))
+  .handler(async ({ context, input }) => {
+    const userData = await context.db.transaction(async (tx) => {
+      let imageUrl: string | undefined = undefined;
 
-    const [user] = await context.db
-      .update(UserTable)
-      .set(data)
-      .where(eq(UserTable.id, userId))
-      .returning();
+      if (input?.imageId) {
+        const [existFile] = await tx
+          .select({
+            key: FileTable.key,
+            entityType: FileTable.entityType,
+          })
+          .from(FileTable)
+          .where(eq(FileTable.id, input.imageId));
 
-    if (!user) {
-      throw errors.NOT_FOUND();
-    }
+        if (!existFile) {
+          throw new ORPCError("NOT_FOUND", {
+            message: API_MESSAGES.UPLOAD.NOT_FOUND,
+          });
+        }
 
-    return apiResponse(API_MESSAGES.USER.UPDATE, user);
+        imageUrl = await resolveFileUrl(existFile, {
+          redisClient: context.redisClient,
+        });
+
+        await tx
+          .update(FileTable)
+          .set({
+            entityId: context.user.id,
+          })
+          .where(eq(FileTable.id, input.imageId));
+      }
+
+      await auth.api.updateUser({
+        body: {
+          image: imageUrl ?? context.user.image,
+          name: input.name,
+        },
+        headers: context.reqHeaders,
+      });
+
+      const [userData] = await tx
+        .select()
+        .from(UserTable)
+        .where(eq(UserTable.id, context.user.id));
+
+      if (!userData) {
+        throw new ORPCError("NOT_FOUND", {
+          message: API_MESSAGES.USER.NOT_FOUND,
+        });
+      }
+
+      if (input?.imageId) {
+        await tx
+          .update(FileTable)
+          .set({
+            entityId: userData.id,
+          })
+          .where(eq(FileTable.id, input.imageId));
+      }
+
+      return userData;
+    });
+
+    return apiResponse(API_MESSAGES.USER.PROFILE_UPDATE, userData);
   });
 
 export const updateUserRoleProcedure = userImpl.updateRole

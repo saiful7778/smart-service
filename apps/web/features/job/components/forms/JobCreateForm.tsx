@@ -47,7 +47,7 @@ import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
 
 import { useJobCreate } from "../../api/job.api.hook";
-import { ListServicingsOutput } from "../../api/job.contract";
+import { ListServicingsContractType } from "../../api/job.contract";
 import { jobCreateSchema, JobCreateType } from "../../job.schema";
 
 const steps: Array<{
@@ -253,7 +253,7 @@ function DetailsStep({
   isPending: boolean;
   control: Control<JobCreateType>;
   value: string;
-  servicings: ListServicingsOutput;
+  servicings: ListServicingsContractType["output"]["data"];
   leadId?: string | undefined;
 }) {
   const statusOptions = useMemo(

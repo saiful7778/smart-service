@@ -1,13 +1,13 @@
 import { OrgRoleType } from "@workspace/lib/utils";
 
-import { ListInvitationOutput } from "../../api/org.contract";
+import { ListInvitationContractType } from "../../api/org.contract";
 import { UpdateInvitationDialog } from "../UpdateInvitationDialog";
 import { DeleteInvitation } from "./DeleteInvitation";
 
 export function InvitationTableRowAction({
   invitationData,
 }: {
-  invitationData: ListInvitationOutput["data"][number];
+  invitationData: ListInvitationContractType["output"]["data"]["data"][number];
 }) {
   return (
     <div className="flex items-center gap-2">

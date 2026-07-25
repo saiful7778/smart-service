@@ -10,7 +10,7 @@ import {
   useLeadAttachmentBinDelete,
   useLeadAttachmentDelete,
   useLeadAttachmentRestore,
-} from "../../api/lead.api.hook";
+} from "../../api/leadAttachment.api.hook";
 
 interface LeadAttachmentContextProps {
   leadId: string | null | undefined;

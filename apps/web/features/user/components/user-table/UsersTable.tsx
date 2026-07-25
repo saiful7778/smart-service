@@ -5,11 +5,11 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { ListUserOutput } from "../../api/user.contract";
+import { ListUserContractType } from "../../api/user.contract";
 import { userTableColumn } from "./userTableColumn";
 
 interface UsersTableProps {
-  data: ListUserOutput;
+  data: ListUserContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

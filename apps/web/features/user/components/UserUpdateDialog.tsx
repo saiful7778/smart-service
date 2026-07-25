@@ -23,14 +23,14 @@ import {
 
 import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
-import { ListUserOutput } from "../api/user.contract";
+import { ListUserContractType } from "../api/user.contract";
 import { UserBannedForm } from "./forms/UserBannedForm";
 import UserRoleUpdateForm from "./forms/UserRoleUpdateForm";
 
 export default function UserUpdateDialog({
   userData,
 }: {
-  userData: ListUserOutput["data"][number];
+  userData: ListUserContractType["output"]["data"]["data"][number];
 }) {
   "use no memo";
   const [open, setOpen] = useState<boolean>(false);

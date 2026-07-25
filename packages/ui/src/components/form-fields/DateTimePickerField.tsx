@@ -1,9 +1,15 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId } from "react";
 
 import { Asterisk, Info } from "lucide-react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 import { ButtonProps } from "@workspace/ui/components/button";
 import {
@@ -30,6 +36,7 @@ interface DateTimePickerFieldProps<TFieldValues extends FieldValues> {
   triggerClassName?: string;
   calendarProps?: Omit<CalendarCompProps, "id">;
   showTimeSelection?: boolean;
+  onValueChange?: (value: Date | undefined) => void;
 }
 
 export function DateTimePickerField<TFieldValues extends FieldValues>({
@@ -45,8 +52,10 @@ export function DateTimePickerField<TFieldValues extends FieldValues>({
   placeholder,
   calendarProps,
   showTimeSelection = true,
+  onValueChange,
 }: DateTimePickerFieldProps<TFieldValues>) {
   const fieldId = useId();
+
   return (
     <Controller
       name={name}
@@ -61,14 +70,15 @@ export function DateTimePickerField<TFieldValues extends FieldValues>({
               )}
             </FieldLabel>
           )}
-          <DateTimePicker
-            value={field.value}
-            onSelectValue={field.onChange}
-            calendarProps={{ ...calendarProps, id: fieldId }}
-            triggerVariant={triggerVariant}
-            placeholder={placeholder}
-            triggerClassName={triggerClassName}
+          <DateTimePickerFieldRender
+            field={field}
+            onValueChange={onValueChange}
+            id={fieldId}
             disabled={disabled}
+            triggerVariant={triggerVariant}
+            triggerClassName={triggerClassName}
+            placeholder={placeholder}
+            calendarProps={calendarProps}
             showTimeSelection={showTimeSelection}
           />
           {description && (
@@ -83,6 +93,51 @@ export function DateTimePickerField<TFieldValues extends FieldValues>({
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
+    />
+  );
+}
+
+interface DateTimePickerFieldRenderProps<TFieldValues extends FieldValues> {
+  field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
+  onValueChange?: (value: Date | undefined) => void;
+  id: string;
+  placeholder?: string;
+  disabled?: boolean;
+  triggerVariant?: ButtonProps["variant"];
+  triggerClassName?: string;
+  calendarProps?: Omit<CalendarCompProps, "id">;
+  showTimeSelection?: boolean;
+}
+
+function DateTimePickerFieldRender<TFieldValues extends FieldValues>({
+  field,
+  onValueChange,
+  id,
+  disabled,
+  triggerVariant,
+  triggerClassName,
+  placeholder,
+  calendarProps,
+  showTimeSelection = true,
+}: DateTimePickerFieldRenderProps<TFieldValues>) {
+  const handleSelectValue = useCallback(
+    (value: Date | null | undefined) => {
+      field.onChange(value);
+      onValueChange?.(value ?? undefined);
+    },
+    [field, onValueChange]
+  );
+
+  return (
+    <DateTimePicker
+      value={field.value}
+      onSelectValue={handleSelectValue}
+      calendarProps={{ ...calendarProps, id }}
+      triggerVariant={triggerVariant}
+      placeholder={placeholder}
+      triggerClassName={triggerClassName}
+      disabled={disabled}
+      showTimeSelection={showTimeSelection}
     />
   );
 }

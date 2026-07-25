@@ -16,7 +16,7 @@ import { JobMaterialTable, JobTable } from "../job";
 import { JobCategoryTable } from "../job/jobCategory.table";
 import { JobScheduleAssignementTable } from "../job/jobScheduleAssignement.table";
 import { JobTimeEntryTable } from "../job/jobTimeEntry.table";
-import { LeadCategoryTable } from "../lead";
+import { LeadCategoryTable, LeadEstimateTable } from "../lead";
 import { LeadTable } from "../lead/lead.table";
 import { LeadAttachmentTable } from "../lead/leadAttachment.table";
 import { LeadNoteTable } from "../lead/leadNote.table";
@@ -81,7 +81,6 @@ export const OrganizationMemberRelations = relations(
     orgRoles: many(OrgRoleMemberTable, {
       relationName: "OrgRoleMemberToOrgMember",
     }),
-
     createdMaterials: many(MaterialTable, {
       relationName: "MaterialToCreatedBy",
     }),
@@ -91,7 +90,6 @@ export const OrganizationMemberRelations = relations(
     deletedMaterials: many(MaterialTable, {
       relationName: "MaterialToDeletedBy",
     }),
-
     createdCustomers: many(CustomerTable, {
       relationName: "CustomerToCreatedBy",
     }),
@@ -101,7 +99,6 @@ export const OrganizationMemberRelations = relations(
     deletedCustomers: many(CustomerTable, {
       relationName: "CustomerToDeletedBy",
     }),
-
     createdLeads: many(LeadTable, {
       relationName: "LeadToCreatedBy",
     }),
@@ -111,14 +108,12 @@ export const OrganizationMemberRelations = relations(
     deletedLeads: many(LeadTable, {
       relationName: "LeadToDeletedBy",
     }),
-
     uploadedLeadAttachments: many(LeadAttachmentTable, {
       relationName: "LeadAttachmentToUploadedBy",
     }),
     deletedLeadAttachments: many(LeadAttachmentTable, {
       relationName: "LeadAttachmentToDeletedBy",
     }),
-
     leadRevenueChanges: many(LeadRevenueHistoryTable, {
       relationName: "LeadRevenueHistoryToChangedBy",
     }),
@@ -128,7 +123,6 @@ export const OrganizationMemberRelations = relations(
     leadNotes: many(LeadNoteTable, {
       relationName: "LeadNoteToCreatedBy",
     }),
-
     createdJobs: many(JobTable, {
       relationName: "JobToCreatedBy",
     }),
@@ -138,7 +132,6 @@ export const OrganizationMemberRelations = relations(
     deletedJobs: many(JobTable, {
       relationName: "JobToDeletedBy",
     }),
-
     assignedBys: many(JobScheduleAssignementTable, {
       relationName: "JobScheduleAssignementToAssignedBy",
     }),
@@ -154,12 +147,20 @@ export const OrganizationMemberRelations = relations(
     updatedJobMaterials: many(JobMaterialTable, {
       relationName: "JobMaterialToUpdatedBy",
     }),
-
     scheduleAssignments: many(JobScheduleAssignementTable, {
       relationName: "JobScheduleAssignementToOrgMember",
     }),
     timeEntries: many(JobTimeEntryTable, {
       relationName: "JobTimeEntryToMember",
+    }),
+    createdLeadEstimates: many(LeadEstimateTable, {
+      relationName: "LeadEstimateToCreatedBy",
+    }),
+    updatedLeadEstimates: many(LeadEstimateTable, {
+      relationName: "LeadEstimateToUpdatedBy",
+    }),
+    deletedLeadEstimates: many(LeadEstimateTable, {
+      relationName: "LeadEstimateToDeletedBy",
     }),
   })
 );

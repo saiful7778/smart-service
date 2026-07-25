@@ -6,6 +6,8 @@ import {
 } from "@workspace/drizzle/paginate-query";
 import {
   CustomerTable,
+  LeadEstimateMaterialTable,
+  LeadEstimateTable,
   LeadTable,
   OrganizationMemberTable,
   OrgMemberRoleTable,
@@ -17,6 +19,10 @@ import { apiResponse } from "@workspace/lib/utils";
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
 import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
+import {
+  increaseStock,
+  reduceStock,
+} from "@/features/lead/api/estimate-stock.helper";
 
 import { leadImpl } from "./lead.procedure";
 
@@ -120,13 +126,66 @@ export const leadRestoreProcedure = leadImpl.bin.restore
       throw errors.NOT_FOUND();
     }
 
-    await context.db
-      .update(LeadTable)
-      .set({
-        deletedAt: null,
-        deletedBy: null,
-      })
-      .where(eq(LeadTable.id, existLead.id));
+    await context.db.transaction(async (tx) => {
+      await tx
+        .update(LeadTable)
+        .set({
+          deletedAt: null,
+          deletedBy: null,
+        })
+        .where(eq(LeadTable.id, existLead.id));
+
+      const estimatesToRestore = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            eq(LeadEstimateTable.leadId, existLead.id),
+            isNotNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToRestore.length > 0) {
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToRestore.map(({ id }) => id)
+            )
+          );
+
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToRestore
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await reduceStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+      }
+    });
 
     return apiResponse(API_MESSAGES.LEAD.BIN.RESTORE, null);
   });
@@ -151,18 +210,68 @@ export const leadAllRestoreProcedure = leadImpl.bin.restoreAll
       throw errors.BAD_REQUEST();
     }
 
-    await context.db
-      .update(LeadTable)
-      .set({
-        deletedAt: null,
-        deletedBy: null,
-      })
-      .where(
-        inArray(
-          LeadTable.id,
-          existLeads.map(({ id }) => id)
-        )
-      );
+    const leadIds = existLeads.map(({ id }) => id);
+
+    await context.db.transaction(async (tx) => {
+      await tx
+        .update(LeadTable)
+        .set({
+          deletedAt: null,
+          deletedBy: null,
+        })
+        .where(inArray(LeadTable.id, leadIds));
+
+      const estimatesToRestore = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(
+          and(
+            inArray(LeadEstimateTable.leadId, leadIds),
+            isNotNull(LeadEstimateTable.deletedAt)
+          )
+        );
+
+      if (estimatesToRestore.length > 0) {
+        await tx
+          .update(LeadEstimateTable)
+          .set({
+            deletedAt: null,
+            deletedBy: null,
+          })
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToRestore.map(({ id }) => id)
+            )
+          );
+
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToRestore
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await reduceStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+      }
+    });
 
     return apiResponse(API_MESSAGES.LEAD.BIN.RESTORE, null);
   });
@@ -188,7 +297,60 @@ export const leadBinDeleteProcedure = leadImpl.bin.delete
       throw errors.NOT_FOUND();
     }
 
-    await context.db.delete(LeadTable).where(eq(LeadTable.id, existLead.id));
+    await context.db.transaction(async (tx) => {
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(eq(LeadEstimateTable.leadId, existLead.id));
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .delete(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+
+        await tx
+          .delete(LeadEstimateTable)
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+      }
+
+      await tx.delete(LeadTable).where(eq(LeadTable.id, existLead.id));
+    });
 
     return apiResponse(API_MESSAGES.LEAD.BIN.DELETE, null);
   });
@@ -213,12 +375,62 @@ export const leadBinDeleteAllProcedure = leadImpl.bin.deleteAll
       throw errors.BAD_REQUEST();
     }
 
-    await context.db.delete(LeadTable).where(
-      inArray(
-        LeadTable.id,
-        existLeads.map(({ id }) => id)
-      )
-    );
+    const leadIds = existLeads.map(({ id }) => id);
+
+    await context.db.transaction(async (tx) => {
+      const estimatesToDelete = await tx
+        .select({
+          id: LeadEstimateTable.id,
+          status: LeadEstimateTable.status,
+        })
+        .from(LeadEstimateTable)
+        .where(inArray(LeadEstimateTable.leadId, leadIds));
+
+      if (estimatesToDelete.length > 0) {
+        const estimateMaterials = await tx
+          .select({
+            materialId: LeadEstimateMaterialTable.materialId,
+            quantity: LeadEstimateMaterialTable.quantity,
+          })
+          .from(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete
+                .filter(({ status }) => status === "approved")
+                .map(({ id }) => id)
+            )
+          );
+
+        await increaseStock(
+          tx,
+          estimateMaterials.map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+        );
+
+        await tx
+          .delete(LeadEstimateMaterialTable)
+          .where(
+            inArray(
+              LeadEstimateMaterialTable.estimateId,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+
+        await tx
+          .delete(LeadEstimateTable)
+          .where(
+            inArray(
+              LeadEstimateTable.id,
+              estimatesToDelete.map(({ id }) => id)
+            )
+          );
+      }
+
+      await tx.delete(LeadTable).where(inArray(LeadTable.id, leadIds));
+    });
 
     return apiResponse(API_MESSAGES.LEAD.BIN.DELETE_ALL, null);
   });

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { Eye, FileText, Mail, Package, Phone } from "lucide-react";
+import { Eye, FileText, Mail, Package, Phone, Receipt } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
@@ -19,6 +19,7 @@ import {
 } from "@/constants";
 import { AttachmentStep } from "@/features/lead/components/lead-details/AttachmentStep";
 import { DetailsStep } from "@/features/lead/components/lead-details/details-step";
+import { EstimateStep } from "@/features/lead/components/lead-details/EstimateStep";
 import { JobStep } from "@/features/lead/components/lead-details/job-step";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
@@ -129,6 +130,11 @@ export default async function SingleLeadDetailsPage(
               <span>Jobs</span>
             </TabNavigationTrigger>
 
+            <TabNavigationTrigger value="estimates">
+              <Receipt className="size-4" />
+              <span>Estimates</span>
+            </TabNavigationTrigger>
+
             <TabNavigationTrigger value="attachments">
               <FileText className="size-4" />
               <span>Attachments</span>
@@ -143,6 +149,9 @@ export default async function SingleLeadDetailsPage(
           </TabNavigationContent>
           <TabNavigationContent value="attachments">
             <AttachmentStep leadId={leadId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="estimates">
+            <EstimateStep leadId={leadId} />
           </TabNavigationContent>
         </TabNavigation>
       </DashboardShell>

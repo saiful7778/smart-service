@@ -7,11 +7,11 @@ import type { ColumnType } from "@workspace/ui/types/data-table";
 
 import { UserAvatar } from "@/components/UserAvatar";
 
-import { ListUserOutput } from "../../api/user.contract";
+import { ListUserContractType } from "../../api/user.contract";
 import UserBannedCell from "./cells/UserBannedCell";
 import UserTableRowAction from "./UserTableRowAction";
 
-type UserTableRowDataType = ListUserOutput["data"][number];
+type UserTableRowDataType = ListUserContractType["output"]["data"]["data"][number];
 
 export const userTableColumn: ColumnType<UserTableRowDataType> = [
   {

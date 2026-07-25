@@ -18,11 +18,11 @@ import {
   useLeadBinDeleteAll,
   useLeadRestoreAll,
 } from "../../api/lead.api.hook";
-import { ListLeadBinOutputs } from "../../api/leadBin.contract";
+import { ListLeadBinContractType } from "../../api/leadBin.contract";
 import { leadBinTableColumn } from "./leadBinTableColumn";
 
 interface LeadBinTableProps {
-  data: ListLeadBinOutputs;
+  data: ListLeadBinContractType["output"]["data"];
   filters: FiltersType;
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }

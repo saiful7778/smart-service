@@ -1,8 +1,3 @@
-import {
-  InferContractRouterInputs,
-  InferContractRouterOutputs,
-} from "@orpc/contract";
-
 import { selectCustomerSchema } from "@workspace/drizzle/schemas";
 import {
   apiOutputZodSchema,
@@ -11,6 +6,7 @@ import {
 } from "@workspace/lib/utils";
 
 import { userProfileSchema } from "@/features/user/user.api-schema";
+import { InferContractRouterType } from "@/types/orpc.types";
 
 import { leadBaseContract } from "./lead.contract-base";
 
@@ -47,12 +43,9 @@ const listCustomerContract = leadBaseContract
       )
     )
   );
-export type ListCustomerInput = InferContractRouterInputs<
+export type ListCustomerContractType = InferContractRouterType<
   typeof listCustomerContract
 >;
-export type ListCustomerOutput = InferContractRouterOutputs<
-  typeof listCustomerContract
->["data"];
 
 const listCustomerForSearchContract = leadBaseContract
   .route({

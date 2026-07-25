@@ -14,7 +14,8 @@
     "access": "restricted"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./error": "./src/MailError.ts"
   },
   "scripts": {
     "dev": "email dev --dir='./src/mail-templates/' --port=8088",
