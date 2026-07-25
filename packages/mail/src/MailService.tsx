@@ -18,6 +18,9 @@ import WelcomeUserMail, {
   WelcomeUserMailProps,
 } from "./mail-templates/auth/WelcomeUserMail";
 import ContactSubmittedMail from "./mail-templates/ContactSubmittedMail";
+import EstimateSentMail, {
+  EstimateSentMailProps,
+} from "./mail-templates/org/EstimateSentMail";
 import OrgCreateWelcomeMail, {
   OrgCreateWelcomeMailProps,
 } from "./mail-templates/org/OrgCreateWelcomeMail";
@@ -58,6 +61,9 @@ type OrgInvitationEmailOptions = Pick<SendMailOption, "to"> &
 type UnAuthOrgInvitationEmailOptions = Pick<SendMailOption, "to"> &
   Omit<UnAuthOrgInvitationMailProps, "appName" | "supportMail">;
 
+type EstimateSentMailOptions = Pick<SendMailOption, "to"> &
+  Omit<EstimateSentMailProps, "appName" | "supportMail">;
+
 export interface ContactSubmittedEmailOptions extends Omit<
   SendMailOption,
   "subject"
@@ -92,6 +98,9 @@ export interface IMailService extends IQstashMailService {
   ): Promise<MailSendResult>;
   sendContactSubmittedMail(
     options: ContactSubmittedEmailOptions
+  ): Promise<MailSendResult>;
+  sendEstimateSentMail(
+    options: EstimateSentMailOptions
   ): Promise<MailSendResult>;
 }
 
@@ -339,6 +348,41 @@ export abstract class MailService
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
         userName={options.userName}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to: options.to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendEstimateSentMail(
+    options: EstimateSentMailOptions
+  ): Promise<MailSendResult> {
+    const subject = `Estimate #${options.estimateNumber} from ${this.mailConfig.appName}`;
+    const element = (
+      <EstimateSentMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        clientName={options.clientName}
+        estimateNumber={options.estimateNumber}
+        validUntil={options.validUntil}
+        lineItems={options.lineItems}
+        subtotal={options.subtotal}
+        discount={options.discount}
+        tax={options.tax}
+        total={options.total}
+        approveUrl={options.approveUrl}
+        declineUrl={options.declineUrl}
+        estimatePdfUrl={options.estimatePdfUrl}
       />
     );
 
