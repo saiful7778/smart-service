@@ -38,17 +38,23 @@ export const LeadEstimateTable = pgTable(
     jobId: uuid("job_id"),
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
+    notes: text("notes"),
+    terms: text("terms"),
     status: LeadEstimateStatusEnum("status").default("draft").notNull(),
-    discount: numeric("discount", { precision: 12, scale: 2 }).default("0"),
-    taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).default("0"),
     subtotal: numeric("subtotal", { precision: 12, scale: 2 }).default("0"),
+    discountRate: numeric("discount_rate", { precision: 12, scale: 2 }).default(
+      "0"
+    ),
+    discountAmount: numeric("discount_amount", {
+      precision: 12,
+      scale: 2,
+    }).default("0"),
+    taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).default("0"),
     taxAmount: numeric("tax_amount", { precision: 12, scale: 2 }).default("0"),
     totalAmount: numeric("total_amount", { precision: 12, scale: 2 })
       .default("0")
       .notNull(),
     validUntil: timestamp("valid_until", { withTimezone: true, precision: 3 }),
-    notes: text("notes"),
-    terms: text("terms"),
     createdBy: uuid("created_by"),
     updatedBy: uuid("updated_by"),
     createdAt: db_created_at,
