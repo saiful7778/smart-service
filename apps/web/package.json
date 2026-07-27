@@ -40,6 +40,8 @@
     "@tanstack/react-query-devtools": "catalog:",
     "@tanstack/react-table": "catalog:",
     "@upstash/qstash": "catalog:",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "@workspace/drizzle": "workspace:*",
     "@workspace/lib": "workspace:*",
     "@workspace/mail": "workspace:*",
