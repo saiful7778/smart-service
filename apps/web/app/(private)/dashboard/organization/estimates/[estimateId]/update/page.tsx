@@ -79,7 +79,7 @@ export default async function EstimateUpdatePage(
             name: data.name,
             description: data?.description || "",
             status: data.status,
-            discount: data?.discount || "",
+            discountRate: data?.discountRate || "",
             taxRate: data?.taxRate || "",
             validUntil: data?.validUntil || undefined,
             notes: data?.notes || "",
