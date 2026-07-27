@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface PlanUpgradedMailProps {
+export interface PlanUpgradedMailProps {
   adminName: string;
   appName: string;
   supportMail: string;

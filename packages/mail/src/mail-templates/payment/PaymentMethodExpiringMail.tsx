@@ -4,7 +4,7 @@ import { EmailButton } from "../../shared/EmailButton";
 import { EmailHeading, EmailLayout } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface PaymentMethodExpiringMailProps {
+export interface PaymentMethodExpiringMailProps {
   adminName: string;
   appName: string;
   supportMail: string;

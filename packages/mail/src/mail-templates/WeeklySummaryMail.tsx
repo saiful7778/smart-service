@@ -4,7 +4,7 @@ import { EmailButton } from "../shared/EmailButton";
 import { EmailHeading, EmailLayout, EmailMetric } from "../shared/EmailLayout";
 import { EmailLink } from "../shared/EmailLink";
 
-interface WeeklySummaryMailProps {
+export interface WeeklySummaryMailProps {
   adminName: string;
   appName: string;
   supportMail: string;
