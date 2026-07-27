@@ -13,7 +13,7 @@ import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-
 import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { LeadEstimateTableRowAction } from "./LeadEstimateTableRowAction";
 

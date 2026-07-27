@@ -1,61 +1,77 @@
-import { Column, Hr, Row, Text } from "react-email";
+import { Column, Hr, Row, Section, Text } from "react-email";
 
+import { formatCurrency } from "@workspace/lib/utils";
+
+import { EmailButton } from "../../shared/EmailButton";
 import {
   EmailHeading,
   EmailInfoCard,
   EmailLayout,
 } from "../../shared/EmailLayout";
-import { EmailLink } from "../../shared/EmailLink";
 
-interface EstimateSentMailProps {
+export interface EstimateSentMailProps {
   clientName: string;
   appName: string;
+  orgName: string;
   supportMail: string;
-  estimateNumber: string;
-  validUntil: string;
-  lineItems: Array<{
-    description: string;
+  estimateName: string;
+  subtotal: number;
+  discountRate: number;
+  discountAmount: number;
+  taxRate: number;
+  taxAmount: number;
+  totalPrice: number;
+  materials: Array<{
+    name: string;
+    sku: string;
     qty: number;
     rate: number;
     amount: number;
   }>;
-  subtotal: number;
-  tax: number;
-  total: number;
-  approveUrl: string;
-  declineUrl: string;
-  estimatePdfUrl: string;
+  validUntil?: string;
+  estimateUrl: string;
 }
 
 export default function EstimateSentMail({
   clientName,
   appName,
+  orgName,
   supportMail,
-  estimateNumber,
-  validUntil,
-  lineItems,
+  estimateName,
+  materials,
   subtotal,
-  tax,
-  total,
-  estimatePdfUrl,
+  discountRate,
+  discountAmount,
+  taxRate,
+  taxAmount,
+  totalPrice,
+  validUntil,
+  estimateUrl,
 }: EstimateSentMailProps) {
   return (
     <EmailLayout
       appName={appName}
-      previewText={`Estimate #${estimateNumber} from ${appName}`}
+      previewText={`'${estimateName}' estimate from ${orgName}`}
       supportMail={supportMail}
     >
-      <EmailHeading>Estimate #{estimateNumber}</EmailHeading>
-      <Text>Hello {clientName},</Text>
-      <Text>
-        Please review the estimate below. This quote is valid until{" "}
-        <span className="font-semibold">{validUntil}</span>.
-      </Text>
+      <EmailHeading>Estimate #{estimateName}</EmailHeading>
+      <Section>
+        <Text className="my-0">Hello {clientName},</Text>
+        <Text className="my-0">
+          Please review the estimate below.{" "}
+          {validUntil && (
+            <span>
+              This quote is valid until{" "}
+              <span className="font-semibold">{validUntil}</span>.
+            </span>
+          )}
+        </Text>
+      </Section>
 
       <EmailInfoCard>
         <Row>
           <Column className="font-bold text-xs text-muted-foreground w-[40%]">
-            Name
+            Material
           </Column>
           <Column className="font-bold text-xs text-muted-foreground w-[10%]">
             Qty
@@ -68,19 +84,20 @@ export default function EstimateSentMail({
           </Column>
         </Row>
         <Hr />
-        {lineItems.map((item, idx) => (
+        {materials.map((material, idx) => (
           <Row key={idx} className="py-2">
             <Column className="text-left font-medium w-[40%]">
-              {item.description}
+              <Text className="my-0">{material.name}</Text>
+              <Text className="my-0 text-muted-foreground">{material.sku}</Text>
             </Column>
             <Column className="text-left text-muted-foreground w-[10%]">
-              {item.qty}
+              {material.qty}
             </Column>
             <Column className="text-left text-muted-foreground w-[30%]">
-              ${item.rate.toFixed(2)}
+              {formatCurrency(material.rate)}
             </Column>
             <Column className="text-right font-medium w-[20%]">
-              ${item.amount.toFixed(2)}
+              {formatCurrency(material.amount)}
             </Column>
           </Row>
         ))}
@@ -88,41 +105,51 @@ export default function EstimateSentMail({
         <Hr />
 
         <Row>
-          <Column className="text-right text-sm text-muted-foreground w-[80%]">
+          <Column className="text-right text-sm text-muted-foreground w-[78%]">
             Subtotal
           </Column>
-          <Column className="text-right text-sm w-[20%] font-medium">
-            ${subtotal.toFixed(2)}
+          <Column className="text-right text-sm w-[18%] font-medium">
+            {formatCurrency(subtotal)}
           </Column>
         </Row>
-        <Row>
-          <Column className="text-right text-sm text-muted-foreground w-[80%]">
-            Tax
-          </Column>
-          <Column className="text-right text-sm w-[20%] font-medium">
-            ${tax.toFixed(2)}
-          </Column>
-        </Row>
+        {discountRate > 0 && (
+          <Row>
+            <Column className="text-right text-sm text-muted-foreground w-[78%]">
+              {`Discount (${discountRate}%)`}
+            </Column>
+            <Column className="text-right text-sm w-[18%] font-medium text-destructive">
+              {`-${formatCurrency(discountAmount)}`}
+            </Column>
+          </Row>
+        )}
+        {taxRate > 0 && (
+          <Row>
+            <Column className="text-right text-sm text-muted-foreground w-[78%]">
+              {`Tax (${taxRate}%)`}
+            </Column>
+            <Column className="text-right text-sm w-[18%] font-medium">
+              {formatCurrency(taxAmount)}
+            </Column>
+          </Row>
+        )}
 
         <Hr />
 
-        <Row className="justify-end">
-          <Column className="text-right text-base w-[80%] font-bold">
+        <Row>
+          <Column className="text-right text-base w-[78%] font-bold">
             Total
           </Column>
-          <Column className="text-right text-base font-bold w-[20%]">
-            ${total.toFixed(2)}
+          <Column className="text-right text-base font-bold w-[18%]">
+            {formatCurrency(totalPrice)}
           </Column>
         </Row>
       </EmailInfoCard>
 
-      <Text className="text-sm text-center text-muted-foreground mt-2">
-        You can also{" "}
-        <EmailLink href={estimatePdfUrl}>
-          download the estimate as a PDF
-        </EmailLink>
-        .
-      </Text>
+      <Section className="text-center my-6">
+        <EmailButton href={estimateUrl}>
+          Accept and download Estimate
+        </EmailButton>
+      </Section>
     </EmailLayout>
   );
 }
@@ -131,13 +158,16 @@ EstimateSentMail.PreviewProps = {
   clientName: "John Doe",
   appName: "App name",
   supportMail: "help@app-name.com",
-  estimateNumber: "12345",
+  estimateName: "12345",
   validUntil: "2026-06-02",
-  lineItems: [
-    { description: "Service 1", qty: 1, rate: 100, amount: 100 },
-    { description: "Service 2", qty: 2, rate: 50, amount: 100 },
+  materials: [
+    { name: "Service 1", sku: "service-1", qty: 1, rate: 100, amount: 100 },
+    { name: "Service 2", sku: "service-1", qty: 2, rate: 50, amount: 100 },
   ],
   subtotal: 200,
-  tax: 20,
-  total: 220,
+  discountRate: 10,
+  discountAmount: 10,
+  taxRate: 20,
+  taxAmount: 20,
+  totalPrice: 210,
 } as EstimateSentMailProps;

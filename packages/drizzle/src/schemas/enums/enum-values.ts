@@ -133,14 +133,11 @@ export const LEAD_STATUS = [
 
 export const LEAD_ESTIMATE_STATUS = [
   "draft",
-  "approved",
   "sent",
   "viewed",
   "accepted",
   "declined",
   "expired",
-  "cancelled",
-  "converted",
 ] as const;
 
 export const JOB_STATUS = [

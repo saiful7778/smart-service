@@ -4,7 +4,7 @@ import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
 
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { ListMaterialContractType } from "../../api/material.contract";
 import { MaterialTableRowAction } from "./MaterialTableRowAction";

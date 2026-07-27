@@ -37,49 +37,44 @@ export function OrgSelector() {
 
   const { isLoading, onSetActiveOrg } = useActiveOrg();
 
-  if (orgs.length === 0) return null;
-
   return (
     <DropdownMenu>
       <SidebarMenuItem>
         <DropdownMenuTrigger
           disabled={isLoading}
-          render={
-            <SidebarMenuButton className="rounded-md border" size="lg">
-              {activeOrg ? (
-                <>
-                  <span className="inline-flex aspect-square size-8 items-center justify-center">
-                    <span className="overflow-hidden shrink-0 size-full rounded-lg border">
-                      <Image
-                        src={
-                          activeOrg.logo
-                            ? resolveImagePath(activeOrg.logo)
-                            : orgPlaceholderImg.src
-                        }
-                        className="size-full object-cover object-center"
-                        alt={`${activeOrg.name} logo`}
-                        width={36}
-                        height={36}
-                      />
-                    </span>
-                  </span>
-                  <span className="grid flex-1 text-left leading-tight">
-                    <span className="truncate font-medium text-sm">
-                      {activeOrg.name}
-                    </span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {activeOrg.slug}
-                    </span>
-                  </span>
-                  <ChevronsUpDown className="ml-auto" />
-                </>
-              ) : (
-                "Organization is unselected"
-              )}
-            </SidebarMenuButton>
-          }
+          render={<SidebarMenuButton className="rounded-md border" size="lg" />}
         >
-          Open organization selector
+          <span className="overflow-hidden shrink-0 size-8 rounded-lg border">
+            <Image
+              src={
+                activeOrg && activeOrg.logo
+                  ? resolveImagePath(activeOrg.logo)
+                  : orgPlaceholderImg.src
+              }
+              className="size-full object-cover object-center"
+              alt={activeOrg ? `${activeOrg.name} logo` : "Organization image"}
+              width={36}
+              height={36}
+            />
+          </span>
+
+          <span className="grid flex-1 text-left leading-tight">
+            {activeOrg ? (
+              <>
+                <span className="truncate font-medium text-sm">
+                  {activeOrg.name}
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {activeOrg.slug}
+                </span>
+              </>
+            ) : (
+              <span className="truncate font-medium text-sm">
+                Organization is unselected
+              </span>
+            )}
+          </span>
+          <ChevronsUpDown className="ml-auto" />
         </DropdownMenuTrigger>
       </SidebarMenuItem>
 
@@ -94,7 +89,7 @@ export function OrgSelector() {
           {orgs.map((org) => (
             <DropdownMenuItem
               disabled={isLoading}
-              key={org.name}
+              key={org.slug}
               onClick={() => onSetActiveOrg(org)}
             >
               <div className="inline-flex aspect-square size-7 overflow-hidden items-center justify-center rounded-md border">

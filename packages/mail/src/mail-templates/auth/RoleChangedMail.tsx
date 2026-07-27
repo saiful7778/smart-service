@@ -7,7 +7,7 @@ import {
   EmailLayout,
 } from "../../shared/EmailLayout";
 
-interface RoleChangedMailProps {
+export interface RoleChangedMailProps {
   userName: string;
   appName: string;
   supportMail: string;

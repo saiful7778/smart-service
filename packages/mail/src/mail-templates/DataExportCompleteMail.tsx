@@ -8,7 +8,7 @@ import {
 } from "../shared/EmailLayout";
 import { EmailLink } from "../shared/EmailLink";
 
-interface DataExportCompleteMailProps {
+export interface DataExportCompleteMailProps {
   userName: string;
   appName: string;
   supportMail: string;

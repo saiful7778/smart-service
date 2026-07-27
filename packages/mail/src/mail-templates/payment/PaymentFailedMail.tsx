@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface PaymentFailedMailProps {
+export interface PaymentFailedMailProps {
   adminName: string;
   appName: string;
   supportMail: string;

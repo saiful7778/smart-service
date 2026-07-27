@@ -159,6 +159,7 @@ export const API_MESSAGES = {
     CREATE: "Estimate created successfully.",
     UPDATE: "Estimate updated successfully.",
     GET_DETAILS: "Estimate details loaded successfully.",
+    SEND: "Estimate sent successfully.",
     DELETE: "Estimate moved to bin successfully.",
     DELETE_ALL: "All selected estimates moved to bin successfully.",
     NOT_CREATE: "Failed to create estimate. Please try again.",
@@ -166,6 +167,8 @@ export const API_MESSAGES = {
     NOT_UPDATE: "Failed to update estimate. Please try again.",
     NOT_ALLOWED_UPDATE: "You don't have permission to update this estimate.",
     NOT_ALLOWED_DELETE: "You don't have permission to delete this estimate.",
+    NOT_SEND: "Failed to send estimate. Please try again.",
+    NO_EMAIL: "Customer email not found. Please provide an email address.",
     INSUFFICIENT_STOCK: "Insufficient stock for material: ",
     BIN: {
       GET_ALL: "Deleted estimates loaded successfully.",

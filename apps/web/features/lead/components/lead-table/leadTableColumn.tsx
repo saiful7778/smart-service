@@ -102,7 +102,7 @@ export function makeLeadTableColumn(
         const variant = statusVariantMap[status] || "default";
         return (
           <Status variant={variant}>
-            <StatusIndicator />
+            {status === "new" && <StatusIndicator />}
             <StatusLabel>{formatEnumValue(status)}</StatusLabel>
           </Status>
         );

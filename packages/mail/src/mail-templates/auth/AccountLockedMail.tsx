@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface AccountLockedMailProps {
+export interface AccountLockedMailProps {
   userName: string;
   appName: string;
   supportMail: string;

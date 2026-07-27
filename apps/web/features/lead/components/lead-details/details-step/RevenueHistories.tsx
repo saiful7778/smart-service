@@ -35,7 +35,7 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { orpcTQClient } from "@/server/orpc.client";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 interface RevenueHistoryDialogProps {
   open: boolean;

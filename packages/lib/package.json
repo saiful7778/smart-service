@@ -9,6 +9,10 @@
       "email": "saiful.islam.rafi.88@gmail.com"
     }
   ],
+  "license": "PROPRIETARY",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "scripts": {
     "lint": "eslint",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
@@ -31,6 +35,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@upstash/redis": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",

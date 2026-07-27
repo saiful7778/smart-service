@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface SubscriptionCancelledMailProps {
+export interface SubscriptionCancelledMailProps {
   adminName: string;
   appName: string;
   supportMail: string;
