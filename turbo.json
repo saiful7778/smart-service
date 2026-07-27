@@ -45,6 +45,9 @@
       "cache": false,
       "persistent": true
     },
+    "@workspace/vitest-config#build": {
+      "outputs": ["dist/**"]
+    },
     "test": {
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/vitest.config.ts"],
       "dependsOn": ["@workspace/vitest-config#build"],
