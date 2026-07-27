@@ -28,7 +28,7 @@
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["@workspace/vitest-config#build", "^build"],
+      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
