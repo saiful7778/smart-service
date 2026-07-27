@@ -35,13 +35,13 @@ export function LeadEstimateCreateForm({
     resolver: zodResolver(leadEstimateFormSchema),
     defaultValues: {
       name: "",
-      description: "",
       status: "draft",
-      discount: "",
-      taxRate: "",
-      validUntil: undefined,
+      description: "",
       notes: "",
       terms: "",
+      discountRate: "",
+      taxRate: "",
+      validUntil: undefined,
       materials: [
         {
           materialId: "",

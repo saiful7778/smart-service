@@ -5,6 +5,7 @@ import {
   LeadSourceEnumSchema,
   LeadStatusEnumSchema,
 } from "@workspace/drizzle/zod-db-enums";
+import { emailField } from "@workspace/lib/utils";
 
 export const leadAddressSchema = z.object({
   line1: z.string().min(1, "Address 1 is required"),
@@ -141,15 +142,17 @@ export type LeadAttachmentUploadType = z.infer<
 
 export const leadEstimateFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
-  description: z.string().optional(),
   status: LeadEstimateStatusEnumSchema,
-  discount: z
+  description: z.string().optional(),
+  notes: z.string().optional(),
+  terms: z.string().optional(),
+  discountRate: z
     .string()
     .optional()
     .refine((value) => {
       if (!value) return true;
       return Number(value) >= 0;
-    }, "discount must be greater than or equal to 0"),
+    }, "discount rate must be greater than or equal to 0"),
   taxRate: z
     .string()
     .optional()
@@ -158,8 +161,6 @@ export const leadEstimateFormSchema = z.object({
       return Number(value) >= 0;
     }, "tax rate must be greater than or equal to 0"),
   validUntil: z.date().optional(),
-  notes: z.string().optional(),
-  terms: z.string().optional(),
   materials: z
     .array(
       z.object({
@@ -191,3 +192,8 @@ export const leadEstimateFormSchema = z.object({
     .min(1, "At least one material is required"),
 });
 export type LeadEstimateFormType = z.infer<typeof leadEstimateFormSchema>;
+
+export const sendEstimateSchema = z.object({
+  email: emailField({ fieldName: "Email" }),
+});
+export type SendEstimateType = z.infer<typeof sendEstimateSchema>;

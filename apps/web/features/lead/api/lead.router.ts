@@ -44,6 +44,7 @@ import {
   leadEstimateDeleteAllProcedure,
   leadEstimateDeleteProcedure,
   leadEstimateDetailsProcedure,
+  leadEstimateSendProcedure,
   leadEstimateUpdateProcedure,
   listLeadEstimateProcedure,
 } from "./leadEstimate.procedure";
@@ -108,6 +109,7 @@ export const leadRouter = leadImpl.router({
     details: leadEstimateDetailsProcedure,
     create: leadEstimateCreateProcedure,
     update: leadEstimateUpdateProcedure,
+    send: leadEstimateSendProcedure,
     delete: leadEstimateDeleteProcedure,
     deleteAll: leadEstimateDeleteAllProcedure,
     bin: {

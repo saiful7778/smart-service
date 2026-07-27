@@ -40,8 +40,8 @@ import { jsonbAgg } from "@workspace/drizzle/sql-helpers";
 import { apiResponse, prepareExport } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
-import { userProfileColumns } from "@/features/user/user.api-schema";
 import { increaseStock } from "@/features/lead/api/estimate-stock.helper";
+import { userProfileColumns } from "@/features/user/user.api-schema";
 import { authMiddleware } from "@/server/middleware/auth.middleware";
 import { errorMiddleware } from "@/server/middleware/error.middleware";
 import { loggerMiddleware } from "@/server/middleware/logger.middleware";
@@ -863,7 +863,7 @@ export const leadDeleteProcedure = leadImpl.delete
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToDelete
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );
@@ -992,7 +992,7 @@ export const leadAllDeleteProcedure = leadImpl.deleteAll
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToDelete
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );

@@ -40,7 +40,7 @@ export function LeadEstimateUpdateForm({
       name: initialData.name,
       description: initialData?.description || "",
       status: initialData.status,
-      discount: initialData?.discount || "",
+      discountRate: initialData?.discountRate || "",
       taxRate: initialData?.taxRate || "",
       validUntil: initialData?.validUntil,
       notes: initialData?.notes || "",

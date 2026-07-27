@@ -23,6 +23,11 @@ export default async function CreateLeadPage() {
   await queryClient.prefetchQuery(
     orpcTQClient.lead.category.list.queryOptions()
   );
+  await queryClient.prefetchQuery(
+    orpcTQClient.lead.customer.listForSearch.queryOptions({
+      input: {},
+    })
+  );
 
   return (
     <HydrateClient client={queryClient}>

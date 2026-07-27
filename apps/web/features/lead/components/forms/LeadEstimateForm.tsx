@@ -7,6 +7,7 @@ import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 
 import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
+import { formatCurrency } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import {
   FieldDescription,
@@ -30,7 +31,6 @@ import {
 } from "@workspace/ui/components/table";
 
 import { MaterialSelectorField } from "@/features/material/components/MaterialSelectorField";
-import { formatCurrency } from "@workspace/lib/utils";
 
 import { LeadEstimateFormType } from "../../lead.schema";
 
@@ -50,7 +50,10 @@ export function LeadEstimateForm({
   "use no memo";
 
   const materials = useWatch({ control: form.control, name: "materials" });
-  const discount = useWatch({ control: form.control, name: "discount" });
+  const discountRate = useWatch({
+    control: form.control,
+    name: "discountRate",
+  });
   const taxRate = useWatch({ control: form.control, name: "taxRate" });
 
   const subtotal = useMemo(
@@ -63,8 +66,8 @@ export function LeadEstimateForm({
   );
 
   const discountAmount = useMemo(() => {
-    return (subtotal * Number(discount)) / 100;
-  }, [subtotal, discount]);
+    return (subtotal * Number(discountRate)) / 100;
+  }, [subtotal, discountRate]);
 
   const taxAmount = useMemo(() => {
     const afterDiscount = subtotal - discountAmount;
@@ -125,12 +128,12 @@ export function LeadEstimateForm({
         <div className="max-w-xs w-full ml-auto">
           <InputAddonField
             control={form.control}
-            name="discount"
+            name="discountRate"
             type="number"
             min={0}
             max={100}
             step={0.01}
-            firstAddon={<span>Discount</span>}
+            firstAddon={<span>Discount Rate</span>}
             secondAddon={<span>%</span>}
             disabled={isLoading}
           />
@@ -153,23 +156,25 @@ export function LeadEstimateForm({
           <div className="flex items-center gap-2">
             <span className="font-semibold">Sub Total</span>
             <span className="font-semibold">:</span>
-            <span className="text-right grow">{`${formatCurrency(subtotal)}`}</span>
+            <span className="text-right grow">{formatCurrency(subtotal)}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold">Discount</span>
             <span className="font-semibold">:</span>
-            <span className="text-right grow">{`${formatCurrency(discountAmount)}`}</span>
+            <span className="text-right grow text-destructive">{`-${formatCurrency(discountAmount)}`}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold">Tax</span>
             <span className="font-semibold">:</span>
-            <span className="text-right grow">{`${formatCurrency(taxAmount)}`}</span>
+            <span className="text-right grow">{formatCurrency(taxAmount)}</span>
           </div>
           <Separator />
           <div className="flex items-center gap-2">
             <span className="font-semibold">Total Price</span>
             <span className="font-semibold">:</span>
-            <span className="text-right grow">{`${formatCurrency(totalPrice)}`}</span>
+            <span className="text-right grow">
+              {formatCurrency(totalPrice)}
+            </span>
           </div>
         </div>
       </FieldGroup>

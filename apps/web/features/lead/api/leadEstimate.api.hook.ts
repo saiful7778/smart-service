@@ -399,6 +399,61 @@ export function useLeadEstimateBinDelete({
   );
 }
 
+export function useLeadEstimateSend<TFieldNames>({
+  onRequestStart,
+  onRequestEnd,
+  onSuccess,
+  onError,
+  onValidationErrors,
+}: IApiHookInput<TFieldNames>) {
+  const toastId = "send_estimate_toast_message";
+  const queryclient = useQueryClient();
+
+  return useMutation(
+    orpcTQClient.lead.estimate.send.mutationOptions({
+      onMutate: () => {
+        onRequestStart?.();
+        toast.loading("Sending...", { id: toastId });
+      },
+      onSuccess: async ({ message }, { leadId, jobId, estimateId }) => {
+        toast.success(message, { id: toastId });
+
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.estimate.list.queryKey({
+            input: { leadId, jobId },
+          }),
+          exact: false,
+        });
+        await queryclient.invalidateQueries({
+          queryKey: orpcTQClient.lead.estimate.details.queryKey({
+            input: { leadId, jobId, estimateId },
+          }),
+          exact: false,
+        });
+
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message, type, fieldErrors } =
+          formatOrpcError<TFieldNames>(error);
+
+        if (type === "validation") {
+          onValidationErrors?.(fieldErrors ?? []);
+        }
+
+        toast.error(message ?? "Failed to send estimate", {
+          id: toastId,
+        });
+
+        onError?.(message);
+      },
+      onSettled: () => {
+        onRequestEnd?.();
+      },
+    })
+  );
+}
+
 export function useLeadEstimateBinDeleteAll({
   onRequestStart,
   onRequestEnd,

@@ -117,7 +117,7 @@ export const createOrgProcedure = orgImpl.create
 
       await mailProvider.sendOrgCreateWelcomeMail({
         to: context.user.email,
-        tenantName: org.name,
+        orgName: org.name,
         adminName: context.user.name,
         dashboardUrl: `${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
       });

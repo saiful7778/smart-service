@@ -4,6 +4,7 @@ import { formatDate } from "date-fns";
 
 import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
+import { formatCurrency } from "@workspace/lib/utils";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import {
@@ -18,8 +19,6 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 import { ColumnType } from "@workspace/ui/types/data-table";
-
-import { formatCurrency } from "@workspace/lib/utils";
 
 import { ListJobsContractType } from "../../api/job.contract";
 import { JobTableRowAction } from "./JobTableRowAction";
@@ -90,7 +89,7 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
       const variant = statusVariantMap[status] || "default";
       return (
         <Status variant={variant}>
-          <StatusIndicator />
+          {status === "scheduled" && <StatusIndicator />}
           <StatusLabel>{formatEnumValue(status)}</StatusLabel>
         </Status>
       );

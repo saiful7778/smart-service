@@ -3,27 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { Edit, Info, Trash } from "lucide-react";
+import { Edit, Info, Send, Trash } from "lucide-react";
 
-import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { formatEnumValue } from "@workspace/lib/utils";
 import DataTableRowMenu from "@workspace/ui/components/data-table/data-table-row-menu";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 
-import {
-  useLeadEstimateDelete,
-  useLeadEstimateUpdate,
-} from "@/features/lead/api/leadEstimate.api.hook";
+import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook";
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
+import { SendEstimateDialog } from "@/features/lead/components/lead-estimate/SendEstimateDialog";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
 export function LeadEstimateTableRowAction({
@@ -68,6 +59,7 @@ export function LeadEstimateTableRowAction({
           ]
   );
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [openSendDialog, setOpenSendDialog] = useState<boolean>(false);
 
   const { mutate: deleteEstimate, isPending: isDeleting } =
     useLeadEstimateDelete({
@@ -75,9 +67,6 @@ export function LeadEstimateTableRowAction({
         setOpenDeleteDialog(false);
       },
     });
-
-  const { mutate: updateEstimate, isPending: isUpdating } =
-    useLeadEstimateUpdate({});
 
   const handleDelete = () => {
     deleteEstimate({
@@ -142,34 +131,10 @@ export function LeadEstimateTableRowAction({
             </DropdownMenuItem>
           )}
           {isAllowUpdate && (
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuRadioGroup
-                    value={estimateData.status}
-                    onValueChange={(value) =>
-                      updateEstimate({
-                        estimateId: estimateData.id,
-                        leadId: estimateData.leadId,
-                        jobId: estimateData.jobId,
-                        status: value,
-                      })
-                    }
-                  >
-                    {LeadEstimateStatusEnumSchema.options.map((status) => (
-                      <DropdownMenuRadioItem
-                        key={status}
-                        value={status}
-                        disabled={isUpdating}
-                      >
-                        {formatEnumValue(status)}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+            <DropdownMenuItem onClick={() => setOpenSendDialog(true)}>
+              <Send />
+              <span>Send to Customer</span>
+            </DropdownMenuItem>
           )}
           {isAllowDelete && (
             <DropdownMenuItem
@@ -182,6 +147,15 @@ export function LeadEstimateTableRowAction({
           )}
         </DropdownMenuGroup>
       </DataTableRowMenu>
+
+      <SendEstimateDialog
+        estimateId={estimateData.id}
+        leadId={estimateData.leadId}
+        jobId={estimateData.jobId}
+        customer={estimateData.customer}
+        open={openSendDialog}
+        onOpenChange={setOpenSendDialog}
+      />
 
       <DeleteConfirmDialog
         title="Delete Estimate"

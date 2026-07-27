@@ -8,6 +8,7 @@ import { Briefcase, Clock, Plus } from "lucide-react";
 import { parseAsIndex, useQueryState } from "nuqs";
 
 import { JobStatusEnumType } from "@workspace/drizzle/zod-db-enums";
+import { formatCurrency } from "@workspace/lib/utils";
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
@@ -18,6 +19,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@workspace/ui/components/empty";
+import { RefreshButton } from "@workspace/ui/components/refresh-button";
 import { Separator } from "@workspace/ui/components/separator";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import {
@@ -33,15 +35,11 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 import { MetaPagination } from "@/components/MetaPagination";
 import { UserAvatarImage } from "@/components/UserAvatar";
 
-import {
-  DEFAULT_INFINITE_PAGE_SIZE,
-  DEFAULT_INFINITE_PAGE_START,
-} from "@/constants";
+import { DEFAULT_PAGE_INDEX } from "@/constants";
 import { ListLeadJobsContractType } from "@/features/lead/api/leadJob.contract";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
 import { RoutePathType } from "@/types";
-import { formatCurrency } from "@workspace/lib/utils";
 import { nameInitials } from "@/utils/nameInitials";
 
 export function JobStep({ leadId }: { leadId: string }) {
@@ -53,16 +51,16 @@ export function JobStep({ leadId }: { leadId: string }) {
   const [page, setPage] = useQueryState(
     "page",
     parseAsIndex
-      .withDefault(DEFAULT_INFINITE_PAGE_START)
+      .withDefault(DEFAULT_PAGE_INDEX)
       .withOptions({ history: "push", shallow: true })
   );
 
-  const { data, isLoading, isError, error } = useQuery(
+  const { data, isLoading, isError, error, refetch } = useQuery(
     orpcTQClient.lead.job.list.queryOptions({
       input: {
         leadId,
         page,
-        limit: DEFAULT_INFINITE_PAGE_SIZE,
+        limit: 5,
         order: "desc",
         orderField: "createdAt",
       },
@@ -78,22 +76,28 @@ export function JobStep({ leadId }: { leadId: string }) {
             Manage jobs for this lead
           </p>
         </div>
-        {isAllowJobCreate && (
-          <Button
-            nativeButton={false}
-            render={
-              <Link
-                href={{
-                  pathname: "/dashboard/organization/jobs/create",
-                  search: `leadId=${leadId}`,
-                }}
-              />
-            }
-          >
-            <Plus />
-            <span>Create Job</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <RefreshButton
+            isLoading={isLoading}
+            onButtonClick={() => refetch()}
+          />
+          {isAllowJobCreate && (
+            <Button
+              nativeButton={false}
+              render={
+                <Link
+                  href={{
+                    pathname: "/dashboard/organization/jobs/create",
+                    search: `leadId=${leadId}`,
+                  }}
+                />
+              }
+            >
+              <Plus />
+              <span>Create Job</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       <QueryStateBoundary

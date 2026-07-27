@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { formatEnumValue } from "@workspace/lib/utils";
+import { formatCurrency } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -41,7 +42,6 @@ import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook
 import { LeadEstimateDetailsContractType } from "@/features/lead/api/leadEstimate.contract";
 import { SendEstimateDialog } from "@/features/lead/components/lead-estimate/SendEstimateDialog";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
-import { formatCurrency } from "@workspace/lib/utils";
 
 const statusColorMap: Record<string, string> = {
   draft:
@@ -115,7 +115,8 @@ export function LeadEstimateDetails({
   };
 
   const subtotal = Number(estimateData.subtotal || "0");
-  const discount = Number(estimateData.discount || "0");
+  const discountAmount = Number(estimateData.discountAmount || "0");
+  const discountRate = Number(estimateData.discountRate || "0");
   const taxRate = Number(estimateData.taxRate || "0");
   const taxAmount = Number(estimateData.taxAmount || "0");
   const totalAmount = Number(estimateData.totalAmount);
@@ -157,6 +158,7 @@ export function LeadEstimateDetails({
               estimateId={estimateData.id}
               leadId={leadId}
               jobId={jobId}
+              customer={estimateData.customer}
               open={openSendDialog}
               onOpenChange={setOpenSendDialog}
             />
@@ -324,13 +326,13 @@ export function LeadEstimateDetails({
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
-              {discount > 0 && (
+              {discountRate > 0 && (
                 <>
                   <Separator />
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Discount</span>
+                    <span className="text-muted-foreground">{`Discount (${discountRate}%)`}</span>
                     <span className="font-medium text-red-500">
-                      {`-${formatCurrency(discount)}`}
+                      {`-${formatCurrency(discountAmount)}`}
                     </span>
                   </div>
                 </>

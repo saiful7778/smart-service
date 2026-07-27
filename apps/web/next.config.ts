@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     "@workspace/drizzle",
     "@workspace/lib",
     "@workspace/mail",
+    "@workspace/pdf",
   ],
   typedRoutes: true,
   reactCompiler: true,
