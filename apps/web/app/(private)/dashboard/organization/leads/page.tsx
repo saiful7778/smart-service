@@ -66,6 +66,10 @@ export default async function LeadPage(
     })
   );
 
+  await queryClient.prefetchQuery(
+    orpcTQClient.lead.category.listForSearch.queryOptions()
+  );
+
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell

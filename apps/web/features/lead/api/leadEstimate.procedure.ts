@@ -1,11 +1,13 @@
 import { ORPCError } from "@orpc/client";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { formatDate } from "date-fns";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
   buildPaginationMeta,
 } from "@workspace/drizzle/paginate-query";
 import {
+  CustomerTable,
   InsertLeadEstimate,
   InsertLeadEstimateMaterial,
   JobTable,
@@ -19,6 +21,9 @@ import {
   UserTable,
 } from "@workspace/drizzle/schemas";
 import { apiResponse } from "@workspace/lib/utils";
+
+import { env } from "@/lib/env";
+import { mailProvider } from "@/lib/mail";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { userProfileColumns } from "@/features/user/user.api-schema";
@@ -138,11 +143,15 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
         );
       }, 0);
 
-      const discount = Number(input.discount || 0);
+      const discountRate = Number(input.discountRate || 0);
+      const discountAmount = (subtotal * discountRate) / 100;
+
+      let totalAmount = subtotal - discountAmount;
+
       const taxRate = Number(input.taxRate || 0);
-      const afterDiscount = Number(subtotal) - discount;
-      const taxAmount = (afterDiscount * taxRate) / 100;
-      const totalAmount = afterDiscount + Number(taxAmount);
+      const taxAmount = (totalAmount * taxRate) / 100;
+
+      totalAmount = totalAmount + Number(taxAmount);
 
       const [estimate] = await tx
         .insert(LeadEstimateTable)
@@ -150,16 +159,17 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
           leadId,
           jobId,
           name: input.name,
-          description: input.description || null,
           status: input.status || "draft",
-          discount: discount.toFixed(2),
-          taxRate: taxRate.toFixed(2),
+          notes: input.notes || null,
+          terms: input.terms || null,
+          description: input.description || null,
           subtotal: subtotal.toFixed(2),
+          discountRate: discountRate.toFixed(2),
+          discountAmount: discountAmount.toFixed(2),
+          taxRate: taxRate.toFixed(2),
           taxAmount: taxAmount.toFixed(2),
           totalAmount: totalAmount.toFixed(2),
           validUntil: input.validUntil ? new Date(input.validUntil) : null,
-          notes: input.notes || null,
-          terms: input.terms || null,
           createdBy: context.orgMember.id,
           orgId: context.org.id,
         } satisfies InsertLeadEstimate)
@@ -167,15 +177,16 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
           id: LeadEstimateTable.id,
           name: LeadEstimateTable.name,
           description: LeadEstimateTable.description,
+          notes: LeadEstimateTable.notes,
+          terms: LeadEstimateTable.terms,
           status: LeadEstimateTable.status,
-          discount: LeadEstimateTable.discount,
-          taxRate: LeadEstimateTable.taxRate,
           subtotal: LeadEstimateTable.subtotal,
+          discountRate: LeadEstimateTable.discountRate,
+          discountAmount: LeadEstimateTable.discountAmount,
+          taxRate: LeadEstimateTable.taxRate,
           taxAmount: LeadEstimateTable.taxAmount,
           totalAmount: LeadEstimateTable.totalAmount,
           validUntil: LeadEstimateTable.validUntil,
-          notes: LeadEstimateTable.notes,
-          terms: LeadEstimateTable.terms,
         });
 
       if (!estimate) {
@@ -187,7 +198,7 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
       const insertMaterials = input.materials.map((m) => {
         const mat = materialsMap.get(m.materialId);
         const qty = Number(m.quantity);
-        const unitPrice = mat ? Number(mat.unitPrice) : 0;
+        const unitPrice = Number(mat?.unitPrice);
         return {
           estimateId: estimate.id,
           materialId: m.materialId,
@@ -199,7 +210,7 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
 
       await tx.insert(LeadEstimateMaterialTable).values(insertMaterials);
 
-      if (input.status === "approved") {
+      if (input.status === "accepted") {
         await reduceStock(
           tx,
           input.materials.map((m) => ({
@@ -298,16 +309,33 @@ export const listLeadEstimateProcedure = leadImpl.estimate.list
         jobId: LeadEstimateTable.jobId,
         name: LeadEstimateTable.name,
         status: LeadEstimateTable.status,
-        discount: LeadEstimateTable.discount,
-        taxRate: LeadEstimateTable.taxRate,
         subtotal: LeadEstimateTable.subtotal,
+        discountRate: LeadEstimateTable.discountRate,
+        discountAmount: LeadEstimateTable.discountAmount,
+        taxRate: LeadEstimateTable.taxRate,
         taxAmount: LeadEstimateTable.taxAmount,
         totalAmount: LeadEstimateTable.totalAmount,
         validUntil: LeadEstimateTable.validUntil,
+        customer: {
+          id: CustomerTable.id,
+          email: CustomerTable.email,
+          name: CustomerTable.name,
+          phone: CustomerTable.phone,
+          company: CustomerTable.company,
+        },
         createdAt: LeadEstimateTable.createdAt,
         updatedAt: LeadEstimateTable.updatedAt,
       })
       .from(LeadEstimateTable)
+      .leftJoin(LeadTable, eq(LeadTable.id, LeadEstimateTable.leadId))
+      .leftJoin(JobTable, eq(JobTable.id, LeadEstimateTable.jobId))
+      .leftJoin(
+        CustomerTable,
+        or(
+          eq(CustomerTable.id, LeadTable.customerId),
+          eq(CustomerTable.id, JobTable.customerId)
+        )
+      )
       .where(and(...whereSQL))
       .$dynamic();
 
@@ -410,17 +438,25 @@ export const leadEstimateDetailsProcedure = leadImpl.estimate.details
         jobId: LeadEstimateTable.jobId,
         name: LeadEstimateTable.name,
         description: LeadEstimateTable.description,
+        notes: LeadEstimateTable.notes,
+        terms: LeadEstimateTable.terms,
         status: LeadEstimateTable.status,
-        discount: LeadEstimateTable.discount,
-        taxRate: LeadEstimateTable.taxRate,
         subtotal: LeadEstimateTable.subtotal,
+        discountRate: LeadEstimateTable.discountRate,
+        discountAmount: LeadEstimateTable.discountAmount,
+        taxRate: LeadEstimateTable.taxRate,
         taxAmount: LeadEstimateTable.taxAmount,
         totalAmount: LeadEstimateTable.totalAmount,
         validUntil: LeadEstimateTable.validUntil,
-        notes: LeadEstimateTable.notes,
-        terms: LeadEstimateTable.terms,
         createdAt: LeadEstimateTable.createdAt,
         updatedAt: LeadEstimateTable.updatedAt,
+        customer: {
+          id: CustomerTable.id,
+          email: CustomerTable.email,
+          name: CustomerTable.name,
+          phone: CustomerTable.phone,
+          company: CustomerTable.company,
+        },
         createdByMember: userProfileColumns,
       })
       .from(LeadEstimateTable)
@@ -434,8 +470,22 @@ export const leadEstimateDetailsProcedure = leadImpl.estimate.details
         eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
       )
       .innerJoin(RoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
+      .leftJoin(LeadTable, eq(LeadTable.id, LeadEstimateTable.leadId))
+      .leftJoin(JobTable, eq(JobTable.id, LeadEstimateTable.jobId))
+      .leftJoin(
+        CustomerTable,
+        or(
+          eq(CustomerTable.id, LeadTable.customerId),
+          eq(CustomerTable.id, JobTable.customerId)
+        )
+      )
       .where(and(...whereSql))
-      .groupBy(LeadEstimateTable.id, OrganizationMemberTable.id, UserTable.id)
+      .groupBy(
+        LeadEstimateTable.id,
+        CustomerTable.id,
+        OrganizationMemberTable.id,
+        UserTable.id
+      )
       .limit(1);
 
     if (!estimateData) {
@@ -541,7 +591,7 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
       .select({
         id: LeadEstimateTable.id,
         status: LeadEstimateTable.status,
-        discount: LeadEstimateTable.discount,
+        discountRate: LeadEstimateTable.discountRate,
         taxRate: LeadEstimateTable.taxRate,
       })
       .from(LeadEstimateTable)
@@ -553,8 +603,6 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
     }
 
     const estimateData = await context.db.transaction(async (tx) => {
-      const oldStatus = existingEstimate.status;
-
       const updateData: Record<string, unknown> = {};
 
       if (input.name !== undefined) updateData.name = input.name;
@@ -562,16 +610,14 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
         updateData.description = input.description;
       if (input.notes !== undefined) updateData.notes = input.notes;
       if (input.terms !== undefined) updateData.terms = input.terms;
-      if (input.discount !== undefined)
-        updateData.discount = Number(input.discount).toFixed(2);
+      if (input.discountRate !== undefined)
+        updateData.discount = Number(input.discountRate).toFixed(2);
       if (input.taxRate !== undefined)
         updateData.taxRate = Number(input.taxRate).toFixed(2);
-      if (input.status !== undefined) updateData.status = input.status;
       if (input.validUntil !== undefined)
         updateData.validUntil = new Date(input.validUntil);
       updateData.updatedBy = context.orgMember.id;
 
-      let newSubtotal: string | undefined;
       if (input.materials) {
         const materialIds = input.materials.map((m) => m.materialId);
         const existingMaterials = await tx
@@ -598,14 +644,13 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
           const unitPrice = mat ? Number(mat.unitPrice) : 0;
           return sum + Number(m.quantity) * unitPrice;
         }, 0);
-        newSubtotal = subtotal.toFixed(2);
 
-        if (updateData.discount === undefined) {
+        if (updateData.discountRate === undefined) {
           const currentDiscount =
-            input.discount !== undefined
-              ? Number(input.discount)
-              : Number(existingEstimate.discount || 0);
-          updateData.discount = currentDiscount.toFixed(2);
+            input.discountRate !== undefined
+              ? Number(input.discountRate)
+              : Number(existingEstimate.discountRate || 0);
+          updateData.discountRate = currentDiscount.toFixed(2);
         }
         if (updateData.taxRate === undefined) {
           const currentTaxRate =
@@ -615,15 +660,18 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
           updateData.taxRate = currentTaxRate.toFixed(2);
         }
 
-        const discount = Number(updateData.discount || 0);
-        const taxRate = Number(updateData.taxRate || 0);
-        const afterDiscount = subtotal - discount;
-        const taxAmount = ((afterDiscount * taxRate) / 100).toFixed(2);
-        const totalAmount = (afterDiscount + Number(taxAmount)).toFixed(2);
+        const discountRate = Number(updateData.discountRate || 0);
+        const discountAmount = (subtotal * discountRate) / 100;
 
-        updateData.subtotal = newSubtotal;
-        updateData.taxAmount = taxAmount;
-        updateData.totalAmount = totalAmount;
+        let totalAmount = subtotal - discountAmount;
+
+        const taxRate = Number(updateData.taxRate || 0);
+        const taxAmount = (totalAmount * taxRate) / 100;
+        totalAmount = totalAmount + Number(taxAmount);
+
+        updateData.subtotal = subtotal.toFixed(2);
+        updateData.taxAmount = taxAmount.toFixed(2);
+        updateData.totalAmount = totalAmount.toFixed(2);
 
         await tx
           .delete(LeadEstimateMaterialTable)
@@ -632,7 +680,7 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
         const insertMaterials = input.materials.map((m) => {
           const mat = materialMap.get(m.materialId);
           const qty = Number(m.quantity);
-          const unitPrice = mat ? Number(mat.unitPrice) : 0;
+          const unitPrice = Number(mat?.unitPrice);
           return {
             estimateId: existingEstimate.id,
             materialId: m.materialId,
@@ -644,8 +692,8 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
 
         await tx.insert(LeadEstimateMaterialTable).values(insertMaterials);
       } else {
-        const discount = Number(
-          updateData.discount ?? existingEstimate.discount ?? 0
+        const discountRate = Number(
+          updateData.discountRate ?? existingEstimate.discountRate ?? 0
         );
         const taxRate = Number(
           updateData.taxRate ?? existingEstimate.taxRate ?? 0
@@ -668,57 +716,17 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
             (sum, m) => sum + Number(m.totalPrice),
             0
           );
-          newSubtotal = subtotal.toFixed(2);
-          const afterDiscount = subtotal - discount;
-          const taxAmount = ((afterDiscount * taxRate) / 100).toFixed(2);
-          const totalAmount = (afterDiscount + Number(taxAmount)).toFixed(2);
+          const discountAmount = (subtotal * discountRate) / 100;
 
-          updateData.subtotal = newSubtotal;
-          updateData.taxAmount = taxAmount;
-          updateData.totalAmount = totalAmount;
+          let totalAmount = subtotal - discountAmount;
+
+          const taxAmount = (totalAmount * taxRate) / 100;
+          totalAmount = totalAmount + Number(taxAmount);
+
+          updateData.subtotal = subtotal.toFixed(2);
+          updateData.taxAmount = taxAmount.toFixed(2);
+          updateData.totalAmount = totalAmount.toFixed(2);
         }
-      }
-
-      const newStatus = input.status ?? oldStatus;
-
-      if (oldStatus === "approved" && newStatus !== "approved") {
-        const oldMaterials = await tx
-          .select({
-            materialId: LeadEstimateMaterialTable.materialId,
-            quantity: LeadEstimateMaterialTable.quantity,
-          })
-          .from(LeadEstimateMaterialTable)
-          .where(eq(LeadEstimateMaterialTable.estimateId, existingEstimate.id));
-
-        await increaseStock(
-          tx,
-          oldMaterials
-            .filter((m) => m.materialId)
-            .map((m) => ({
-              materialId: m.materialId,
-              quantity: m.quantity,
-            }))
-        );
-      }
-
-      if (newStatus === "approved" && oldStatus !== "approved") {
-        const newMaterials = await tx
-          .select({
-            materialId: LeadEstimateMaterialTable.materialId,
-            quantity: LeadEstimateMaterialTable.quantity,
-          })
-          .from(LeadEstimateMaterialTable)
-          .where(eq(LeadEstimateMaterialTable.estimateId, existingEstimate.id));
-
-        await reduceStock(
-          tx,
-          newMaterials
-            .filter((m) => m.materialId)
-            .map((m) => ({
-              materialId: m.materialId,
-              quantity: m.quantity,
-            }))
-        );
       }
 
       const [updated] = await tx
@@ -730,9 +738,10 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
           name: LeadEstimateTable.name,
           description: LeadEstimateTable.description,
           status: LeadEstimateTable.status,
-          discount: LeadEstimateTable.discount,
-          taxRate: LeadEstimateTable.taxRate,
           subtotal: LeadEstimateTable.subtotal,
+          discountRate: LeadEstimateTable.discountRate,
+          discountAmount: LeadEstimateTable.discountAmount,
+          taxRate: LeadEstimateTable.taxRate,
           taxAmount: LeadEstimateTable.taxAmount,
           totalAmount: LeadEstimateTable.totalAmount,
           validUntil: LeadEstimateTable.validUntil,
@@ -756,6 +765,235 @@ export const leadEstimateUpdateProcedure = leadImpl.estimate.update
     }
 
     return apiResponse(API_MESSAGES.ESTIMATE.UPDATE, estimateData);
+  });
+
+export const leadEstimateSendProcedure = leadImpl.estimate.send
+  .use((...args) => {
+    const { leadId, jobId } = args[1];
+
+    return orgMemberPermissionsMiddleware(
+      leadId
+        ? ["org.lead_estimate.manage", "org.lead_estimate.update"]
+        : jobId
+          ? ["org.job_estimate.manage", "org.job_estimate.update"]
+          : [
+              "org.lead_estimate.manage",
+              "org.lead_estimate.update",
+              "org.job_estimate.manage",
+              "org.job_estimate.update",
+            ]
+    )(...args);
+  })
+  .handler(async ({ context, input, errors }) => {
+    if (!input?.leadId && !input?.jobId) {
+      throw errors.BAD_REQUEST();
+    }
+
+    const whereSql = [
+      eq(LeadEstimateTable.id, input.estimateId),
+      eq(LeadEstimateTable.orgId, context.org.id),
+      isNull(LeadEstimateTable.deletedAt),
+    ];
+
+    if (input?.leadId) {
+      const [existLead] = await context.db
+        .select({
+          id: LeadTable.id,
+          customerId: LeadTable.customerId,
+        })
+        .from(LeadTable)
+        .where(
+          and(
+            eq(LeadTable.id, input.leadId),
+            eq(LeadTable.orgId, context.org.id),
+            isNull(LeadTable.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!existLead) {
+        throw errors.NOT_FOUND();
+      }
+      whereSql.push(eq(LeadEstimateTable.leadId, existLead.id));
+    }
+
+    if (input?.jobId) {
+      const [existJob] = await context.db
+        .select({
+          id: JobTable.id,
+          customerId: JobTable.customerId,
+          leadId: JobTable.leadId,
+        })
+        .from(JobTable)
+        .where(
+          and(
+            eq(JobTable.id, input.jobId),
+            eq(JobTable.orgId, context.org.id),
+            isNull(JobTable.deletedAt)
+          )
+        );
+
+      if (!existJob) {
+        throw new ORPCError("NOT_FOUND", {
+          message: API_MESSAGES.JOB.NOT_FOUND,
+        });
+      }
+      whereSql.push(eq(LeadEstimateTable.jobId, existJob.id));
+    }
+
+    const [estimate] = await context.db
+      .select({
+        id: LeadEstimateTable.id,
+        name: LeadEstimateTable.name,
+        status: LeadEstimateTable.status,
+        subtotal: LeadEstimateTable.subtotal,
+        discountRate: LeadEstimateTable.discountRate,
+        discountAmount: LeadEstimateTable.discountAmount,
+        taxRate: LeadEstimateTable.taxRate,
+        taxAmount: LeadEstimateTable.taxAmount,
+        totalAmount: LeadEstimateTable.totalAmount,
+        validUntil: LeadEstimateTable.validUntil,
+        leadId: LeadEstimateTable.leadId,
+        jobId: LeadEstimateTable.jobId,
+      })
+      .from(LeadEstimateTable)
+      .where(and(...whereSql))
+      .limit(1);
+
+    if (!estimate) {
+      throw new ORPCError("NOT_FOUND", {
+        message: API_MESSAGES.ESTIMATE.NOT_FOUND,
+      });
+    }
+
+    let customerEmail = input.email;
+    let customerName: string | undefined = undefined;
+
+    if (!customerEmail) {
+      let customerId: string | null = null;
+
+      if (estimate.leadId) {
+        const [leadData] = await context.db
+          .select({ customerId: LeadTable.customerId })
+          .from(LeadTable)
+          .where(eq(LeadTable.id, estimate.leadId))
+          .limit(1);
+
+        customerId = leadData?.customerId ?? null;
+      } else if (estimate.jobId) {
+        const [jobData] = await context.db
+          .select({ customerId: JobTable.customerId })
+          .from(JobTable)
+          .where(eq(JobTable.id, estimate.jobId))
+          .limit(1);
+
+        customerId = jobData?.customerId ?? null;
+      }
+
+      if (customerId) {
+        const [customerData] = await context.db
+          .select({
+            email: CustomerTable.email,
+            name: CustomerTable.name,
+          })
+          .from(CustomerTable)
+          .where(
+            and(
+              eq(CustomerTable.id, customerId),
+              eq(CustomerTable.orgId, context.org.id),
+              isNull(CustomerTable.deletedAt)
+            )
+          )
+          .limit(1);
+
+        if (customerData?.email) {
+          customerEmail = customerData.email;
+          customerName = customerData.name;
+        }
+      }
+    }
+
+    if (!customerEmail) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: API_MESSAGES.ESTIMATE.NO_EMAIL,
+      });
+    }
+
+    const materials = await context.db
+      .select({
+        quantity: LeadEstimateMaterialTable.quantity,
+        totalPrice: LeadEstimateMaterialTable.totalPrice,
+        material: {
+          name: MaterialTable.name,
+          sku: MaterialTable.sku,
+          unitPrice: MaterialTable.unitPrice,
+        },
+      })
+      .from(LeadEstimateMaterialTable)
+      .innerJoin(
+        MaterialTable,
+        eq(MaterialTable.id, LeadEstimateMaterialTable.materialId)
+      )
+      .where(eq(LeadEstimateMaterialTable.estimateId, estimate.id));
+
+    const allMaterials = materials.map((m) => ({
+      name: m.material.name,
+      sku: m.material.sku,
+      qty: Number(m.quantity),
+      rate: Number(m.material.unitPrice),
+      amount: Number(m.totalPrice),
+    }));
+
+    const validUntil = estimate.validUntil
+      ? formatDate(new Date(estimate.validUntil), "PP - pp")
+      : undefined;
+
+    await context.db.transaction(async (tx) => {
+      await mailProvider.sendEstimateSentMail({
+        to: customerEmail,
+        clientName: customerName || customerEmail,
+        orgName: context.org.name,
+        estimateName: estimate.name,
+        validUntil,
+        materials: allMaterials,
+        subtotal: Number(estimate.subtotal || 0),
+        discountRate: Number(estimate.discountRate || 0),
+        discountAmount: Number(estimate.discountAmount || 0),
+        taxRate: Number(estimate.taxRate || 0),
+        taxAmount: Number(estimate.taxAmount || 0),
+        totalPrice: Number(estimate.totalAmount),
+        estimateUrl: `${env.NEXT_PUBLIC_SITE_URL}/estimates/${estimate.id}`,
+      });
+
+      await context.db
+        .update(LeadEstimateTable)
+        .set({
+          status: "sent",
+          updatedBy: context.orgMember.id,
+          updatedAt: new Date(),
+        })
+        .where(eq(LeadEstimateTable.id, estimate.id));
+
+      const newMaterials = await tx
+        .select({
+          materialId: LeadEstimateMaterialTable.materialId,
+          quantity: LeadEstimateMaterialTable.quantity,
+        })
+        .from(LeadEstimateMaterialTable)
+        .where(eq(LeadEstimateMaterialTable.estimateId, estimate.id));
+
+      await reduceStock(
+        tx,
+        newMaterials
+          .filter((m) => m.materialId)
+          .map((m) => ({
+            materialId: m.materialId,
+            quantity: m.quantity,
+          }))
+      );
+    });
+
+    return apiResponse(API_MESSAGES.ESTIMATE.SEND, null);
   });
 
 export const leadEstimateDeleteProcedure = leadImpl.estimate.delete
@@ -840,7 +1078,7 @@ export const leadEstimateDeleteProcedure = leadImpl.estimate.delete
     }
 
     await context.db.transaction(async (tx) => {
-      if (existingEstimate.status === "approved") {
+      if (existingEstimate.status === "accepted") {
         const estimateMaterials = await tx
           .select({
             materialId: LeadEstimateMaterialTable.materialId,
@@ -961,7 +1199,7 @@ export const leadEstimateDeleteAllProcedure = leadImpl.estimate.deleteAll
           inArray(
             LeadEstimateMaterialTable.estimateId,
             existingEstimates
-              .filter(({ status }) => status === "approved")
+              .filter(({ status }) => status === "accepted")
               .map(({ id }) => id)
           )
         );

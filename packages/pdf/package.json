@@ -1,0 +1,37 @@
+{
+  "name": "@workspace/pdf",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Saiful Islam <saiful.islam.rafi.88@gmail.com>",
+  "contributors": [
+    {
+      "name": "Saiful Islam",
+      "email": "saiful.islam.rafi.88@gmail.com"
+    }
+  ],
+  "license": "PROPRIETARY",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "exports": {
+    "./templates/*": "./src/templates/*.tsx"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "catalog:",
+    "@workspace/lib": "workspace:*"
+  }
+}

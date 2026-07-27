@@ -1,6 +1,7 @@
 import z from "zod";
 
 import {
+  selectCustomerSchema,
   selectLeadEstimateMaterialSchema,
   selectLeadEstimateSchema,
   selectMaterialSchema,
@@ -41,7 +42,8 @@ const leadEstimateCreateContract = leadBaseContract
         name: true,
         description: true,
         status: true,
-        discount: true,
+        discountAmount: true,
+        discountRate: true,
         taxRate: true,
         subtotal: true,
         taxAmount: true,
@@ -78,21 +80,34 @@ const listLeadEstimateContract = leadBaseContract
   .output(
     apiOutputZodSchema(
       paginateOutputZodSchema(
-        selectLeadEstimateSchema.pick({
-          id: true,
-          leadId: true,
-          jobId: true,
-          name: true,
-          status: true,
-          discount: true,
-          taxRate: true,
-          subtotal: true,
-          taxAmount: true,
-          totalAmount: true,
-          validUntil: true,
-          createdAt: true,
-          updatedAt: true,
-        })
+        selectLeadEstimateSchema
+          .pick({
+            id: true,
+            leadId: true,
+            jobId: true,
+            name: true,
+            status: true,
+            subtotal: true,
+            discountRate: true,
+            discountAmount: true,
+            taxRate: true,
+            taxAmount: true,
+            totalAmount: true,
+            validUntil: true,
+            createdAt: true,
+            updatedAt: true,
+          })
+          .extend({
+            customer: selectCustomerSchema
+              .pick({
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                company: true,
+              })
+              .nullable(),
+          })
       )
     )
   );
@@ -123,9 +138,10 @@ const leadEstimateDetailsContract = leadBaseContract
           name: true,
           description: true,
           status: true,
-          discount: true,
-          taxRate: true,
           subtotal: true,
+          discountRate: true,
+          discountAmount: true,
+          taxRate: true,
           taxAmount: true,
           totalAmount: true,
           validUntil: true,
@@ -136,6 +152,15 @@ const leadEstimateDetailsContract = leadBaseContract
         })
         .extend({
           createdByMember: userProfileSchema,
+          customer: selectCustomerSchema
+            .pick({
+              id: true,
+              email: true,
+              name: true,
+              phone: true,
+              company: true,
+            })
+            .nullable(),
           materials: z.array(
             selectLeadEstimateMaterialSchema
               .pick({
@@ -170,7 +195,7 @@ const leadEstimateUpdateContract = leadBaseContract
     tags,
   })
   .input(
-    leadEstimateFormSchema.partial().extend({
+    leadEstimateFormSchema.omit({ status: true }).partial().extend({
       leadId: z.uuid().nullable().optional(),
       jobId: z.uuid().nullable().optional(),
       estimateId: z.uuid(),
@@ -183,9 +208,10 @@ const leadEstimateUpdateContract = leadBaseContract
         name: true,
         description: true,
         status: true,
-        discount: true,
-        taxRate: true,
         subtotal: true,
+        discountRate: true,
+        discountAmount: true,
+        taxRate: true,
         taxAmount: true,
         totalAmount: true,
         validUntil: true,
@@ -217,6 +243,26 @@ export type LeadEstimateDeleteContractType = InferContractRouterType<
   typeof leadEstimateDeleteContract
 >;
 
+const leadEstimateSendContract = leadBaseContract
+  .route({
+    path: "/leads/estimate/send",
+    method: "POST",
+    description: "Send a lead/job estimate via email",
+    tags,
+  })
+  .input(
+    z.object({
+      leadId: z.uuid().nullable().optional(),
+      jobId: z.uuid().nullable().optional(),
+      estimateId: z.uuid(),
+      email: z.email().optional(),
+    })
+  )
+  .output(apiOutputZodSchema(z.null()));
+export type LeadEstimateSendContractType = InferContractRouterType<
+  typeof leadEstimateSendContract
+>;
+
 const leadEstimateDeleteAllContract = leadBaseContract
   .route({
     path: "/leads/estimate/delete/all",
@@ -241,6 +287,7 @@ export const leadEstimateContract = {
   details: leadEstimateDetailsContract,
   create: leadEstimateCreateContract,
   update: leadEstimateUpdateContract,
+  send: leadEstimateSendContract,
   delete: leadEstimateDeleteContract,
   deleteAll: leadEstimateDeleteAllContract,
   bin: leadEstimateBinContract,

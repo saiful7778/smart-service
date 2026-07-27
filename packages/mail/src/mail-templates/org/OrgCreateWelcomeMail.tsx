@@ -11,7 +11,7 @@ import { EmailLink } from "../../shared/EmailLink";
 export interface OrgCreateWelcomeMailProps {
   adminName: string;
   appName: string;
-  tenantName: string;
+  orgName: string;
   supportMail: string;
   dashboardUrl: string;
   trialEndDate?: string;
@@ -20,7 +20,7 @@ export interface OrgCreateWelcomeMailProps {
 export default function OrgCreateWelcomeMail({
   adminName,
   appName,
-  tenantName,
+  orgName,
   supportMail,
   dashboardUrl,
   trialEndDate,
@@ -35,9 +35,9 @@ export default function OrgCreateWelcomeMail({
         Welcome to {appName}, {adminName}!
       </EmailHeading>
       <Text>
-        Your organization <span className="font-bold">{tenantName}</span> has
-        been successfully created. You are just a few steps away from
-        streamlining your service business.
+        Your organization <span className="font-bold">{orgName}</span> has been
+        successfully created. You are just a few steps away from streamlining
+        your service business.
       </Text>
 
       {trialEndDate && (
@@ -107,7 +107,7 @@ export default function OrgCreateWelcomeMail({
 OrgCreateWelcomeMail.PreviewProps = {
   adminName: "John Doe",
   appName: "App name",
-  tenantName: "Tenant name",
+  orgName: "Tenant name",
   supportMail: "help@app-name.com",
   dashboardUrl: "https://localhost:3000/dashboard",
   trialEndDate: "2026-06-02",

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     "@workspace/drizzle",
     "@workspace/lib",
     "@workspace/mail",
+    "@workspace/pdf",
   ],
   typedRoutes: true,
   reactCompiler: true,
@@ -38,7 +39,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "tiobqbatrxtpmsletbcc.storage.supabase.co",
+        hostname: "pjqlzzledjbeawbdyyhi.storage.supabase.co",
         port: "",
         pathname: "/storage/v1/**",
       },

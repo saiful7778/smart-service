@@ -29,6 +29,12 @@ export default async function CreateJobPage(
     orpcTQClient.job.listServicings.queryOptions()
   );
 
+  await queryClient.ensureQueryData(
+    orpcTQClient.lead.listForSearch.queryOptions({
+      input: {},
+    })
+  );
+
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell title="Create Job" shortDescription="Create a new job">

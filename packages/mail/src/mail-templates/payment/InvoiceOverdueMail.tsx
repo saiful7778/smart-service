@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface InvoiceOverdueMailProps {
+export interface InvoiceOverdueMailProps {
   clientName: string;
   appName: string;
   supportMail: string;

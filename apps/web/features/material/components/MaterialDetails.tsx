@@ -15,7 +15,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { MaterialDeleteDialog } from "./MaterialDeleteDialog";
 import { MaterialUpdateDialog } from "./MaterialUpdateDialog";

@@ -11,7 +11,7 @@ import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-
 import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@workspace/lib/utils";
 
 import { LeadEstimateBinTableRowAction } from "./LeadEstimateBinTableRowAction";
 

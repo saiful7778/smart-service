@@ -2,6 +2,9 @@ import { render } from "react-email";
 
 import { QstashServiceConfig } from "@workspace/lib/qstash";
 
+import AccountLockedMail, {
+  AccountLockedMailProps,
+} from "./mail-templates/auth/AccountLockedMail";
 import EmailVerificationMail, {
   EmailVerificationMailProps,
 } from "./mail-templates/auth/EmailVerificationMail";
@@ -14,10 +17,28 @@ import PasswordChangedMail, {
 import ResetPasswordMail, {
   ResetPasswordMailProps,
 } from "./mail-templates/auth/ResetPasswordMail";
+import RoleChangedMail, {
+  RoleChangedMailProps,
+} from "./mail-templates/auth/RoleChangedMail";
+import SuspiciousLoginMail, {
+  SuspiciousLoginMailProps,
+} from "./mail-templates/auth/SuspiciousLoginMail";
 import WelcomeUserMail, {
   WelcomeUserMailProps,
 } from "./mail-templates/auth/WelcomeUserMail";
 import ContactSubmittedMail from "./mail-templates/ContactSubmittedMail";
+import DataExportCompleteMail, {
+  DataExportCompleteMailProps,
+} from "./mail-templates/DataExportCompleteMail";
+import IntegrationConnectedMail, {
+  IntegrationConnectedMailProps,
+} from "./mail-templates/integration/IntegrationConnectedMail";
+import IntegrationErrorMail, {
+  IntegrationErrorMailProps,
+} from "./mail-templates/integration/IntegrationErrorMail";
+import EstimateSentMail, {
+  EstimateSentMailProps,
+} from "./mail-templates/org/EstimateSentMail";
 import OrgCreateWelcomeMail, {
   OrgCreateWelcomeMailProps,
 } from "./mail-templates/org/OrgCreateWelcomeMail";
@@ -27,6 +48,39 @@ import OrgInvitationMail, {
 import UnAuthOrgInvitationMail, {
   UnAuthOrgInvitationMailProps,
 } from "./mail-templates/org/UnAuthOrgInvitationMail";
+import InvoiceOverdueMail, {
+  InvoiceOverdueMailProps,
+} from "./mail-templates/payment/InvoiceOverdueMail";
+import PaymentFailedMail, {
+  PaymentFailedMailProps,
+} from "./mail-templates/payment/PaymentFailedMail";
+import PaymentMethodAddedMail, {
+  PaymentMethodAddedMailProps,
+} from "./mail-templates/payment/PaymentMethodAddedMail";
+import PaymentMethodExpiringMail, {
+  PaymentMethodExpiringMailProps,
+} from "./mail-templates/payment/PaymentMethodExpiringMail";
+import PaymentProcessedMail, {
+  PaymentProcessedMailProps,
+} from "./mail-templates/payment/PaymentProcessedMail";
+import PlanDowngradedMail, {
+  PlanDowngradedMailProps,
+} from "./mail-templates/payment/PlanDowngradedMail";
+import PlanUpgradedMail, {
+  PlanUpgradedMailProps,
+} from "./mail-templates/payment/PlanUpgradedMail";
+import SubscriptionCancelledMail, {
+  SubscriptionCancelledMailProps,
+} from "./mail-templates/payment/SubscriptionCancelledMail";
+import SubscriptionReactivatedMail, {
+  SubscriptionReactivatedMailProps,
+} from "./mail-templates/payment/SubscriptionReactivatedMail";
+import UsageLimitWarningMail, {
+  UsageLimitWarningMailProps,
+} from "./mail-templates/payment/UsageLimitWarningMail";
+import WeeklySummaryMail, {
+  WeeklySummaryMailProps,
+} from "./mail-templates/WeeklySummaryMail";
 import { IQstashMailService, QstashMailService } from "./QstashMail.service";
 import type {
   MailSendResult,
@@ -57,6 +111,60 @@ type OrgInvitationEmailOptions = Pick<SendMailOption, "to"> &
 
 type UnAuthOrgInvitationEmailOptions = Pick<SendMailOption, "to"> &
   Omit<UnAuthOrgInvitationMailProps, "appName" | "supportMail">;
+
+type EstimateSentMailOptions = Pick<SendMailOption, "to"> &
+  Omit<EstimateSentMailProps, "appName" | "supportMail">;
+
+type SuspiciousLoginMailOptions = Pick<SendMailOption, "to"> &
+  Omit<SuspiciousLoginMailProps, "appName" | "supportMail">;
+
+type RoleChangedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<RoleChangedMailProps, "appName" | "supportMail">;
+
+type AccountLockedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<AccountLockedMailProps, "appName" | "supportMail">;
+
+type DataExportCompleteMailOptions = Pick<SendMailOption, "to"> &
+  Omit<DataExportCompleteMailProps, "appName" | "supportMail">;
+
+type IntegrationConnectedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<IntegrationConnectedMailProps, "appName" | "supportMail">;
+
+type IntegrationErrorMailOptions = Pick<SendMailOption, "to"> &
+  Omit<IntegrationErrorMailProps, "appName" | "supportMail">;
+
+type WeeklySummaryMailOptions = Pick<SendMailOption, "to"> &
+  Omit<WeeklySummaryMailProps, "appName" | "supportMail">;
+
+type PaymentProcessedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PaymentProcessedMailProps, "appName" | "supportMail">;
+
+type InvoiceOverdueMailOptions = Pick<SendMailOption, "to"> &
+  Omit<InvoiceOverdueMailProps, "appName" | "supportMail">;
+
+type PaymentMethodExpiringMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PaymentMethodExpiringMailProps, "appName" | "supportMail">;
+
+type UsageLimitWarningMailOptions = Pick<SendMailOption, "to"> &
+  Omit<UsageLimitWarningMailProps, "appName" | "supportMail">;
+
+type PlanUpgradedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PlanUpgradedMailProps, "appName" | "supportMail">;
+
+type PaymentFailedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PaymentFailedMailProps, "appName" | "supportMail">;
+
+type SubscriptionReactivatedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<SubscriptionReactivatedMailProps, "appName" | "supportMail">;
+
+type PaymentMethodAddedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PaymentMethodAddedMailProps, "appName" | "supportMail">;
+
+type SubscriptionCancelledMailOptions = Pick<SendMailOption, "to"> &
+  Omit<SubscriptionCancelledMailProps, "appName" | "supportMail">;
+
+type PlanDowngradedMailOptions = Pick<SendMailOption, "to"> &
+  Omit<PlanDowngradedMailProps, "appName" | "supportMail">;
 
 export interface ContactSubmittedEmailOptions extends Omit<
   SendMailOption,
@@ -93,6 +201,58 @@ export interface IMailService extends IQstashMailService {
   sendContactSubmittedMail(
     options: ContactSubmittedEmailOptions
   ): Promise<MailSendResult>;
+  sendEstimateSentMail(
+    options: EstimateSentMailOptions
+  ): Promise<MailSendResult>;
+  sendSuspiciousLoginMail(
+    options: SuspiciousLoginMailOptions
+  ): Promise<MailSendResult>;
+  sendRoleChangedMail(options: RoleChangedMailOptions): Promise<MailSendResult>;
+  sendAccountLockedMail(
+    options: AccountLockedMailOptions
+  ): Promise<MailSendResult>;
+  sendDataExportCompleteMail(
+    options: DataExportCompleteMailOptions
+  ): Promise<MailSendResult>;
+  sendIntegrationConnectedMail(
+    options: IntegrationConnectedMailOptions
+  ): Promise<MailSendResult>;
+  sendIntegrationErrorMail(
+    options: IntegrationErrorMailOptions
+  ): Promise<MailSendResult>;
+  sendWeeklySummaryMail(
+    options: WeeklySummaryMailOptions
+  ): Promise<MailSendResult>;
+  sendPaymentProcessedMail(
+    options: PaymentProcessedMailOptions
+  ): Promise<MailSendResult>;
+  sendInvoiceOverdueMail(
+    options: InvoiceOverdueMailOptions
+  ): Promise<MailSendResult>;
+  sendPaymentMethodExpiringMail(
+    options: PaymentMethodExpiringMailOptions
+  ): Promise<MailSendResult>;
+  sendUsageLimitWarningMail(
+    options: UsageLimitWarningMailOptions
+  ): Promise<MailSendResult>;
+  sendPlanUpgradedMail(
+    options: PlanUpgradedMailOptions
+  ): Promise<MailSendResult>;
+  sendPaymentFailedMail(
+    options: PaymentFailedMailOptions
+  ): Promise<MailSendResult>;
+  sendSubscriptionReactivatedMail(
+    options: SubscriptionReactivatedMailOptions
+  ): Promise<MailSendResult>;
+  sendPaymentMethodAddedMail(
+    options: PaymentMethodAddedMailOptions
+  ): Promise<MailSendResult>;
+  sendSubscriptionCancelledMail(
+    options: SubscriptionCancelledMailOptions
+  ): Promise<MailSendResult>;
+  sendPlanDowngradedMail(
+    options: PlanDowngradedMailOptions
+  ): Promise<MailSendResult>;
 }
 
 export abstract class MailService
@@ -106,16 +266,16 @@ export abstract class MailService
     super(mailConfig, qstashConfig);
   }
 
-  public async sendWelcomeUserMail(
-    options: WelcomeUserEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendWelcomeUserMail({
+    to,
+    ...options
+  }: WelcomeUserEmailOptions): Promise<MailSendResult> {
     const subject = `Welcome to ${this.mailConfig.appName}`;
     const element = (
       <WelcomeUserMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
-        dashboardUrl={options.dashboardUrl}
+        {...options}
       />
     );
 
@@ -125,25 +285,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendOrgCreateWelcomeMail(
-    options: OrgCreateWelcomeMailOptions
-  ): Promise<MailSendResult> {
-    const subject = `${options.tenantName} Is Ready - Let's Get Started`;
+  public async sendOrgCreateWelcomeMail({
+    to,
+    ...options
+  }: OrgCreateWelcomeMailOptions): Promise<MailSendResult> {
+    const subject = `${options.orgName} Is Ready - Let's Get Started`;
     const element = (
       <OrgCreateWelcomeMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        tenantName={options.tenantName}
-        adminName={options.adminName}
-        dashboardUrl={options.dashboardUrl}
-        trialEndDate={options.trialEndDate}
+        {...options}
       />
     );
 
@@ -153,23 +311,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendEmailVerificationMail(
-    options: EmailVerificationMailOptions
-  ): Promise<MailSendResult> {
+  public async sendEmailVerificationMail({
+    to,
+    ...options
+  }: EmailVerificationMailOptions): Promise<MailSendResult> {
     const subject = `Verify your email for ${this.mailConfig.appName}`;
     const element = (
       <EmailVerificationMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
-        verifyUrl={options.verifyUrl}
+        {...options}
       />
     );
 
@@ -179,23 +337,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendPasswordResetMail(
-    options: PasswordResetEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendPasswordResetMail({
+    to,
+    ...options
+  }: PasswordResetEmailOptions): Promise<MailSendResult> {
     const subject = `Reset your password for ${this.mailConfig.appName}`;
     const element = (
       <ResetPasswordMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
-        resetUrl={options.resetUrl}
+        {...options}
       />
     );
 
@@ -205,28 +363,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendNewDeviceLoginMail(
-    options: NewDeviceLoginEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendNewDeviceLoginMail({
+    to,
+    ...options
+  }: NewDeviceLoginEmailOptions): Promise<MailSendResult> {
     const subject = `New device login detected for ${this.mailConfig.appName}`;
     const element = (
       <NewDeviceLoginMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
-        deviceInfo={options.deviceInfo}
-        loginTimestamp={options.loginTimestamp}
-        ipAddress={options.ipAddress}
-        browser={options.browser}
-        approximateLocation={options.approximateLocation}
-        secureAccountUrl={options.secureAccountUrl}
+        {...options}
       />
     );
 
@@ -236,26 +389,24 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendPasswordChangedMail(
-    options: PasswordChangedMailOptions
-  ): Promise<MailSendResult> {
+  public async sendPasswordChangedMail({
+    to,
+    ...options
+  }: PasswordChangedMailOptions): Promise<MailSendResult> {
     const subject = `Password changed for ${this.mailConfig.appName}`;
 
     const element = (
       <PasswordChangedMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
-        changeTimestamp={options.changeTimestamp}
-        ipAddress={options.ipAddress}
-        deviceInfo={options.deviceInfo}
+        {...options}
       />
     );
 
@@ -265,26 +416,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendOrgInvitationMail(
-    options: OrgInvitationEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendOrgInvitationMail({
+    to,
+    ...options
+  }: OrgInvitationEmailOptions): Promise<MailSendResult> {
     const subject = `${options.inviterName} invited you to join ${options.orgName} on ${this.mailConfig.appName}`;
     const element = (
       <OrgInvitationMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userEmail={options.userEmail}
-        inviterName={options.inviterName}
-        orgName={options.orgName}
-        role={options.role}
-        inviteUrl={options.inviteUrl}
+        {...options}
       />
     );
 
@@ -294,26 +442,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendUnAuthOrgInvitationMail(
-    options: UnAuthOrgInvitationEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendUnAuthOrgInvitationMail({
+    to,
+    ...options
+  }: UnAuthOrgInvitationEmailOptions): Promise<MailSendResult> {
     const subject = `${options.inviterName} invited you to join ${options.orgName} on ${this.mailConfig.appName}`;
     const element = (
       <UnAuthOrgInvitationMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userEmail={options.userEmail}
-        inviterName={options.inviterName}
-        orgName={options.orgName}
-        role={options.role}
-        registerUrl={options.registerUrl}
+        {...options}
       />
     );
 
@@ -323,22 +468,23 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
       subject,
       text,
       html,
     });
   }
 
-  public async sendContactSubmittedMail(
-    options: ContactSubmittedEmailOptions
-  ): Promise<MailSendResult> {
+  public async sendContactSubmittedMail({
+    to,
+    ...options
+  }: ContactSubmittedEmailOptions): Promise<MailSendResult> {
     const subject = `New contact submission from ${this.mailConfig.appName}`;
     const element = (
       <ContactSubmittedMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
-        userName={options.userName}
+        {...options}
       />
     );
 
@@ -348,7 +494,475 @@ export abstract class MailService
     });
 
     return this.sendMail({
-      to: options.to,
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendEstimateSentMail({
+    to,
+    ...options
+  }: EstimateSentMailOptions): Promise<MailSendResult> {
+    const subject = `'${options.estimateName}' estimate from ${options.orgName} on ${this.mailConfig.appName}`;
+    const element = (
+      <EstimateSentMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendSuspiciousLoginMail({
+    to,
+    ...options
+  }: SuspiciousLoginMailOptions): Promise<MailSendResult> {
+    const subject = `Suspicious login detected for your ${this.mailConfig.appName} account`;
+    const element = (
+      <SuspiciousLoginMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendRoleChangedMail({
+    to,
+    ...options
+  }: RoleChangedMailOptions): Promise<MailSendResult> {
+    const subject = `Your role has been changed for ${this.mailConfig.appName}`;
+    const element = (
+      <RoleChangedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendAccountLockedMail({
+    to,
+    ...options
+  }: AccountLockedMailOptions): Promise<MailSendResult> {
+    const subject = `Your ${this.mailConfig.appName} account has been locked`;
+    const element = (
+      <AccountLockedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendDataExportCompleteMail({
+    to,
+    ...options
+  }: DataExportCompleteMailOptions): Promise<MailSendResult> {
+    const subject = `Your data export is ready for ${this.mailConfig.appName}`;
+    const element = (
+      <DataExportCompleteMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendIntegrationConnectedMail({
+    to,
+    ...options
+  }: IntegrationConnectedMailOptions): Promise<MailSendResult> {
+    const subject = `Integration connected for ${this.mailConfig.appName}`;
+    const element = (
+      <IntegrationConnectedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendIntegrationErrorMail({
+    to,
+    ...options
+  }: IntegrationErrorMailOptions): Promise<MailSendResult> {
+    const subject = `Integration error detected for ${this.mailConfig.appName}`;
+    const element = (
+      <IntegrationErrorMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendWeeklySummaryMail({
+    to,
+    ...options
+  }: WeeklySummaryMailOptions): Promise<MailSendResult> {
+    const subject = `Your weekly summary for ${this.mailConfig.appName}`;
+    const element = (
+      <WeeklySummaryMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPaymentProcessedMail({
+    to,
+    ...options
+  }: PaymentProcessedMailOptions): Promise<MailSendResult> {
+    const subject = `Payment processed for ${options.tenantName}`;
+    const element = (
+      <PaymentProcessedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendInvoiceOverdueMail({
+    to,
+    ...options
+  }: InvoiceOverdueMailOptions): Promise<MailSendResult> {
+    const subject = `Invoice ${options.invoiceNumber} is overdue`;
+    const element = (
+      <InvoiceOverdueMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPaymentMethodExpiringMail({
+    to,
+    ...options
+  }: PaymentMethodExpiringMailOptions): Promise<MailSendResult> {
+    const subject = `Your payment method is expiring soon`;
+    const element = (
+      <PaymentMethodExpiringMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendUsageLimitWarningMail({
+    to,
+    ...options
+  }: UsageLimitWarningMailOptions): Promise<MailSendResult> {
+    const subject = `Usage limit warning for ${this.mailConfig.appName}`;
+    const element = (
+      <UsageLimitWarningMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPlanUpgradedMail({
+    to,
+    ...options
+  }: PlanUpgradedMailOptions): Promise<MailSendResult> {
+    const subject = `You've been upgraded to ${options.newPlan} on ${this.mailConfig.appName}`;
+    const element = (
+      <PlanUpgradedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPaymentFailedMail({
+    to,
+    ...options
+  }: PaymentFailedMailOptions): Promise<MailSendResult> {
+    const subject = `Payment failed for ${options.tenantName}`;
+    const element = (
+      <PaymentFailedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendSubscriptionReactivatedMail({
+    to,
+    ...options
+  }: SubscriptionReactivatedMailOptions): Promise<MailSendResult> {
+    const subject = `Your subscription has been reactivated for ${this.mailConfig.appName}`;
+    const element = (
+      <SubscriptionReactivatedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPaymentMethodAddedMail({
+    to,
+    ...options
+  }: PaymentMethodAddedMailOptions): Promise<MailSendResult> {
+    const subject = `New payment method added for ${this.mailConfig.appName}`;
+    const element = (
+      <PaymentMethodAddedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendSubscriptionCancelledMail({
+    to,
+    ...options
+  }: SubscriptionCancelledMailOptions): Promise<MailSendResult> {
+    const subject = `Subscription cancelled for ${options.tenantName}`;
+    const element = (
+      <SubscriptionCancelledMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendPlanDowngradedMail({
+    to,
+    ...options
+  }: PlanDowngradedMailOptions): Promise<MailSendResult> {
+    const subject = `Your plan has been downgraded to ${options.newPlan} on ${this.mailConfig.appName}`;
+    const element = (
+      <PlanDowngradedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
       subject,
       text,
       html,

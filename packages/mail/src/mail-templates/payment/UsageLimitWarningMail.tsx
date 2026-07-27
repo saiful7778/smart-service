@@ -8,7 +8,7 @@ import {
 } from "../../shared/EmailLayout";
 import { EmailLink } from "../../shared/EmailLink";
 
-interface UsageLimitWarningMailProps {
+export interface UsageLimitWarningMailProps {
   adminName: string;
   appName: string;
   supportMail: string;

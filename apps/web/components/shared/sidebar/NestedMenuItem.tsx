@@ -63,14 +63,13 @@ export function NestedMenuItem({
               tooltip={menuLink.title}
               className="cursor-pointer"
               isActive={isActive}
-            >
-              {menuLink.icon && <menuLink.icon />}
-              <span className="truncate">{menuLink.title}</span>
-              <ChevronRight className="ml-auto transition-transform group-data-open/collapsible:rotate-90" />
-            </SidebarMenuButton>
+            />
           }
-        />
-
+        >
+          {menuLink.icon && <menuLink.icon />}
+          <span className="truncate">{menuLink.title}</span>
+          <ChevronRight className="ml-auto transition-transform group-data-open/collapsible:rotate-90" />
+        </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
             {menuLink.items?.map((child) => (
