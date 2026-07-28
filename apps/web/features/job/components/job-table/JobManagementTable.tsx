@@ -6,18 +6,22 @@ import {
   parseAsInteger,
   parseAsIsoDate,
   parseAsStringEnum,
+  parseAsStringLiteral,
 } from "nuqs";
 
 import {
   JobStatusEnumSchema,
   JobStatusEnumType,
 } from "@workspace/drizzle/zod-db-enums";
+import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
 import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
 import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
+
+import { TimeRangeFilter } from "@/components/time-range-filter";
 
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
@@ -52,6 +56,11 @@ export function JobManagementTable({
       revenue: parseAsArrayOf(parseAsInteger, ",").withOptions({
         clearOnDefault: true,
       }),
+      range: parseAsStringLiteral(RangeSearchEnumSchema.options).withOptions({
+        clearOnDefault: true,
+      }),
+      startTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
+      endTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
     },
   });
 
@@ -72,6 +81,10 @@ export function JobManagementTable({
           receivedRevenue: filters.revenue
             ? { from: filters.revenue[0], to: filters.revenue[1] }
             : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })
@@ -84,6 +97,16 @@ export function JobManagementTable({
 
   return (
     <div className="space-y-3">
+      <TimeRangeFilter
+        rangeSearch={{
+          range: filters.range,
+          startTime: filters.startTime,
+          endTime: filters.endTime,
+        }}
+        setRangeSearch={({ range, startTime, endTime }) =>
+          setFilters({ range, startTime, endTime })
+        }
+      />
       <DataTableGlobalSearch
         searchValue={filters.search}
         setSearchValue={globalSearch}
