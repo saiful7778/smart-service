@@ -3,7 +3,11 @@ import { parseAsArrayOf, parseAsIsoDate } from "nuqs/server";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MaterialBinManagementTable } from "@/features/material/components/material-bin-table/MaterialBinManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -48,8 +52,14 @@ export default async function MaterialBinPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Recycle bin"
-        shortDescription="materials recycle bin management"
+        header={
+          <div>
+            <DashboardShellTitle>Material Recycle Bin</DashboardShellTitle>
+            <DashboardShellDescription>
+              Restore or permanently delete removed materials
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <MaterialBinManagementTable
           page={filters.page}

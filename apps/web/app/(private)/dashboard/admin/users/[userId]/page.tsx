@@ -2,9 +2,16 @@ import { Metadata } from "next";
 
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 
+import { ArrowLeft } from "lucide-react";
+
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
   TabNavigation,
   TabNavigationContent,
@@ -45,9 +52,19 @@ export default async function UserDetailsPage(
   return (
     <HydrateClient client={queryclient}>
       <DashboardShell
-        backUrl="/dashboard/admin/users"
-        title="User Details"
         className="max-w-5xl w-full mx-auto"
+        header={
+          <div>
+            <LinkButton href="/dashboard/admin/users">
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>User Details</DashboardShellTitle>
+            <DashboardShellDescription>
+              View and manage user account details
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <div className="flex md:flex-row flex-col items-center gap-4">
           <Avatar className="size-24">

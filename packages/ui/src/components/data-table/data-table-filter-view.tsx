@@ -61,13 +61,13 @@ export function DataTableFilterView<TData>({
               <Button
                 aria-label="Reset filters"
                 variant="outline"
+                size="icon"
                 className="border-dashed"
                 onClick={onReset}
               />
             }
           >
             <X />
-            <span>Reset</span>
           </TooltipTrigger>
           <TooltipContent>
             <p>Reset filters</p>

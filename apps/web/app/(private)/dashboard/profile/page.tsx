@@ -30,7 +30,11 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
   TabNavigation,
   TabNavigationContent,
@@ -87,8 +91,14 @@ export default async function ProfilePage() {
 
   return (
     <DashboardShell
-      title="Profile"
-      shortDescription="Your personal profile details"
+      header={
+        <div>
+          <DashboardShellTitle>Profile</DashboardShellTitle>
+          <DashboardShellDescription>
+            Your personal profile details
+          </DashboardShellDescription>
+        </div>
+      }
     >
       <div className="flex items-center gap-4">
         <Avatar className="shrink-0 size-12">

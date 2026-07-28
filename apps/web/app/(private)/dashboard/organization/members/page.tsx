@@ -1,7 +1,11 @@
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MemberManagementTable } from "@/features/org/components/member-table/MemberManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -37,8 +41,14 @@ export default async function MemberPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Members"
-        shortDescription="Manage the users who have access to your organization."
+        header={
+          <div>
+            <DashboardShellTitle>Members</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage the users who have access to your organization.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <MemberManagementTable
           page={filters.page}

@@ -8,11 +8,16 @@ import {
 } from "nuqs/server";
 
 import { LeadStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { LeadManagementTable } from "@/features/lead/components/lead-table/LeadManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -39,9 +44,11 @@ export default async function LeadPage(
     categories: parseAsArrayOf(parseAsString, ",").withOptions({
       clearOnDefault: true,
     }),
-    createdAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
+    range: parseAsStringLiteral(RangeSearchEnumSchema.options).withOptions({
       clearOnDefault: true,
     }),
+    startTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
+    endTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
   })(props.searchParams);
 
   const searchFields = ["name", "email", "phone"];
@@ -58,9 +65,10 @@ export default async function LeadPage(
         filter: {
           status: filters.status ?? undefined,
           categories: filters.categories ?? undefined,
-          createdAt: filters.createdAt
-            ? { from: filters.createdAt[0], to: filters.createdAt[1] }
-            : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })
@@ -73,8 +81,14 @@ export default async function LeadPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="All Leads"
-        shortDescription="Manage all leads in your organization."
+        header={
+          <div>
+            <DashboardShellTitle>All Leads</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage all leads in your organization.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadManagementTable
           page={filters.page}

@@ -10,7 +10,11 @@ import {
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { NotificationManagement } from "@/features/notification/components/NotificationManagement";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -57,8 +61,14 @@ export default async function NotificationPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="All Notifications"
-        shortDescription="See all of your notifications"
+        header={
+          <div>
+            <DashboardShellTitle>Notifications</DashboardShellTitle>
+            <DashboardShellDescription>
+              Stay updated with your latest notifications
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <NotificationManagement
           page={filters.page}

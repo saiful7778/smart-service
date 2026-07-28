@@ -42,6 +42,12 @@ const listJobsContract = jobBaseContract
       searchFields: ["title"],
       filter: z.object({
         status: JobStatusEnumSchema.optional(),
+        createdAt: z
+          .object({
+            from: z.date().describe("Created at from date").optional(),
+            to: z.date().describe("Created at to date").optional(),
+          })
+          .optional(),
         serviceAt: z
           .object({
             from: z.date().describe("service at from date").optional(),
