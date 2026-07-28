@@ -228,7 +228,7 @@ export const leadEstimateRestoreProcedure = leadImpl.estimate.bin.restore
         })
         .where(eq(LeadEstimateTable.id, estimate.id));
 
-      if (estimate.status === "approved") {
+      if (estimate.status === "accepted") {
         const estimateMaterials = await tx
           .select({
             materialId: LeadEstimateMaterialTable.materialId,
@@ -355,7 +355,7 @@ export const leadEstimateRestoreAllProcedure = leadImpl.estimate.bin.restoreAll
           inArray(
             LeadEstimateMaterialTable.estimateId,
             estimates
-              .filter(({ status }) => status === "approved")
+              .filter(({ status }) => status === "accepted")
               .map(({ id }) => id)
           )
         );
@@ -455,7 +455,7 @@ export const leadEstimateBinDeleteProcedure = leadImpl.estimate.bin.delete
     }
 
     await context.db.transaction(async (tx) => {
-      if (estimate.status === "approved") {
+      if (estimate.status === "accepted") {
         const estimateMaterials = await tx
           .select({
             materialId: LeadEstimateMaterialTable.materialId,
@@ -577,7 +577,7 @@ export const leadEstimateBinDeleteAllProcedure = leadImpl.estimate.bin.deleteAll
           inArray(
             LeadEstimateMaterialTable.estimateId,
             estimates
-              .filter(({ status }) => status === "approved")
+              .filter(({ status }) => status === "accepted")
               .map(({ id }) => id)
           )
         );

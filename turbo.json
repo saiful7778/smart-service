@@ -24,7 +24,10 @@
     "QSTASH_URL",
     "QSTASH_TOKEN",
     "QSTASH_CURRENT_SIGNING_KEY",
-    "QSTASH_NEXT_SIGNING_KEY"
+    "QSTASH_NEXT_SIGNING_KEY",
+    "CRON_API_KEY",
+    "BETTER_AUTH_URL",
+    "BETTER_AUTH_SECRET"
   ],
   "tasks": {
     "build": {
@@ -44,6 +47,9 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "@workspace/vitest-config#build": {
+      "outputs": ["dist/**"]
     },
     "test": {
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/vitest.config.ts"],

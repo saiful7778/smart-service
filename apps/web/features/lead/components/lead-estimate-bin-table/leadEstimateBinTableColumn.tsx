@@ -5,13 +5,13 @@ import {
   LeadEstimateStatusEnumType,
 } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
+import { formatCurrency } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
-import { formatCurrency } from "@workspace/lib/utils";
 
 import { LeadEstimateBinTableRowAction } from "./LeadEstimateBinTableRowAction";
 
@@ -25,13 +25,8 @@ const statusColorMap: Record<LeadEstimateStatusEnumType, string> = {
   viewed:
     "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
   accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  approved:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
   declined: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
   expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-  cancelled: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
-  converted:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
 };
 
 export const leadEstimateBinTableColumn: ColumnType<EstimateBinTableRowDataType> =

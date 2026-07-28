@@ -32,6 +32,7 @@ export function LeadBinManagementTable({
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
     defaultPage: page,
     defaultLimit: limit,
+    defaultSearch: search,
     additionalKeys: {
       deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
         clearOnDefault: true,
