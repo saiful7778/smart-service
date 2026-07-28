@@ -6,10 +6,17 @@ import { createLoader, parseAsString } from "nuqs/server";
 
 import { JobTable, LeadTable } from "@workspace/drizzle/schemas";
 
+import { ArrowLeft } from "lucide-react";
+
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
@@ -86,9 +93,19 @@ export default async function EstimateCreatePage(
 
   return (
     <DashboardShell
-      title="Create Estimate"
-      backUrl={redirectUrl.toString()}
       className="max-w-4xl w-full mx-auto"
+      header={
+        <div>
+          <LinkButton href={{ pathname: redirectUrl.pathname, search: redirectUrl.search }}>
+            <ArrowLeft />
+            <span>Go Back</span>
+          </LinkButton>
+          <DashboardShellTitle>Create Estimate</DashboardShellTitle>
+          <DashboardShellDescription>
+            Create a new estimate for a lead or job
+          </DashboardShellDescription>
+        </div>
+      }
     >
       <LeadEstimateCreateForm
         leadId={leadId}

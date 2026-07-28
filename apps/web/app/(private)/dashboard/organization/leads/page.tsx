@@ -12,7 +12,11 @@ import { LeadStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { LeadManagementTable } from "@/features/lead/components/lead-table/LeadManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -73,8 +77,14 @@ export default async function LeadPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="All Leads"
-        shortDescription="Manage all leads in your organization."
+        header={
+          <div>
+            <DashboardShellTitle>All Leads</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage all leads in your organization.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadManagementTable
           page={filters.page}

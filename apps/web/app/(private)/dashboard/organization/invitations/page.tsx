@@ -5,7 +5,11 @@ import { OrgRoleEnumSchema } from "@workspace/lib/utils";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { InvitationManagementTable } from "@/features/org/components/invitation-table/InvitationManagementTable";
 import { invitationStatusEnum } from "@/features/org/org.schema";
@@ -53,8 +57,14 @@ export default async function MemberPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Invitations"
-        shortDescription="Manage the invitations to your organization."
+        header={
+          <div>
+            <DashboardShellTitle>Invitations</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage the invitations to your organization.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <InvitationManagementTable
           page={filters.page}

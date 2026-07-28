@@ -1,10 +1,15 @@
 import { Metadata } from "next";
 
-import { Eye, FileText, Receipt } from "lucide-react";
+import { ArrowLeft, Eye, FileText, Receipt } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
   TabNavigation,
   TabNavigationContent,
@@ -42,9 +47,18 @@ export default async function SingleJobDetailsPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
-        backUrl="/dashboard/organization/jobs"
-        title={data.title}
-        shortDescription="Detailed overview of job information and performance."
+        header={
+          <div>
+            <LinkButton href="/dashboard/organization/jobs">
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.title}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Detailed overview of job information and performance.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <TabNavigation defaultValue="details">
           <TabNavigationList variant="line">

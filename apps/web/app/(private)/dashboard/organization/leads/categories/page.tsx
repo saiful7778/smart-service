@@ -2,7 +2,11 @@ import { Metadata } from "next";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { LeadCategoryManagementTable } from "@/features/lead/components/lead-category-table/LeadCategoryManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -27,8 +31,14 @@ export default async function CategoriesPage() {
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Categories"
-        shortDescription="Manage your lead categories"
+        header={
+          <div>
+            <DashboardShellTitle>Categories</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage your lead categories
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadCategoryManagementTable />
       </DashboardShell>

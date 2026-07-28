@@ -3,10 +3,17 @@ import { redirect } from "next/navigation";
 
 import { createLoader, parseAsString } from "nuqs/server";
 
+import { ArrowLeft } from "lucide-react";
+
 import { env } from "@/lib/env";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { LeadEstimateDetails } from "@/features/lead/components/lead-estimate/LeadEstimateDetails";
@@ -66,9 +73,18 @@ export default async function EstimateDetailsPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
-        backUrl={redirectUrl.toString()}
-        title={data.name}
-        shortDescription="Detailed overview of estimate information."
+        header={
+          <div>
+            <LinkButton href={{ pathname: redirectUrl.pathname, search: redirectUrl.search }}>
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.name}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Detailed overview of estimate information.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadEstimateDetails
           estimateData={data}

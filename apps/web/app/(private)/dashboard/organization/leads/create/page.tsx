@@ -2,7 +2,11 @@ import { Metadata } from "next";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { LeadCreateForm } from "@/features/lead/components/LeadCreateForm";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -32,8 +36,14 @@ export default async function CreateLeadPage() {
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Create Lead"
-        shortDescription="Create a new lead in your organization."
+        header={
+          <div>
+            <DashboardShellTitle>Create Lead</DashboardShellTitle>
+            <DashboardShellDescription>
+              Create a new lead in your organization.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <div className="max-w-4xl w-full mx-auto">
           <LeadCreateForm />

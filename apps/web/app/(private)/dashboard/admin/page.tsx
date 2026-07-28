@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
 
@@ -13,8 +17,14 @@ export default async function DashboardPage() {
 
   return (
     <DashboardShell
-      title={`Welcome admin, ${user.name}`}
-      shortDescription="Manage your world and flex your power"
+      header={
+        <div>
+          <DashboardShellTitle>{`Welcome admin, ${user.name}`}</DashboardShellTitle>
+          <DashboardShellDescription>
+            Manage your world and flex your power
+          </DashboardShellDescription>
+        </div>
+      }
     ></DashboardShell>
   );
 }
