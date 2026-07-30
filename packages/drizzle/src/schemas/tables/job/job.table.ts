@@ -5,7 +5,6 @@ import {
   numeric,
   pgTable,
   text,
-  timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -48,10 +47,6 @@ export const JobTable = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     status: JobStatusEnum("status").default("scheduled").notNull(),
-    serviceAt: timestamp("service_at", {
-      withTimezone: true,
-      precision: 3,
-    }),
     expectedRevenue: numeric("expected_revenue", {
       precision: 10,
       scale: 2,
@@ -118,7 +113,6 @@ export const JobTable = pgTable(
     index("jobs_lead_id_idx").on(table.leadId),
     index("jobs_customer_id_idx").on(table.customerId),
     index("jobs_status_idx").on(table.status),
-    index("jobs_service_at_idx").on(table.serviceAt),
     index("jobs_created_at_idx").on(table.createdAt),
     index("jobs_created_by_idx").on(table.createdBy),
     index("jobs_updated_by_idx").on(table.updatedBy),
