@@ -137,6 +137,8 @@ export const API_MESSAGES = {
   },
   JOB: {
     GET_ALL: "Jobs loaded successfully.",
+    GET_ALL_SCHEDULE: "All job schedules loaded successfully.",
+    GET_ALL_ASSIGNMENT: "Job assignments loaded successfully.",
     GET_DETAILS: "Job details loaded successfully.",
     GET_ALL_SERVICINGS: "Servicing history loaded successfully.",
     UPDATE_REVENUE: "Revenue updated successfully.",

@@ -1,5 +1,6 @@
 import {
   Boxes,
+  Calendar,
   House,
   List,
   ListTree,
@@ -52,6 +53,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard",
         pathRegex: /^\/dashboard$/,
+      },
+      {
+        title: "Schedule",
+        icon: Calendar,
+        permissions: ["org.schedule.manage", "org.schedule.list"],
+        path: "/dashboard/organization/schedule",
+        pathRegex: /^\/dashboard\/organization\/schedule(\/.*)?$/,
       },
       {
         title: "Leads",

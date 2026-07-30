@@ -1,5 +1,3 @@
-import { Metadata } from "next";
-
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/dashboard-shell";
@@ -8,48 +6,33 @@ import {
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
-import { JobCreateForm } from "@/features/job/components/forms/JobCreateForm";
+import { ScheduleCalendarManagement } from "@/features/job/components/ScheduleCalendarManagement";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
-export const metadata: Metadata = {
-  title: "Create Job",
-};
-
-export default async function CreateJobPage(
-  props: PageProps<"/dashboard/organization/jobs/create">
-) {
+export default async function SchedulePage() {
   await requireUserPermissionsWithOrgCache([
-    "org.job.manage",
-    "org.job.create",
+    "org.schedule.manage",
+    "org.schedule.read",
   ]);
-
-  const searchParams = await props.searchParams;
-  const leadId = (searchParams?.leadId ?? undefined) as string | undefined;
 
   const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery(
-    orpcTQClient.lead.listForSearch.queryOptions({
-      input: {},
-    })
-  );
+  await queryClient.prefetchQuery(orpcTQClient.job.listSchedule.queryOptions());
 
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
           <div>
-            <DashboardShellTitle>Create Job</DashboardShellTitle>
+            <DashboardShellTitle>Schedule Calendar</DashboardShellTitle>
             <DashboardShellDescription>
-              Create a new job
+              Manage your organization&lsquo;s events and features.
             </DashboardShellDescription>
           </div>
         }
       >
-        <div className="max-w-4xl w-full mx-auto">
-          <JobCreateForm leadId={leadId} />
-        </div>
+        <ScheduleCalendarManagement />
       </DashboardShell>
     </HydrateClient>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatDate } from "date-fns";
+import { User } from "lucide-react";
 
 import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
@@ -138,14 +139,46 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
     enableSorting: true,
   },
   {
-    id: "serviceAt",
-    accessorKey: "serviceAt",
+    id: "assignedCount",
+    accessorKey: "assignedCount",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Service At" />
+      <DataTableColumnHeader column={column} label="Assigned user" />
+    ),
+    cell: ({ getValue, row }) => {
+      const assignedCount = getValue<JobTableRowDataType["assignedCount"]>();
+
+      return (
+        <Link
+          className="group/link flex items-center gap-2 hover:text-accent"
+          href={{
+            pathname: `/dashboard/organization/jobs/${row.original.id}`,
+            query: {
+              tab: "assignments",
+            },
+          }}
+        >
+          <User className="size-3" />
+          <span className="group-hover/link:underline group-hover/link:text-accent">
+            {`${assignedCount} view all`}
+          </span>
+        </Link>
+      );
+    },
+    meta: {
+      label: "Assigned user",
+    },
+    enableColumnFilter: false,
+    enableSorting: false,
+  },
+  {
+    id: "schedule",
+    accessorKey: "schedule",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} label="Scheduled at" />
     ),
     cell: ({ getValue }) => {
-      const serviceAt = getValue<JobTableRowDataType["serviceAt"]>();
-      if (!serviceAt) {
+      const schedules = getValue<JobTableRowDataType["schedule"]>();
+      if (schedules.length === 0) {
         return (
           <span className="text-muted-foreground text-xs italic">
             Not scheduled
@@ -153,21 +186,33 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
         );
       }
       return (
-        <div className="flex flex-col text-xs">
-          <span className="font-medium">{formatDate(serviceAt, "PP")}</span>
-          <span className="text-muted-foreground">
-            {formatDate(serviceAt, "p")}
-          </span>
+        <div className="flex flex-col gap-2">
+          {schedules.map((schedule) => (
+            <div key={schedule.id} className="flex flex-col gap-1">
+              <div className="flex gap-1 items-center">
+                <span className="font-medium text-muted-foreground">
+                  Start at
+                </span>
+                <span className="font-medium text-muted-foreground">:</span>
+                <span>{formatDate(schedule.startAt, "PP - p")}</span>
+              </div>
+              <div className="flex gap-1 items-center">
+                <span className="font-medium text-muted-foreground">
+                  End at
+                </span>
+                <span className="font-medium text-muted-foreground">:</span>
+                <span>{formatDate(schedule.endAt, "PP - p")}</span>
+              </div>
+            </div>
+          ))}
         </div>
       );
     },
     meta: {
-      label: "Service At",
-      variant: "dateRange",
-      placeholder: "Select service at",
+      label: "Scheduled At",
     },
-    enableColumnFilter: true,
-    enableSorting: true,
+    enableColumnFilter: false,
+    enableSorting: false,
   },
   {
     id: "actions",

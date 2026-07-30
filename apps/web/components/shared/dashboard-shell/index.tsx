@@ -1,7 +1,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 
 interface DashboardShellProps extends React.ComponentProps<"div"> {
-  header: React.ReactNode;
+  header?: React.ReactNode;
 }
 
 export function DashboardShell({
@@ -16,7 +16,7 @@ export function DashboardShell({
       {...props}
     >
       <div className="space-y-4 md:space-y-6 max-w-7xl w-full mx-auto">
-        <div>{header}</div>
+        {header && <div>{header}</div>}
         <div className="space-y-4 md:space-y-6">{children}</div>
       </div>
     </div>

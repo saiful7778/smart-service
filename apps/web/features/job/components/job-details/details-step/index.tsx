@@ -79,7 +79,6 @@ export function DetailsStep({ jobId }: { jobId: string }) {
                   status={data.status}
                   title={data.title}
                   description={data.description}
-                  serviceAt={data.serviceAt}
                   createdBy={data.createdByMember}
                 />
                 <LeadNotes leadId={data.leadId} jobId={data.id} />
@@ -90,7 +89,7 @@ export function DetailsStep({ jobId }: { jobId: string }) {
                   jobId={data.id}
                   leadId={data.leadId}
                   createdAt={data.createdAt}
-                  serviceAt={data.serviceAt}
+                  schedules={data.schedules}
                 />
                 <AddressDetails
                   leadId={data.leadId}

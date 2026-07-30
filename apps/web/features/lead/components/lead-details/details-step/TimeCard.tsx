@@ -26,14 +26,14 @@ interface TimeCardProps {
   leadId: string | null | undefined;
   jobId: string | null | undefined;
   createdAt: Date;
-  serviceAt?: Date | null | undefined;
+  schedules?: Array<{ startAt: Date; endAt: Date }>;
 }
 
 export function TimeCard({
   jobId,
   leadId,
   createdAt,
-  serviceAt,
+  schedules,
 }: TimeCardProps) {
   const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
 
@@ -68,14 +68,16 @@ export function TimeCard({
         </CardHeader>
         <Separator />
         <CardContent className="space-y-4">
-          <LeadTimeItem title="Registered At" timeValue={createdAt} />
-          {serviceAt && (
-            <LeadTimeItem
-              title="Service Time"
-              timeValue={serviceAt}
-              isHighlighted={true}
-            />
-          )}
+          <TimeItem title="Registered At" timeValue={createdAt} />
+          {schedules &&
+            schedules.map((schedule, idx) => (
+              <TimeRangeItem
+                key={`schedule-${idx}`}
+                title="Schedule At"
+                startTime={schedule.startAt}
+                endTime={schedule.endAt}
+              />
+            ))}
         </CardContent>
       </Card>
       {jobId && (
@@ -85,7 +87,6 @@ export function TimeCard({
           onOpenChange={setOpenUpdateDialog}
           initialData={{
             jobId,
-            serviceAt: serviceAt || undefined,
           }}
         />
       )}
@@ -93,17 +94,15 @@ export function TimeCard({
   );
 }
 
-interface LeadTimeItemProps {
-  title: string;
-  timeValue: Date | null | undefined;
-  isHighlighted?: boolean;
-}
-
-function LeadTimeItem({
+function TimeItem({
   title,
   timeValue,
   isHighlighted = false,
-}: LeadTimeItemProps) {
+}: {
+  title: string;
+  timeValue: Date | null | undefined;
+  isHighlighted?: boolean;
+}) {
   return (
     <div
       className={cn(
@@ -111,29 +110,47 @@ function LeadTimeItem({
         isHighlighted && "bg-primary/10"
       )}
     >
-      {timeValue ? (
-        <>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
-              {title}
-            </span>
-            <span className="text-sm font-semibold tracking-tight">
-              {formatDate(timeValue, "dd MMM, yyyy")}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-background border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
-            <Clock className="size-3" />
-            <span>{formatDate(timeValue, "hh:mm aa")}</span>
-          </div>
-        </>
-      ) : (
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
-            {title}
+      <div className="flex flex-col gap-1">
+        <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+          {title}
+        </span>
+        {timeValue && (
+          <span className="text-sm font-semibold tracking-tight">
+            {formatDate(timeValue, "dd MMM, yyyy")}
           </span>
-          <span className="text-sm font-semibold tracking-tight">N/A</span>
+        )}
+      </div>
+      {timeValue ? (
+        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-background border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
+          <Clock className="size-3" />
+          <span>{formatDate(timeValue, "hh:mm aa")}</span>
         </div>
+      ) : (
+        <span className="text-sm font-semibold tracking-tight">N/A</span>
       )}
+    </div>
+  );
+}
+
+function TimeRangeItem({
+  title,
+  startTime,
+  endTime,
+}: {
+  title: string;
+  startTime: Date;
+  endTime: Date;
+}) {
+  return (
+    <div className="flex flex-col gap-1 items-center justify-between p-2 rounded-md border">
+      <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+        {title}
+      </div>
+      <div className="flex items-center gap-1">
+        <span className="text-sm font-semibold tracking-tight">
+          {`${formatDate(startTime, "dd MMM, yyyy")} - ${formatDate(endTime, "dd MMM, yyyy")}`}
+        </span>
+      </div>
     </div>
   );
 }
