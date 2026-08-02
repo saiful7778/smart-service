@@ -157,7 +157,7 @@ function ScheduleCalendarView({
         eventClick={handleEventClick}
       />
 
-      <Dialog open={openDialog} onOpenChange={(value) => setOpenDialog(value)}>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         {jobContent && <JobEventContent event={jobContent} />}
       </Dialog>
     </>

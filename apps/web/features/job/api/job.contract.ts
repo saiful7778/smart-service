@@ -270,7 +270,6 @@ const listJobScheduleContract = jobBaseContract
                   updatedAt: true,
                 })
                 .extend({
-                  assignedByMember: userProfileSchema,
                   assignedToMember: userProfileSchema,
                 })
             ),

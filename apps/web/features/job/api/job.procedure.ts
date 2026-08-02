@@ -1,12 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import {
-  aliasedTable,
-  and,
-  countDistinct,
-  eq,
-  inArray,
-  isNull,
-} from "drizzle-orm";
+import { and, countDistinct, eq, inArray, isNull } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -741,58 +734,38 @@ export const listJobScheduleProcedure = jobImpl.listSchedule
     orgMemberPermissionsMiddleware(["org.schedule.manage", "org.schedule.read"])
   )
   .handler(async ({ context }) => {
+    const jobs = await context.db
+      .select({
+        id: JobTable.id,
+        title: JobTable.title,
+        status: JobTable.status,
+        invoicedRevenue: JobTable.invoicedRevenue,
+        expectedRevenue: JobTable.expectedRevenue,
+        receivedRevenue: JobTable.receivedRevenue,
+        createdAt: JobTable.createdAt,
+      })
+      .from(JobTable)
+      .where(
+        and(eq(JobTable.orgId, context.org.id), isNull(JobTable.deletedAt))
+      );
+
     const schedules = await context.db
       .select({
         id: JobScheduleTable.id,
+        jobId: JobScheduleTable.jobId,
         title: JobScheduleTable.title,
         startAt: JobScheduleTable.startAt,
         endAt: JobScheduleTable.endAt,
         createdAt: JobScheduleTable.createdAt,
         updatedAt: JobScheduleTable.updatedAt,
-        job: {
-          id: JobTable.id,
-          title: JobTable.title,
-          status: JobTable.status,
-          invoicedRevenue: JobTable.invoicedRevenue,
-          expectedRevenue: JobTable.expectedRevenue,
-          receivedRevenue: JobTable.receivedRevenue,
-          createdAt: JobTable.createdAt,
-        },
       })
       .from(JobScheduleTable)
-      .innerJoin(
-        JobTable,
-        and(
-          eq(JobTable.id, JobScheduleTable.jobId),
-          eq(JobTable.orgId, context.org.id),
-          isNull(JobTable.deletedAt)
+      .where(
+        inArray(
+          JobScheduleTable.jobId,
+          jobs.map(({ id }) => id)
         )
-      )
-      .where(eq(JobScheduleTable.orgId, context.org.id));
-
-    const assignedByMember = aliasedTable(
-      OrganizationMemberTable,
-      "assignedByMember"
-    );
-    const assignedToMember = aliasedTable(
-      OrganizationMemberTable,
-      "assignedToMember"
-    );
-
-    const assignedByUser = aliasedTable(UserTable, "assignedByUser");
-    const assignedToUser = aliasedTable(UserTable, "assignedToUser");
-
-    const assignedByMemberRole = aliasedTable(
-      OrgMemberRoleTable,
-      "assignedByMemberRole"
-    );
-    const assignedToMemberRole = aliasedTable(
-      OrgMemberRoleTable,
-      "assignedToMemberRole"
-    );
-
-    const assignedByRole = aliasedTable(RoleTable, "assignedByRole");
-    const assignedToRole = aliasedTable(RoleTable, "assignedToRole");
+      );
 
     const assignments = await context.db
       .select({
@@ -803,60 +776,19 @@ export const listJobScheduleProcedure = jobImpl.listSchedule
         acknowledgeAt: JobScheduleAssignementTable.acknowledgeAt,
         createdAt: JobScheduleAssignementTable.createdAt,
         updatedAt: JobScheduleAssignementTable.updatedAt,
-        assignedByMember: {
-          userId: assignedByUser.id,
-          orgMemberId: assignedByMember.id,
-          name: assignedByUser.name,
-          email: assignedByUser.email,
-          image: assignedByUser.image,
-          roles: jsonbAgg({
-            id: assignedByRole.id,
-            roleName: assignedByRole.roleName,
-          }).as("assignedByRoles"),
-        },
-        assignedToMember: {
-          userId: assignedToUser.id,
-          orgMemberId: assignedToMember.id,
-          name: assignedToUser.name,
-          email: assignedToUser.email,
-          image: assignedToUser.image,
-          roles: jsonbAgg({
-            id: assignedToRole.id,
-            roleName: assignedToRole.roleName,
-          }).as("assignedToRoles"),
-        },
+        assignedToMember: userProfileColumns,
       })
       .from(JobScheduleAssignementTable)
-      // assignedByMember
       .innerJoin(
-        assignedByMember,
-        eq(assignedByMember.id, JobScheduleAssignementTable.assignedBy)
+        OrganizationMemberTable,
+        eq(OrganizationMemberTable.id, JobScheduleAssignementTable.assignedTo)
       )
-      .innerJoin(assignedByUser, eq(assignedByUser.id, assignedByMember.userId))
+      .innerJoin(UserTable, eq(UserTable.id, OrganizationMemberTable.userId))
       .leftJoin(
-        assignedByMemberRole,
-        eq(assignedByMemberRole.memberId, assignedByMember.id)
+        OrgMemberRoleTable,
+        eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
       )
-      .leftJoin(
-        // Changed from innerJoin to leftJoin
-        assignedByRole,
-        eq(assignedByRole.id, assignedByMemberRole.roleId)
-      )
-      // assignedToMember
-      .innerJoin(
-        assignedToMember,
-        eq(assignedToMember.id, JobScheduleAssignementTable.assignedTo)
-      )
-      .innerJoin(assignedToUser, eq(assignedToUser.id, assignedToMember.userId))
-      .leftJoin(
-        assignedToMemberRole,
-        eq(assignedToMemberRole.memberId, assignedToMember.id)
-      )
-      .leftJoin(
-        // Changed from innerJoin to leftJoin
-        assignedToRole,
-        eq(assignedToRole.id, assignedToMemberRole.roleId)
-      )
+      .leftJoin(RoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
       .where(
         and(
           inArray(
@@ -867,31 +799,25 @@ export const listJobScheduleProcedure = jobImpl.listSchedule
       )
       .groupBy(
         JobScheduleAssignementTable.id,
-        assignedByUser.id,
-        assignedToUser.id,
-        assignedByMember.id,
-        assignedToMember.id
+        UserTable.id,
+        OrganizationMemberTable.id
       );
 
-    const assignmentsByScheduleId = new Map<
-      string,
-      Array<Omit<(typeof assignments)[number], "jobScheduleId">>
-    >();
+    const jobsMap = new Map(jobs.map((job) => [job.id, job]));
+    const assignmentsByScheduleId = new Map();
 
     assignments.forEach((assignment) => {
-      const scheduleId = assignment.jobScheduleId;
-
-      if (!assignmentsByScheduleId.has(scheduleId)) {
-        assignmentsByScheduleId.set(scheduleId, []);
+      if (!assignmentsByScheduleId.has(assignment.jobScheduleId)) {
+        assignmentsByScheduleId.set(assignment.jobScheduleId, []);
       }
-
-      assignmentsByScheduleId.get(scheduleId)!.push(assignment);
+      assignmentsByScheduleId.get(assignment.jobScheduleId).push(assignment);
     });
 
     return apiResponse(
       API_MESSAGES.JOB.GET_ALL_SCHEDULE,
       schedules.map((schedule) => ({
         ...schedule,
+        job: jobsMap.get(schedule.jobId)!,
         assignments: assignmentsByScheduleId.get(schedule.id) || [],
       }))
     );
