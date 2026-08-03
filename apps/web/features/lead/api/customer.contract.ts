@@ -1,3 +1,5 @@
+import z from "zod";
+
 import { selectCustomerSchema } from "@workspace/drizzle/schemas";
 import {
   apiOutputZodSchema,
@@ -60,7 +62,7 @@ const listCustomerForSearchContract = leadBaseContract
   )
   .output(
     apiOutputZodSchema(
-      paginateOutputZodSchema(
+      z.array(
         selectCustomerSchema.pick({
           id: true,
           name: true,
@@ -73,6 +75,9 @@ const listCustomerForSearchContract = leadBaseContract
       )
     )
   );
+export type ListCustomerForSearchContractType = InferContractRouterType<
+  typeof listCustomerForSearchContract
+>;
 
 export const customerContract = {
   list: listCustomerContract,
