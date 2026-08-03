@@ -46,7 +46,7 @@ function InputAddonField<TFieldValues extends FieldValues>({
   description,
   isDescriptionInfoIconShow = false,
   requiredField = false,
-  disabled,
+  disabled = false,
   firstAddon,
   secondAddon,
   onValueChange,
