@@ -3,6 +3,8 @@ import { pgEnum } from "drizzle-orm/pg-core";
 import {
   ACTION_TYPE,
   CONTACT_SUBMISSION_STATUS,
+  FEEDBACK_ISSUE_STATUS,
+  FEEDBACK_ISSUE_TYPE,
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
@@ -34,6 +36,16 @@ export const ActionTypeEnum = pgEnum("ActionTypeEnum", ACTION_TYPE);
 export const ContactSubmissionStatusEnum = pgEnum(
   "ContactSubmissionStatusEnum",
   CONTACT_SUBMISSION_STATUS
+);
+
+export const FeedbackIssueTypeEnum = pgEnum(
+  "FeedbackIssueTypeEnum",
+  FEEDBACK_ISSUE_TYPE
+);
+
+export const FeedbackIssueStatusEnum = pgEnum(
+  "FeedbackIssueStatusEnum",
+  FEEDBACK_ISSUE_STATUS
 );
 
 export const NotificationCategoryEnum = pgEnum(

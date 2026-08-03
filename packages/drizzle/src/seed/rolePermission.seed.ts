@@ -25,6 +25,12 @@ export const rolesAndPermissionData: Array<{
       "self.org.list",
       "self.invitation.list",
       "self.invitation.update", // Accept/decline invites
+
+      // Feedback & support issues
+      "self.feedback.create",
+      "self.feedback.read",
+      "self.feedback.list",
+      "self.feedback.update",
     ],
   },
   {
@@ -40,6 +46,16 @@ export const rolesAndPermissionData: Array<{
       "system.org.read",
       "system.user.read",
       "system.user.list",
+
+      // Feedback & support issues
+      "self.feedback.create",
+      "self.feedback.read",
+      "self.feedback.list",
+      "self.feedback.update",
+      "system.feedback.create",
+      "system.feedback.read",
+      "system.feedback.list",
+      "system.feedback.update",
     ],
   },
   {
@@ -74,6 +90,9 @@ export const rolesAndPermissionData: Array<{
       "system.billing.manage",
       "system.report.manage",
       "system.report.export",
+
+      // Feedback & support issues
+      "system.feedback.manage",
     ],
   },
   {
@@ -95,6 +114,9 @@ export const rolesAndPermissionData: Array<{
       "system.payment.manage",
       "system.billing.manage",
       "system.report.manage",
+
+      // Feedback & support issues
+      "system.feedback.manage",
     ],
   },
 

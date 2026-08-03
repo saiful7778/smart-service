@@ -70,6 +70,9 @@ export const RESOURCE_TYPE = [
 
   // Time
   "schedule",
+
+  // Support / Feedback
+  "feedback",
 ] as const;
 
 export const ACTION_TYPE = [
@@ -87,6 +90,23 @@ export const CONTACT_SUBMISSION_STATUS = [
   "READ",
   "REPLIED",
   "SPAM",
+] as const;
+
+export const FEEDBACK_ISSUE_TYPE = [
+  "BUG",
+  "FEATURE_REQUEST",
+  "FEEDBACK",
+  "SUGGESTION",
+  "REPORT",
+  "OTHER",
+] as const;
+
+export const FEEDBACK_ISSUE_STATUS = [
+  "OPEN",
+  "IN_PROGRESS",
+  "NEEDS_INFO",
+  "RESOLVED",
+  "CLOSED",
 ] as const;
 
 export const NOTIFICATION_CATEGORY = [

@@ -17,6 +17,7 @@ import { db_created_at, db_id, db_updated_at } from "../../../db-utils";
 import { AccountTable } from "../account.table";
 import { AddressTable, UserAddressTable } from "../address";
 import { ContactSubmissionReplyTable } from "../contact";
+import { FeedbackIssueReplyTable, FeedbackIssueTable } from "../feedback";
 import { FileTable } from "../file.table";
 import {
   NotificationSettingsTable,
@@ -95,6 +96,12 @@ export const UserRelations = relations(UserTable, ({ one, many }) => ({
   }),
   pushSubscriptions: many(PushSubscriptionTable, {
     relationName: "PushSubscriptionToUser",
+  }),
+  feedbackIssues: many(FeedbackIssueTable, {
+    relationName: "FeedbackIssueToCreatedBy",
+  }),
+  feedbackIssueReplies: many(FeedbackIssueReplyTable, {
+    relationName: "FeedbackIssueReplyToCreatedBy",
   }),
 }));
 
