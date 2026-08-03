@@ -1,5 +1,4 @@
 ◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ suppress logs { quiet: true }
-CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');
 CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');
@@ -12,8 +11,6 @@ CREATE TYPE "public"."LeadSourceEnum" AS ENUM('manual', 'webhook', 'iframe');
 CREATE TYPE "public"."LeadStatusEnum" AS ENUM('new', 'contacted', 'qualified', 'nurture', 'converted', 'lost', 'cancelled', 'disqualified');
 CREATE TYPE "public"."NotificationCategoryEnum" AS ENUM('SYSTEM', 'ORG', 'AUTH', 'SUPPORT', 'CUSTOMER', 'LEAD', 'JOB', 'INVOICE', 'PAYMENT', 'BILLING', 'REPORT', 'SCHEDULE');
 CREATE TYPE "public"."NotificationLevelEnum" AS ENUM('INFO', 'SUCCESS', 'WARNING', 'ERROR');
-CREATE TYPE "public"."PermissionLevelEnum" AS ENUM('system', 'org', 'self');
-CREATE TYPE "public"."ResourceTypeEnum" AS ENUM('user', 'role', 'permission', 'org', 'invitation', 'material', 'team', 'team_member', 'customer', 'lead', 'lead_category', 'lead_attachment', 'lead_note', 'lead_invoice', 'lead_payment', 'lead_billing', 'lead_report', 'lead_estimate', 'job', 'job_category', 'job_material', 'job_assignment', 'job_attachment', 'job_note', 'job_revenue', 'job_invoice', 'job_payment', 'job_estimate', 'job_billing', 'job_time_entry', 'invoice', 'payment', 'billing', 'report', 'schedule', 'feedback');
 CREATE TYPE "public"."RoleEnum" AS ENUM('MEMBER', 'STAFF', 'DISPATCHER', 'TEAM_LEAD', 'MANAGER', 'ORG_SUPPORT_AGENT', 'ORG_ADMIN', 'OWNER', 'USER', 'SYSTEM_SUPPORT_AGENT', 'SYSTEM_ADMIN', 'SUPER_ADMIN');
 CREATE TYPE "public"."RoleTypeEnum" AS ENUM('SYSTEM', 'ORG');
 CREATE TABLE "users" (
@@ -525,9 +522,9 @@ CREATE TABLE "org_member_roles" (
 CREATE TABLE "permissions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"level" "PermissionLevelEnum" NOT NULL,
-	"resource" "ResourceTypeEnum" NOT NULL,
-	"action" "ActionTypeEnum" NOT NULL,
+	"level" varchar NOT NULL,
+	"resource" varchar NOT NULL,
+	"action" varchar NOT NULL,
 	"description" varchar(255),
 	"metadata" jsonb,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,

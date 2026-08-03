@@ -48,10 +48,6 @@ export const rolesAndPermissionData: Array<{
       "system.user.list",
 
       // Feedback & support issues
-      "self.feedback.create",
-      "self.feedback.read",
-      "self.feedback.list",
-      "self.feedback.update",
       "system.feedback.create",
       "system.feedback.read",
       "system.feedback.list",
@@ -92,7 +88,10 @@ export const rolesAndPermissionData: Array<{
       "system.report.export",
 
       // Feedback & support issues
-      "system.feedback.manage",
+      "system.feedback.create",
+      "system.feedback.read",
+      "system.feedback.list",
+      "system.feedback.update",
     ],
   },
   {
@@ -116,7 +115,10 @@ export const rolesAndPermissionData: Array<{
       "system.report.manage",
 
       // Feedback & support issues
-      "system.feedback.manage",
+      "system.feedback.create",
+      "system.feedback.read",
+      "system.feedback.list",
+      "system.feedback.update",
     ],
   },
 

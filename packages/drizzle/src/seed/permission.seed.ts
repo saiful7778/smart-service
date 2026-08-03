@@ -283,12 +283,6 @@ const systemPermissions: CreatePermissionType[] = [
   {
     level: "system",
     resource: "feedback",
-    action: "manage",
-    description: "Full system-wide feedback management",
-  },
-  {
-    level: "system",
-    resource: "feedback",
     action: "create",
     description: "Create feedback issues across system",
   },
@@ -1590,13 +1584,13 @@ export async function seedPermission(): Promise<Array<PermissionDataModel>> {
   const permissions = await db
     .insert(PermissionTable)
     .values(
-      permissionsData.map(
-        (p) =>
-          ({
-            name: `${p.level}${separator}${p.resource}${separator}${p.action}` as PermissionType,
-            ...p,
-          }) satisfies InsertPermission
-      )
+      permissionsData.map((p) => ({
+        ...p,
+        name: `${p.level}${separator}${p.resource}${separator}${p.action}` as PermissionType,
+        level: p.level as PermissionLevelEnumType,
+        resource: p.resource as ResourceTypeEnumType,
+        action: p.action as ActionTypeEnumType,
+      }))
     )
     .returning();
 

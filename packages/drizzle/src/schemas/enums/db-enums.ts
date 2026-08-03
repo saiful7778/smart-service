@@ -1,7 +1,6 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
 import {
-  ACTION_TYPE,
   CONTACT_SUBMISSION_STATUS,
   FEEDBACK_ISSUE_STATUS,
   FEEDBACK_ISSUE_TYPE,
@@ -14,8 +13,6 @@ import {
   LEAD_STATUS,
   NOTIFICATION_CATEGORY,
   NOTIFICATION_LEVEL,
-  PERMISSION_LEVEL,
-  RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
 } from "./enum-values";
@@ -23,15 +20,6 @@ import {
 export const RoleEnum = pgEnum("RoleEnum", ROLES);
 
 export const RoleTypeEnum = pgEnum("RoleTypeEnum", ROLE_TYPES);
-
-export const PermissionLevelEnum = pgEnum(
-  "PermissionLevelEnum",
-  PERMISSION_LEVEL
-);
-
-export const ResourceTypeEnum = pgEnum("ResourceTypeEnum", RESOURCE_TYPE);
-
-export const ActionTypeEnum = pgEnum("ActionTypeEnum", ACTION_TYPE);
 
 export const ContactSubmissionStatusEnum = pgEnum(
   "ContactSubmissionStatusEnum",

@@ -1,13 +1,3 @@
-enum ActionTypeEnum {
-  create
-  read
-  list
-  update
-  delete
-  manage
-  export
-}
-
 enum ContactSubmissionStatusEnum {
   PENDING
   READ
@@ -109,51 +99,6 @@ enum NotificationLevelEnum {
   SUCCESS
   WARNING
   ERROR
-}
-
-enum PermissionLevelEnum {
-  system
-  org
-  self
-}
-
-enum ResourceTypeEnum {
-  user
-  role
-  permission
-  org
-  invitation
-  material
-  team
-  team_member
-  customer
-  lead
-  lead_category
-  lead_attachment
-  lead_note
-  lead_invoice
-  lead_payment
-  lead_billing
-  lead_report
-  lead_estimate
-  job
-  job_category
-  job_material
-  job_assignment
-  job_attachment
-  job_note
-  job_revenue
-  job_invoice
-  job_payment
-  job_estimate
-  job_billing
-  job_time_entry
-  invoice
-  payment
-  billing
-  report
-  schedule
-  feedback
 }
 
 enum RoleEnum {
@@ -1073,9 +1018,9 @@ table org_member_roles {
 table permissions {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   name varchar(255) [not null]
-  level PermissionLevelEnum [not null]
-  resource ResourceTypeEnum [not null]
-  action ActionTypeEnum [not null]
+  level varchar [not null]
+  resource varchar [not null]
+  action varchar [not null]
   description varchar(255)
   metadata jsonb
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
