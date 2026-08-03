@@ -5,7 +5,15 @@ import { Fragment, useCallback, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Mail, Plus, Trash } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Mail,
+  Plus,
+  RotateCcw,
+  Trash,
+  Undo,
+} from "lucide-react";
 import type { Variants } from "motion/react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -251,12 +259,14 @@ export function LeadCreateForm() {
             <span>Previous</span>
           </StepperPrev>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap justify-center items-center gap-2">
             <Button type="reset" variant="outline" onClick={handleReset}>
-              Reset
+              <Undo />
+              <span>Reset</span>
             </Button>
             <Button type="reset" variant="outline" onClick={handleResetAll}>
-              Reset All
+              <RotateCcw />
+              <span>Reset All</span>
             </Button>
           </div>
           {stepIndex === steps.length - 1 ? (
