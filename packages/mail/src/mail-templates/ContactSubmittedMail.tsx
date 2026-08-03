@@ -2,7 +2,7 @@ import { Section, Text } from "react-email";
 
 import { EmailLayout } from "../shared/EmailLayout";
 
-interface ContactSubmittedMailProps {
+export interface ContactSubmittedMailProps {
   userName: string;
   appName: string;
   supportMail: string;

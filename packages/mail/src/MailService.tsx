@@ -1,6 +1,7 @@
 import { render } from "react-email";
 
 import { QstashServiceConfig } from "@workspace/lib/qstash";
+import { formatEnumValue } from "@workspace/lib/utils";
 
 import AccountLockedMail, {
   AccountLockedMailProps,
@@ -26,10 +27,21 @@ import SuspiciousLoginMail, {
 import WelcomeUserMail, {
   WelcomeUserMailProps,
 } from "./mail-templates/auth/WelcomeUserMail";
-import ContactSubmittedMail from "./mail-templates/ContactSubmittedMail";
+import ContactSubmittedMail, {
+  ContactSubmittedMailProps,
+} from "./mail-templates/ContactSubmittedMail";
 import DataExportCompleteMail, {
   DataExportCompleteMailProps,
 } from "./mail-templates/DataExportCompleteMail";
+import FeedbackIssueRepliedMail, {
+  FeedbackIssueRepliedMailProps,
+} from "./mail-templates/feedback/FeedbackIssueRepliedMail";
+import FeedbackIssueStatusChangedMail, {
+  FeedbackIssueStatusChangedMailProps,
+} from "./mail-templates/feedback/FeedbackIssueStatusChangedMail";
+import FeedbackIssueSubmittedMail, {
+  FeedbackIssueSubmittedMailProps,
+} from "./mail-templates/feedback/FeedbackIssueSubmittedMail";
 import IntegrationConnectedMail, {
   IntegrationConnectedMailProps,
 } from "./mail-templates/integration/IntegrationConnectedMail";
@@ -166,12 +178,17 @@ type SubscriptionCancelledMailOptions = Pick<SendMailOption, "to"> &
 type PlanDowngradedMailOptions = Pick<SendMailOption, "to"> &
   Omit<PlanDowngradedMailProps, "appName" | "supportMail">;
 
-export interface ContactSubmittedEmailOptions extends Omit<
-  SendMailOption,
-  "subject"
-> {
-  userName: string;
-}
+type ContactSubmittedEmailOptions = Pick<SendMailOption, "to"> &
+  Omit<ContactSubmittedMailProps, "appName" | "supportMail">;
+
+type FeedbackIssueSubmittedEmailOptions = Pick<SendMailOption, "to"> &
+  Omit<FeedbackIssueSubmittedMailProps, "appName" | "supportMail">;
+
+type FeedbackIssueRepliedEmailOptions = Pick<SendMailOption, "to"> &
+  Omit<FeedbackIssueRepliedMailProps, "appName" | "supportMail">;
+
+type FeedbackIssueStatusChangedEmailOptions = Pick<SendMailOption, "to"> &
+  Omit<FeedbackIssueStatusChangedMailProps, "appName" | "supportMail">;
 
 export interface IMailService extends IQstashMailService {
   sendWelcomeUserMail(
@@ -200,6 +217,15 @@ export interface IMailService extends IQstashMailService {
   ): Promise<MailSendResult>;
   sendContactSubmittedMail(
     options: ContactSubmittedEmailOptions
+  ): Promise<MailSendResult>;
+  sendFeedbackIssueSubmittedMail(
+    options: FeedbackIssueSubmittedEmailOptions
+  ): Promise<MailSendResult>;
+  sendFeedbackIssueRepliedMail(
+    options: FeedbackIssueRepliedEmailOptions
+  ): Promise<MailSendResult>;
+  sendFeedbackIssueStatusChangedMail(
+    options: FeedbackIssueStatusChangedEmailOptions
   ): Promise<MailSendResult>;
   sendEstimateSentMail(
     options: EstimateSentMailOptions
@@ -482,6 +508,85 @@ export abstract class MailService
     const subject = `New contact submission from ${this.mailConfig.appName}`;
     const element = (
       <ContactSubmittedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendFeedbackIssueSubmittedMail({
+    to,
+    ...options
+  }: FeedbackIssueSubmittedEmailOptions): Promise<MailSendResult> {
+    const subject = `We received your ${formatEnumValue(options.issueType)} - ${options.issueTitle}`;
+
+    const element = (
+      <FeedbackIssueSubmittedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendFeedbackIssueRepliedMail({
+    to,
+    ...options
+  }: FeedbackIssueRepliedEmailOptions): Promise<MailSendResult> {
+    const subject = `New reply on your ${formatEnumValue(options.issueType)}: ${options.issueTitle}`;
+    const element = (
+      <FeedbackIssueRepliedMail
+        supportMail={this.mailConfig.supportMail}
+        appName={this.mailConfig.appName}
+        {...options}
+      />
+    );
+
+    const html = await render(element);
+    const text = await render(element, {
+      plainText: true,
+    });
+
+    return this.sendMail({
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+
+  public async sendFeedbackIssueStatusChangedMail({
+    to,
+    ...options
+  }: FeedbackIssueStatusChangedEmailOptions): Promise<MailSendResult> {
+    const subject = `Your ${formatEnumValue(options.issueType)} is now ${formatEnumValue(options.newStatus)}`;
+    const element = (
+      <FeedbackIssueStatusChangedMail
         supportMail={this.mailConfig.supportMail}
         appName={this.mailConfig.appName}
         {...options}
