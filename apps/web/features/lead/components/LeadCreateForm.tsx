@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -10,9 +10,9 @@ import type { Variants } from "motion/react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Control,
-  Path,
   useFieldArray,
   useForm,
+  UseFormSetValue,
   useWatch,
 } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -67,7 +67,6 @@ const steps: Array<{
       "customerName",
       "customerEmail",
       "customerPhone",
-      "isNewCustomer",
     ] as const,
   },
   {
@@ -105,7 +104,6 @@ export function LeadCreateForm() {
   const form = useForm<CreateLeadType>({
     resolver: zodResolver(createLeadSchema),
     defaultValues: {
-      isNewCustomer: false,
       customerName: "",
       customerEmail: "",
       customerPhone: "",
@@ -145,26 +143,6 @@ export function LeadCreateForm() {
     },
   });
 
-  const isNewCustomer = useWatch({
-    control: form.control,
-    name: "isNewCustomer",
-  });
-
-  const resetField = useCallback(
-    (fieldName: Path<CreateLeadType>) => {
-      form.resetField(fieldName);
-      form.clearErrors(fieldName);
-    },
-    [form]
-  );
-
-  useEffect(() => {
-    resetField("customerId");
-    resetField("customerName");
-    resetField("customerEmail");
-    resetField("customerPhone");
-  }, [isNewCustomer, resetField]);
-
   const onValidate: NonNullable<StepperProps["onValidate"]> = useCallback(
     async (_value, direction) => {
       if (direction === "prev") return true;
@@ -184,6 +162,20 @@ export function LeadCreateForm() {
     },
     [form, step]
   );
+
+  const handleReset = useCallback(() => {
+    const stepData = steps.find((s) => s.value === step);
+    if (!stepData) return true;
+
+    stepData.fields.forEach((field) => {
+      form.resetField(field);
+    });
+  }, [form, step]);
+
+  const handleResetAll = useCallback(() => {
+    form.reset();
+    setStep("customer");
+  }, [form]);
 
   const handleSubmit = (e: CreateLeadType) => {
     mutate(e);
@@ -222,7 +214,7 @@ export function LeadCreateForm() {
             value="customer"
             isPending={isPending}
             control={form.control}
-            isNewCustomer={isNewCustomer}
+            setValue={form.setValue}
           />
           {/* details step end */}
 
@@ -258,6 +250,15 @@ export function LeadCreateForm() {
             <ArrowLeft className="size-4" />
             <span>Previous</span>
           </StepperPrev>
+
+          <div className="flex items-center gap-2">
+            <Button type="reset" variant="outline" onClick={handleReset}>
+              Reset
+            </Button>
+            <Button type="reset" variant="outline" onClick={handleResetAll}>
+              Reset All
+            </Button>
+          </div>
           {stepIndex === steps.length - 1 ? (
             <ButtonSpinner type="submit" isLoading={isPending}>
               Create Lead
@@ -278,13 +279,17 @@ function DetailsStep({
   isPending,
   control,
   value,
-  isNewCustomer,
+  setValue,
 }: {
   isPending: boolean;
   control: Control<CreateLeadType>;
   value: string;
-  isNewCustomer: boolean;
+  setValue: UseFormSetValue<CreateLeadType>;
 }) {
+  const customerId = useWatch({
+    control,
+    name: "customerId",
+  });
   return (
     <StepperContent value={value}>
       <motion.div
@@ -295,50 +300,61 @@ function DetailsStep({
         key="personal-step-content"
       >
         <FieldGroup>
-          <CheckboxField
+          <CustomerSelectorField
             control={control}
-            name="isNewCustomer"
-            label="New Customer"
+            name="customerId"
+            label="Customer"
+            onValueChange={(value) => {
+              if (value) {
+                setValue("customerName", value.name);
+                if (value.email) {
+                  setValue("customerEmail", value.email);
+                }
+                if (value.phone) {
+                  setValue("customerPhone", value.phone);
+                }
+              } else {
+                setValue("customerName", "");
+                setValue("customerEmail", "");
+                setValue("customerPhone", "");
+              }
+            }}
             disabled={isPending}
           />
-          {isNewCustomer ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-1 md:col-span-2">
-                <InputField
-                  control={control}
-                  name="customerName"
-                  label="Lead name"
-                  type="text"
-                  placeholder="Name"
-                  disabled={isPending}
-                />
-              </div>
-              <InputAddonField
+          <div className="flex items-center gap-2">
+            <Separator className="shrink" />
+            <span className="text-muted-foreground text-xs">OR</span>
+            <Separator className="shrink" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-1 md:col-span-2">
+              <InputField
                 control={control}
-                name="customerEmail"
-                label="Lead email address"
-                type="email"
-                placeholder="Email address"
-                disabled={isPending}
-                firstAddon={<Mail className="size-4" />}
-              />
-              <PhoneInputField
-                control={control}
-                name="customerPhone"
-                label="Lead phone number"
-                placeholder="Phone number"
-                defaultCountry="US"
-                disabled={isPending}
+                name="customerName"
+                label="Customer name"
+                type="text"
+                placeholder="Name"
+                disabled={!!customerId || isPending}
               />
             </div>
-          ) : (
-            <CustomerSelectorField
+            <InputAddonField
               control={control}
-              name="customerId"
-              label="Customer"
-              disabled={isPending}
+              name="customerEmail"
+              label="Email address"
+              type="email"
+              placeholder="Email address"
+              disabled={!!customerId || isPending}
+              firstAddon={<Mail className="size-4" />}
             />
-          )}
+            <PhoneInputField
+              control={control}
+              name="customerPhone"
+              label="Phone number"
+              placeholder="Phone number"
+              defaultCountry="US"
+              disabled={!!customerId || isPending}
+            />
+          </div>
         </FieldGroup>
       </motion.div>
     </StepperContent>

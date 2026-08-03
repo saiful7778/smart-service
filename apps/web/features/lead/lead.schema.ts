@@ -21,11 +21,10 @@ export type LeadAddressType = z.infer<typeof leadAddressSchema>;
 
 export const createLeadSchema = z
   .object({
-    customerId: z.uuid().optional(),
+    customerId: z.string().optional(),
     customerName: z.string().optional(),
     customerEmail: z.string().optional(),
     customerPhone: z.string().optional(),
-    isNewCustomer: z.boolean(),
     status: LeadStatusEnumSchema,
     source: LeadSourceEnumSchema,
     serviceType: z.string().optional(),
@@ -34,49 +33,49 @@ export const createLeadSchema = z
     categories: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.isNewCustomer) {
-      const hasName = data.customerName && data.customerName.trim().length > 0;
-      const hasEmail =
-        data.customerEmail && data.customerEmail.trim().length > 0;
-      const hasPhone =
-        data.customerPhone && data.customerPhone.trim().length > 0;
+    const hasName = data.customerName && data.customerName.trim().length > 0;
+    const hasEmail = data.customerEmail && data.customerEmail.trim().length > 0;
+    const hasPhone = data.customerPhone && data.customerPhone.trim().length > 0;
+    const hasCustomerId = data.customerId && data.customerId.trim().length > 0;
 
-      if (!hasName && !hasEmail && !hasPhone) {
+    if (!hasCustomerId && !hasName && !hasEmail && !hasPhone) {
+      ctx.addIssue({
+        code: "custom",
+        message: "At least one of customer, name, email, or phone is required",
+        path: ["customerName"],
+      });
+    }
+
+    if (hasCustomerId) {
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(data.customerId!)) {
         ctx.addIssue({
           code: "custom",
-          message:
-            "At least one of name, email, or phone is required for new customers",
-          path: ["customerName"],
+          message: "Invalid customer",
+          path: ["customerId"],
         });
       }
+    }
 
-      if (hasEmail) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.customerEmail!)) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Invalid email format",
-            path: ["customerEmail"],
-          });
-        }
-      }
-
-      if (hasPhone) {
-        const phoneRegex = /^(\+1\s?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
-        if (!phoneRegex.test(data.customerPhone!)) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Invalid phone number",
-            path: ["customerPhone"],
-          });
-        }
-      }
-    } else {
-      if (!data.customerId) {
+    if (hasEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+      if (!emailRegex.test(data.customerEmail!)) {
         ctx.addIssue({
           code: "custom",
-          message: "customer is required",
-          path: ["customerId"],
+          message: "Invalid email format",
+          path: ["customerEmail"],
+        });
+      }
+    }
+
+    if (hasPhone) {
+      const phoneRegex = /^(\+1\s?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/i;
+      if (!phoneRegex.test(data.customerPhone!)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Invalid phone number",
+          path: ["customerPhone"],
         });
       }
     }
@@ -87,7 +86,7 @@ export const createLeadSchema = z
     if (primaryAddresses.length !== 1) {
       ctx.addIssue({
         code: "custom",
-        message: "At least one address must be primary",
+        message: "Exactly one address must be primary",
         path: ["addresses"],
       });
     }
