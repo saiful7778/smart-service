@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 import { downloadFile } from "@workspace/ui/lib/downloadFile";
 
-import { FileUploadRef } from "@/components/FileUpload";
+import { FileUploadRef, ProgressType } from "@/components/FileUpload";
 
 import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -51,12 +51,15 @@ export function useUserExportData({
 
 export function useProfileUpdate<TFieldNames>({
   uploadRef,
+  onProgress,
   onRequestStart,
+  onRequestEnd,
   onSuccess,
   onError,
   onValidationErrors,
 }: IApiHookInput<TFieldNames> & {
   uploadRef: RefObject<FileUploadRef | null>;
+  onProgress?: (progress: ProgressType) => void;
 }) {
   const toastId = "profile_update_toast_message";
   const addUserData = useAuthStore((state) => state.addUserData);
@@ -65,6 +68,7 @@ export function useProfileUpdate<TFieldNames>({
     orpcTQClient.user.updateProfile.mutationOptions()
   );
   const { mutateAsync: updateImage } = useFileUploadToAPI({
+    onProgress,
     onSuccess: () => {
       uploadRef.current?.clearFiles();
       uploadRef.current?.clearErrors();
@@ -118,6 +122,9 @@ export function useProfileUpdate<TFieldNames>({
       toast.error(message ?? "Failed to update profile", { id: toastId });
 
       onError?.(message);
+    },
+    onSettled: () => {
+      onRequestEnd?.();
     },
   });
 }
