@@ -1,20 +1,24 @@
-# Graph Report - smart_service  (2026-08-05)
+# Graph Report - smart_service (2026-08-03)
 
 ## Corpus Check
-- 780 files · ~334,571 words
+
+- 902 files · ~412,653 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6010 nodes · 11493 edges · 359 communities (293 shown, 66 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 97 edges (avg confidence: 0.79)
+
+- 6228 nodes · 13058 edges · 341 communities (266 shown, 75 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 116 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `86acd90a`
+
+- Built from commit: `965514a6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
+
 - [[_COMMUNITY_Community 0|Community 0]]
 - [[_COMMUNITY_Community 1|Community 1]]
 - [[_COMMUNITY_Community 2|Community 2]]
@@ -342,43 +346,39 @@
 - [[_COMMUNITY_Community 333|Community 333]]
 - [[_COMMUNITY_Community 334|Community 334]]
 - [[_COMMUNITY_Community 335|Community 335]]
-- [[_COMMUNITY_Community 342|Community 342]]
-- [[_COMMUNITY_Community 343|Community 343]]
-- [[_COMMUNITY_Community 350|Community 350]]
-- [[_COMMUNITY_Community 351|Community 351]]
-- [[_COMMUNITY_Community 352|Community 352]]
-- [[_COMMUNITY_Community 353|Community 353]]
-- [[_COMMUNITY_Community 354|Community 354]]
-- [[_COMMUNITY_Community 355|Community 355]]
 - [[_COMMUNITY_Community 356|Community 356]]
-- [[_COMMUNITY_Community 357|Community 357]]
-- [[_COMMUNITY_Community 358|Community 358]]
+- [[_COMMUNITY_Community 359|Community 359]]
+- [[_COMMUNITY_Community 361|Community 361]]
+- [[_COMMUNITY_Community 362|Community 362]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 325 edges
-2. `Button()` - 76 edges
-3. `TailwindConfigGenerator` - 57 edges
-4. `orpcTQClient` - 53 edges
-5. `db_id` - 49 edges
-6. `db_created_at` - 44 edges
-7. `TestTailwindConfigGenerator` - 35 edges
-8. `db_updated_at` - 35 edges
-9. `ShadcnInstaller` - 33 edges
-10. `ButtonSpinner()` - 32 edges
+
+1. `cn()` - 354 edges
+2. `Button()` - 96 edges
+3. `orpcTQClient` - 76 edges
+4. `TailwindConfigGenerator` - 57 edges
+5. `db_id` - 51 edges
+6. `getQueryClient` - 47 edges
+7. `requireUserPermissionsWithOrgCache` - 47 edges
+8. `db_created_at` - 46 edges
+9. `ButtonSpinner()` - 39 edges
+10. `db_updated_at` - 37 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `AcceptInvitationPage()` --calls--> `formatEnumValue()`  [INFERRED]
+
+- `AcceptInvitationPage()` --calls--> `formatEnumValue()` [INFERRED]
   apps/web/app/(auth)/organization/accept-invitation/page.tsx → packages/lib/src/utils/formatEnum.ts
-- `RootLayout()` --calls--> `cn()`  [EXTRACTED]
+- `RootLayout()` --calls--> `cn()` [EXTRACTED]
   apps/web/app/layout.tsx → packages/ui/src/lib/utils.ts
-- `SiteLogo()` --calls--> `cn()`  [EXTRACTED]
+- `SiteLogo()` --calls--> `cn()` [EXTRACTED]
   apps/web/components/SiteLogo.tsx → packages/ui/src/lib/utils.ts
-- `JobGeneralInfo()` --calls--> `formatEnumValue()`  [INFERRED]
-  apps/web/features/job/components/job-details/details-step/JobGeneralInfo.tsx → packages/lib/src/utils/formatEnum.ts
-- `GeneralInfo()` --calls--> `formatEnumValue()`  [INFERRED]
-  apps/web/features/lead/components/lead-details/details-step/GeneralInfo.tsx → packages/lib/src/utils/formatEnum.ts
+- `TimeRangeFilter()` --calls--> `formatEnumValue()` [INFERRED]
+  apps/web/components/time-range-filter/index.tsx → packages/lib/src/utils/formatEnum.ts
+- `RevenueCell()` --calls--> `cn()` [EXTRACTED]
+  apps/web/features/job/components/ScheduleCalendarManagement.tsx → packages/ui/src/lib/utils.ts
 
 ## Import Cycles
+
 - 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadAttachment.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadAttachment.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadNote.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
@@ -386,1129 +386,1253 @@
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadNote.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadRevenueHistory.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadRevenueHistory.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/address/index.ts -> packages/drizzle/src/schemas/tables/address/orgAddress.table.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/address/index.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/job/jobCategory.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/job/jobCategory.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/job/jobSchedule.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/job/jobSchedule.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadNote.table.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/material/index.ts -> packages/drizzle/src/schemas/tables/material/material.table.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/material/index.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/role-permission/orgRole.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/address/index.ts -> packages/drizzle/src/schemas/tables/address/leadAddress.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/address/index.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/job/jobCategory.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/job/jobCategory.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadAttachment.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadEstimate.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadNote.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadRevenueHistory.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
-- 3-file cycle: `packages/drizzle/src/schemas/tables/address/customerAddress.table.ts -> packages/drizzle/src/schemas/tables/customer/index.ts -> packages/drizzle/src/schemas/tables/customer/customer.table.ts -> packages/drizzle/src/schemas/tables/address/customerAddress.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/material/index.ts -> packages/drizzle/src/schemas/tables/material/material.table.ts -> packages/drizzle/src/schemas/tables/org/organizationMember.table.ts -> packages/drizzle/src/schemas/tables/material/index.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/account.table.ts -> packages/drizzle/src/schemas/tables/user/index.ts -> packages/drizzle/src/schemas/tables/user/user.table.ts -> packages/drizzle/src/schemas/tables/account.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/file.table.ts -> packages/drizzle/src/schemas/tables/user/index.ts -> packages/drizzle/src/schemas/tables/user/user.table.ts -> packages/drizzle/src/schemas/tables/file.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/org/orgTeamMember.table.ts -> packages/drizzle/src/schemas/tables/user/index.ts -> packages/drizzle/src/schemas/tables/user/user.table.ts -> packages/drizzle/src/schemas/tables/org/orgTeamMember.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/session.table.ts -> packages/drizzle/src/schemas/tables/user/index.ts -> packages/drizzle/src/schemas/tables/user/userActivity.table.ts -> packages/drizzle/src/schemas/tables/session.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/role-permission/orgRole.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/address/customerAddress.table.ts -> packages/drizzle/src/schemas/tables/customer/index.ts -> packages/drizzle/src/schemas/tables/customer/customer.table.ts -> packages/drizzle/src/schemas/tables/address/customerAddress.table.ts`
+- 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/org/index.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
 
-## Communities (359 total, 66 thin omitted)
+## Communities (341 total, 75 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.04
-Nodes (48): Accessibility and Best Practices, Accessibility Standards, Advanced Customization, Advanced Styling Techniques, Animation and Transition Examples, Animation and Transitions, Background Context, Brand Integration (+40 more)
+
+Cohesion: 0.16
+Nodes (13): useLeadEstimateCreate(), useLeadEstimateUpdate(), metadata, CreateOrgForm(), LeadEstimateForm(), LeadEstimateFormProps, LeadEstimateCreateForm(), LeadEstimateCreateFormProps (+5 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (32): leadAddressUpdateContract, LeadAddressUpdateInputs, LeadAddressUpdateOutputs, leadAllDeleteContract, LeadAllDeleteInputs, LeadAllDeleteOutputs, leadContract, leadCreateContract (+24 more)
+
+Cohesion: 0.03
+Nodes (82): customerContract, listCustomerContract, ListCustomerContractType, listCustomerForSearchContract, listJobAssignmentContract, ListJobAssignmentContractType, tags, leadBaseContract (+74 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.05
-Nodes (60): useAuthStore(), Collapsible(), CollapsibleContent(), CollapsibleTrigger(), Sheet(), SheetContent(), SheetDescription(), SheetFooter() (+52 more)
+
+Cohesion: 0.06
+Nodes (54): Collapsible(), CollapsibleContent(), CollapsibleTrigger(), Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader() (+46 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.14
-Nodes (24): Checkbox(), Status(), StatusIndicator(), StatusLabel(), StatusProps, StatusVariant, statusVariants, UserAvatar() (+16 more)
+
+Cohesion: 0.06
+Nodes (52): Checkbox(), Status(), StatusIndicator(), StatusLabel(), StatusProps, StatusVariant, statusVariants, UserAvatar() (+44 more)
 
 ### Community 4 - "Community 4"
+
 Cohesion: 0.03
-Nodes (96): NotificationCategoryEnum, NotificationLevelEnum, insertLeadAttachmentSchema, LeadAttachmentRelations, SelectLeadAttachment, selectLeadAttachmentSchema, UpdateLeadAttachment, updateLeadAttachmentSchema (+88 more)
+Nodes (103): InsertUserAddress, insertUserAddressSchema, SelectUserAddress, selectUserAddressSchema, UserAddressDataModel, UserAddressRelations, UserAddressTable, NotificationCategoryEnum (+95 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.10
-Nodes (19): listNotificationContract, ListNotificationInput, markAsReadContract, MarkAsReadInput, MarkAsReadOutput, notificationContract, settingsDetailsContract, SettingsDetailsInput (+11 more)
+
+Cohesion: 0.12
+Nodes (20): listNotificationContract, markAsReadContract, MarkAsReadContractType, notificationContract, settingsDetailsContract, SettingsDetailsContractType, subscribePushNotificationContract, SubscribePushNotificationContractType (+12 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.04
-Nodes (47): App Configuration, App Router Setup, Best Practices, Build Configuration Problems, CLI Installation Expertise, Common Installation Issues, Complete Configuration Schema, Component Import Errors (+39 more)
+
+Cohesion: 0.08
+Nodes (25): leadEstimateContract, leadEstimateCreateContract, LeadEstimateCreateContractType, leadEstimateDeleteAllContract, LeadEstimateDeleteAllContractType, leadEstimateDeleteContract, LeadEstimateDeleteContractType, leadEstimateDetailsContract (+17 more)
 
 ### Community 7 - "Community 7"
+
 Cohesion: 0.08
-Nodes (48): useJobBinDeleteAll(), useJobDeleteAll(), useJobRestoreAll(), useLeadBinDeleteAll(), useLeadDeleteAll(), useLeadRestoreAll(), ListLeadCategoriesOutput, ListInvitationOutput (+40 more)
+Nodes (60): useJobBinDeleteAll(), useJobDeleteAll(), useJobRestoreAll(), useLeadBinDeleteAll(), useLeadDeleteAll(), useLeadRestoreAll(), ListLeadCategoriesContractType, useLeadEstimateBinDeleteAll() (+52 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (63): AccountLockedMail(), AccountLockedMailProps, EmailVerificationMailProps, NewDeviceLoginMail(), NewDeviceLoginMailProps, PasswordChangedMail(), PasswordChangedMailProps, ResetPasswordMail() (+55 more)
+
+Cohesion: 0.03
+Nodes (73): AccountLockedMail(), AccountLockedMailProps, EmailVerificationMailProps, NewDeviceLoginMail(), NewDeviceLoginMailProps, PasswordChangedMail(), PasswordChangedMailProps, ResetPasswordMail() (+65 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.05
-Nodes (43): jobBaseContract, jobAllDeleteContract, JobAllDeleteInput, JobAllDeleteOutput, jobContract, jobCreateContract, JobCreateInput, JobCreateOutput (+35 more)
 
-### Community 10 - "Community 10"
-Cohesion: 0.05
-Nodes (39): Accessibility in Animations, Advanced Motion Patterns, Animation Foundations, Animation Performance Best Practices, Animation Validation Checklist, Basic Motion Components, Button Micro-interactions, Core Animation Principles (+31 more)
+Cohesion: 0.07
+Nodes (29): jobBaseContract, jobAllDeleteContract, JobAllDeleteContractType, jobContract, jobCreateContract, JobCreateContractType, jobDeleteContract, JobDeleteContractType (+21 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.05
-Nodes (58): ACTION_TYPE, CONTACT_SUBMISSION_STATUS, JOB_ASSIGNMENT_ROLE, JOB_ASSIGNMENT_STATUS, JOB_STATUS, LEAD_REVENUE_TYPE, LEAD_SOURCE, LEAD_STATUS (+50 more)
 
-### Community 13 - "Community 13"
-Cohesion: 0.05
-Nodes (38): 1. Lazy Loading and Code Splitting, 2. Image Optimization, 3. Bundle Size Optimization, Core Mobile UX Concepts, ✅ DO: Mobile-First Card Grid, ✅ DO: Mobile Performance Best Practices, ✅ DO: Mobile-Responsive Tables, ✅ DO: Progressive Web App Features (+30 more)
+Cohesion: 0.07
+Nodes (46): ACTION_TYPE, CONTACT_SUBMISSION_STATUS, JOB_ASSIGNMENT_ROLE, JOB_ASSIGNMENT_STATUS, JOB_STATUS, LEAD_ESTIMATE_STATUS, LEAD_REVENUE_TYPE, LEAD_SOURCE (+38 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.05
-Nodes (37): Build Optimization, Bundle Issues, Bundle Optimization, Bundle Size Optimization, Code Splitting Strategies, Component Optimization, Core Performance Metrics, Core Web Vitals Monitoring (+29 more)
 
-### Community 15 - "Community 15"
-Cohesion: 0.05
-Nodes (36): Accessibility Testing, Bad Testing Practices, CI/CD Integration, Component Testing Best Practices, Core Testing Principles, ✅ DO: Comprehensive E2E Tests, ✅ DO: Integration Test Examples, ✅ DO: Performance Benchmarks (+28 more)
+Cohesion: 0.17
+Nodes (15): $type, $value, $type, $value, $type, $value, 50, 500 (+7 more)
 
 ### Community 16 - "Community 16"
+
 Cohesion: 0.09
 Nodes (27): useLeadAttachmentBinDelete(), useLeadAttachmentCreate(), useLeadAttachmentDelete(), useLeadAttachmentRestore(), useLeadCategoryCreate(), useLeadCategoryUpdate(), useLeadNoteUpdate(), DialogContent() (+19 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.06
-Nodes (32): Automated Migration Tools, Chakra UI to Shadcn Migration, Codemod Development, Component Mapping, Component Mapping Strategy, ✅ DO: Chakra UI Migration Strategy, ✅ DO: Complex Form Migration, ✅ DO: Custom Migration Codemods (+24 more)
+
+Cohesion: 0.10
+Nodes (23): ActionTypeEnumType, PermissionLevelEnumType, ResourceTypeEnumType, RoleEnumType, RoleTypeEnumType, generatePermissionsSql(), generateRolePermissionSql(), generateRolesSql() (+15 more)
 
 ### Community 18 - "Community 18"
+
 Cohesion: 0.06
 Nodes (31): 1. Data Accuracy and Integrity, 1. Misleading Visualizations, 2. Performance Issues, 2. Performance Optimization, 3. Accessibility Implementation, 3. Accessibility Violations, Accessibility, Advanced Chart Types (+23 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.25
-Nodes (7): AcceptInvitationPage(), OrgInvitationMail(), OrgInvitationMailProps, roleConfig, UnAuthOrgInvitationMail(), PermissionBadge(), formatEnumValue()
+
+Cohesion: 0.10
+Nodes (18): AcceptInvitationPage(), NotFound(), GeneralInfo(), PublicEstimatePage(), JobAssignmentItem(), RevenueStat(), EstimateSentMail(), OrgInvitationMail() (+10 more)
 
 ### Community 20 - "Community 20"
+
 Cohesion: 0.08
 Nodes (25): useJobCreate(), DateTimeDayButton(), JobRevenueUpdateDialogProps, JobTimeUpdateDialogProps, LeadJobCreateDialog(), LeadJobUpdateDialogProps, Stepper(), StepperProps (+17 more)
 
 ### Community 21 - "Community 21"
+
 Cohesion: 0.13
 Nodes (20): Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount(), AvatarImage(), OrgSelector(), useActiveOrg() (+12 more)
 
 ### Community 22 - "Community 22"
+
 Cohesion: 0.31
 Nodes (3): config, nextJsConfig, config
 
 ### Community 23 - "Community 23"
-Cohesion: 0.05
-Nodes (53): Accordion(), AccordionContent(), AccordionItem(), AccordionTrigger(), AlertDialog(), AlertDialogAction(), AlertDialogCancel(), AlertDialogContent() (+45 more)
+
+Cohesion: 0.03
+Nodes (86): Accordion(), AccordionContent(), AccordionItem(), AccordionTrigger(), BorderBeam(), BorderBeamProps, ComboboxChips(), ComboboxChipsInput() (+78 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.10
-Nodes (31): listNotificationProcedure, markAsReadProcedure, notificationImpl, settingsDetailsProcedure, subscribePushNotificationProcedure, unsubscribePushNotificationProcedure, updateSettingsProcedure, createOrgRoleProcudure (+23 more)
+
+Cohesion: 0.06
+Nodes (51): authRouter, jobRouter, leadRouter, materialRouter, notificationRouter, acceptOrRejectInvitationProcedure, createOrgProcedure, deleteInvitationProcedure (+43 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.07
-Nodes (53): AddressDataModel, CustomerDataModel, seedAccounts(), seedAddress(), seedCustomer(), seedFile(), main(), seedJob() (+45 more)
+
+Cohesion: 0.08
+Nodes (43): AddressDataModel, CustomerDataModel, seedAccounts(), seedAddress(), seedCustomer(), seedFile(), main(), seedJob() (+35 more)
 
 ### Community 26 - "Community 26"
+
 Cohesion: 0.04
-Nodes (57): ActionTypeEnum, PermissionLevelEnum, ResourceTypeEnum, RoleEnum, RoleTypeEnum, OrganizationDataModel, OrganizationTable, insertOrgMemberRoleSchema (+49 more)
+Nodes (56): ActionTypeEnum, PermissionLevelEnum, ResourceTypeEnum, RoleEnum, RoleTypeEnum, InsertOrgMemberRole, insertOrgMemberRoleSchema, OrgMemberRoleDataModel (+48 more)
 
 ### Community 27 - "Community 27"
+
 Cohesion: 0.06
-Nodes (42): useRequestPasswordReset(), useAcceptOrRejectInvitation(), useOrgCreate(), useAssignFileEntity(), useConfirmUpload(), useGetUploadUrl(), metadata, AcceptInvitation() (+34 more)
+Nodes (48): useRequestPasswordReset(), useLeadAttachmentCreate(), useMaterialCreate(), useAcceptOrRejectInvitation(), useOrgCreate(), useConfirmUpload(), useGetUploadUrl(), useProfileUpdate() (+40 more)
 
 ### Community 28 - "Community 28"
+
 Cohesion: 0.07
-Nodes (32): InsertInvitation, insertInvitationSchema, InvitationDataModel, InvitationRelations, InvitationTable, SelectInvitation, selectInvitationSchema, updateInvitationSchema (+24 more)
+Nodes (33): InsertJobCategory, insertJobCategorySchema, JobCategoryDataModel, JobCategoryRelations, JobCategoryTable, SelectJobCategory, selectJobCategorySchema, UpdateJobCategory (+25 more)
 
 ### Community 29 - "Community 29"
-Cohesion: 0.05
-Nodes (50): AddressRelations, AddressTable, InsertAddress, insertAddressSchema, SelectAddress, selectAddressSchema, UpdateAddress, updateAddressSchema (+42 more)
+
+Cohesion: 0.04
+Nodes (51): AddressRelations, AddressTable, InsertAddress, insertAddressSchema, SelectAddress, selectAddressSchema, UpdateAddress, updateAddressSchema (+43 more)
 
 ### Community 30 - "Community 30"
+
 Cohesion: 0.05
 Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more)
 
 ### Community 31 - "Community 31"
+
 Cohesion: 0.06
 Nodes (42): BM25, detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection (+34 more)
 
 ### Community 32 - "Community 32"
+
 Cohesion: 0.05
-Nodes (59): checkPermission(), isIOSStandalone(), isPushSupportedOnPlatform(), isSupported(), NotificationPermissionProvider(), NotificationPromptCard(), requestPlatformPermission(), requiresGesture() (+51 more)
+Nodes (49): useLeadAttachmentBinDelete(), useLeadAttachmentDelete(), useLeadAttachmentRestore(), useGetDownloadUrl(), DefaultFilePreview(), DefaultPlaceholder(), AuthPanel(), ConsoleDevPanel() (+41 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.09
-Nodes (24): DateFilter(), InputGroup(), InputGroupAddon(), inputGroupAddonVariants, InputGroupButton(), inputGroupButtonVariants, InputGroupInput(), InputGroupText() (+16 more)
+
+Cohesion: 0.08
+Nodes (29): DateFilter(), InputGroup(), InputGroupAddon(), inputGroupAddonVariants, InputGroupButton(), inputGroupButtonVariants, InputGroupInput(), InputGroupText() (+21 more)
 
 ### Community 34 - "Community 34"
+
 Cohesion: 0.04
-Nodes (47): "accounts", "addresses", "contact_submission_replies", "contact_submissions", "customer_addresses", "customers", "files", "invitations" (+39 more)
+Nodes (49): "accounts", "addresses", "contact_submission_replies", "contact_submissions", "customer_addresses", "customers", "files", "invitations" (+41 more)
 
 ### Community 35 - "Community 35"
+
 Cohesion: 0.04
 Nodes (47): "accounts", "addresses", "contact_submission_replies", "contact_submissions", "customer_addresses", "customers", "files", "invitations" (+39 more)
 
 ### Community 36 - "Community 36"
+
 Cohesion: 0.04
 Nodes (46): author, import, require, types, contributors, devDependencies, eslint, glob (+38 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.10
-Nodes (24): metadata, useLeadAddressUpdate(), metadata, metadata, Badge(), badgeVariants, Card(), CardAction() (+16 more)
+
+Cohesion: 0.09
+Nodes (22): metadata, metadata, Card(), CardAction(), CardContent(), CardDescription(), CardFooter(), CardHeader() (+14 more)
 
 ### Community 38 - "Community 38"
+
 Cohesion: 0.05
 Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Border Radius, Border Style, Border Width, Borders (+35 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.08
-Nodes (25): listUserContract, ListUserInput, ListUserOutput, tags, updateUserContract, UpdateUserContractInput, UpdateUserContractOutput, updateUserRoleContract (+17 more)
+
+Cohesion: 0.09
+Nodes (21): listUserContract, profileUpdateContract, ProfileUpdateContractType, tags, userBaseContract, userContract, userDataExportContract, UserDataExportContractType (+13 more)
 
 ### Community 40 - "Community 40"
+
 Cohesion: 0.07
-Nodes (27): AcceptInvitationInput, AcceptInvitationOutput, acceptOrRejectInvitationContract, createOrgContract, CreateOrgInput, CreateOrgOutput, deleteInvitationContract, DeleteInvitationInput (+19 more)
+Nodes (28): useUpdateInvitation(), AcceptInvitationContractType, acceptOrRejectInvitationContract, createOrgContract, CreateOrgContractType, deleteInvitationContract, DeleteInvitationContractType, inviteMemberContract (+20 more)
 
 ### Community 41 - "Community 41"
+
 Cohesion: 0.14
 Nodes (14): dependsOn, inputs, outputs, cache, persistent, dependsOn, dependsOn, tasks (+6 more)
 
 ### Community 42 - "Community 42"
+
 Cohesion: 0.05
 Nodes (37): author, contributors, dependencies, drizzle-orm, pino, pino-pretty, @supabase/supabase-js, @upstash/qstash (+29 more)
 
 ### Community 43 - "Community 43"
+
 Cohesion: 0.05
 Nodes (38): dependencies, @base-ui/react, better-auth, @better-auth/drizzle-adapter, @bprogress/next, date-fns, drizzle-orm, @hookform/resolvers (+30 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.10
-Nodes (40): listCusotmerProcedure, listCustomerForSearchProcedure, leadAddressUpdateProcedure, leadAllDeleteProcedure, leadCreateProcedure, leadDataExportProcedure, leadDeleteProcedure, leadDetailsProcedure (+32 more)
+
+Cohesion: 0.06
+Nodes (67): listCusotmerProcedure, listCustomerForSearchProcedure, increaseStock(), reduceStock(), jobAllDeleteProcedure, jobCreateProcedure, jobDeleteProcedure, jobDetailsProcedure (+59 more)
 
 ### Community 45 - "Community 45"
+
 Cohesion: 0.12
 Nodes (16): devDependencies, babel-plugin-react-compiler, eslint, @next/env, @tailwindcss/postcss, @types/node, @types/react, @types/react-dom (+8 more)
 
 ### Community 46 - "Community 46"
+
 Cohesion: 0.08
 Nodes (36): format_context(), format_result(), main(), Format a single search result for display, Format contextual recommendations for display., BM25, calculate_pattern_break(), detect_domain() (+28 more)
 
 ### Community 47 - "Community 47"
+
 Cohesion: 0.09
 Nodes (21): 1. Overview, 2. Core Business Workflow, 3.1. Better-Auth Integration, 3.2. Soft Delete Strategy, 3.3. Timezone Management, 3.4. File Management (Hybrid Approach), 3. Key Architectural Decisions, 4. Core Data Models: The "Ops Trinity" (+13 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.24
-Nodes (10): useInviteOrgMember(), useUpdateMember(), useCreateOrgRole(), useDeleteOrgRole(), useUpdateOrgRole(), CreateOrgRoleDialog(), InviteMemberDialog(), MemberUpdateDialog() (+2 more)
+
+Cohesion: 0.07
+Nodes (48): useLeadCategoryDelete(), useLeadEstimateBinDelete(), useLeadEstimateDelete(), useLeadEstimateRestore(), useLeadEstimateSend(), useMaterialDelete(), useMaterialUpdate(), useDeleteInvitation() (+40 more)
 
 ### Community 49 - "Community 49"
+
 Cohesion: 0.18
 Nodes (10): compilerOptions, declaration, declarationMap, paths, plugins, exclude, extends, include (+2 more)
 
 ### Community 50 - "Community 50"
+
 Cohesion: 0.06
 Nodes (33): ActivationMode, ARROW_KEYS, ButtonProps, DataState, Direction, DivProps, EVENT_OPTIONS, FocusContext (+25 more)
 
 ### Community 51 - "Community 51"
+
 Cohesion: 0.39
 Nodes (8): POST(), POST(), ApiResponseJson(), getQstashPayload(), verifyQstashSignature(), POST(), formatApiError(), FormattedError
 
 ### Community 52 - "Community 52"
-Cohesion: 0.10
-Nodes (29): useLeadNoteCreate(), useNotificationMarkAsRead(), ListNotificationOutput, Empty(), EmptyContent(), EmptyDescription(), EmptyHeader(), EmptyMedia() (+21 more)
+
+Cohesion: 0.12
+Nodes (23): useNotificationMarkAsRead(), ListNotificationContractType, Empty(), EmptyDescription(), EmptyHeader(), EmptyMedia(), emptyMediaVariants, EmptyTitle() (+15 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.16
-Nodes (32): RolesPage(), metadata, metadata, RolesPage(), JobBinPage(), LeadBinPage(), metadata, CategoriesPage() (+24 more)
+
+Cohesion: 0.10
+Nodes (56): DashboardPage(), metadata, RolesPage(), metadata, metadata, metadata, metadata, RolesPage() (+48 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.08
-Nodes (39): useLeadCategoryDelete(), metadata, Button(), DeleteConfirmDialog(), DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup() (+31 more)
+
+Cohesion: 0.06
+Nodes (53): useLeadDelete(), useLeadNoteDelete(), ListLeadContractType, ListLeadNotesContractType, DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup() (+45 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.17
-Nodes (22): useLeadExportData(), JobBinManagementTable(), JobManagementTable(), OrgRoleManagementTable(), RoleManagementTable(), footerContent, DataTableEmpty(), DataTableGlobalSearch() (+14 more)
+
+Cohesion: 0.16
+Nodes (31): useLeadExportData(), useUserExportData(), ExportData(), footerContent, DataTableEmpty(), DataTableGlobalSearch(), DataTableGlobalSearchProps, DataTableSkeleton() (+23 more)
 
 ### Community 56 - "Community 56"
+
 Cohesion: 0.07
 Nodes (31): ansi_ljust(), DesignSystemGenerator, _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system() (+23 more)
 
 ### Community 57 - "Community 57"
+
 Cohesion: 0.10
 Nodes (19): ContactSubmissionDataModel, ContactSubmissionRelations, ContactSubmissionTable, InsertContactSubmission, insertContactSubmissionSchema, SelectContactSubmission, selectContactSubmissionSchema, UpdateContactSubmission (+11 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.05
-Nodes (42): InsertLeadAddress, insertLeadAddressSchema, LeadAddressDataModel, LeadAddressRelations, SelectLeadAddress, selectLeadAddressSchema, UpdateLeadAddress, updateLeadAddressSchema (+34 more)
+
+Cohesion: 0.07
+Nodes (31): LeadEstimateStatusEnum, InsertLeadCategory, insertLeadCategorySchema, LeadCategoryRelations, LeadCategoryTable, selectLeadCategorySchema, UpdateLeadCategory, updateLeadCategorySchema (+23 more)
 
 ### Community 59 - "Community 59"
-Cohesion: 0.14
-Nodes (35): useJobRevenueUpdate(), useUpdateInvitation(), ButtonSpinner(), ButtonSpinnerProps, Dialog(), DialogClose(), DialogDescription(), DialogFooter() (+27 more)
+
+Cohesion: 0.07
+Nodes (67): useLeadAddressUpdate(), useLeadCategoryCreate(), useLeadCategoryUpdate(), useLeadNoteUpdate(), useLeadUpdate(), metadata, Button(), ButtonSpinner() (+59 more)
 
 ### Community 60 - "Community 60"
+
 Cohesion: 0.08
 Nodes (24): Advanced Form Patterns, Advanced Validation Schemas, ARIA Labels and Descriptions, Async Validation, Basic Form Setup, Complex Form Components, Conditional Field Display, Core Form Knowledge (+16 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.10
-Nodes (19): useLeadCreate(), FieldLegend(), FieldSet(), animationVariants, LeadCreateForm(), steps, CheckboxField(), InputAddonField() (+11 more)
+
+Cohesion: 0.21
+Nodes (9): useRangeSelection(), PRESET_KEYS, presetRanges, TimeRangeFilterProps, TimeRangeState, MonthRange, MonthRangeSelect(), MonthRangeSelectProps (+1 more)
 
 ### Community 62 - "Community 62"
-Cohesion: 0.04
-Nodes (62): JobAssignmentRoleEnum, JobAssignmentStatusEnum, JobStatusEnum, InsertJob, insertJobSchema, JobDataModel, JobRelations, JobTable (+54 more)
+
+Cohesion: 0.03
+Nodes (93): JobAssignmentRoleEnum, JobAssignmentStatusEnum, JobStatusEnum, LeadRevenueTypeEnum, LeadSourceEnum, LeadStatusEnum, InsertJob, insertJobSchema (+85 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.11
-Nodes (14): metadata, AuthBackgroundShape(), SiteLogo(), env, globalForLogger, globalForRedis, globalForQstash, openAPIHandler (+6 more)
+
+Cohesion: 0.08
+Nodes (21): metadata, AuthBackgroundShape(), SiteLogo(), globalForDb, env, globalForLogger, globalForMail, qstashHourlyRateLimit (+13 more)
 
 ### Community 64 - "Community 64"
+
 Cohesion: 0.09
 Nodes (21): Accessibility Foundations, Accessibility Testing and Validation, Accessible Buttons and Actions, Accessible Data Tables, Accessible Dialogs and Modals, Accessible Navigation and Menus, Automated Testing Integration, Color Contrast and Visual Accessibility (+13 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.08
-Nodes (42): ForgetPasswordType, loginSchema, LoginType, magicLinkSchema, MagicLinkType, profileUpdateSchema, ProfileUpdateType, registerSchema (+34 more)
+
+Cohesion: 0.04
+Nodes (74): useBanUnbannedUser(), useJobCreate(), useLeadCreate(), ForgetPasswordType, loginSchema, LoginType, magicLinkSchema, MagicLinkType (+66 more)
 
 ### Community 66 - "Community 66"
-Cohesion: 0.16
-Nodes (19): useGetDownloadUrl(), Item(), ItemActions(), ItemContent(), ItemDescription(), ItemFooter(), ItemGroup(), ItemHeader() (+11 more)
 
-### Community 67 - "Community 67"
-Cohesion: 0.25
-Nodes (18): getDataState(), getId(), StepperContent(), StepperDescription(), StepperIndicator(), StepperItem(), StepperList(), StepperNext() (+10 more)
+Cohesion: 0.28
+Nodes (7): roleConfig, EmailButton(), EmailHeading(), EmailInfoCard(), EmailLayout(), EmailMetric(), EmailLink()
 
 ### Community 68 - "Community 68"
-Cohesion: 0.08
-Nodes (25): assignFileEntityContract, AssignFileEntityInput, AssignFileEntityOutput, confirmUploadContract, ConfirmUploadInput, ConfirmUploadOutput, deleteUploadContract, DeleteUploadInput (+17 more)
+
+Cohesion: 0.14
+Nodes (13): assignFileEntityContract, AssignFileEntityContractType, confirmUploadContract, ConfirmUploadContractType, deleteUploadContract, DeleteUploadContractType, getSignedDownloadUrlContract, GetSignedDownloadUrlContractType (+5 more)
 
 ### Community 69 - "Community 69"
+
 Cohesion: 0.20
 Nodes (9): author, contributors, license, name, private, publishConfig, access, type (+1 more)
 
 ### Community 70 - "Community 70"
+
 Cohesion: 0.08
 Nodes (22): CalendarEventContentArg, CalendarEventType, CalenderEventInput, DateClickType, DateSelectType, DatesSetType, DropType, EventAddType (+14 more)
 
 ### Community 71 - "Community 71"
+
 Cohesion: 0.12
 Nodes (5): stringArraySchema, stringBooleanSchema, fieldValidatorZodSchema(), ExtractObjectKeys, paginateInputZodSchema()
 
 ### Community 72 - "Community 72"
-Cohesion: 0.17
-Nodes (15): TabNavigation(), TabNavigationContent(), TabNavigationList(), TabNavigationProps, TabNavigationTrigger(), Tabs(), TabsContent(), TabsList() (+7 more)
+
+Cohesion: 0.09
+Nodes (32): metadata, Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount(), AvatarImage(), LinkButton() (+24 more)
 
 ### Community 73 - "Community 73"
+
 Cohesion: 0.29
 Nodes (7): scripts, build, dev, format, lint, start, typecheck
 
 ### Community 74 - "Community 74"
+
 Cohesion: 0.05
 Nodes (37): 1. Color Palette, 2. Typography, 3. Logo Usage, 4. Voice & Tone, 5. Imagery Guidelines, 6. Design Components, Accessibility, AI Image Generation (+29 more)
 
 ### Community 75 - "Community 75"
+
 Cohesion: 0.06
 Nodes (35): Banner Design (Built-in), Banner: Design Rules, Banner: Quick Size Reference, Banner: Top Art Styles, Banner: Workflow, CIP Design (Built-in), CIP: Generate Brief, CIP: Generate Mockups (+27 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.19
-Nodes (9): useNotificationSettingsUpdate(), FormConfig, NOTIFICATION_FIELDS, NotificationFormProps, NotificationUpdateForm(), SwitchFieldProps, UpdateNotificationForm(), notificationUpdateSchema (+1 more)
+
+Cohesion: 0.13
+Nodes (20): Collapsible(), CollapsibleContent(), CollapsibleTrigger(), SidebarGroup(), SidebarGroupContent(), SidebarGroupLabel(), SidebarMenuSub(), SidebarMenuSubButton() (+12 more)
 
 ### Community 77 - "Community 77"
+
 Cohesion: 0.06
 Nodes (35): 1. Visual Communication First, 2. Minimal Text Integration, 3. Expert Craftsmanship, 4. Systematic Patterns, Analog Meditation, Approach, Canvas Boundaries, Canvas Design System (+27 more)
 
 ### Community 78 - "Community 78"
+
 Cohesion: 0.10
 Nodes (20): { GET, POST }, Action, orgAc, orgRoles, PermissionStatement, Resource, statement, statement (+12 more)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.08
-Nodes (27): InsertJobMaterial, insertJobMaterialSchema, JobMaterialDataModel, JobMaterialRelations, JobMaterialTable, SelectJobMaterial, selectJobMaterialSchema, UpdateJobMaterial (+19 more)
+
+Cohesion: 0.07
+Nodes (28): InsertJobMaterial, insertJobMaterialSchema, JobMaterialDataModel, JobMaterialRelations, JobMaterialTable, SelectJobMaterial, selectJobMaterialSchema, UpdateJobMaterial (+20 more)
 
 ### Community 80 - "Community 80"
-Cohesion: 0.13
-Nodes (19): authRouter, jobRouter, leadRouter, notificationRouter, orgRouter, roleRouter, assignFileEntityProcedure, confirmUploadProcedure (+11 more)
+
+Cohesion: 0.16
+Nodes (20): listMaterialsForSearchProcedure, listMaterialsProcedure, materialAllDeleteProcedure, materialCreateProcedure, materialDeleteProcedure, materialDetailsProcedure, materialImpl, materialUpdateProcedure (+12 more)
 
 ### Community 81 - "Community 81"
+
 Cohesion: 0.06
 Nodes (32): author, contributors, dependencies, drizzle-orm, nodemailer, react, react-dom, react-email (+24 more)
 
 ### Community 82 - "Community 82"
-Cohesion: 0.09
-Nodes (23): authContract, authMetadataContract, AuthMetadataOutput, requestResetPasswordContract, RequestResetPasswordInput, RequestResetPasswordOutput, tags, userBanContract (+15 more)
+
+Cohesion: 0.10
+Nodes (20): authContract, authMetadataContract, AuthMetadataContractType, requestResetPasswordContract, RequestResetPasswordContractType, tags, userBanContract, UserBanContractType (+12 more)
 
 ### Community 83 - "Community 83"
+
 Cohesion: 0.06
 Nodes (32): Accordion, Alert, Alert Dialog, Avatar, Badge, Button, Card, Checkbox (+24 more)
 
 ### Community 84 - "Community 84"
+
 Cohesion: 0.06
 Nodes (32): 1. Mobile-First Design, 2. Consistent Breakpoint Usage, 3. Test at Breakpoint Boundaries, 4. Use Container for Content Width, 5. Progressive Enhancement, 6. Avoid Too Many Breakpoints, Best Practices, Breakpoint System (+24 more)
 
 ### Community 85 - "Community 85"
+
 Cohesion: 0.06
 Nodes (32): Accessibility, Available Domains, Available Stacks, Common Rules for Professional UI, Common Sticking Points, Example Workflow, How to Use This Skill, Icons & Visual Elements (+24 more)
 
 ### Community 86 - "Community 86"
+
 Cohesion: 0.06
 Nodes (30): Accessibility, Base System, Best Practices, Clean & Modern, Common Font Pairings, Contrast Requirements, CSS Implementation, Editorial (+22 more)
 
 ### Community 87 - "Community 87"
-Cohesion: 0.24
-Nodes (14): jobAllDeleteProcedure, jobCreateProcedure, jobDeleteProcedure, jobDetailsProcedure, jobImpl, jobUpdateProcedure, jobUpdateRevenueProcedure, listJobsProcedure (+6 more)
+
+Cohesion: 0.22
+Nodes (13): $type, $value, green, red, white, yellow, 500, 500 (+5 more)
 
 ### Community 88 - "Community 88"
+
 Cohesion: 0.07
 Nodes (28): Alert, Anatomy, Anatomy, Anatomy, Anatomy, Anatomy, Badge, Button (+20 more)
 
 ### Community 89 - "Community 89"
+
 Cohesion: 0.07
 Nodes (28): Absolute Don'ts, Approved Backgrounds, Before Using Logo, Clear Space, Co-branding, Color Rules, Color Usage, Color Variants (+20 more)
 
 ### Community 90 - "Community 90"
+
 Cohesion: 0.07
 Nodes (28): Accordion, Alert, ARIA Labels, Checkbox and Radio, Color Contrast, Command Palette Navigation, Component-Specific Patterns, Dialog/Modal Navigation (+20 more)
 
 ### Community 91 - "Community 91"
+
 Cohesion: 0.07
 Nodes (15): Test TailwindConfigGenerator class., Test that adding same plugin twice doesn't duplicate., Test generating config with custom colors., Test generating config with plugins., Test writing configuration to file., Test writing config to invalid path., Test generating complete TypeScript configuration., Test initialization with different frameworks. (+7 more)
 
 ### Community 92 - "Community 92"
-Cohesion: 0.12
-Nodes (16): leadAllBinDeleteContract, LeadAllBinDeleteInputs, LeadAllBinDeleteOutputs, leadAllRestoreContract, LeadAllRestoreInputs, LeadAllRestoreOutputs, leadBinContract, leadBinDeleteContract (+8 more)
+
+Cohesion: 0.24
+Nodes (8): DateRange, Period, UseRangeSelectionArgs, RangeGrid(), RangeGridItem, RangeGridProps, WeekRange, WeekRangeSelectProps
 
 ### Community 93 - "Community 93"
+
 Cohesion: 0.12
 Nodes (16): leadCategoryContract, leadCategoryCreateContract, LeadCategoryCreateInput, LeadCategoryCreateOutput, leadCategoryDeleteContract, LeadCategoryDeleteInput, LeadCategoryDeleteOutput, leadCategoryUpdateContract (+8 more)
 
 ### Community 94 - "Community 94"
+
 Cohesion: 0.07
 Nodes (27): author, contributors, devDependencies, eslint, eslint-config-prettier, @eslint/js, eslint-plugin-only-warn, eslint-plugin-react (+19 more)
 
 ### Community 95 - "Community 95"
+
 Cohesion: 0.14
 Nodes (24): Path, get_context(), is_allowed_exception(), is_allowed_rgba(), is_inside_block(), load_css_variables(), main(), print_result() (+16 more)
 
 ### Community 96 - "Community 96"
+
 Cohesion: 0.10
 Nodes (5): errorMessage(), HandlerRegistry, QstashService, requireLog(), toMessageView()
 
 ### Community 97 - "Community 97"
+
 Cohesion: 0.12
 Nodes (7): QstashError, QstashErrorCode, OrgRoleEnumSchema, OrgRoleType, SystemRoleEnumSchema, SystemRoleType, ServiceError
 
 ### Community 98 - "Community 98"
+
 Cohesion: 0.15
 Nodes (9): MailError, MailErrorCode, IQstashMailService, QstashMailService, MailCallbackPayload, QstashMailConfig, QstashMailResult, SendMailOption (+1 more)
 
 ### Community 99 - "Community 99"
-Cohesion: 0.12
-Nodes (15): Activity Feed Component, Advanced Dashboard Patterns, Advanced Data Table with Actions, Charts Integration with Recharts, Core Dashboard Components, Dashboard Architecture Knowledge, Dashboard Header with Breadcrumbs, Data Display Components (+7 more)
+
+Cohesion: 0.43
+Nodes (5): UserBannedCell(), UserBannedProps, HoverCard(), HoverCardContent(), HoverCardTrigger()
 
 ### Community 100 - "Community 100"
-Cohesion: 0.12
-Nodes (26): authStore(), AuthStoreAction, AuthStoreState, AuthStoreContext, AuthStoreProvider(), auth, getAuthUser(), getAuthUserCache (+18 more)
+
+Cohesion: 0.10
+Nodes (29): authStore(), AuthStoreAction, AuthStoreState, AuthStoreContext, AuthStoreProvider(), getAuthUser(), getAuthUserCache, getAuthUserWithRolesAndPermissionsWithOrg() (+21 more)
 
 ### Community 101 - "Community 101"
-Cohesion: 0.05
-Nodes (62): ButtonProps, buttonVariants, Calendar(), CalendarDayButton(), CalendarProps, DateFilterContent(), DateFilterContentProps, DateFilterProps (+54 more)
+
+Cohesion: 0.04
+Nodes (72): Badge(), badgeVariants, ButtonProps, Calendar(), CalendarDayButton(), CalendarProps, CommandSeparator(), DateFilterContent() (+64 more)
 
 ### Community 102 - "Community 102"
+
 Cohesion: 0.18
 Nodes (16): buildFilterWhere(), buildOrderBy(), buildPaginateOptions(), buildPaginationMeta(), buildSearchWhere(), buildWhere(), DateRangeFilter, FilterValue (+8 more)
 
 ### Community 103 - "Community 103"
+
 Cohesion: 0.08
 Nodes (25): Accessibility, Archival, Asset Approval Checklist, Automation Support, Color Compliance, Common Issues & Fixes, Content Accessibility, Content Quality (+17 more)
 
 ### Community 104 - "Community 104"
+
 Cohesion: 0.08
 Nodes (25): Common Pitfalls, Core Prompt Structure, Detailed Brief, Eco/Sustainable, Effective Keywords by Style, Fashion Brand, Healthcare, Industry-Specific Prompts (+17 more)
 
 ### Community 105 - "Community 105"
+
 Cohesion: 0.08
 Nodes (25): scripts, build, dev, docker:dev:down, docker:dev:up, format, lint, seed:storage (+17 more)
 
 ### Community 106 - "Community 106"
+
 Cohesion: 0.08
 Nodes (24): Apparel, Business Card, Car/Sedan, CIP Deliverable Guide, Core Identity, Digital Assets, Email Signature, Envelope (+16 more)
 
 ### Community 107 - "Community 107"
+
 Cohesion: 0.08
 Nodes (24): Accessibility Requirements, Brand Compliance Validation, Checking Contrast, Color Documentation Format, Color Extraction, Color Palette Examples, Color Palette Management, Color System Structure (+16 more)
 
 ### Community 108 - "Community 108"
+
 Cohesion: 0.08
 Nodes (24): Accessibility, Accessibility Requirements, ARIA States, Color Contrast, Color Variants, Disabled States, Error Messages, Error States (+16 more)
 
 ### Community 109 - "Community 109"
+
 Cohesion: 0.08
 Nodes (25): dependencies, @base-ui/react, class-variance-authority, clsx, cmdk, date-fns, @fullcalendar/core, @fullcalendar/daygrid (+17 more)
 
 ### Community 110 - "Community 110"
+
 Cohesion: 0.08
 Nodes (24): Accessibility Patterns, Alternative: Tailwind-Only Setup, Best Practices, Common Patterns, Component Layer: shadcn/ui, Component Library Guide, Component + Styling Setup, Core Stack (+16 more)
 
 ### Community 111 - "Community 111"
+
 Cohesion: 0.08
 Nodes (23): Art Direction Styles (Reuse from Banner), Color & Contrast, Design Best Practices, HTML Design Rules, HTML Template Structure, Option A: Chrome Headless CLI (Recommended — zero dependencies), Option B: chrome-devtools skill, Option C: Playwright script (+15 more)
 
 ### Community 112 - "Community 112"
+
 Cohesion: 0.08
 Nodes (23): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+15 more)
 
 ### Community 113 - "Community 113"
-Cohesion: 0.27
-Nodes (9): useLeadBinDelete(), useLeadRestore(), ListLeadBinOutputs, LeadBinTableContext, LeadBinTableContextProps, LeadBinTableContextProvider(), LeadBinTableContextProviderProps, useLeadBinContext() (+1 more)
+
+Cohesion: 0.11
+Nodes (28): useLeadBinDelete(), useLeadRestore(), ListLeadBinContractType, useMaterialBinDelete(), useMaterialRestore(), ListMaterialBinContractType, AlertDialog(), AlertDialogAction() (+20 more)
 
 ### Community 114 - "Community 114"
+
 Cohesion: 0.09
 Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Pattern, Contextual Decision Flow, Decision System CSVs, Design System, Integration (+14 more)
 
 ### Community 115 - "Community 115"
+
 Cohesion: 0.09
 Nodes (22): @apply Directive, Best Practices, Color Customization, Complete Tailwind Config, Configuration Examples, Content Configuration, Custom Color Palette, Custom Font Sizes (+14 more)
 
 ### Community 116 - "Community 116"
-Cohesion: 0.16
-Nodes (12): customerContract, listCustomerContract, listCustomerForSearchContract, ListCustomerInput, ListCustomerOutput, leadBaseContract, leadJobContract, listLeadJobsContract (+4 more)
+
+Cohesion: 0.22
+Nodes (19): checkPermission(), isIOSStandalone(), isPushSupportedOnPlatform(), isSupported(), NotificationPermissionProvider(), NotificationPromptCard(), requestPlatformPermission(), requiresGesture() (+11 more)
 
 ### Community 117 - "Community 117"
+
 Cohesion: 0.09
 Nodes (22): $type, $value, $type, $value, $type, $value, $type, $value (+14 more)
 
 ### Community 118 - "Community 118"
-Cohesion: 0.08
-Nodes (32): Command(), CommandDialog(), CommandEmpty(), CommandGroup(), CommandInput(), CommandItem(), CommandList(), CommandSeparator() (+24 more)
+
+Cohesion: 0.06
+Nodes (40): Command(), CommandDialog(), CommandEmpty(), CommandGroup(), CommandInput(), CommandItem(), CommandList(), CommandShortcut() (+32 more)
 
 ### Community 119 - "Community 119"
-Cohesion: 0.08
-Nodes (28): createOrgRoleContract, CreateOrgRoleInput, CreateOrgRoleOutput, deleteOrgRoleContract, DeleteOrgRoleInput, DeleteOrgRoleOutput, listOrgPermissionContract, ListOrgPermissionInput (+20 more)
+
+Cohesion: 0.10
+Nodes (22): createOrgRoleContract, CreateOrgRoleContractType, deleteOrgRoleContract, DeleteOrgRoleContractType, listOrgPermissionContract, ListOrgPermissionContractType, listOrgRoleContract, ListOrgRoleContractType (+14 more)
 
 ### Community 120 - "Community 120"
+
 Cohesion: 0.13
 Nodes (16): DEFAULTS, IQstashService, QstashCallbackHandler, QstashDeadLetter, QstashMessage, QstashPublishOptions, QstashPublishResult, QstashReceiptHandler (+8 more)
 
 ### Community 121 - "Community 121"
+
 Cohesion: 0.24
 Nodes (6): BaseStorageService, StorageService, IStorageService, SignedUploadUrl, StorageServiceConfigs, UploadedFile
 
 ### Community 122 - "Community 122"
+
 Cohesion: 0.15
 Nodes (15): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+7 more)
 
 ### Community 123 - "Community 123"
+
 Cohesion: 0.10
 Nodes (19): Banner Design Tasks, Brand Identity Tasks, Component Creation, Corporate Identity Program Tasks, Design Routing Guide, Design System Migration, Icon Design Tasks, Implementation Tasks (+11 more)
 
 ### Community 124 - "Community 124"
+
 Cohesion: 0.10
 Nodes (19): Base Color Presets, Best Practices, Color Customization, Color Format, Component Customization, CSS Variable System, Customize Styles, Customize Variants (+11 more)
 
 ### Community 125 - "Community 125"
+
 Cohesion: 0.15
 Nodes (15): BM25, detect_domain(), _load_csv(), BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, Load CSV and return list of dicts (+7 more)
 
 ### Community 126 - "Community 126"
+
 Cohesion: 0.15
 Nodes (19): _e(), generate_chart_slide(), generate_cta_slide(), generate_deck(), generate_metrics_slide(), generate_problem_slide(), generate_solution_slide(), generate_testimonial_slide() (+11 more)
 
 ### Community 127 - "Community 127"
-Cohesion: 0.13
-Nodes (12): MailConfig, GmailMail, MailhogMail, IMailService, MailService, Alternative, Attachment, GmailMailConfig (+4 more)
+
+Cohesion: 0.21
+Nodes (9): MailConfig, GmailMail, MailhogMail, Alternative, Attachment, GmailMailConfig, MailhogMailConfig, MailPriority (+1 more)
 
 ### Community 128 - "Community 128"
+
 Cohesion: 0.22
 Nodes (8): Skeleton(), AddressDetails(), GeneralInfo(), JobGeneralInfo(), LeadRevenueStats(), TimeCard(), RevenueStat(), formatCurrency()
 
 ### Community 129 - "Community 129"
+
 Cohesion: 0.10
 Nodes (11): Tests for shadcn_add.py, Test adding components that are already installed., Test ShadcnInstaller class., Test component addition with subprocess error., Test adding all components without config., Test adding all components in dry run mode., Create temporary project structure., Test initialization with custom project root. (+3 more)
 
 ### Community 130 - "Community 130"
+
 Cohesion: 0.10
 Nodes (19): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+11 more)
 
 ### Community 131 - "Community 131"
+
 Cohesion: 0.11
 Nodes (18): Asset Entry (manifest.json), Asset Organization Guide, By Campaign, By Status, By Type, Cleanup Workflow, Components, Directory Structure (+10 more)
 
 ### Community 132 - "Community 132"
+
 Cohesion: 0.11
 Nodes (18): Accessibility Considerations, Analogous, Black, Blue, Color Combinations by Industry, Color Harmony Types, Complementary, Green (+10 more)
 
 ### Community 133 - "Community 133"
+
 Cohesion: 0.11
 Nodes (18): 1. Wordmark (Logotype), 2. Lettermark (Monogram), 3. Pictorial Mark (Brand Mark), 4. Abstract Mark, 5. Mascot, 6. Emblem, 7. Combination Mark, Aesthetic Styles (+10 more)
 
 ### Community 134 - "Community 134"
+
 Cohesion: 0.11
 Nodes (19): $type, $value, background, destructive-foreground, muted, primary-foreground, secondary, secondary-foreground (+11 more)
 
 ### Community 135 - "Community 135"
-Cohesion: 0.14
-Nodes (13): leadNoteContract, leadNoteCreateContract, LeadNoteCreateInputs, LeadNoteCreateOutputs, leadNoteDeleteContract, LeadNoteDeleteInputs, LeadNoteDeleteOutputs, leadNoteUpdateContract (+5 more)
+
+Cohesion: 0.16
+Nodes (17): LeadEstimateDetailsContractType, buttonVariants, Table(), TableBody(), TableCaption(), TableCell(), TableFooter(), TableHead() (+9 more)
 
 ### Community 136 - "Community 136"
+
 Cohesion: 0.26
 Nodes (9): RatelimitFactoryConfig, Duration, GetRemainingResponse, IRatelimit, RatelimitAlgorithm, RatelimitResponse, WindowUnit, UpstashRatelimit (+1 more)
 
 ### Community 137 - "Community 137"
+
 Cohesion: 0.11
 Nodes (17): Apparel (Polo/T-Shirt), Base Prompt Structure, Business Card, CIP Mockup Prompt Engineering, Context Modifiers, Corporate Minimal, Deliverable-Specific Modifiers, Letterhead (+9 more)
 
 ### Community 138 - "Community 138"
+
 Cohesion: 0.11
 Nodes (17): Audit Frequency, Brand Consistency Checklist, Channel Audit, Collateral, Colors, Common Issues, Email, Imagery (+9 more)
 
 ### Community 139 - "Community 139"
+
 Cohesion: 0.17
 Nodes (17): generate_css_for_background(), get_background_image(), get_curated_images(), get_overlay_css(), get_pexels_search_url(), load_backgrounds_config(), load_brand_colors(), main() (+9 more)
 
 ### Community 140 - "Community 140"
+
 Cohesion: 0.11
-Nodes (10): Generate Tailwind CSS configuration files., Add full color palette (50-950 shades) for a base color.          Args:, TailwindConfigGenerator, Test adding colors multiple times., Test adding custom breakpoints., Test plugin recommendations for Next.js., Test validating config with no content paths., Test default output path for JavaScript. (+2 more)
+Nodes (10): Generate Tailwind CSS configuration files., Add full color palette (50-950 shades) for a base color. Args:, TailwindConfigGenerator, Test adding colors multiple times., Test adding custom breakpoints., Test plugin recommendations for Next.js., Test validating config with no content paths., Test default output path for JavaScript. (+2 more)
 
 ### Community 141 - "Community 141"
+
 Cohesion: 0.11
 Nodes (17): compilerOptions, declaration, declarationMap, esModuleInterop, incremental, isolatedModules, lib, module (+9 more)
 
 ### Community 142 - "Community 142"
-Cohesion: 0.16
-Nodes (10): NotificationProvider(), chimeSound(), getAudioContext(), NOTIFICATION_EVENT, notificationChannel(), sendNotification(), SendNotificationProps, usePageVisibility (+2 more)
+
+Cohesion: 0.19
+Nodes (8): chimeSound(), getAudioContext(), NOTIFICATION_EVENT, notificationChannel(), sendNotification(), SendNotificationProps, usePageVisibility, VisibilityState
 
 ### Community 143 - "Community 143"
+
 Cohesion: 0.24
 Nodes (9): useLeadNoteDelete(), ListLeadNotesOutputs, useIntersectionObserver(), Feed(), FeedProps, LeadNoteUpdateDialog(), LeadNoteSkeleton(), LeadNotesSkeleton() (+1 more)
 
 ### Community 144 - "Community 144"
+
 Cohesion: 0.12
 Nodes (16): scripts, db:generate, db:generate-dbml, db:generate-full, db:generate-seed-sql, db:generate-sql, db:migrate, db:seed:dev (+8 more)
 
 ### Community 145 - "Community 145"
+
 Cohesion: 0.20
 Nodes (15): apply_color(), apply_viewbox_size(), extract_svgs(), generate_batch(), generate_icon(), generate_sizes(), load_env(), main() (+7 more)
 
 ### Community 146 - "Community 146"
+
 Cohesion: 0.12
 Nodes (15): 22 Art Direction Styles, Banner Sizes & Art Direction Styles Reference, Complete Banner Sizes, CTA Rules, Design Principles, Pinterest Research Queries, Print, Print Specs (+7 more)
 
 ### Community 147 - "Community 147"
+
 Cohesion: 0.12
 Nodes (15): 22 Art Direction Styles, Banner Sizes & Art Direction Styles Reference, Complete Banner Sizes, CTA Rules, Design Principles, Pinterest Research Queries, Print, Print Specs (+7 more)
 
 ### Community 148 - "Community 148"
+
 Cohesion: 0.23
-Nodes (9): main(), Add all available shadcn/ui components.          Args:             overwrite: If, Handle shadcn/ui component installation., List installed components.          Returns:             Tuple of (success, mess, Check if shadcn is initialized in project.          Returns:             True if, Get list of already installed components.          Returns:             List of, Read shadcn version from project package.json; fall back to a pinned default., Add shadcn/ui components.          Args:             components: List of compone (+1 more)
+Nodes (9): main(), Add all available shadcn/ui components. Args: overwrite: If, Handle shadcn/ui component installation., List installed components. Returns: Tuple of (success, mess, Check if shadcn is initialized in project. Returns: True if, Get list of already installed components. Returns: List of, Read shadcn version from project package.json; fall back to a pinned default., Add shadcn/ui components. Args: components: List of compone (+1 more)
 
 ### Community 149 - "Community 149"
+
 Cohesion: 0.12
-Nodes (8): main(), Add custom font families.          Args:             fonts: Dict of font_type: [, Add custom spacing values.          Args:             spacing: Dict of name: val, Add custom breakpoints.          Args:             breakpoints: Dict of name: wi, Add plugin requirements.          Args:             plugins: List of plugin name, Get plugin recommendations based on configuration.          Returns:, Validate configuration.          Returns:             Tuple of (valid, message), Add custom colors to theme.          Args:             colors: Dict of color_nam
+Nodes (8): main(), Add custom font families. Args: fonts: Dict of font_type: [, Add custom spacing values. Args: spacing: Dict of name: val, Add custom breakpoints. Args: breakpoints: Dict of name: wi, Add plugin requirements. Args: plugins: List of plugin name, Get plugin recommendations based on configuration. Returns:, Validate configuration. Returns: Tuple of (valid, message), Add custom colors to theme. Args: colors: Dict of color_nam
 
 ### Community 150 - "Community 150"
+
 Cohesion: 0.12
 Nodes (16): $type, $value, $type, $value, $type, $value, $type, $value (+8 more)
 
 ### Community 151 - "Community 151"
+
 Cohesion: 0.12
 Nodes (15): cache, dependsOn, inputs, outputs, dependsOn, inputs, outputs, cache (+7 more)
 
 ### Community 152 - "Community 152"
+
 Cohesion: 0.19
 Nodes (6): QstashServiceDependencies, BaseRedisService, ExtendedRedis, IBaseRedisClientService, IUpstashRedisServiceConfig, UpstashRedisService
 
 ### Community 153 - "Community 153"
+
 Cohesion: 0.13
 Nodes (14): CIP Brief (Start Here), CIP Design Reference, Commands, Deliverable Categories, Design Styles, Detailed References, Generate Mockups, HTML Presentation Features (+6 more)
 
 ### Community 154 - "Community 154"
+
 Cohesion: 0.13
 Nodes (14): AIDA (Attention-Interest-Desire-Action), Before-After-Bridge, Contrast Patterns, Copywriting Formulas, Core Formulas, Cost of Inaction, FAB (Features-Advantages-Benefits), Formula-to-Slide Mapping (+6 more)
 
 ### Community 155 - "Community 155"
+
 Cohesion: 0.13
 Nodes (14): Available Styles, CLI Options, Commands, Generate Batch Variations, Generate Multiple Sizes, Generate Single Icon, Icon Categories, Icon Design Reference (+6 more)
 
 ### Community 156 - "Community 156"
+
 Cohesion: 0.13
 Nodes (14): AIDA (Attention-Interest-Desire-Action), Before-After-Bridge, Contrast Patterns, Copywriting Formulas, Core Formulas, Cost of Inaction, FAB (Features-Advantages-Benefits), Formula-to-Slide Mapping (+6 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.17
-Nodes (11): leadAttachmentContract, leadAttachmentCreateContract, LeadAttachmentCreateInputs, LeadAttachmentCreateOutput, leadAttachmentDeleteContract, LeadAttachmentDeleteInputs, LeadAttachmentDeleteOutput, listLeadAttachmentContract (+3 more)
+
+Cohesion: 0.19
+Nodes (14): BrowserName, browsers, checkTouchSupport(), detectDevice(), DeviceInfo, DevicePlatform, DeviceType, getScreenInfo() (+6 more)
 
 ### Community 158 - "Community 158"
+
 Cohesion: 0.14
 Nodes (13): Art Direction Styles (Top 10), Banner Design - Multi-Format Creative Banner System, Banner Size Quick Reference, Design Rules, Prerequisites, Security, Step 1: Gather Requirements (AskUserQuestion), Step 2: Research & Art Direction (+5 more)
 
 ### Community 159 - "Community 159"
+
 Cohesion: 0.17
 Nodes (15): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator(), NotificationPanel() (+7 more)
 
 ### Community 160 - "Community 160"
+
 Cohesion: 0.29
 Nodes (13): blend(), derive_row(), derive_ui_reasoning(), h2r(), is_dark(), lum(), on_color(), r2h() (+5 more)
 
 ### Community 161 - "Community 161"
+
 Cohesion: 0.14
 Nodes (14): devDependencies, dotenv, drizzle-dbml-generator, drizzle-kit, eslint, @faker-js/faker, tsx, @types/node (+6 more)
 
 ### Community 162 - "Community 162"
+
 Cohesion: 0.17
 Nodes (12): devDependencies, dotenv, prettier, prettier-plugin-tailwindcss, @supabase/supabase-js, @trivago/prettier-plugin-sort-imports, tsx, typescript (+4 more)
 
 ### Community 163 - "Community 163"
+
 Cohesion: 0.14
 Nodes (13): Card Styles, Component Variants, CSS Structures, Feature Grid (3 columns), Layout Decision Flow, Layout Patterns, Layout Selection by Use Case, Metric Styles (+5 more)
 
 ### Community 164 - "Community 164"
+
 Cohesion: 0.14
 Nodes (13): Core Statements, Elevator Pitches, Framework Structure, Message Architecture, Message by Audience, Message Testing, Messaging Framework, Mission Statement (+5 more)
 
 ### Community 165 - "Community 165"
+
 Cohesion: 0.14
 Nodes (13): Card Styles, Component Variants, CSS Structures, Feature Grid (3 columns), Layout Decision Flow, Layout Patterns, Layout Selection by Use Case, Metric Styles (+5 more)
 
 ### Community 166 - "Community 166"
+
 Cohesion: 0.14
 Nodes (13): Animation Tokens, Base Layer, Button Example, Component Classes, CSS Variables Setup, Dark Mode Toggle, HSL Format Benefits, shadcn/ui Alignment (+5 more)
 
 ### Community 167 - "Community 167"
+
 Cohesion: 0.14
 Nodes (13): Brand Voice Framework, Character Spectrum, Emotion Spectrum, Language Spectrum, Step 1: Define Personality Traits, Step 2: Create Voice Chart, Step 3: Context Adaptation, Tone Spectrum (+5 more)
 
 ### Community 168 - "Community 168"
+
 Cohesion: 0.19
 Nodes (14): $type, $value, $type, $value, $type, $value, primitive, radius (+6 more)
 
 ### Community 169 - "Community 169"
-Cohesion: 0.13
-Nodes (12): fontMono, geistHeading, metadata, montserrat, RootLayout(), DevPanel(), ProgressBarProvider(), TanstackQueryProvider() (+4 more)
+
+Cohesion: 0.18
+Nodes (9): fontMono, geistHeading, metadata, montserrat, RootLayout(), TooltipProvider(), DevPanel(), ProgressBarProvider() (+1 more)
 
 ### Community 170 - "Community 170"
+
 Cohesion: 0.18
 Nodes (10): ChartConfig, ChartContainer(), ChartContext, ChartContextProps, ChartLegendContent(), ChartTooltipContent(), INITIAL_DIMENSION, THEMES (+2 more)
 
 ### Community 171 - "Community 171"
-Cohesion: 0.17
-Nodes (11): leadAttachmentBinContract, leadAttachmentBinDeleteContract, LeadAttachmentBinDeleteInputs, LeadAttachmentBinDeleteOutputs, leadAttachmentRestoreContract, LeadAttachmentRestoreInputs, LeadAttachmentRestoreOutputs, listLeadAttachmentBinContract (+3 more)
+
+Cohesion: 0.53
+Nodes (6): $type, $value, 600, 600, 600, 600
 
 ### Community 172 - "Community 172"
+
 Cohesion: 0.15
 Nodes (13): import, types, import, types, exports, ./client/mock, ./enum-values, ./schemas (+5 more)
 
 ### Community 173 - "Community 173"
+
 Cohesion: 0.21
 Nodes (12): AnimationComponent, createVariantsWithTransition(), defaultContainerVariants, defaultItemVariants, defaultStaggerTimes, hasTransition(), PerType, PresetType (+4 more)
 
 ### Community 174 - "Community 174"
+
 Cohesion: 0.15
 Nodes (12): Available Styles, Color Psychology, Commands, Design Brief (Start Here), Detailed References, Generate Logo, Industry Defaults, Logo Design Reference (+4 more)
 
 ### Community 175 - "Community 175"
+
 Cohesion: 0.15
 Nodes (12): Color Presets, Examples, Files Modified, Important, Overview, Skills Used, Step 1: Gather Brand Input, Step 2: Update Brand Guidelines (+4 more)
 
 ### Community 176 - "Community 176"
+
 Cohesion: 0.15
 Nodes (12): component, $type, $value, dark, semantic, $schema, $type, $value (+4 more)
 
-### Community 177 - "Community 177"
-Cohesion: 0.23
-Nodes (10): MetaPagination(), MetaPaginationProps, Pagination(), PaginationContent(), PaginationEllipsis(), PaginationItem(), PaginationLink(), PaginationLinkProps (+2 more)
-
 ### Community 178 - "Community 178"
+
 Cohesion: 0.17
 Nodes (11): author, contributors, engines, node, license, name, packageManager, private (+3 more)
 
 ### Community 180 - "Community 180"
+
 Cohesion: 0.20
-Nodes (6): Generate configuration file content.          Returns:             Configuration, Generate TypeScript configuration., Generate JavaScript configuration., Format plugins array for config.          Validates each plugin name against a s, Add indentation to JSON string., Write configuration to file.          Returns:             Tuple of (success, me
+Nodes (6): Generate configuration file content. Returns: Configuration, Generate TypeScript configuration., Generate JavaScript configuration., Format plugins array for config. Validates each plugin name against a s, Add indentation to JSON string., Write configuration to file. Returns: Tuple of (success, me
 
 ### Community 181 - "Community 181"
+
 Cohesion: 0.15
 Nodes (17): $type, $value, $type, $value, bg, bg, border, padding (+9 more)
 
 ### Community 182 - "Community 182"
+
 Cohesion: 0.18
 Nodes (11): devDependencies, eslint, tailwindcss, @tailwindcss/postcss, @turbo/gen, @types/node, @types/react, @types/react-dom (+3 more)
 
 ### Community 184 - "Community 184"
+
 Cohesion: 0.18
 Nodes (10): Bold Dynamic, CIP Design Style Guide, Classic Traditional, Color Psychology, Corporate Minimal, Fresh Modern, Luxury Premium, Modern Tech (+2 more)
 
 ### Community 185 - "Community 185"
+
 Cohesion: 0.18
 Nodes (10): Color Palette, Colors, Core Visual Elements, Logo, Logo, Quick Checks, Typography, Typography (+2 more)
 
 ### Community 186 - "Community 186"
+
 Cohesion: 0.18
 Nodes (10): compilerOptions, allowJs, jsx, module, moduleResolution, noEmit, plugins, display (+2 more)
 
 ### Community 187 - "Community 187"
+
 Cohesion: 0.22
-Nodes (6): Any, Path, Initialize generator.          Args:             typescript: If True, generate ., Determine default output path., Create base configuration structure., Get default content paths for framework.
+Nodes (6): Any, Path, Initialize generator. Args: typescript: If True, generate ., Determine default output path., Create base configuration structure., Get default content paths for framework.
 
 ### Community 188 - "Community 188"
-Cohesion: 0.24
-Nodes (8): DashboardPage(), metadata, SessionManagement(), DashboardPage(), metadata, getAuthUserWithRolesAndPermissionsWithOrgCache, metadata, SessionPage()
+
+Cohesion: 0.12
+Nodes (20): ListCustomerForSearchContractType, CustomerSearchableInputFieldProps, CustomerSearchableInputFieldRenderProps, CustomerType, ContentPosition, SearchableInput(), SearchableInputContent(), SearchableInputContentProps (+12 more)
 
 ### Community 189 - "Community 189"
+
 Cohesion: 0.20
 Nodes (9): Brand, Brand Sync Workflow, Quick Start, References, Routing, Scripts, Subcommands, Templates (+1 more)
 
 ### Community 190 - "Community 190"
-Cohesion: 0.23
-Nodes (11): CustomerSelectorField(), CustomerSelectorFieldProps, LeadSelectorField(), LeadSelectorFieldProps, statusVariantMap, SearchableSelectorContent(), SearchableSelectorEmpty(), SearchableSelectorItem() (+3 more)
+
+Cohesion: 0.08
+Nodes (31): useLeadNoteCreate(), ListMaterialForSearchContractType, CustomerSelectorField(), CustomerSelectorFieldProps, CustomerSelectorFieldRenderProps, CustomerType, LeadSelectorField(), LeadSelectorFieldProps (+23 more)
 
 ### Community 191 - "Community 191"
+
 Cohesion: 0.29
-Nodes (9): enhance_prompt(), generate_batch(), generate_logo(), load_env(), main(), Enhance the logo prompt with style and industry modifiers, Generate a logo using Gemini models with image generation      Args:         asp, Generate multiple logo variants with different styles (+1 more)
+Nodes (9): enhance_prompt(), generate_batch(), generate_logo(), load_env(), main(), Enhance the logo prompt with style and industry modifiers, Generate a logo using Gemini models with image generation Args: asp, Generate multiple logo variants with different styles (+1 more)
 
 ### Community 192 - "Community 192"
+
 Cohesion: 0.20
 Nodes (7): BrowserSupabaseClient, Configs, createBrowserClient(), Configs, createServerClient(), getSupabaseClientInstance(), ServerSupabaseClient
 
 ### Community 193 - "Community 193"
+
 Cohesion: 0.20
 Nodes (9): Common Structures, Duarte Sparkline Pattern, Matching Strategy to Context, Product Demo (6 slides), Sales Pitch (9 slides), Search Commands, Slide Strategies, Strategy Selection (+1 more)
 
 ### Community 194 - "Community 194"
+
 Cohesion: 0.20
 Nodes (9): Common Structures, Duarte Sparkline Pattern, Matching Strategy to Context, Product Demo (6 slides), Sales Pitch (9 slides), Search Commands, Slide Strategies, Strategy Selection (+1 more)
 
 ### Community 195 - "Community 195"
+
 Cohesion: 0.20
 Nodes (10): fg, font-size, hover-bg, button, $type, $value, $type, $value (+2 more)
 
 ### Community 196 - "Community 196"
+
 Cohesion: 0.20
 Nodes (10): fast, normal, slow, $type, $value, $type, $value, duration (+2 more)
 
 ### Community 197 - "Community 197"
+
 Cohesion: 0.22
-Nodes (7): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to a bare assignable object so it can be     han, Regression guard for the missing-comma bug between the ``theme`` block and     `, The property preceding ``plugins`` must end with a comma (pure-Python         ch, The emitted config parses as valid JS via ``node --check``., _strip_to_object(), TestGeneratedConfigIsValidJs
+Nodes (7): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to a bare assignable object so it can be han, Regression guard for the missing-comma bug between the `theme` block and `, The property preceding `plugins`must end with a comma (pure-Python ch, The emitted config parses as valid JS via`node --check`., _strip_to_object(), TestGeneratedConfigIsValidJs
 
 ### Community 198 - "Community 198"
+
 Cohesion: 0.20
 Nodes (9): author, contributors, license, name, private, publishConfig, access, type (+1 more)
 
 ### Community 199 - "Community 199"
+
 Cohesion: 0.20
 Nodes (9): rewrites, $schema, services, web, buildCommand, devCommand, framework, installCommand (+1 more)
 
 ### Community 200 - "Community 200"
+
 Cohesion: 0.22
 Nodes (8): author, contributors, license, name, private, publishConfig, access, version
 
 ### Community 201 - "Community 201"
+
 Cohesion: 0.22
 Nodes (8): author, contributors, license, name, private, publishConfig, access, version
 
 ### Community 202 - "Community 202"
-Cohesion: 0.25
-Nodes (10): useLeadDelete(), useLeadUpdate(), ListLeadOutputs, GeneralInfoUpdateDialog(), LeadTableContext, LeadTableContextProps, LeadTableContextProvider(), LeadTableContextProviderProps (+2 more)
+
+Cohesion: 0.13
+Nodes (11): SliderFilter(), DataTableSliderFilter(), DataTableSliderFilterProps, RangeValue, SliderMeta, SliderUtils, Default, Story (+3 more)
 
 ### Community 203 - "Community 203"
+
 Cohesion: 0.25
 Nodes (8): dependencies, better-auth, drizzle-orm, drizzle-zod, @electric-sql/pglite, postgres, @upstash/redis, zod
 
 ### Community 204 - "Community 204"
+
 Cohesion: 0.29
 Nodes (7): addDefaultVariants(), AnimatedGroup(), AnimatedGroupProps, defaultContainerVariants, defaultItemVariants, PresetType, presetVariants
 
 ### Community 205 - "Community 205"
+
 Cohesion: 0.32
 Nodes (3): EnsureRedisCompatible, HashSerializer, RedisSupportedTypes
 
 ### Community 206 - "Community 206"
+
 Cohesion: 0.29
 Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
 
-### Community 207 - "Community 207"
-Cohesion: 0.27
-Nodes (9): useJobBinDelete(), useJobRestore(), ListJobBinOutputs, JobBinTableContext, JobBinTableContextProps, JobBinTableContextProvider(), JobBinTableContextProviderProps, useJobBinContext() (+1 more)
-
-### Community 208 - "Community 208"
-Cohesion: 0.22
-Nodes (9): Code Examples and Patterns, Command/Search Examples, ✅ CORRECT - Advanced Table Implementation, ✅ CORRECT - Proper Command Usage, ✅ CORRECT - Proper Select Usage, Data Table with Sorting/Filtering, Select Component Examples, ❌ WRONG - Command Anti-patterns (+1 more)
-
 ### Community 209 - "Community 209"
+
 Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
 
 ### Community 210 - "Community 210"
+
 Cohesion: 0.29
 Nodes (6): Key Features, Knowledge Base, Slides Reference, Usage, When to Use, Workflow
 
 ### Community 211 - "Community 211"
+
 Cohesion: 0.29
 Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integration, CSS Variables Reference, HTML Slide Template
 
 ### Community 212 - "Community 212"
+
 Cohesion: 0.29
 Nodes (6): compilerOptions, paths, exclude, extends, include, @workspace/ui/*
 
 ### Community 213 - "Community 213"
+
 Cohesion: 0.29
 Nodes (6): compilerOptions, outDir, rootDir, exclude, extends, include
 
 ### Community 214 - "Community 214"
+
 Cohesion: 0.29
 Nodes (6): compilerOptions, outDir, rootDir, exclude, extends, include
 
 ### Community 215 - "Community 215"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, outDir, exclude, extends, include
 
 ### Community 216 - "Community 216"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, outDir, exclude, extends, include
 
 ### Community 217 - "Community 217"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, outDir, exclude, extends, include
 
 ### Community 218 - "Community 218"
+
 Cohesion: 0.33
 Nodes (5): References (Knowledge Base), Routing, Slides, Subcommands, When to Use
 
 ### Community 219 - "Community 219"
+
 Cohesion: 0.47
 Nodes (3): baseConfig, internalConfig, uiConfig
 
 ### Community 220 - "Community 220"
+
 Cohesion: 0.25
 Nodes (8): arrayToCSV(), ExportFormat, ExportOptions, ExportResult, JsonArray, JsonObject, JsonValue, prepareExport()
 
 ### Community 221 - "Community 221"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, jsx, display, extends, $schema
 
 ### Community 222 - "Community 222"
+
 Cohesion: 0.33
-Nodes (6): exports, ./components/*, ./globals.css, ./hooks/*, ./lib/*, ./postcss.config
+Nodes (6): exports, ./components/_, ./globals.css, ./hooks/_, ./lib/*, ./postcss.config
 
 ### Community 223 - "Community 223"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, outDir, exclude, extends, include
 
 ### Community 224 - "Community 224"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, module, moduleResolution, outDir, extends
 
 ### Community 225 - "Community 225"
+
 Cohesion: 0.33
 Nodes (5): compilerOptions, module, moduleResolution, outDir, extends
 
 ### Community 226 - "Community 226"
+
 Cohesion: 0.60
 Nodes (4): execAsync, exportDrizzleSQL(), main(), SQL_OUTPUT_PATH
 
-### Community 227 - "Community 227"
-Cohesion: 0.29
-Nodes (6): useDeleteInvitation(), DeleteInvitation(), invitationTableColumn, InvitationTableRowDataType, statusColors, InvitationTableRowAction()
-
 ### Community 229 - "Community 229"
+
 Cohesion: 0.40
 Nodes (4): format_output(), generate_design_brief(), Format results for Claude consumption (token-optimized), Generate a comprehensive logo design brief based on query
 
 ### Community 230 - "Community 230"
+
 Cohesion: 0.40
 Nodes (4): turbo, globalEnv, $schema, ui
 
 ### Community 231 - "Community 231"
+
 Cohesion: 0.40
 Nodes (4): Brand Guidelines Template, Document Structure, Extractable Fields, Usage
 
 ### Community 232 - "Community 232"
+
 Cohesion: 0.50
 Nodes (4): contentTypes, getContentType(), main(), supabase
 
 ### Community 234 - "Community 234"
-Cohesion: 0.25
-Nodes (10): useJobDelete(), useJobUpdate(), ListJobsOutput, JobTimeUpdateDialog(), LeadJobUpdateDialog(), JobList(), JobTableContext, JobTableContextProps (+2 more)
+
+Cohesion: 0.15
+Nodes (18): useJobBinDelete(), useJobDelete(), useJobRestore(), useJobRevenueUpdate(), useJobUpdate(), ListJobsContractType, ListJobBinContractType, JobRevenueUpdateDialog() (+10 more)
 
 ### Community 235 - "Community 235"
+
 Cohesion: 0.60
 Nodes (5): radius, radius, radius, $type, $value
 
-### Community 237 - "Community 237"
-Cohesion: 0.32
-Nodes (6): globalForMail, protectedRateLimit, publicRateLimit, qstashHourlyRateLimit, qstashMinRateLimit, createMail()
-
 ### Community 238 - "Community 238"
+
 Cohesion: 0.50
 Nodes (3): exclude, extends, include
 
 ### Community 239 - "Community 239"
+
 Cohesion: 0.50
 Nodes (3): exclude, extends, include
 
 ### Community 240 - "Community 240"
+
 Cohesion: 0.50
 Nodes (3): exclude, extends, include
 
 ### Community 241 - "Community 241"
+
+Cohesion: 0.25
+Nodes (9): useLeadNoteDelete(), ListLeadNotesContractType, useIntersectionObserver(), Feed(), FeedProps, LeadNoteUpdateDialog(), LeadNoteSkeleton(), LeadNoteItem() (+1 more)
+
+### Community 242 - "Community 242"
+
 Cohesion: 0.67
 Nodes (4): padding-y, padding-y, $type, $value
 
-### Community 242 - "Community 242"
-Cohesion: 0.36
-Nodes (6): orgStore(), OrgStoreAction, OrgStoreState, StateActiveOrgType, StateOrganizationType, OrgStoreContext
-
-### Community 243 - "Community 243"
-Cohesion: 0.29
-Nodes (6): Background Context, Common Issues, Debugging Techniques, Response Guidelines, Shadcn Component Expert, Troubleshooting Expertise
-
 ### Community 244 - "Community 244"
+
 Cohesion: 0.50
 Nodes (4): test, dependsOn, inputs, outputs
 
 ### Community 245 - "Community 245"
+
 Cohesion: 0.50
 Nodes (4): scripts, format, lint, typecheck
 
 ### Community 247 - "Community 247"
+
 Cohesion: 0.67
 Nodes (3): import, types, ./client
 
 ### Community 248 - "Community 248"
+
 Cohesion: 0.67
 Nodes (3): ./paginate-query, import, types
 
 ### Community 249 - "Community 249"
+
 Cohesion: 0.67
 Nodes (3): ./sql-helpers, import, types
 
-### Community 250 - "Community 250"
-Cohesion: 0.33
-Nodes (6): Core Component Knowledge, Data Display Components, Feedback Components, Form Components, Layout Components, Navigation Components
-
-### Community 252 - "Community 252"
-Cohesion: 0.47
-Nodes (3): Portal(), PortalBackdrop(), PortalProps
-
-### Community 259 - "Community 259"
-Cohesion: 0.40
-Nodes (5): Advanced Implementation Patterns, Composition Patterns, Performance Optimization, State Management, Styling and Customization
-
-### Community 260 - "Community 260"
-Cohesion: 0.50
-Nodes (3): composeRefs(), PossibleRef, useComposedRefs()
-
-### Community 262 - "Community 262"
-Cohesion: 0.60
-Nodes (5): lg, $type, $value, lg, lg
-
-### Community 263 - "Community 263"
-Cohesion: 0.60
-Nodes (5): sm, sm, sm, $type, $value
-
-### Community 264 - "Community 264"
-Cohesion: 0.50
-Nodes (4): Accessibility Best Practices, Framework Integration, Integration Expertise, Third-party Integrations
-
 ### Community 265 - "Community 265"
+
 Cohesion: 0.31
 Nodes (9): AUTH_ROUTES, PUBLIC_ROUTES, isAdmin(), config, getDbSession(), getOrgIds(), getUserRoles(), proxy() (+1 more)
 
-### Community 266 - "Community 266"
-Cohesion: 0.50
-Nodes (4): ✅ Component Composition, Component Validation Checklist, ✅ Proper Import Structure, ✅ TypeScript Integration
-
-### Community 267 - "Community 267"
-Cohesion: 0.67
-Nodes (4): xl, xl, $type, $value
-
 ### Community 268 - "Community 268"
+
 Cohesion: 0.67
 Nodes (3): destructive, $type, $value
 
-### Community 269 - "Community 269"
-Cohesion: 0.67
-Nodes (4): $type, $value, none, none
-
 ### Community 270 - "Community 270"
-Cohesion: 0.67
-Nodes (3): Button Component Examples, ✅ CORRECT - Idiomatic Shadcn Button Usage, ❌ WRONG - Anti-patterns
 
-### Community 271 - "Community 271"
-Cohesion: 0.67
-Nodes (3): Composition Pattern Examples, ✅ CORRECT - Proper Component Composition, ❌ WRONG - Poor Composition
+Cohesion: 0.60
+Nodes (5): $type, $value, border, border, border
 
 ### Community 272 - "Community 272"
+
 Cohesion: 0.67
 Nodes (3): ring, $type, $value
 
 ### Community 273 - "Community 273"
-Cohesion: 0.18
-Nodes (8): Account, AccountCard(), SUPPORTED_OAUTH_PROVIDER_DETAILS, SupportedOAuthProvider, useLinkUnLinkAccount(), metadata, SUPPORTED_OAUTH_PROVIDERS, GoogleIcon()
 
-### Community 275 - "Community 275"
-Cohesion: 0.24
-Nodes (11): acceptOrRejectInvitationProcedure, createOrgProcedure, deleteInvitationProcedure, inviteMemberProcedure, listInvitationProcedure, listMemberForSearchProcedure, listMemberProcedure, orgImpl (+3 more)
+Cohesion: 0.11
+Nodes (11): Account, AccountCard(), SUPPORTED_OAUTH_PROVIDER_DETAILS, SupportedOAuthProvider, useLinkUnLinkAccount(), Portal(), PortalBackdrop(), PortalProps (+3 more)
 
-### Community 283 - "Community 283"
+### Community 356 - "Community 356"
+
 Cohesion: 0.67
-Nodes (3): ✅ CORRECT - Proper Dialog Usage, Dialog Component Examples, ❌ WRONG - Dialog Anti-patterns
+Nodes (3): destructive-foreground, $type, $value
 
-### Community 342 - "Community 342"
+### Community 359 - "Community 359"
+
 Cohesion: 0.67
 Nodes (3): ✅ CORRECT - Proper Form Implementation, Form Component Examples, ❌ WRONG - Form Anti-patterns
 
-### Community 343 - "Community 343"
+### Community 361 - "Community 361"
+
 Cohesion: 0.67
 Nodes (3): ✅ CORRECT - Proper Table Implementation, Table Component Examples, ❌ WRONG - Table Anti-patterns
 
-### Community 350 - "Community 350"
-Cohesion: 0.67
-Nodes (3): ✅ CORRECT - Proper Toast Implementation, Toast/Notification Examples, ❌ WRONG - Toast Anti-patterns
+### Community 362 - "Community 362"
 
-### Community 351 - "Community 351"
 Cohesion: 0.67
-Nodes (3): $type, $value, 12
-
-### Community 352 - "Community 352"
-Cohesion: 0.67
-Nodes (3): $type, $value, 2
-
-### Community 353 - "Community 353"
-Cohesion: 0.67
-Nodes (3): $type, $value, 6
-
-### Community 354 - "Community 354"
-Cohesion: 0.67
-Nodes (3): $type, $value, 8
-
-### Community 355 - "Community 355"
-Cohesion: 0.67
-Nodes (3): foreground, $type, $value
-
-### Community 356 - "Community 356"
-Cohesion: 0.67
-Nodes (3): muted-foreground, $type, $value
-
-### Community 357 - "Community 357"
-Cohesion: 0.67
-Nodes (3): primary, $type, $value
-
-### Community 358 - "Community 358"
-Cohesion: 0.67
-Nodes (3): primary-hover, $type, $value
+Nodes (3): secondary-foreground, $type, $value
 
 ## Knowledge Gaps
-- **2677 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `$schema`, `$value` (+2672 more)
+
+- **2640 isolated node(s):** `FileUploadVariant`, `VARIANT_ACCEPT`, `FileUploadValidation`, `name`, `version` (+2635 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **66 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **75 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
+
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Community 23` to `Community 128`, `Community 2`, `Community 3`, `Community 7`, `Community 16`, `Community 20`, `Community 21`, `Community 27`, `Community 159`, `Community 32`, `Community 33`, `Community 37`, `Community 169`, `Community 170`, `Community 173`, `Community 177`, `Community 50`, `Community 52`, `Community 53`, `Community 54`, `Community 59`, `Community 61`, `Community 190`, `Community 63`, `Community 65`, `Community 66`, `Community 67`, `Community 70`, `Community 72`, `Community 227`, `Community 101`, `Community 236`, `Community 118`, `Community 252`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Why does `EstimateSentMail()` connect `Community 8` to `Community 128`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Why does `formatCurrency()` connect `Community 128` to `Community 8`, `Community 3`, `Community 52`, `Community 21`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `cn()` connect `Community 23` to `Community 2`, `Community 3`, `Community 135`, `Community 7`, `Community 273`, `Community 19`, `Community 27`, `Community 159`, `Community 32`, `Community 33`, `Community 37`, `Community 169`, `Community 170`, `Community 173`, `Community 48`, `Community 50`, `Community 52`, `Community 53`, `Community 54`, `Community 59`, `Community 188`, `Community 61`, `Community 190`, `Community 63`, `Community 65`, `Community 70`, `Community 72`, `Community 92`, `Community 99`, `Community 101`, `Community 113`, `Community 118`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
+- **Why does `formatEnumValue()` connect `Community 19` to `Community 97`, `Community 48`, `Community 52`, `Community 55`, `Community 190`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `formatCurrency()` connect `Community 19` to `Community 48`, `Community 0`, `Community 190`, `Community 97`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Are the 36 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `.test_node_check_parses_generated_config()`) actually correct?**
   _`TailwindConfigGenerator` has 36 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _2887 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
+- **What connects `FileUploadVariant`, `VARIANT_ACCEPT`, `FileUploadValidation` to the rest of the system?**
+  _2850 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.06060606060606061 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.030339225991399904 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.05995975855130785 - nodes in this community are weakly interconnected._
