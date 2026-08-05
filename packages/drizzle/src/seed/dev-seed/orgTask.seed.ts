@@ -45,8 +45,8 @@ export async function seedOrgTask(
         status: faker.helpers.arrayElement(TaskStatusEnumSchema.options),
         priority: faker.helpers.arrayElement(TaskPriorityEnumSchema.options),
         dueDate: faker.date.future(),
-        assignedBy: assignee.userId,
-        createdBy: createdBy.userId,
+        assignedBy: assignee.id,
+        createdBy: createdBy.id,
       } satisfies InsertOrgTask);
     }
   });
