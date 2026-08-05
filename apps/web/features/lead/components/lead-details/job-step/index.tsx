@@ -3,8 +3,7 @@
 import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
-import { Briefcase, Clock, Plus } from "lucide-react";
+import { Briefcase, Plus } from "lucide-react";
 import { parseAsIndex, useQueryState } from "nuqs";
 
 import { JobStatusEnumType } from "@workspace/drizzle/zod-db-enums";
@@ -187,20 +186,6 @@ function JobItem({ job }: JobItemProps) {
                 </p>
               )}
             </div>
-
-            {job.serviceAt && (
-              <div className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/50 p-2 rounded-lg border shrink-0">
-                {job.serviceAt && (
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="size-3.5 text-primary" />
-                      <span>Service</span>
-                    </div>
-                    <div>{formatDate(new Date(job.serviceAt), "P - p")}</div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">

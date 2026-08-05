@@ -19,8 +19,15 @@ export function ProfileUpdateForm() {
   "use no memo";
   const user = useAuthStore((state) => state.user!);
 
-  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
-    useFileUploadState();
+  const {
+    fileValue,
+    setFileValue,
+    fileError,
+    setFileError,
+    uploadingProgress,
+    setUploadingProgress,
+    uploadRef,
+  } = useFileUploadState();
 
   const form = useForm<ProfileUpdateType>({
     resolver: zodResolver(profileUpdateSchema),
@@ -32,6 +39,7 @@ export function ProfileUpdateForm() {
 
   const { mutateAsync, isPending } = useProfileUpdate<keyof ProfileUpdateType>({
     uploadRef,
+    onProgress: setUploadingProgress,
     onValidationErrors: (fields) => {
       fields.forEach(({ fieldName, message }) => {
         form.setError(fieldName, {
@@ -54,6 +62,7 @@ export function ProfileUpdateForm() {
         <FileUploadField
           label="Profile image"
           variant="image"
+          uploadingProgress={uploadingProgress}
           value={fileValue}
           onChange={setFileValue}
           ref={uploadRef}

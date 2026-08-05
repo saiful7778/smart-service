@@ -1,38 +1,65 @@
 import z from "zod";
 
-import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import {
+  JobAssignmentRoleEnumSchema,
+  JobStatusEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 
 import { leadAddressSchema } from "../lead/lead.schema";
 
-export const jobCreateSchema = z.object({
-  leadId: z.uuid().optional(),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  status: JobStatusEnumSchema.optional(),
-  expectedRevenue: z
-    .string()
-    .optional()
-    .refine((value) => {
-      if (!value) return true;
-      return Number(value) >= 0;
-    }, "Expected revenue must be greater than or equal to 0"),
-  invoicedRevenue: z
-    .string()
-    .optional()
-    .refine((value) => {
-      if (!value) return true;
-      return Number(value) >= 0;
-    }, "Invoiced revenue must be greater than or equal to 0"),
-  receivedRevenue: z
-    .string()
-    .optional()
-    .refine((value) => {
-      if (!value) return true;
-      return Number(value) >= 0;
-    }, "Received revenue must be greater than or equal to 0"),
-  serviceAt: z.date().optional(),
-  addresses: z.array(leadAddressSchema),
-});
+export const jobCreateSchema = z
+  .object({
+    leadId: z.uuid().optional(),
+    title: z.string().min(1, "Title is required"),
+    description: z.string().optional(),
+    status: JobStatusEnumSchema.optional(),
+    expectedRevenue: z
+      .string()
+      .optional()
+      .refine((value) => {
+        if (!value) return true;
+        return Number(value) >= 0;
+      }, "Expected revenue must be greater than or equal to 0"),
+    invoicedRevenue: z
+      .string()
+      .optional()
+      .refine((value) => {
+        if (!value) return true;
+        return Number(value) >= 0;
+      }, "Invoiced revenue must be greater than or equal to 0"),
+    receivedRevenue: z
+      .string()
+      .optional()
+      .refine((value) => {
+        if (!value) return true;
+        return Number(value) >= 0;
+      }, "Received revenue must be greater than or equal to 0"),
+    startAt: z.date().optional(),
+    endAt: z.date().optional(),
+    assignments: z.array(
+      z.object({
+        assignedTo: z.uuid(),
+        role: JobAssignmentRoleEnumSchema,
+      })
+    ),
+    addresses: z.array(leadAddressSchema),
+  })
+  .superRefine((data, ctx) => {
+    if (data.startAt && !data.endAt) {
+      ctx.addIssue({
+        code: "custom",
+        message: "End date is required when start date is provided",
+        path: ["endAt"],
+      });
+    }
+    if (data.endAt && !data.startAt) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Start date is required when end date is provided",
+        path: ["startAt"],
+      });
+    }
+  });
 export type JobCreateType = z.infer<typeof jobCreateSchema>;
 
 export const jobUpdateSchema = z.object({
@@ -40,7 +67,6 @@ export const jobUpdateSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   status: JobStatusEnumSchema.optional(),
-  serviceAt: z.date().optional(),
 });
 export type JobUpdateType = z.infer<typeof jobUpdateSchema>;
 

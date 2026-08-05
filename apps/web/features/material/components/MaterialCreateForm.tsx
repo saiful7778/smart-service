@@ -18,8 +18,15 @@ import { MaterialForm } from "./forms/MaterialForm";
 
 export function MaterialCreateForm() {
   "use no memo";
-  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
-    useFileUploadState();
+  const {
+    fileValue,
+    setFileValue,
+    fileError,
+    setFileError,
+    uploadingProgress,
+    setUploadingProgress,
+    uploadRef,
+  } = useFileUploadState();
   const route = useRouter();
   const formId = "material_create_form";
 
@@ -39,6 +46,7 @@ export function MaterialCreateForm() {
 
   const { mutate, isPending } = useMaterialCreate<keyof MaterialType>({
     uploadRef,
+    onProgress: setUploadingProgress,
     onSuccess: () => {
       form.reset();
       route.push("/dashboard/organization/materials" as RoutePathType);
@@ -62,6 +70,7 @@ export function MaterialCreateForm() {
         label="Material image"
         variant="image"
         ref={uploadRef}
+        uploadingProgress={uploadingProgress}
         value={fileValue}
         onChange={setFileValue}
         fieldError={fileError}

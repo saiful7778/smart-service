@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { and, count, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, countDistinct, eq, inArray, isNull } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -10,8 +10,11 @@ import {
   FileTable,
   InsertAddress,
   InsertJobAddress,
+  InsertJobScheduleAssignement,
   InsertLeadRevenueHistory,
   JobAddressTable,
+  JobScheduleAssignementTable,
+  JobScheduleTable,
   JobTable,
   LeadAttachmentTable,
   LeadEstimateMaterialTable,
@@ -52,7 +55,6 @@ export const listJobsProcedure = jobImpl.list
       {
         title: JobTable.title,
         status: JobTable.status,
-        serviceAt: JobTable.serviceAt,
         createdAt: JobTable.createdAt,
         receivedRevenue: JobTable.receivedRevenue,
         expectedRevenue: JobTable.expectedRevenue,
@@ -68,13 +70,26 @@ export const listJobsProcedure = jobImpl.list
         title: JobTable.title,
         description: JobTable.description,
         status: JobTable.status,
-        serviceAt: JobTable.serviceAt,
         createdAt: JobTable.createdAt,
         receivedRevenue: JobTable.receivedRevenue,
         expectedRevenue: JobTable.expectedRevenue,
         invoicedRevenue: JobTable.invoicedRevenue,
+        assignedCount: countDistinct(JobScheduleAssignementTable.id),
+        schedule: jsonbAgg(
+          {
+            id: JobScheduleTable.id,
+            startAt: JobScheduleTable.startAt,
+            endAt: JobScheduleTable.endAt,
+          },
+          JobScheduleTable.id
+        ).as("job_schedule"),
       })
       .from(JobTable)
+      .innerJoin(JobScheduleTable, eq(JobScheduleTable.jobId, JobTable.id))
+      .leftJoin(
+        JobScheduleAssignementTable,
+        eq(JobScheduleAssignementTable.jobScheduleId, JobScheduleTable.id)
+      )
       .where(
         and(
           eq(JobTable.orgId, context.org.id),
@@ -82,6 +97,7 @@ export const listJobsProcedure = jobImpl.list
           where
         )
       )
+      .groupBy(JobTable.id)
       .$dynamic();
 
     const [totalCount, jobs] = await Promise.all([
@@ -100,19 +116,29 @@ export const listJobsProcedure = jobImpl.list
 
     return apiResponse(API_MESSAGES.JOB.GET_ALL, {
       meta,
-      data: jobs,
+      data: jobs.map(({ schedule, ...job }) => ({
+        ...job,
+        schedule: schedule.map((schedule) => ({
+          id: schedule.id,
+          startAt: new Date(schedule.startAt),
+          endAt: new Date(schedule.endAt),
+        })),
+      })),
     });
   });
 
 export const jobCreateProcedure = jobImpl.create
   .use(orgMemberPermissionsMiddleware(["org.job.manage", "org.job.create"]))
-  .handler(async ({ context, input }) => {
+  .handler(async ({ context, input, errors }) => {
     const {
       leadId: inputLeadId,
       expectedRevenue,
       receivedRevenue,
       invoicedRevenue,
       addresses: inputAddresses,
+      assignments,
+      startAt,
+      endAt,
       ...rest
     } = input;
     let leadId: string | undefined = undefined;
@@ -156,6 +182,37 @@ export const jobCreateProcedure = jobImpl.create
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
           message: API_MESSAGES.JOB.NOT_CREATE,
         });
+      }
+      if (startAt && endAt) {
+        const [jobSchedule] = await tx
+          .insert(JobScheduleTable)
+          .values({
+            jobId: createdJob.id,
+            orgId: context.org.id,
+            startAt,
+            endAt,
+            title: `'${createdJob.title}' schedule`,
+          })
+          .returning({ id: JobScheduleTable.id });
+
+        if (!jobSchedule) {
+          throw errors.BAD_REQUEST();
+        }
+
+        if (assignments.length > 0) {
+          await tx.insert(JobScheduleAssignementTable).values(
+            assignments.map(
+              (assignment) =>
+                ({
+                  assignedBy: context.orgMember.id,
+                  assignedTo: assignment.assignedTo,
+                  jobScheduleId: jobSchedule.id,
+                  role: assignment.role,
+                  status: "pending",
+                }) satisfies InsertJobScheduleAssignement
+            )
+          );
+        }
       }
 
       if (inputAddresses.length > 0) {
@@ -324,35 +381,6 @@ export const jobUpdateRevenueProcedure = jobImpl.updateRevenue
     });
 
     return apiResponse(API_MESSAGES.JOB.UPDATE_REVENUE, updatedJob);
-  });
-
-export const listServicingsProcedure = jobImpl.listServicings
-  .use(orgMemberPermissionsMiddleware(["org.job.manage", "org.job.read"]))
-  .handler(async ({ context }) => {
-    const servicings = await context.db
-      .select({
-        time: sql<string>`DATE(${JobTable.serviceAt})`.as("time"),
-        count: count(JobTable.serviceAt).as("count"),
-      })
-      .from(JobTable)
-      .where(
-        and(
-          eq(JobTable.orgId, context.org.id),
-          isNull(JobTable.deletedAt),
-          isNotNull(JobTable.serviceAt)
-        )
-      )
-      .groupBy(sql`DATE(${JobTable.serviceAt})`);
-
-    const servicingMap = servicings.reduce<Record<string, number>>(
-      (acc, servicing) => {
-        acc[servicing.time] = servicing.count;
-        return acc;
-      },
-      {}
-    );
-
-    return apiResponse(API_MESSAGES.JOB.GET_ALL_SERVICINGS, servicingMap);
   });
 
 export const jobDeleteProcedure = jobImpl.delete
@@ -637,22 +665,9 @@ export const jobDetailsProcedure = jobImpl.details
         expectedRevenue: JobTable.expectedRevenue,
         invoicedRevenue: JobTable.invoicedRevenue,
         receivedRevenue: JobTable.receivedRevenue,
-        serviceAt: JobTable.serviceAt,
         createdAt: JobTable.createdAt,
         updatedAt: JobTable.updatedAt,
         createdByMember: userProfileColumns,
-        addresses: jsonbAgg(
-          {
-            id: AddressTable.id,
-            line1: AddressTable.line1,
-            city: AddressTable.city,
-            state: AddressTable.state,
-            zipCode: AddressTable.zipCode,
-            country: AddressTable.country,
-            isPrimary: JobAddressTable.isPrimary,
-          },
-          AddressTable.id
-        ).as("addresses"),
       })
       .from(JobTable)
       .leftJoin(JobAddressTable, eq(JobAddressTable.jobId, JobTable.id))
@@ -675,13 +690,135 @@ export const jobDetailsProcedure = jobImpl.details
       throw errors.NOT_FOUND();
     }
 
-    const { addresses, ...restJobData } = jobData;
+    const addresses = await context.db
+      .select({
+        id: AddressTable.id,
+        line1: AddressTable.line1,
+        city: AddressTable.city,
+        state: AddressTable.state,
+        zipCode: AddressTable.zipCode,
+        country: AddressTable.country,
+        isPrimary: JobAddressTable.isPrimary,
+      })
+      .from(AddressTable)
+      .innerJoin(
+        JobAddressTable,
+        eq(JobAddressTable.addressId, AddressTable.id)
+      )
+      .where(eq(JobAddressTable.jobId, jobData.id));
+
+    const schedules = await context.db
+      .select({
+        id: JobScheduleTable.id,
+        title: JobScheduleTable.title,
+        startAt: JobScheduleTable.startAt,
+        endAt: JobScheduleTable.endAt,
+        createdAt: JobScheduleTable.createdAt,
+        updatedAt: JobScheduleTable.updatedAt,
+      })
+      .from(JobScheduleTable)
+      .where(eq(JobScheduleTable.jobId, jobData.id));
 
     return apiResponse(API_MESSAGES.JOB.GET_DETAILS, {
-      ...restJobData,
+      ...jobData,
+      schedules,
       addresses: addresses.map((address) => ({
         ...address,
         isPrimary: !!address.isPrimary,
       })),
     });
+  });
+
+export const listJobScheduleProcedure = jobImpl.listSchedule
+  .use(
+    orgMemberPermissionsMiddleware(["org.schedule.manage", "org.schedule.read"])
+  )
+  .handler(async ({ context }) => {
+    const jobs = await context.db
+      .select({
+        id: JobTable.id,
+        title: JobTable.title,
+        status: JobTable.status,
+        invoicedRevenue: JobTable.invoicedRevenue,
+        expectedRevenue: JobTable.expectedRevenue,
+        receivedRevenue: JobTable.receivedRevenue,
+        createdAt: JobTable.createdAt,
+      })
+      .from(JobTable)
+      .where(
+        and(eq(JobTable.orgId, context.org.id), isNull(JobTable.deletedAt))
+      );
+
+    const schedules = await context.db
+      .select({
+        id: JobScheduleTable.id,
+        jobId: JobScheduleTable.jobId,
+        title: JobScheduleTable.title,
+        startAt: JobScheduleTable.startAt,
+        endAt: JobScheduleTable.endAt,
+        createdAt: JobScheduleTable.createdAt,
+        updatedAt: JobScheduleTable.updatedAt,
+      })
+      .from(JobScheduleTable)
+      .where(
+        inArray(
+          JobScheduleTable.jobId,
+          jobs.map(({ id }) => id)
+        )
+      );
+
+    const assignments = await context.db
+      .select({
+        id: JobScheduleAssignementTable.id,
+        jobScheduleId: JobScheduleAssignementTable.jobScheduleId,
+        status: JobScheduleAssignementTable.status,
+        role: JobScheduleAssignementTable.role,
+        acknowledgeAt: JobScheduleAssignementTable.acknowledgeAt,
+        createdAt: JobScheduleAssignementTable.createdAt,
+        updatedAt: JobScheduleAssignementTable.updatedAt,
+        assignedToMember: userProfileColumns,
+      })
+      .from(JobScheduleAssignementTable)
+      .innerJoin(
+        OrganizationMemberTable,
+        eq(OrganizationMemberTable.id, JobScheduleAssignementTable.assignedTo)
+      )
+      .innerJoin(UserTable, eq(UserTable.id, OrganizationMemberTable.userId))
+      .leftJoin(
+        OrgMemberRoleTable,
+        eq(OrgMemberRoleTable.memberId, OrganizationMemberTable.id)
+      )
+      .leftJoin(RoleTable, eq(RoleTable.id, OrgMemberRoleTable.roleId))
+      .where(
+        and(
+          inArray(
+            JobScheduleAssignementTable.jobScheduleId,
+            schedules.map(({ id }) => id)
+          )
+        )
+      )
+      .groupBy(
+        JobScheduleAssignementTable.id,
+        UserTable.id,
+        OrganizationMemberTable.id
+      );
+
+    const jobsMap = new Map(jobs.map((job) => [job.id, job]));
+    const assignmentsByScheduleId = new Map();
+
+    assignments.forEach((assignment) => {
+      if (!assignmentsByScheduleId.has(assignment.jobScheduleId)) {
+        assignmentsByScheduleId.set(assignment.jobScheduleId, []);
+      }
+      assignmentsByScheduleId.get(assignment.jobScheduleId).push(assignment);
+    });
+
+    return apiResponse(
+      API_MESSAGES.JOB.GET_ALL_SCHEDULE,
+      schedules.map((schedule) => ({
+        ...schedule,
+        job: jobsMap.get(schedule.jobId)!,
+        assignments: assignmentsByScheduleId.get(schedule.id) || [],
+      }))
+    );
   });

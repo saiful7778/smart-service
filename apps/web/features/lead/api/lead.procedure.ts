@@ -64,7 +64,25 @@ export const leadCreateProcedure = leadImpl.create
     const leadData = await context.db.transaction(async (tx) => {
       let customerId: string;
 
-      if (input.isNewCustomer) {
+      if (input.customerId) {
+        const [customerExists] = await tx
+          .select({ id: CustomerTable.id })
+          .from(CustomerTable)
+          .where(
+            and(
+              eq(CustomerTable.id, input.customerId),
+              eq(CustomerTable.orgId, context.org.id)
+            )
+          )
+          .limit(1);
+
+        if (!customerExists) {
+          throw new ORPCError("NOT_FOUND", {
+            message: API_MESSAGES.LEAD.CUSTOMER.NOT_FOUND,
+          });
+        }
+        customerId = customerExists.id;
+      } else {
         const customerName =
           input.customerName || input.customerPhone || "No Name";
 
@@ -85,28 +103,6 @@ export const leadCreateProcedure = leadImpl.create
           });
         }
         customerId = customerData.id;
-      } else {
-        const inputCustomerId = input.customerId;
-        if (!inputCustomerId) {
-          throw new ORPCError("BAD_REQUEST");
-        }
-        const [customerExists] = await tx
-          .select({ id: CustomerTable.id })
-          .from(CustomerTable)
-          .where(
-            and(
-              eq(CustomerTable.id, inputCustomerId),
-              eq(CustomerTable.orgId, context.org.id)
-            )
-          )
-          .limit(1);
-
-        if (!customerExists) {
-          throw new ORPCError("NOT_FOUND", {
-            message: API_MESSAGES.LEAD.CUSTOMER.NOT_FOUND,
-          });
-        }
-        customerId = customerExists.id;
       }
 
       const [leadData] = await tx

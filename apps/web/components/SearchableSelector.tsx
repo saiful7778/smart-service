@@ -62,7 +62,8 @@ function useSearchableSelectorContext() {
   return context;
 }
 
-interface SearchableSelectorProps extends React.PropsWithChildren {
+interface SearchableSelectorProps {
+  children: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   value: string | undefined;

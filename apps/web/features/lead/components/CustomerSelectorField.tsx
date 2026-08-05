@@ -33,10 +33,17 @@ import {
 import { DEFAULT_PAGE_INDEX } from "@/constants";
 import { orpcTQClient } from "@/server/orpc.client";
 
+import { ListCustomerForSearchContractType } from "../api/customer.contract";
+
+type CustomerType = ListCustomerForSearchContractType["output"]["data"][number];
+
 interface CustomerSelectorFieldProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
   control: Control<TFieldValues>;
+  onValueChange?: (value: CustomerType | undefined) => void;
+  valueModifier?: (value: string) => string;
   label?: string;
+  placeholder?: string;
   description?: string;
   isDescriptionInfoIconShow?: boolean;
   requiredField?: boolean;
@@ -46,7 +53,10 @@ interface CustomerSelectorFieldProps<TFieldValues extends FieldValues> {
 export function CustomerSelectorField<TFieldValues extends FieldValues>({
   name,
   control,
+  onValueChange,
+  valueModifier,
   label,
+  placeholder,
   description,
   isDescriptionInfoIconShow,
   requiredField,
@@ -70,7 +80,10 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
           <CustomerSelectorFieldRender
             field={field}
             fieldState={fieldState}
+            onValueChange={onValueChange}
+            valueModifier={valueModifier}
             id={fieldId}
+            placeholder={placeholder}
             disabled={disabled}
           />
           {description && (
@@ -92,6 +105,8 @@ export function CustomerSelectorField<TFieldValues extends FieldValues>({
 interface CustomerSelectorFieldRenderProps<TFieldValues extends FieldValues> {
   field: ControllerRenderProps<TFieldValues, Path<TFieldValues>>;
   fieldState: ControllerFieldState;
+  onValueChange?: (value: CustomerType | undefined) => void;
+  valueModifier?: (value: string) => string;
   id: string;
   disabled?: boolean;
   placeholder?: string;
@@ -100,11 +115,15 @@ interface CustomerSelectorFieldRenderProps<TFieldValues extends FieldValues> {
 function CustomerSelectorFieldRender<TFieldValues extends FieldValues>({
   field,
   fieldState,
+  onValueChange,
+  valueModifier,
   id,
   disabled = false,
   placeholder = "Select Customer",
 }: CustomerSelectorFieldRenderProps<TFieldValues>) {
   const [search, setSearch] = useState<string | undefined>(undefined);
+
+  const filedValue = valueModifier ? valueModifier(field.value) : field.value;
 
   const { data, isLoading, isError, error } = useQuery(
     orpcTQClient.lead.customer.listForSearch.queryOptions({
@@ -119,14 +138,17 @@ function CustomerSelectorFieldRender<TFieldValues extends FieldValues>({
 
   const handleOnChange = useCallback(
     (value: string | undefined) => {
-      field.onChange(value);
+      field.onChange(value || "");
+      onValueChange?.(
+        value ? data?.data?.find(({ id }) => id === value) : undefined
+      );
     },
-    [field]
+    [field, onValueChange, data]
   );
 
   return (
     <SearchableSelector
-      value={field.value}
+      value={filedValue}
       onChange={handleOnChange}
       onSearch={setSearch}
       disabled={disabled}
@@ -135,14 +157,14 @@ function CustomerSelectorFieldRender<TFieldValues extends FieldValues>({
         <UserSearch className="size-4" />
         {field.value ? (
           <span className="truncate">
-            {data?.data?.data?.find(({ id }) => id === field.value)?.name}
+            {data?.data?.find(({ id }) => id === field.value)?.name}
           </span>
         ) : (
           <span className="text-muted-foreground">{placeholder}</span>
         )}
       </SearchableSelectorTrigger>
       <SearchableSelectorContent
-        data={data?.data?.data}
+        data={data?.data}
         isLoading={isLoading}
         isError={isError}
         error={error}
@@ -165,9 +187,9 @@ function CustomerSelectorFieldRender<TFieldValues extends FieldValues>({
             item={item}
             getItemId={(customer) => customer.id}
           >
-            <span className="flex flex-col items-start justify-center gap-0">
+            <span className="flex flex-col items-start justify-center gap-0 leading-tight">
               <span className="flex gap-1 items-center">
-                <span>{item.name}</span>
+                <span className="text-sm font-medium">{item.name}</span>
                 {item.phone && (
                   <span className="text-muted-foreground">
                     {`(${item.phone})`}

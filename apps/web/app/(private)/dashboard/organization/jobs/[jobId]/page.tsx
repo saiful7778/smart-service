@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { ArrowLeft, Eye, FileText, Receipt } from "lucide-react";
+import { ArrowLeft, Eye, FileText, Receipt, Users } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
@@ -17,6 +17,7 @@ import {
   TabNavigationTrigger,
 } from "@/components/tab-navigation";
 
+import { AssignmentStep } from "@/features/job/components/job-details/AssignmentStep";
 import { AttachmentStep } from "@/features/job/components/job-details/AttachmentStep";
 import { DetailsStep } from "@/features/job/components/job-details/details-step";
 import { EstimateStep } from "@/features/job/components/job-details/EstimateStep";
@@ -70,6 +71,10 @@ export default async function SingleJobDetailsPage(
               <Receipt className="size-4" />
               <span>Estimates</span>
             </TabNavigationTrigger>
+            <TabNavigationTrigger value="assignments">
+              <Users className="size-4" />
+              <span>Assignments</span>
+            </TabNavigationTrigger>
             <TabNavigationTrigger value="attachments">
               <FileText className="size-4" />
               <span>Attachments</span>
@@ -81,6 +86,9 @@ export default async function SingleJobDetailsPage(
           </TabNavigationContent>
           <TabNavigationContent value="estimates">
             <EstimateStep leadId={data.leadId} jobId={jobId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="assignments">
+            <AssignmentStep jobId={jobId} />
           </TabNavigationContent>
           <TabNavigationContent value="attachments">
             <AttachmentStep leadId={data.leadId} jobId={jobId} />

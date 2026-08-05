@@ -29,11 +29,7 @@ export default async function CreateJobPage(
 
   const queryClient = getQueryClient();
 
-  await queryClient.ensureQueryData(
-    orpcTQClient.job.listServicings.queryOptions()
-  );
-
-  await queryClient.ensureQueryData(
+  await queryClient.prefetchQuery(
     orpcTQClient.lead.listForSearch.queryOptions({
       input: {},
     })
@@ -41,14 +37,16 @@ export default async function CreateJobPage(
 
   return (
     <HydrateClient client={queryClient}>
-      <DashboardShell header={
+      <DashboardShell
+        header={
           <div>
             <DashboardShellTitle>Create Job</DashboardShellTitle>
             <DashboardShellDescription>
               Create a new job
             </DashboardShellDescription>
           </div>
-        }>
+        }
+      >
         <div className="max-w-4xl w-full mx-auto">
           <JobCreateForm leadId={leadId} />
         </div>

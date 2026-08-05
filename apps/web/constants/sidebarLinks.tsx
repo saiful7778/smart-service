@@ -1,6 +1,8 @@
 import {
   Boxes,
+  Calendar,
   House,
+  LifeBuoy,
   List,
   ListTree,
   Mails,
@@ -39,6 +41,13 @@ export const adminSidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         path: "/dashboard/admin/roles",
         pathRegex: /^\/dashboard\/admin\/roles$/,
       },
+      {
+        title: "Support",
+        icon: LifeBuoy,
+        permissions: ["system.feedback.list"],
+        path: "/dashboard/admin/support",
+        pathRegex: /^\/dashboard\/admin\/support(\/.*)?$/,
+      },
     ],
   },
 ];
@@ -52,6 +61,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard",
         pathRegex: /^\/dashboard$/,
+      },
+      {
+        title: "Schedule",
+        icon: Calendar,
+        permissions: ["org.schedule.manage", "org.schedule.list"],
+        path: "/dashboard/organization/schedule",
+        pathRegex: /^\/dashboard\/organization\/schedule(\/.*)?$/,
       },
       {
         title: "Leads",
@@ -175,6 +191,18 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         permissions: ["org.role.manage", "org.role.list"],
         path: "/dashboard/organization/roles",
         pathRegex: /^\/dashboard\/organization\/roles$/,
+      },
+    ],
+  },
+  {
+    groupName: "Support",
+    items: [
+      {
+        title: "Support",
+        icon: LifeBuoy,
+        permissions: ["self.feedback.list"],
+        path: "/dashboard/support",
+        pathRegex: /^\/dashboard\/support(\/.*)?$/,
       },
     ],
   },

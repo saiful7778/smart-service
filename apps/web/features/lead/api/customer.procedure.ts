@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import {
   buildPaginateOptions,
@@ -85,7 +85,7 @@ export const listCustomerForSearchProcedure = leadImpl.customer.listForSearch
     orgMemberPermissionsMiddleware(["org.customer.manage", "org.customer.list"])
   )
   .handler(async ({ context, input }) => {
-    const { where, orderBy, limit, offset, page } = buildPaginateOptions(
+    const { where } = buildPaginateOptions(
       {
         name: CustomerTable.name,
         email: CustomerTable.email,
@@ -94,7 +94,7 @@ export const listCustomerForSearchProcedure = leadImpl.customer.listForSearch
       input
     );
 
-    const joinedQuery = context.db
+    const customers = await context.db
       .select({
         id: CustomerTable.id,
         name: CustomerTable.name,
@@ -105,22 +105,13 @@ export const listCustomerForSearchProcedure = leadImpl.customer.listForSearch
         updatedAt: CustomerTable.updatedAt,
       })
       .from(CustomerTable)
-      .where(and(eq(CustomerTable.orgId, context.org.id), where));
+      .where(
+        and(
+          eq(CustomerTable.orgId, context.org.id),
+          isNull(CustomerTable.deletedAt),
+          where
+        )
+      );
 
-    const [totalCount, customers] = await Promise.all([
-      context.db.$count(
-        context.db
-          .select({ id: CustomerTable.id })
-          .from(CustomerTable)
-          .where(eq(CustomerTable.orgId, context.org.id))
-      ),
-      joinedQuery.orderBy(orderBy).limit(limit).offset(offset),
-    ]);
-
-    const meta = buildPaginationMeta(totalCount, customers.length, page, limit);
-
-    return apiResponse(API_MESSAGES.LEAD.CUSTOMER.GET_ALL, {
-      meta,
-      data: customers,
-    });
+    return apiResponse(API_MESSAGES.LEAD.CUSTOMER.GET_ALL, customers);
   });

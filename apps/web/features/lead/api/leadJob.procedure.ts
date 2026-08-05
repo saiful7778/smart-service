@@ -37,7 +37,6 @@ export const listLeadJobsProcedure = leadImpl.job.list
       {
         title: JobTable.title,
         status: JobTable.status,
-        serviceAt: JobTable.serviceAt,
         createdAt: JobTable.createdAt,
       },
       input
@@ -50,7 +49,6 @@ export const listLeadJobsProcedure = leadImpl.job.list
         title: JobTable.title,
         description: JobTable.description,
         status: JobTable.status,
-        serviceAt: JobTable.serviceAt,
         createdAt: JobTable.createdAt,
         receivedRevenue: JobTable.receivedRevenue,
         expectedRevenue: JobTable.expectedRevenue,

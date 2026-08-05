@@ -15,10 +15,10 @@ import z from "zod";
 
 import { db_created_at, db_id, db_updated_at } from "../../../db-utils";
 import {
-  ActionTypeEnum,
-  PermissionLevelEnum,
-  ResourceTypeEnum,
-} from "../../enums/db-enums";
+  ActionTypeEnumType,
+  PermissionLevelEnumType,
+  ResourceTypeEnumType,
+} from "../../enums/zod-db-enums";
 import { OrgRolePermissionTable } from "./orgRolePermission.table";
 import { RolePermissionTable } from "./rolePermission.table";
 
@@ -27,9 +27,9 @@ export const PermissionTable = pgTable(
   {
     id: db_id,
     name: varchar("name", { length: 255 }).notNull(),
-    level: PermissionLevelEnum("level").notNull(),
-    resource: ResourceTypeEnum("resource").notNull(),
-    action: ActionTypeEnum("action").notNull(),
+    level: varchar("level").$type<PermissionLevelEnumType>().notNull(),
+    resource: varchar("resource").$type<ResourceTypeEnumType>().notNull(),
+    action: varchar("action").$type<ActionTypeEnumType>().notNull(),
     description: varchar("description", { length: 255 }),
     metadata: jsonb("metadata"), // For additional context
     createdAt: db_created_at,

@@ -1,18 +1,25 @@
-enum ActionTypeEnum {
-  create
-  read
-  list
-  update
-  delete
-  manage
-  export
-}
-
 enum ContactSubmissionStatusEnum {
   PENDING
   READ
   REPLIED
   SPAM
+}
+
+enum FeedbackIssueStatusEnum {
+  OPEN
+  IN_PROGRESS
+  NEEDS_INFO
+  RESOLVED
+  CLOSED
+}
+
+enum FeedbackIssueTypeEnum {
+  BUG
+  FEATURE_REQUEST
+  FEEDBACK
+  SUGGESTION
+  REPORT
+  OTHER
 }
 
 enum JobAssignmentRoleEnum {
@@ -42,14 +49,11 @@ enum JobStatusEnum {
 
 enum LeadEstimateStatusEnum {
   draft
-  approved
   sent
   viewed
   accepted
   declined
   expired
-  cancelled
-  converted
 }
 
 enum LeadRevenueTypeEnum {
@@ -95,50 +99,6 @@ enum NotificationLevelEnum {
   SUCCESS
   WARNING
   ERROR
-}
-
-enum PermissionLevelEnum {
-  system
-  org
-  self
-}
-
-enum ResourceTypeEnum {
-  user
-  role
-  permission
-  org
-  invitation
-  material
-  team
-  team_member
-  customer
-  lead
-  lead_category
-  lead_attachment
-  lead_note
-  lead_invoice
-  lead_payment
-  lead_billing
-  lead_report
-  lead_estimate
-  job
-  job_category
-  job_material
-  job_assignment
-  job_attachment
-  job_note
-  job_revenue
-  job_invoice
-  job_payment
-  job_estimate
-  job_billing
-  job_time_entry
-  invoice
-  payment
-  billing
-  report
-  schedule
 }
 
 enum RoleEnum {
@@ -479,7 +439,6 @@ table jobs {
   title varchar(255) [not null]
   description text
   status JobStatusEnum [not null, default: 'scheduled']
-  service_at "timestamp (3) with time zone"
   expected_revenue "numeric(10, 2)" [default: '0']
   invoiced_revenue "numeric(10, 2)" [default: '0']
   received_revenue "numeric(10, 2)" [default: '0']
@@ -501,7 +460,6 @@ table jobs {
     lead_id [name: 'jobs_lead_id_idx']
     customer_id [name: 'jobs_customer_id_idx']
     status [name: 'jobs_status_idx']
-    service_at [name: 'jobs_service_at_idx']
     created_at [name: 'jobs_created_at_idx']
     created_by [name: 'jobs_created_by_idx']
     updated_by [name: 'jobs_updated_by_idx']
@@ -788,15 +746,16 @@ table lead_estimates {
   job_id uuid
   name varchar(255) [not null]
   description text
+  notes text
+  terms text
   status LeadEstimateStatusEnum [not null, default: 'draft']
-  discount "numeric(12, 2)" [default: '0']
-  tax_rate "numeric(5, 2)" [default: '0']
   subtotal "numeric(12, 2)" [default: '0']
+  discount_rate "numeric(12, 2)" [default: '0']
+  discount_amount "numeric(12, 2)" [default: '0']
+  tax_rate "numeric(5, 2)" [default: '0']
   tax_amount "numeric(12, 2)" [default: '0']
   total_amount "numeric(12, 2)" [not null, default: '0']
   valid_until "timestamp (3) with time zone"
-  notes text
-  terms text
   created_by uuid
   updated_by uuid
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
@@ -1059,9 +1018,9 @@ table org_member_roles {
 table permissions {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   name varchar(255) [not null]
-  level PermissionLevelEnum [not null]
-  resource ResourceTypeEnum [not null]
-  action ActionTypeEnum [not null]
+  level varchar [not null]
+  resource varchar [not null]
+  action varchar [not null]
   description varchar(255)
   metadata jsonb
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
@@ -1162,6 +1121,42 @@ table org_role_permissions {
     
     permission_id [name: 'orgRolePermission_permissionId_idx']
     (role_id, permission_id) [name: 'orgRolePermission_unique', unique]
+  }
+}
+
+table feedback_issues {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  description text [not null]
+  type FeedbackIssueTypeEnum [not null]
+  status FeedbackIssueStatusEnum [not null, default: 'OPEN']
+  closed_at "timestamp (3) with time zone"
+  created_by_id uuid [not null]
+  created_at "timestamp (3) with time zone" [not null, default: `now()`]
+  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
+
+  indexes {
+    
+    created_by_id [name: 'feedback_issues_createdBy_idx']
+    status [name: 'feedback_issues_status_idx']
+    type [name: 'feedback_issues_type_idx']
+    created_at [name: 'feedback_issues_created_at_idx']
+  }
+}
+
+table feedback_issue_replies {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  issue_id uuid [not null]
+  content text [not null]
+  created_by_id uuid [not null]
+  created_at "timestamp (3) with time zone" [not null, default: `now()`]
+  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
+
+  indexes {
+    
+    
+    issue_id [name: 'feedback_issue_replies_issue_idx']
+    created_by_id [name: 'feedback_issue_replies_createdBy_idx']
   }
 }
 
@@ -1378,3 +1373,9 @@ ref: org_role_members.member_id > organization_members.id
 ref: org_role_permissions.role_id > org_roles.id
 
 ref: org_role_permissions.permission_id > permissions.id
+
+ref: feedback_issues.created_by_id > users.id
+
+ref: feedback_issue_replies.issue_id > feedback_issues.id
+
+ref: feedback_issue_replies.created_by_id > users.id

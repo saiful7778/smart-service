@@ -137,6 +137,8 @@ export const API_MESSAGES = {
   },
   JOB: {
     GET_ALL: "Jobs loaded successfully.",
+    GET_ALL_SCHEDULE: "All job schedules loaded successfully.",
+    GET_ALL_ASSIGNMENT: "Job assignments loaded successfully.",
     GET_DETAILS: "Job details loaded successfully.",
     GET_ALL_SERVICINGS: "Servicing history loaded successfully.",
     UPDATE_REVENUE: "Revenue updated successfully.",
@@ -196,5 +198,17 @@ export const API_MESSAGES = {
       DELETE: "Material deleted permanently.",
       DELETE_ALL: "All materials deleted permanently.",
     },
+  },
+  FEEDBACK: {
+    GET_ALL: "Issues loaded successfully.",
+    GET_DETAILS: "Issue details loaded successfully.",
+    CREATE: "Issue submitted successfully.",
+    REPLY: "Reply added successfully.",
+    UPDATE_STATUS: "Issue status updated successfully.",
+    NOT_CREATE: "Failed to submit issue. Please try again.",
+    NOT_FOUND: "Issue not found.",
+    NOT_ALLOWED_REPLY: "You don't have permission to reply on this issue.",
+    NOT_ALLOWED_STATUS:
+      "You don't have permission to change this issue status.",
   },
 };

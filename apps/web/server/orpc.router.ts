@@ -1,4 +1,5 @@
 import { authRouter } from "@/features/auth/api/auth.router";
+import { feedbackRouter } from "@/features/feedback/api/feedback.router";
 import { jobRouter } from "@/features/job/api/job.router";
 import { leadRouter } from "@/features/lead/api/lead.router";
 import { materialRouter } from "@/features/material/api/material.router";
@@ -18,4 +19,5 @@ export const router = {
   notification: notificationRouter,
   job: jobRouter,
   material: materialRouter,
+  feedback: feedbackRouter,
 };
