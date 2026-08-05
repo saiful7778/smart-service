@@ -1,0 +1,22 @@
+{
+  "apps/**/*.{js,jsx,ts,tsx}": ["prettier --write"],
+  "apps/web/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./apps/web/eslint.config.js"
+  ],
+  "package/drizzle/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./package/drizzle/eslint.config.js"
+  ],
+  "package/lib/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./package/lib/eslint.config.js"
+  ],
+  "package/mail/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./package/mail/eslint.config.js"
+  ],
+  "package/pdf/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./package/pdf/eslint.config.js"
+  ],
+  "package/ui/**/*.{js,jsx,ts,tsx}": [
+    "eslint --max-warnings 0 --config ./package/ui/eslint.config.js"
+  ],
+  "*.md": ["prettier --write"]
+}

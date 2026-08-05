@@ -24,9 +24,12 @@
     "test:projects": "vitest run",
     "test:projects:watch": "vitest --watch",
     "docker:dev:up": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml up -d",
-    "docker:dev:down": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml down"
+    "docker:dev:down": "bash scripts/docker-compose-wrapper.sh -f ./infra/docker/docker-compose-dev.yml down",
+    "commit": "cz"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@storybook/addon-vitest": "catalog:",
     "@supabase/supabase-js": "catalog:",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
@@ -34,7 +37,11 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*",
+    "commitizen": "^4.3.2",
+    "cz-conventional-changelog": "^3.3.0",
     "dotenv": "catalog:",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tsx": "catalog:",
@@ -45,6 +52,11 @@
   "packageManager": "pnpm@10.33.4",
   "engines": {
     "node": ">=20"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   },
   "pnpm": {
     "overrides": {
