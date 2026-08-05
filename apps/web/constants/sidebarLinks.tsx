@@ -1,6 +1,7 @@
 import {
   Boxes,
   Calendar,
+  ClipboardList,
   House,
   LifeBuoy,
   List,
@@ -26,6 +27,13 @@ export const adminSidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard/admin",
         pathRegex: /^\/dashboard\/admin$/,
+      },
+      {
+        title: "Tasks",
+        icon: ClipboardList,
+        permissions: ["system.task.manage", "system.task.list"],
+        path: "/dashboard/admin/tasks",
+        pathRegex: /^\/dashboard\/admin\/tasks(\/.*)?$/,
       },
       {
         title: "All Users",
@@ -61,6 +69,13 @@ export const sidebarMenuLinks: Array<SidebarGroupMenuLink> = [
         icon: House,
         path: "/dashboard",
         pathRegex: /^\/dashboard$/,
+      },
+      {
+        title: "Tasks",
+        icon: ClipboardList,
+        permissions: ["org.task.manage", "org.task.list"],
+        path: "/dashboard/organization/tasks",
+        pathRegex: /^\/dashboard\/organization\/tasks(\/.*)?$/,
       },
       {
         title: "Schedule",
