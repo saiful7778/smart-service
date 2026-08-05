@@ -36,6 +36,31 @@ const selfPermissions: CreatePermissionType[] = [
     action: "create",
     description: "Create own organization",
   },
+  // self feedback permissions
+  {
+    level: "self",
+    resource: "feedback",
+    action: "create",
+    description: "Create own feedback issue",
+  },
+  {
+    level: "self",
+    resource: "feedback",
+    action: "read",
+    description: "View own feedback issues",
+  },
+  {
+    level: "self",
+    resource: "feedback",
+    action: "list",
+    description: "List own feedback issues",
+  },
+  {
+    level: "self",
+    resource: "feedback",
+    action: "update",
+    description: "Update own feedback issues",
+  },
 ];
 
 const systemPermissions: CreatePermissionType[] = [
@@ -252,6 +277,32 @@ const systemPermissions: CreatePermissionType[] = [
     resource: "invoice",
     action: "delete",
     description: "Delete invoices",
+  },
+
+  // system feedback permissions
+  {
+    level: "system",
+    resource: "feedback",
+    action: "create",
+    description: "Create feedback issues across system",
+  },
+  {
+    level: "system",
+    resource: "feedback",
+    action: "read",
+    description: "View any feedback issue in system",
+  },
+  {
+    level: "system",
+    resource: "feedback",
+    action: "list",
+    description: "List all feedback issues in system",
+  },
+  {
+    level: "system",
+    resource: "feedback",
+    action: "update",
+    description: "Update any feedback issue in system",
   },
 ];
 
@@ -1533,13 +1584,13 @@ export async function seedPermission(): Promise<Array<PermissionDataModel>> {
   const permissions = await db
     .insert(PermissionTable)
     .values(
-      permissionsData.map(
-        (p) =>
-          ({
-            name: `${p.level}${separator}${p.resource}${separator}${p.action}` as PermissionType,
-            ...p,
-          }) satisfies InsertPermission
-      )
+      permissionsData.map((p) => ({
+        ...p,
+        name: `${p.level}${separator}${p.resource}${separator}${p.action}` as PermissionType,
+        level: p.level as PermissionLevelEnumType,
+        resource: p.resource as ResourceTypeEnumType,
+        action: p.action as ActionTypeEnumType,
+      }))
     )
     .returning();
 

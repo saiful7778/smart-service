@@ -19,19 +19,6 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
-    "supabase:status": "supabase status",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop",
-    "supabase:studio": "supabase studio",
-    "supabase:db:pull": "supabase db pull",
-    "supabase:db:push": "supabase db push",
-    "supabase:db:reset": "supabase db reset",
-    "supabase:migration:up": "supabase migration up",
-    "supabase:migration:down": "supabase migration down",
-    "supabase:migration:new": "supabase migration new",
-    "supabase:migration:list": "supabase migration list",
-    "supabase:migration:repair": "supabase migration repair",
-    "supabase:migration:squash": "supabase migration squash",
     "seed:storage": "tsx scripts/seed/storage.seed.ts",
     "test": "turbo test",
     "test:projects": "vitest run",
@@ -48,15 +35,29 @@
     "@workspace/typescript-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*",
     "dotenv": "catalog:",
-    "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.8.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tsx": "catalog:",
-    "turbo": "^2.9.16",
+    "turbo": "^2.10.8",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "packageManager": "pnpm@10.33.4",
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "next": ">=16.2.11",
+      "postcss": ">=8.5.18",
+      "sharp": ">=0.35.0",
+      "fast-uri": ">=3.1.5",
+      "socket.io-parser": ">=4.2.7",
+      "undici": ">=7.29.0",
+      "brace-expansion": ">=5.0.9",
+      "ip-address": ">=10.3.1",
+      "esbuild": "^0.25.0",
+      "@eslint/plugin-kit": "^0.3.4"
+    }
   }
 }

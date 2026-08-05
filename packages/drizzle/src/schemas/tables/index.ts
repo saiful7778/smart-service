@@ -12,3 +12,4 @@ export * from "./material";
 export * from "./notification";
 export * from "./org";
 export * from "./role-permission";
+export * from "./feedback";

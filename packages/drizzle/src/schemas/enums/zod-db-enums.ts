@@ -3,6 +3,8 @@ import z from "zod";
 import {
   ACTION_TYPE,
   CONTACT_SUBMISSION_STATUS,
+  FEEDBACK_ISSUE_STATUS,
+  FEEDBACK_ISSUE_TYPE,
   JOB_ASSIGNMENT_ROLE,
   JOB_ASSIGNMENT_STATUS,
   JOB_STATUS,
@@ -40,6 +42,16 @@ export const ContactSubmissionStatusEnumSchema = z.enum(
 );
 export type ContactSubmissionStatusEnumType = z.infer<
   typeof ContactSubmissionStatusEnumSchema
+>;
+
+export const FeedbackIssueTypeEnumSchema = z.enum(FEEDBACK_ISSUE_TYPE);
+export type FeedbackIssueTypeEnumType = z.infer<
+  typeof FeedbackIssueTypeEnumSchema
+>;
+
+export const FeedbackIssueStatusEnumSchema = z.enum(FEEDBACK_ISSUE_STATUS);
+export type FeedbackIssueStatusEnumType = z.infer<
+  typeof FeedbackIssueStatusEnumSchema
 >;
 
 export const NotificationCategoryEnumSchema = z.enum(NOTIFICATION_CATEGORY);

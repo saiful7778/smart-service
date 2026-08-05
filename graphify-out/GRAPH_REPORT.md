@@ -1,6 +1,7 @@
 # Graph Report - smart_service  (2026-08-05)
 
 ## Corpus Check
+<<<<<<< HEAD
 - 902 files · ~412,655 words
 - Verdict: corpus is large enough that graph structure adds value.
 
@@ -357,20 +358,28 @@
 8. `db_created_at` - 46 edges
 9. `ButtonSpinner()` - 39 edges
 10. `db_updated_at` - 37 edges
+=======
+- 926 files · ~448,776 words
+- Verdict: corpus is large enough that graph structure adds value.
+
+## Summary
+- 0 nodes · 0 edges · 0 communities
+- Extraction: 0% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `16c23808`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
+## God Nodes (most connected - your core abstractions)
+>>>>>>> 946a342a4a156feb1be77dd8ed7d419494ce10b2
 
 ## Surprising Connections (you probably didn't know these)
-- `AcceptInvitationPage()` --calls--> `formatEnumValue()`  [INFERRED]
-  apps/web/app/(auth)/organization/accept-invitation/page.tsx → packages/lib/src/utils/formatEnum.ts
-- `RootLayout()` --calls--> `cn()`  [EXTRACTED]
-  apps/web/app/layout.tsx → packages/ui/src/lib/utils.ts
-- `SiteLogo()` --calls--> `cn()`  [EXTRACTED]
-  apps/web/components/SiteLogo.tsx → packages/ui/src/lib/utils.ts
-- `TimeRangeFilter()` --calls--> `formatEnumValue()`  [INFERRED]
-  apps/web/components/time-range-filter/index.tsx → packages/lib/src/utils/formatEnum.ts
-- `RevenueCell()` --calls--> `cn()`  [EXTRACTED]
-  apps/web/features/job/components/ScheduleCalendarManagement.tsx → packages/ui/src/lib/utils.ts
+- None detected - all connections are within the same source files.
 
 ## Import Cycles
+<<<<<<< HEAD
 - 3-file cycle: `packages/drizzle/src/schemas/tables/job/job.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadEstimate.table.ts -> packages/drizzle/src/schemas/tables/job/job.table.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/index.ts -> packages/drizzle/src/schemas/tables/lead/leadEstimate.table.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/lead/index.ts`
 - 3-file cycle: `packages/drizzle/src/schemas/tables/lead/lead.table.ts -> packages/drizzle/src/schemas/tables/lead/leadEstimate.table.ts -> packages/drizzle/src/schemas/tables/org/organization.table.ts -> packages/drizzle/src/schemas/tables/lead/lead.table.ts`
@@ -1432,3 +1441,11 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.06060606060606061 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.029920523609163162 - nodes in this community are weakly interconnected._
+=======
+- None detected.
+
+## Communities (0 total, 0 thin omitted)
+
+## Suggested Questions
+_Not enough signal to generate questions. This usually means the corpus has no AMBIGUOUS edges, no bridge nodes, no INFERRED relationships, and all communities are tightly cohesive. Add more files or run with --mode deep to extract richer edges._
+>>>>>>> 946a342a4a156feb1be77dd8ed7d419494ce10b2
