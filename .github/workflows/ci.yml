@@ -49,7 +49,7 @@ jobs:
       - uses: ./.github/actions/turbo-setup
 
       - name: Build
-        env: 
+        env:
           SKIP_ENV_VALIDATION: true
         run: pnpm turbo run build --filter=...[origin/${{ github.event.pull_request.base.ref }}]
 
@@ -62,15 +62,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10.33.4
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
 
       - name: Generate Summary
         run: |
