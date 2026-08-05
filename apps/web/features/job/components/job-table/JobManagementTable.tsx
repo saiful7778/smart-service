@@ -28,7 +28,6 @@ import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { JobTable } from "./JobTable";
-import { JobTableContextProvider } from "./JobTableContext";
 
 export function JobManagementTable({
   page,
@@ -122,7 +121,6 @@ export function JobManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-          <JobTableContextProvider data={data.data}>
             <JobTable
               data={data}
               filters={{
@@ -163,7 +161,6 @@ export function JobManagementTable({
                 });
               }}
             />
-          </JobTableContextProvider>
         )}
       </QueryStateBoundary>
     </div>

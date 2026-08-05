@@ -9,7 +9,7 @@ import { seedConfigs } from "../seed.config";
 export async function seedFile(): Promise<Array<FileDataModel>> {
   console.log("🌱 Seeding files...");
 
-  const fileData: Array<InsertFile> = Array.from({
+  const fileData: Array<Omit<InsertFile, "entityType" | "entityId">> = Array.from({
     length: seedConfigs.targets.files,
   }).map(() => {
     const filename = faker.system.fileName();
@@ -20,7 +20,6 @@ export async function seedFile(): Promise<Array<FileDataModel>> {
       mimeType: faker.system.mimeType(),
       size: 2000,
       key,
-      url: `http://localhost:3000/api/upload/local/${key}`,
     } satisfies InsertFile;
   });
 

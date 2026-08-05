@@ -86,8 +86,6 @@ export function DetailsStep({ jobId }: { jobId: string }) {
 
               <div className="lg:col-span-4 space-y-8">
                 <TimeCard
-                  jobId={data.id}
-                  leadId={data.leadId}
                   createdAt={data.createdAt}
                   schedules={data.schedules}
                 />

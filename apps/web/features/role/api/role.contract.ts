@@ -11,6 +11,7 @@ import { baseContract } from "@/server/orpc.contract-base";
 import { InferContractRouterType } from "@/types/orpc.types";
 
 import { createOrUpdateOrgRoleSchema } from "../role.schema";
+import { ActionTypeEnumSchema, PermissionLevelEnumSchema, ResourceTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 
 const tags = ["Role & Permissions"] as const;
 
@@ -37,11 +38,12 @@ const listRoleContract = baseContract
             permissions: z.array(
               selectPermissionSchema.pick({
                 id: true,
-                level: true,
-                action: true,
-                resource: true,
                 description: true,
                 name: true,
+              }).extend({
+                level: PermissionLevelEnumSchema,
+                action: ActionTypeEnumSchema,
+                resource: ResourceTypeEnumSchema,
               })
             ),
           })
@@ -96,11 +98,12 @@ const listOrgRoleContract = baseContract
           permissions: z.array(
             selectPermissionSchema.pick({
               id: true,
-              level: true,
-              action: true,
-              resource: true,
               description: true,
               name: true,
+            }).extend({
+              level: PermissionLevelEnumSchema,
+                action: ActionTypeEnumSchema,
+                resource: ResourceTypeEnumSchema,
             })
           ),
         })

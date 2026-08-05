@@ -2,7 +2,6 @@ import z from "zod";
 
 import {
   selectOrganizationSchema,
-  selectPermissionSchema,
 } from "@workspace/drizzle/schemas";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
@@ -10,6 +9,7 @@ import { baseContract } from "@/server/orpc.contract-base";
 import { InferContractRouterType } from "@/types/orpc.types";
 
 import { forgetPasswordSchema, userBannedSchema } from "../auth.schema";
+import { ActionTypeEnumSchema, PermissionLevelEnumSchema, ResourceTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 
 const tags = ["Auth"] as const;
 
@@ -56,15 +56,12 @@ const authMetadataContract = baseContract
             orgSlug: z.string().optional(),
           })
         ),
-        permissions: z.array(
-          selectPermissionSchema
-            .pick({
-              name: true,
-              level: true,
-              resource: true,
-              action: true,
-            })
-            .extend({
+        permissions: z.array(z
+            .object({
+              name: z.string(),
+              level: PermissionLevelEnumSchema,
+                              action: ActionTypeEnumSchema,
+                              resource: ResourceTypeEnumSchema,
               source: z.enum(["SYSTEM", "ORG"]),
               orgId: z.uuid().optional(),
               orgName: z.string().optional(),

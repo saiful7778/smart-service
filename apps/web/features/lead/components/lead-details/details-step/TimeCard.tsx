@@ -1,11 +1,7 @@
-"use client";
-
-import { useState } from "react";
 
 import { formatDate } from "date-fns";
-import { CalendarDays, Clock, Pen } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 
-import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -13,29 +9,17 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@workspace/ui/components/tooltip";
 import { cn } from "@workspace/ui/lib/utils";
 
-import { JobTimeUpdateDialog } from "@/features/job/components/JobTimeUpdateDialog";
-
 interface TimeCardProps {
-  leadId: string | null | undefined;
-  jobId: string | null | undefined;
   createdAt: Date;
   schedules?: Array<{ startAt: Date; endAt: Date }>;
 }
 
 export function TimeCard({
-  jobId,
-  leadId,
   createdAt,
   schedules,
 }: TimeCardProps) {
-  const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
 
   return (
     <>
@@ -44,26 +28,6 @@ export function TimeCard({
           <CardTitle className="flex items-center gap-2">
             <CalendarDays className="size-5 text-primary" />
             <span className="font-semibold text-lg">Time</span>
-            {jobId && (
-              <div className="ml-auto">
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => setOpenUpdateDialog(true)}
-                      />
-                    }
-                  >
-                    <Pen />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Update Time</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            )}
           </CardTitle>
         </CardHeader>
         <Separator />
@@ -80,16 +44,6 @@ export function TimeCard({
             ))}
         </CardContent>
       </Card>
-      {jobId && (
-        <JobTimeUpdateDialog
-          leadId={leadId}
-          open={openUpdateDialog}
-          onOpenChange={setOpenUpdateDialog}
-          initialData={{
-            jobId,
-          }}
-        />
-      )}
     </>
   );
 }
