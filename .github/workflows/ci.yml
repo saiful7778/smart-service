@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level=high
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        env:
+          TURBO_BASE: ${{ github.event.pull_request.base.sha }}
+        run: turbo run lint --affected --base=$TURBO_BASE
+
+      - name: Typecheck
+        env:
+          TURBO_BASE: ${{ github.event.pull_request.base.sha }}
+        run: turbo run typecheck --affected --base=$TURBO_BASE
+
+      - name: Test
+        env:
+          TURBO_BASE: ${{ github.event.pull_request.base.sha }}
+        run: turbo run test --affected --base=$TURBO_BASE
+
+      - name: Build
+        env:
+          TURBO_BASE: ${{ github.event.pull_request.base.sha }}
+        run: turbo run build --affected --base=$TURBO_BASE
+
+      - name: CI Summary
+        run: |
+          {
+            echo "## CI Report"
+            echo ""
+            echo "**PR:** #${{ github.event.pull_request.number }}"
+            echo "**Branch:** \`${{ github.event.pull_request.head.ref }}\` → **Target:** \`${{ github.event.pull_request.base.ref }}\`"
+            echo "**Commits:** \`${{ github.event.pull_request.base.sha }}\`…\`${{ github.event.pull_request.head.sha }}\`"
+            echo ""
+            echo "**Changed files:**"
+            git diff --name-only --diff-filter=ACMRT "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | sed 's/^/ - /'
+            echo ""
+            echo "**Changed packages (via turbo):**"
+            if [ -z "$TURBO_BASE" ]; then
+            git diff --name-only --diff-filter=ACMRT "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" \
+              | grep -E '^(apps|packages)/' | cut -d'/' -f1-2 | sort -u | sed 's/^/ - /' || echo " - none"
+            else
+            echo " - see affected task output above"
+            fi
+            echo ""
+            echo "**Checks:** audit / lint / typecheck / test / build"
+          } >> "$GITHUB_STEP_SUMMARY"
