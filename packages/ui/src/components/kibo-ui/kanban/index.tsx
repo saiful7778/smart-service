@@ -35,7 +35,7 @@ import { Card } from "@workspace/ui/components/card";
 import { ScrollArea, ScrollBar } from "@workspace/ui/components/scroll-area";
 import { cn } from "@workspace/ui/lib/utils";
 
-const t = (tunnel as unknown as () => ReturnType<typeof tunnel.default>)();
+const t = tunnel();
 
 export type { DragEndEvent } from "@dnd-kit/core";
 
