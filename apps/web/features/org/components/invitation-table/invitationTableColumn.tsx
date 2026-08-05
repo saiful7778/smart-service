@@ -15,7 +15,8 @@ import {
 } from "../../org.schema";
 import { InvitationTableRowAction } from "./InvitationTableRowAction";
 
-type InvitationTableRowDataType = ListInvitationContractType["output"]["data"]["data"][number];
+type InvitationTableRowDataType =
+  ListInvitationContractType["output"]["data"]["data"][number];
 
 const statusColors: Record<InvitationStatusEnumType, string> = {
   pending:

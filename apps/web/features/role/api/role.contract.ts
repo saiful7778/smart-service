@@ -5,13 +5,17 @@ import {
   selectPermissionSchema,
   selectRoleSchema,
 } from "@workspace/drizzle/schemas";
+import {
+  ActionTypeEnumSchema,
+  PermissionLevelEnumSchema,
+  ResourceTypeEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
 import { InferContractRouterType } from "@/types/orpc.types";
 
 import { createOrUpdateOrgRoleSchema } from "../role.schema";
-import { ActionTypeEnumSchema, PermissionLevelEnumSchema, ResourceTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 
 const tags = ["Role & Permissions"] as const;
 
@@ -36,15 +40,17 @@ const listRoleContract = baseContract
           .extend({
             totalUsers: z.number(),
             permissions: z.array(
-              selectPermissionSchema.pick({
-                id: true,
-                description: true,
-                name: true,
-              }).extend({
-                level: PermissionLevelEnumSchema,
-                action: ActionTypeEnumSchema,
-                resource: ResourceTypeEnumSchema,
-              })
+              selectPermissionSchema
+                .pick({
+                  id: true,
+                  description: true,
+                  name: true,
+                })
+                .extend({
+                  level: PermissionLevelEnumSchema,
+                  action: ActionTypeEnumSchema,
+                  resource: ResourceTypeEnumSchema,
+                })
             ),
           })
       )
@@ -96,15 +102,17 @@ const listOrgRoleContract = baseContract
           type: z.enum(["system", "dynamic"]),
           createdAt: z.date(),
           permissions: z.array(
-            selectPermissionSchema.pick({
-              id: true,
-              description: true,
-              name: true,
-            }).extend({
-              level: PermissionLevelEnumSchema,
+            selectPermissionSchema
+              .pick({
+                id: true,
+                description: true,
+                name: true,
+              })
+              .extend({
+                level: PermissionLevelEnumSchema,
                 action: ActionTypeEnumSchema,
                 resource: ResourceTypeEnumSchema,
-            })
+              })
           ),
         })
       )

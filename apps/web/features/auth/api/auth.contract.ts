@@ -1,15 +1,17 @@
 import z from "zod";
 
+import { selectOrganizationSchema } from "@workspace/drizzle/schemas";
 import {
-  selectOrganizationSchema,
-} from "@workspace/drizzle/schemas";
+  ActionTypeEnumSchema,
+  PermissionLevelEnumSchema,
+  ResourceTypeEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
 import { InferContractRouterType } from "@/types/orpc.types";
 
 import { forgetPasswordSchema, userBannedSchema } from "../auth.schema";
-import { ActionTypeEnumSchema, PermissionLevelEnumSchema, ResourceTypeEnumSchema } from "@workspace/drizzle/zod-db-enums";
 
 const tags = ["Auth"] as const;
 
@@ -56,17 +58,17 @@ const authMetadataContract = baseContract
             orgSlug: z.string().optional(),
           })
         ),
-        permissions: z.array(z
-            .object({
-              name: z.string(),
-              level: PermissionLevelEnumSchema,
-                              action: ActionTypeEnumSchema,
-                              resource: ResourceTypeEnumSchema,
-              source: z.enum(["SYSTEM", "ORG"]),
-              orgId: z.uuid().optional(),
-              orgName: z.string().optional(),
-              orgSlug: z.string().optional(),
-            })
+        permissions: z.array(
+          z.object({
+            name: z.string(),
+            level: PermissionLevelEnumSchema,
+            action: ActionTypeEnumSchema,
+            resource: ResourceTypeEnumSchema,
+            source: z.enum(["SYSTEM", "ORG"]),
+            orgId: z.uuid().optional(),
+            orgName: z.string().optional(),
+            orgSlug: z.string().optional(),
+          })
         ),
         isAdminUser: z.boolean(),
         orgs: z.array(
@@ -108,7 +110,9 @@ const userBanContract = baseContract
   })
   .input(userBannedSchema)
   .output(apiOutputZodSchema(z.null()));
-export type UserBanContractType = InferContractRouterType<typeof userBanContract>;
+export type UserBanContractType = InferContractRouterType<
+  typeof userBanContract
+>;
 
 export const authContract = {
   metadata: authMetadataContract,

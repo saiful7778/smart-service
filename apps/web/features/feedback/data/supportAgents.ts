@@ -38,9 +38,7 @@ export async function getSupportAgentIds(
     .from(UserRoleTable)
     .innerJoin(RoleTable, eq(RoleTable.id, UserRoleTable.roleId))
     .innerJoin(UserTable, eq(UserTable.id, UserRoleTable.userId))
-    .where(
-      inArray(RoleTable.roleName, SUPPORT_AGENT_ROLES)
-    );
+    .where(inArray(RoleTable.roleName, SUPPORT_AGENT_ROLES));
 
   return rows.map((row) => row.id);
 }

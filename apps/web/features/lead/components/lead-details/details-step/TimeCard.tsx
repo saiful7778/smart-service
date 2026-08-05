@@ -1,4 +1,3 @@
-
 import { formatDate } from "date-fns";
 import { CalendarDays, Clock } from "lucide-react";
 
@@ -16,11 +15,7 @@ interface TimeCardProps {
   schedules?: Array<{ startAt: Date; endAt: Date }>;
 }
 
-export function TimeCard({
-  createdAt,
-  schedules,
-}: TimeCardProps) {
-
+export function TimeCard({ createdAt, schedules }: TimeCardProps) {
   return (
     <>
       <Card>

@@ -22,7 +22,9 @@ export default async function RolesPage() {
         header={
           <div>
             <DashboardShellTitle>Roles & Permissions</DashboardShellTitle>
-            <DashboardShellDescription>Manage application user roles and permissions</DashboardShellDescription>
+            <DashboardShellDescription>
+              Manage application user roles and permissions
+            </DashboardShellDescription>
           </div>
         }
       >

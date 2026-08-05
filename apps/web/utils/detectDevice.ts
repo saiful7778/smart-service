@@ -10,13 +10,7 @@ export type BrowserName =
   | "samsung"
   | "unknown";
 export type OSName =
-  | "windows"
-  | "macos"
-  | "ios"
-  | "android"
-  | "linux"
-  | "chromeos"
-  | "unknown";
+  "windows" | "macos" | "ios" | "android" | "linux" | "chromeos" | "unknown";
 
 interface DeviceInfo {
   isMobile: boolean;

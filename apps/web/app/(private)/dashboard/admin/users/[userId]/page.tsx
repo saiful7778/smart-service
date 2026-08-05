@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
-
 import { ArrowLeft } from "lucide-react";
+
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 

@@ -16,8 +16,7 @@ export function PerformancePanel() {
   useEffect(() => {
     const calculatePerf = () => {
       const nav = window.performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
+        PerformanceNavigationTiming | undefined;
 
       const mem = (
         window.performance as unknown as {

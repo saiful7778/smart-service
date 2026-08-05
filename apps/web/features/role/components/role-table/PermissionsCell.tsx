@@ -20,7 +20,8 @@ import {
 
 import { ListRoleContractType } from "../../api/role.contract";
 
-type Permission = ListRoleContractType["output"]["data"][number]["permissions"][number];
+type Permission =
+  ListRoleContractType["output"]["data"][number]["permissions"][number];
 
 function PermissionBadge({
   resource,

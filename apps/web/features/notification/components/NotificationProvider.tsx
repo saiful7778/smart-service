@@ -35,7 +35,9 @@ export function NotificationProvider({
   );
 
   const addNotification = useCallback(
-    async (notification: ListNotificationContractType["output"]["data"]["data"][number]) => {
+    async (
+      notification: ListNotificationContractType["output"]["data"]["data"][number]
+    ) => {
       queryClient.setQueryData(
         orpcTQClient.notification.list.queryKey({
           input: {},

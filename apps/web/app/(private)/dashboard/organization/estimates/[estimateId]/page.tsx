@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { createLoader, parseAsString } from "nuqs/server";
-
 import { ArrowLeft } from "lucide-react";
+import { createLoader, parseAsString } from "nuqs/server";
 
 import { env } from "@/lib/env";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
@@ -75,7 +74,12 @@ export default async function EstimateDetailsPage(
         className="max-w-5xl mx-auto w-full"
         header={
           <div>
-            <LinkButton href={{ pathname: redirectUrl.pathname, search: redirectUrl.search }}>
+            <LinkButton
+              href={{
+                pathname: redirectUrl.pathname,
+                search: redirectUrl.search,
+              }}
+            >
               <ArrowLeft />
               <span>Go Back</span>
             </LinkButton>

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import { CircleQuestionMark, TrendingDown, TrendingUp } from "lucide-react";
 
+import { formatCurrency } from "@workspace/lib/utils";
 import {
   Dialog,
   DialogDescription,
@@ -35,7 +36,6 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { orpcTQClient } from "@/server/orpc.client";
-import { formatCurrency } from "@workspace/lib/utils";
 
 interface RevenueHistoryDialogProps {
   open: boolean;

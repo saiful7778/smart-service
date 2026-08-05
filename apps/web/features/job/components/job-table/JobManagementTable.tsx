@@ -121,46 +121,46 @@ export function JobManagementTable({
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
-            <JobTable
-              data={data}
-              filters={{
-                page: filters.page,
-                limit: filters.limit,
-                search: filters.search,
-                order: filters.order ?? undefined,
-                orderField: filters.orderField ?? undefined,
-                filter: {
-                  status: filters.status,
-                  serviceAt: filters.serviceAt
-                    ? filters.serviceAt.map((date) => date!.toISOString())
-                    : null,
-                  receivedRevenue: filters.revenue
-                    ? filters.revenue.map((revenue) => revenue.toString())
-                    : null,
-                },
-              }}
-              setFilters={(filters) => {
-                const serviceAt = filters?.filter?.serviceAt as string[] | null;
-                const revenue = filters?.filter?.receivedRevenue as
-                  string[] | null;
-                const status = filters?.filter?.status as
-                  JobStatusEnumType[] | null;
+          <JobTable
+            data={data}
+            filters={{
+              page: filters.page,
+              limit: filters.limit,
+              search: filters.search,
+              order: filters.order ?? undefined,
+              orderField: filters.orderField ?? undefined,
+              filter: {
+                status: filters.status,
+                serviceAt: filters.serviceAt
+                  ? filters.serviceAt.map((date) => date!.toISOString())
+                  : null,
+                receivedRevenue: filters.revenue
+                  ? filters.revenue.map((revenue) => revenue.toString())
+                  : null,
+              },
+            }}
+            setFilters={(filters) => {
+              const serviceAt = filters?.filter?.serviceAt as string[] | null;
+              const revenue = filters?.filter?.receivedRevenue as
+                string[] | null;
+              const status = filters?.filter?.status as
+                JobStatusEnumType[] | null;
 
-                setFilters({
-                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
-                  order: filters?.order ?? null,
-                  orderField: filters?.orderField ?? null,
-                  status: status && status?.length > 0 ? status[0] : null,
-                  serviceAt: serviceAt
-                    ? serviceAt.map((date) => new Date(date))
-                    : null,
-                  revenue: revenue
-                    ? revenue.map((revenue) => parseInt(revenue, 10))
-                    : null,
-                });
-              }}
-            />
+              setFilters({
+                page: filters?.page ?? DEFAULT_PAGE_INDEX,
+                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                order: filters?.order ?? null,
+                orderField: filters?.orderField ?? null,
+                status: status && status?.length > 0 ? status[0] : null,
+                serviceAt: serviceAt
+                  ? serviceAt.map((date) => new Date(date))
+                  : null,
+                revenue: revenue
+                  ? revenue.map((revenue) => parseInt(revenue, 10))
+                  : null,
+              });
+            }}
+          />
         )}
       </QueryStateBoundary>
     </div>

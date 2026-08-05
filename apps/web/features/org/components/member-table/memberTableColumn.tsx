@@ -8,7 +8,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListMemberContractType } from "../../api/org.contract";
 import { MemberTableRowAction } from "./MemberTableRowAction";
 
-type MemberTableRowDataType = ListMemberContractType["output"]["data"]["data"][number];
+type MemberTableRowDataType =
+  ListMemberContractType["output"]["data"]["data"][number];
 
 export const memberTableColumn: ColumnType<MemberTableRowDataType> = [
   {

@@ -2,12 +2,7 @@
  * Types supported by the Redis Hash Serializer
  */
 export type RedisSupportedTypes =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Date;
+  string | number | boolean | null | undefined | Date;
 
 /**
  * Utility type to enforce that the object only contains supported types.

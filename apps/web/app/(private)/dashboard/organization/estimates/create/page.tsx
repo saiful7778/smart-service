@@ -2,11 +2,10 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { and, eq, isNull } from "drizzle-orm";
+import { ArrowLeft } from "lucide-react";
 import { createLoader, parseAsString } from "nuqs/server";
 
 import { JobTable, LeadTable } from "@workspace/drizzle/schemas";
-
-import { ArrowLeft } from "lucide-react";
 
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -96,7 +95,12 @@ export default async function EstimateCreatePage(
       className="max-w-4xl w-full mx-auto"
       header={
         <div>
-          <LinkButton href={{ pathname: redirectUrl.pathname, search: redirectUrl.search }}>
+          <LinkButton
+            href={{
+              pathname: redirectUrl.pathname,
+              search: redirectUrl.search,
+            }}
+          >
             <ArrowLeft />
             <span>Go Back</span>
           </LinkButton>

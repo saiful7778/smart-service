@@ -1,23 +1,28 @@
 "use client";
 
-import { formatEnumValue } from "@workspace/lib/utils";
-import { Badge } from "@workspace/ui/components/badge";
-
 import {
   FeedbackIssueStatusEnumType,
   FeedbackIssueTypeEnumType,
 } from "@workspace/drizzle/zod-db-enums";
-
+import { formatEnumValue } from "@workspace/lib/utils";
+import { Badge } from "@workspace/ui/components/badge";
 import { cn } from "@workspace/ui/lib/utils";
 
 const STATUS_VARIANTS: Record<
   FeedbackIssueStatusEnumType,
-  { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }
+  {
+    variant: "default" | "secondary" | "destructive" | "outline";
+    className?: string;
+  }
 > = {
   OPEN: { variant: "secondary" },
   IN_PROGRESS: { variant: "default" },
   NEEDS_INFO: { variant: "outline" },
-  RESOLVED: { variant: "default", className: "bg-green-600/10 text-green-600 dark:bg-green-500/20 dark:text-green-400" },
+  RESOLVED: {
+    variant: "default",
+    className:
+      "bg-green-600/10 text-green-600 dark:bg-green-500/20 dark:text-green-400",
+  },
   CLOSED: { variant: "outline", className: "line-through opacity-70" },
 };
 
@@ -26,7 +31,8 @@ const TYPE_VARIANTS: Record<FeedbackIssueTypeEnumType, string> = {
   FEATURE_REQUEST: "bg-primary/10 text-primary",
   FEEDBACK: "bg-muted text-muted-foreground",
   SUGGESTION: "bg-secondary/60 text-secondary-foreground",
-  REPORT: "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400",
+  REPORT:
+    "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400",
   OTHER: "bg-muted text-muted-foreground",
 };
 

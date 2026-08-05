@@ -5,9 +5,7 @@ export type WindowUnit = "ms" | "s" | "m" | "h" | "d";
 export type Duration = `${number} ${WindowUnit}`;
 
 export type RatelimitAlgorithm =
-  | "slidingWindow"
-  | "fixedWindow"
-  | "tokenBucket";
+  "slidingWindow" | "fixedWindow" | "tokenBucket";
 
 export type RatelimitResponse = ReturnType<
   InstanceType<typeof Ratelimit>["limit"]

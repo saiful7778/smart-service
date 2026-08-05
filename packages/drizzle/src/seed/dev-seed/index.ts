@@ -35,10 +35,7 @@ async function main() {
   const orgs = await seedOrganization(addresses);
   const orgRoles = await seedOrgRoles(orgs);
 
-  const rolesAndPermissions = await seedRolePermission(
-    roles,
-    permissions
-  );
+  const rolesAndPermissions = await seedRolePermission(roles, permissions);
 
   const orgMembers = await seedOrgMember(orgs, users, roles);
   const leadCategories = await seedLeadCategory(orgs, orgMembers);

@@ -20,6 +20,7 @@ import {
 } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import DataTableRowMenu from "@workspace/ui/components/data-table/data-table-row-menu";
+import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -34,7 +35,6 @@ import {
 
 import { useJobDelete, useJobUpdate } from "../../api/job.api.hook";
 import { ListJobsContractType } from "../../api/job.contract";
-import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import { JobGeneralInfoUpdateDialog } from "../job-details/details-step/JobGeneralInfoUpdateDialog";
 
 export function JobTableRowAction({
@@ -42,32 +42,32 @@ export function JobTableRowAction({
 }: {
   jobData: ListJobsContractType["output"]["data"]["data"][number];
 }) {
-  "use no memo"
+  "use no memo";
   const [openInfoUpdateDialog, setOpenInfoUpdateDialog] =
-      useState<boolean>(false);
-    const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+    useState<boolean>(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
   const { mutate: updateJob, isPending: isUpdateJobPending } = useJobUpdate({
     onSuccess: () => {
-      setOpenInfoUpdateDialog(false)
-    }
+      setOpenInfoUpdateDialog(false);
+    },
   });
   const { mutate: deleteJob, isPending: isDeletingJob } = useJobDelete({
-      onSuccess: () => {
-        setOpenDeleteDialog(false);
-      },
-    });
+    onSuccess: () => {
+      setOpenDeleteDialog(false);
+    },
+  });
 
   const handleUpdateJobStatus = (status: JobStatusEnumType) => {
-      updateJob({
-        jobId: jobData.id,
-        status,
-      });
-    }
-  
-    const handleDeleteJob = () => {
-      deleteJob({ jobId: jobData.id })
-    };
+    updateJob({
+      jobId: jobData.id,
+      status,
+    });
+  };
+
+  const handleDeleteJob = () => {
+    deleteJob({ jobId: jobData.id });
+  };
 
   return (
     <>
@@ -172,9 +172,7 @@ export function JobTableRowAction({
                   </DropdownMenuGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
-              <DropdownMenuItem
-                onClick={() => setOpenInfoUpdateDialog(true)}
-              >
+              <DropdownMenuItem onClick={() => setOpenInfoUpdateDialog(true)}>
                 <Info />
                 <span>Update Information</span>
               </DropdownMenuItem>
@@ -205,12 +203,11 @@ export function JobTableRowAction({
         onOpenChange={setOpenInfoUpdateDialog}
         leadId={jobData.leadId}
         jobId={jobData.id}
-        initialData={ {
-                title: jobData.title,
-                description: jobData.description || "",
-                status: jobData.status,
-              }
-        }
+        initialData={{
+          title: jobData.title,
+          description: jobData.description || "",
+          status: jobData.status,
+        }}
       />
     </>
   );

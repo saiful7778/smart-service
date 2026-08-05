@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { DollarSign, History, Pen } from "lucide-react";
 
+import { formatCurrency } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import {
   Stat,
@@ -18,7 +19,6 @@ import {
 } from "@workspace/ui/components/tooltip";
 
 import { JobRevenueUpdateDialog } from "@/features/job/components/JobRevenueUpdateDialog";
-import { formatCurrency } from "@workspace/lib/utils";
 
 import { RevenueHistoryDialog } from "./RevenueHistories";
 
