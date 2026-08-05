@@ -34,10 +34,6 @@
 
     "header-max-length": [2, "always", 100],
 
-    "scope-case": [2, "always", "lower-case"],
-    "scope-empty": [0, "never"],
-    "scope-enum": [1, "always", ["app", "api", "ui", "utils", "config"]],
-
     "footer-leading-blank": [2, "always"],
     "footer-max-line-length": [2, "always", 100]
   }
