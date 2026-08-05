@@ -3,11 +3,7 @@ import { ExtendedRedis, HashSerializer } from "../redis";
 export type ContentType = "json" | "text";
 
 export type QstashMessageState =
-  | "pending"
-  | "delivered"
-  | "failed"
-  | "retrying"
-  | "dead_letter";
+  "pending" | "delivered" | "failed" | "retrying" | "dead_letter";
 
 export interface QstashLogEntry {
   messageId: string;

@@ -1,11 +1,12 @@
-import { createPinoLogger,PinoLoggerType } from "@workspace/lib/logger";
+import { createPinoLogger, PinoLoggerType } from "@workspace/lib/logger";
+
 import { env } from "./env";
 
 const globalForLogger = globalThis as unknown as {
   logger?: PinoLoggerType;
 };
 
-export const logger: PinoLoggerType = 
+export const logger: PinoLoggerType =
   globalForLogger.logger ??
   createPinoLogger({
     isDev: env.NODE_ENV === "development",

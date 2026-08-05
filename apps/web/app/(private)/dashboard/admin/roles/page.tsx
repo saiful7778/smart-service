@@ -1,6 +1,10 @@
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { RoleManagementTable } from "@/features/role/components/role-table/RoleManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -15,8 +19,14 @@ export default async function RolesPage() {
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Roles & Permissions"
-        shortDescription="Manage application user roles and permissions"
+        header={
+          <div>
+            <DashboardShellTitle>Roles & Permissions</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage application user roles and permissions
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <RoleManagementTable />
       </DashboardShell>

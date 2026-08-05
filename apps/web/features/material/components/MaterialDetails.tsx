@@ -7,6 +7,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import { Banknote, ClipboardCheck, Pen, Trash } from "lucide-react";
 
+import { formatCurrency } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Separator } from "@workspace/ui/components/separator";
@@ -15,7 +16,6 @@ import { UserAvatar } from "@/components/UserAvatar";
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
-import { formatCurrency } from "@workspace/lib/utils";
 
 import { MaterialDeleteDialog } from "./MaterialDeleteDialog";
 import { MaterialUpdateDialog } from "./MaterialUpdateDialog";

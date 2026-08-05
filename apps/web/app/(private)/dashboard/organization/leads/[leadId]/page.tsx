@@ -1,10 +1,23 @@
 import { Metadata } from "next";
 
-import { Eye, FileText, Mail, Package, Phone, Receipt } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  FileText,
+  Mail,
+  Package,
+  Phone,
+  Receipt,
+} from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
   TabNavigation,
   TabNavigationContent,
@@ -66,9 +79,18 @@ export default async function SingleLeadDetailsPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
-        backUrl="/dashboard/organization/leads"
-        title={data.customer.name}
-        shortDescription="Detailed overview of lead information and performance."
+        header={
+          <div>
+            <LinkButton href="/dashboard/organization/leads">
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.customer.name}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Detailed overview of lead information and performance.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         {/* Header Section start */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">

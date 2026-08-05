@@ -201,9 +201,8 @@ export function makeLeadTableColumn(
       meta: {
         label: "Registered at",
         variant: "dateRange",
-        placeholder: "Select registered at",
       },
-      enableColumnFilter: true,
+      enableColumnFilter: false,
       enableSorting: true,
     },
     {

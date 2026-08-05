@@ -2,7 +2,11 @@ import { Metadata } from "next";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { JobCreateForm } from "@/features/job/components/forms/JobCreateForm";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -25,11 +29,7 @@ export default async function CreateJobPage(
 
   const queryClient = getQueryClient();
 
-  await queryClient.ensureQueryData(
-    orpcTQClient.job.listServicings.queryOptions()
-  );
-
-  await queryClient.ensureQueryData(
+  await queryClient.prefetchQuery(
     orpcTQClient.lead.listForSearch.queryOptions({
       input: {},
     })
@@ -37,7 +37,16 @@ export default async function CreateJobPage(
 
   return (
     <HydrateClient client={queryClient}>
-      <DashboardShell title="Create Job" shortDescription="Create a new job">
+      <DashboardShell
+        header={
+          <div>
+            <DashboardShellTitle>Create Job</DashboardShellTitle>
+            <DashboardShellDescription>
+              Create a new job
+            </DashboardShellDescription>
+          </div>
+        }
+      >
         <div className="max-w-4xl w-full mx-auto">
           <JobCreateForm leadId={leadId} />
         </div>

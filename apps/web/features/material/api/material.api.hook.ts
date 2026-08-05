@@ -6,7 +6,7 @@ import { RefObject } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-import { FileUploadRef } from "@/components/FileUpload";
+import { FileUploadRef, ProgressType } from "@/components/FileUpload";
 
 import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -17,6 +17,7 @@ import { MaterialCreateContractType } from "./material.contract";
 
 export function useMaterialCreate<TFieldNames>({
   uploadRef,
+  onProgress,
   onRequestStart,
   onRequestEnd,
   onSuccess,
@@ -24,6 +25,7 @@ export function useMaterialCreate<TFieldNames>({
   onValidationErrors,
 }: IApiHookInput<TFieldNames> & {
   uploadRef: RefObject<FileUploadRef | null>;
+  onProgress?: (progress: ProgressType) => void;
 }) {
   const toastId = "material_create_toast_message_id";
   const queryClient = useQueryClient();
@@ -32,6 +34,7 @@ export function useMaterialCreate<TFieldNames>({
     orpcTQClient.material.create.mutationOptions()
   );
   const { mutateAsync: updateImage } = useFileUploadToAPI({
+    onProgress,
     onSuccess: () => {
       uploadRef.current?.clearFiles();
       uploadRef.current?.clearErrors();

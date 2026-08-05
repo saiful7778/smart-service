@@ -38,7 +38,8 @@ import { ListLeadAttachmentContractType } from "../../api/leadAttachment.contrac
 import { ListLeadAttachmentBinContractType } from "../../api/leadAttachmentBin.contract";
 import { useLeadAttachmentContext } from "./LeadAttachmentContext";
 
-type LeadAttachmentItem = ListLeadAttachmentContractType["output"]["data"][number];
+type LeadAttachmentItem =
+  ListLeadAttachmentContractType["output"]["data"][number];
 
 function getFileIcon(mimeType: string): React.ReactNode {
   if (mimeType.startsWith("image/")) return <FileImage />;
@@ -176,7 +177,8 @@ export function LeadAttachmentItem({ attachment }: LeadAttachmentItemProps) {
   );
 }
 
-type LeadAttachmentBinItem = ListLeadAttachmentBinContractType["output"]["data"][number];
+type LeadAttachmentBinItem =
+  ListLeadAttachmentBinContractType["output"]["data"][number];
 
 interface LeadAttachmentBinItemProps {
   attachment: LeadAttachmentBinItem;

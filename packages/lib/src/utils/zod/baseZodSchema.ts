@@ -49,3 +49,13 @@ export const passwordField = ({
         .string({ error: `${fieldName} is required` })
         .min(6, `${fieldName} must be at least 6 characters long`)
         .max(20, `${fieldName} must not exceed 20 characters`);
+
+export const RangeSearchEnumSchema = z.enum([
+  "THIS_WEEK",
+  "THIS_MONTH",
+  "LAST_WEEK",
+  "LAST_MONTH",
+  "CUSTOM_WEEK",
+  "CUSTOM_MONTH",
+]);
+export type RangeSearchEnum = z.infer<typeof RangeSearchEnumSchema>;

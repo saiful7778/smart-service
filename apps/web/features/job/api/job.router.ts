@@ -6,9 +6,10 @@ import {
   jobImpl,
   jobUpdateProcedure,
   jobUpdateRevenueProcedure,
+  listJobScheduleProcedure,
   listJobsProcedure,
-  listServicingsProcedure,
 } from "./job.procedure";
+import { listJobAssignmentsProcedure } from "./jobAssignment.procedure";
 import {
   jobAllRestoreProcedure,
   jobBinDeleteAllProcedure,
@@ -19,7 +20,7 @@ import {
 
 export const jobRouter = jobImpl.router({
   list: listJobsProcedure,
-  listServicings: listServicingsProcedure,
+  listSchedule: listJobScheduleProcedure,
   details: jobDetailsProcedure,
   create: jobCreateProcedure,
   update: jobUpdateProcedure,
@@ -32,5 +33,8 @@ export const jobRouter = jobImpl.router({
     restoreAll: jobAllRestoreProcedure,
     delete: jobBinDeleteProcedure,
     deleteAll: jobBinDeleteAllProcedure,
+  },
+  assignment: {
+    list: listJobAssignmentsProcedure,
   },
 });

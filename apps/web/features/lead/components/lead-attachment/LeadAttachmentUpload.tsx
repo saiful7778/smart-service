@@ -42,8 +42,15 @@ export function LeadAttachmentUploadDialog({
 }) {
   "use no memo";
   const [open, setOpen] = useState<boolean>(false);
-  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
-    useFileUploadState();
+  const {
+    fileValue,
+    setFileValue,
+    fileError,
+    setFileError,
+    uploadingProgress,
+    setUploadingProgress,
+    uploadRef,
+  } = useFileUploadState();
 
   const form = useForm<LeadAttachmentUploadType>({
     resolver: zodResolver(leadAttachmentUploadSchema),
@@ -60,6 +67,7 @@ export function LeadAttachmentUploadDialog({
     keyof LeadAttachmentUploadType
   >({
     uploadRef,
+    onProgress: setUploadingProgress,
     onSuccess: () => {
       form.reset();
       setOpen(false);
@@ -107,6 +115,7 @@ export function LeadAttachmentUploadDialog({
                 label="Attchment"
                 variant="any"
                 value={fileValue}
+                uploadingProgress={uploadingProgress}
                 onChange={setFileValue}
                 ref={uploadRef}
                 disabled={isPending}

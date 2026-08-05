@@ -425,78 +425,15 @@ export default async function PublicEstimatePage(
                 taxRate,
                 taxAmount,
                 totalAmount,
-                materials: [
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
+                materials: materials.map(
+                  ({ material, quantity, totalPrice }) => ({
                     name: material.name,
                     sku: material.sku,
                     quantity: Number(quantity),
                     unitPrice: Number(material.unitPrice),
                     totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                  ...materials.map(({ material, quantity, totalPrice }) => ({
-                    name: material.name,
-                    sku: material.sku,
-                    quantity: Number(quantity),
-                    unitPrice: Number(material.unitPrice),
-                    totalPrice: Number(totalPrice),
-                  })),
-                ],
+                  })
+                ),
               }}
             />
           </CardFooter>

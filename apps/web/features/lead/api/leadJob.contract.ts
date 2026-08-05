@@ -23,7 +23,7 @@ const listLeadJobsContract = leadBaseContract
   })
   .input(
     paginateInputZodSchema<typeof selectJobSchema>({
-      orderFields: ["serviceAt", "createdAt"],
+      orderFields: ["createdAt"],
       searchFields: ["title"],
       filter: z.object({
         status: JobStatusEnumSchema.optional(),
@@ -42,7 +42,6 @@ const listLeadJobsContract = leadBaseContract
             leadId: true,
             description: true,
             status: true,
-            serviceAt: true,
             createdAt: true,
             receivedRevenue: true,
             expectedRevenue: true,

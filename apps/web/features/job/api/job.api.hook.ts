@@ -24,7 +24,7 @@ export function useJobCreate<TFieldNames>({
         toast.loading("Creating job...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: async ({ message }, { leadId, serviceAt }) => {
+      onSuccess: async ({ message }, { leadId }) => {
         if (pathname.startsWith("/dashboard/organization/leads") && leadId) {
           await queryClient.invalidateQueries({
             queryKey: orpcTQClient.lead.job.list.queryKey({
@@ -38,12 +38,6 @@ export function useJobCreate<TFieldNames>({
               input: {},
             }),
             exact: false,
-          });
-        }
-
-        if (serviceAt) {
-          await queryClient.invalidateQueries({
-            queryKey: orpcTQClient.job.listServicings.queryKey(),
           });
         }
 
@@ -104,10 +98,6 @@ export function useJobDelete({
           });
         }
 
-        await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.job.listServicings.queryKey(),
-        });
-
         toast.success(message, { id: toastId });
 
         onSuccess?.(message);
@@ -160,10 +150,6 @@ export function useJobDeleteAll({
           });
         }
 
-        await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.job.listServicings.queryKey(),
-        });
-
         toast.success(message, { id: toastId });
 
         onSuccess?.(message);
@@ -200,7 +186,7 @@ export function useJobUpdate<TFieldNames>({
         toast.loading("Updating...", { id: toastId });
         onRequestStart?.();
       },
-      onSuccess: async ({ message }, { serviceAt, jobId }) => {
+      onSuccess: async ({ message }, { jobId }) => {
         if (leadId && pathname.startsWith("/dashboard/organization/leads")) {
           await queryClient.invalidateQueries({
             queryKey: orpcTQClient.lead.job.list.queryKey({
@@ -222,12 +208,6 @@ export function useJobUpdate<TFieldNames>({
               },
             }),
             exact: false,
-          });
-        }
-
-        if (serviceAt) {
-          await queryClient.invalidateQueries({
-            queryKey: orpcTQClient.job.listServicings.queryKey(),
           });
         }
 

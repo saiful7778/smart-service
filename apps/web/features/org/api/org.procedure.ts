@@ -365,7 +365,8 @@ export const listMemberForSearchProcedure = orgImpl.listMemberForSearch
       .innerJoin(RoleTable, eq(OrgMemberRoleTable.roleId, RoleTable.id))
       .where(
         and(eq(OrganizationMemberTable.organizationId, context.org.id), where)
-      );
+      )
+      .groupBy(UserTable.id, OrganizationMemberTable.id);
 
     return apiResponse(API_MESSAGES.ORG.MEMBER.GET_ALL_FOR_SEARCH, members);
   });

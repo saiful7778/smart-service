@@ -3,7 +3,7 @@ import { RefObject } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-import { FileUploadRef } from "@/components/FileUpload";
+import { FileUploadRef, ProgressType } from "@/components/FileUpload";
 
 import { useFileUploadToAPI } from "@/features/upload/hook/useFileUploadToAPI";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -14,6 +14,7 @@ import { LeadAttachmentCreateContractType } from "./leadAttachment.contract";
 
 export function useLeadAttachmentCreate<TFieldNames>({
   uploadRef,
+  onProgress,
   onRequestStart,
   onRequestEnd,
   onSuccess,
@@ -21,6 +22,7 @@ export function useLeadAttachmentCreate<TFieldNames>({
   onValidationErrors,
 }: IApiHookInput<TFieldNames> & {
   uploadRef: RefObject<FileUploadRef | null>;
+  onProgress?: (progress: ProgressType) => void;
 }) {
   const toastId = "upload_attachment_toast_message";
   const queryclient = useQueryClient();
@@ -29,6 +31,7 @@ export function useLeadAttachmentCreate<TFieldNames>({
     orpcTQClient.lead.attachment.create.mutationOptions()
   );
   const { mutateAsync: uploadFile } = useFileUploadToAPI({
+    onProgress,
     onSuccess: () => {
       uploadRef.current?.clearFiles();
       uploadRef.current?.clearErrors();

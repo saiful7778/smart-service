@@ -1,10 +1,15 @@
 import { Metadata } from "next";
 
-import { Eye, FileText, Receipt } from "lucide-react";
+import { ArrowLeft, Eye, FileText, Receipt, Users } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
   TabNavigation,
   TabNavigationContent,
@@ -12,6 +17,7 @@ import {
   TabNavigationTrigger,
 } from "@/components/tab-navigation";
 
+import { AssignmentStep } from "@/features/job/components/job-details/AssignmentStep";
 import { AttachmentStep } from "@/features/job/components/job-details/AttachmentStep";
 import { DetailsStep } from "@/features/job/components/job-details/details-step";
 import { EstimateStep } from "@/features/job/components/job-details/EstimateStep";
@@ -42,9 +48,18 @@ export default async function SingleJobDetailsPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
-        backUrl="/dashboard/organization/jobs"
-        title={data.title}
-        shortDescription="Detailed overview of job information and performance."
+        header={
+          <div>
+            <LinkButton href="/dashboard/organization/jobs">
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.title}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Detailed overview of job information and performance.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <TabNavigation defaultValue="details">
           <TabNavigationList variant="line">
@@ -55,6 +70,10 @@ export default async function SingleJobDetailsPage(
             <TabNavigationTrigger value="estimates">
               <Receipt className="size-4" />
               <span>Estimates</span>
+            </TabNavigationTrigger>
+            <TabNavigationTrigger value="assignments">
+              <Users className="size-4" />
+              <span>Assignments</span>
             </TabNavigationTrigger>
             <TabNavigationTrigger value="attachments">
               <FileText className="size-4" />
@@ -67,6 +86,9 @@ export default async function SingleJobDetailsPage(
           </TabNavigationContent>
           <TabNavigationContent value="estimates">
             <EstimateStep leadId={data.leadId} jobId={jobId} />
+          </TabNavigationContent>
+          <TabNavigationContent value="assignments">
+            <AssignmentStep jobId={jobId} />
           </TabNavigationContent>
           <TabNavigationContent value="attachments">
             <AttachmentStep leadId={data.leadId} jobId={jobId} />

@@ -79,7 +79,6 @@ export function DetailsStep({ jobId }: { jobId: string }) {
                   status={data.status}
                   title={data.title}
                   description={data.description}
-                  serviceAt={data.serviceAt}
                   createdBy={data.createdByMember}
                 />
                 <LeadNotes leadId={data.leadId} jobId={data.id} />
@@ -87,10 +86,8 @@ export function DetailsStep({ jobId }: { jobId: string }) {
 
               <div className="lg:col-span-4 space-y-8">
                 <TimeCard
-                  jobId={data.id}
-                  leadId={data.leadId}
                   createdAt={data.createdAt}
-                  serviceAt={data.serviceAt}
+                  schedules={data.schedules}
                 />
                 <AddressDetails
                   leadId={data.leadId}

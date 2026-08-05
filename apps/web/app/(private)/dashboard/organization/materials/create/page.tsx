@@ -1,6 +1,10 @@
 import { Metadata } from "next";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MaterialCreateForm } from "@/features/material/components/MaterialCreateForm";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
@@ -17,8 +21,14 @@ export default async function MaterialCreatePage() {
 
   return (
     <DashboardShell
-      title="Create Material"
-      shortDescription="Create a new material"
+      header={
+        <div>
+          <DashboardShellTitle>Create Material</DashboardShellTitle>
+          <DashboardShellDescription>
+            Create a new material
+          </DashboardShellDescription>
+        </div>
+      }
     >
       <div className="max-w-4xl w-full mx-auto">
         <MaterialCreateForm />

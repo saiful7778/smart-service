@@ -26,8 +26,15 @@ import { createOrgSchema, CreateOrgType } from "../../org.schema";
 
 export function CreateOrgForm() {
   "use no memo";
-  const { fileValue, setFileValue, fileError, setFileError, uploadRef } =
-    useFileUploadState();
+  const {
+    fileValue,
+    setFileValue,
+    fileError,
+    setFileError,
+    uploadingProgress,
+    setUploadingProgress,
+    uploadRef,
+  } = useFileUploadState();
 
   const form = useForm<CreateOrgType>({
     resolver: zodResolver(createOrgSchema),
@@ -47,6 +54,7 @@ export function CreateOrgForm() {
 
   const { mutate, isPending } = useOrgCreate<keyof CreateOrgType>({
     uploadRef,
+    onProgress: setUploadingProgress,
     onSuccess: () => {
       form.reset();
       uploadRef.current?.clearFiles();
@@ -90,6 +98,7 @@ export function CreateOrgForm() {
           value={fileValue}
           onChange={setFileValue}
           ref={uploadRef}
+          uploadingProgress={uploadingProgress}
           disabled={isPending}
           fieldError={fileError}
           onError={setFileError}

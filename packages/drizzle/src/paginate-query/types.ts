@@ -7,8 +7,7 @@ import type {
 
 /** Any Drizzle table or plain column map can be used as a column source */
 export type TableColumns =
-  | Record<string, PgColumn>
-  | PgTableWithColumns<TableConfig>;
+  Record<string, PgColumn> | PgTableWithColumns<TableConfig>;
 
 /** Date range filter for temporal columns */
 export interface DateRangeFilter {

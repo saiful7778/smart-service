@@ -1,5 +1,36 @@
 # Smart Service - A Service Business Management SaaS - Technical Database Documentation
 
+## Table of Contents
+
+- [1. Overview](#1-overview)
+- [2. Core Business Workflow](#2-core-business-workflow)
+  - [The Entity Hierarchy](#the-entity-hierarchy)
+  - [Supported Flow Paths](#supported-flow-paths)
+- [3. Key Architectural Decisions](#3-key-architectural-decisions)
+  - [3.1. Better-Auth Integration](#31-better-auth-integration)
+  - [3.2. Soft Delete Strategy](#32-soft-delete-strategy)
+  - [3.3. Timezone Management](#33-timezone-management)
+  - [3.4. File Management](#34-file-management)
+- [4. Core Data Models: The "Ops Trinity"](#4-core-data-models-the-ops-trinity)
+  - [Job Assignments](#job-assignments-the-who)
+  - [Schedules](#schedules-the-when---planned)
+  - [Time Entries](#time-entries-the-when---actual)
+- [5. Deletion Rules & Foreign Key Behaviors](#5-deletion-rules--foreign-key-behaviors)
+- [6. Enum Definitions & Status Lifecycles](#6-enum-definitions--status-lifecycles)
+  - [Lead Status Lifecycle](#lead-status-lifecycle)
+  - [Job Status Lifecycle](#job-status-lifecycle)
+  - [Job Assignment Status](#job-assignment-status)
+- [7. Index Strategy](#7-index-strategy)
+- [8. Installation & Dev Setup](#8-installation--dev-setup)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Manual Setup](#manual-setup)
+  - [Available Commands](#available-commands)
+  - [Environment Variables](#environment-variables)
+  - [Project Structure](#project-structure)
+
+---
+
 ## 1. Overview
 
 This document outlines the database architecture and technical implementation details for the Service Business Management SaaS platform. The application is designed to manage the complete lifecycle of service businesses, from CRM (Customer/Lead management) to Operations (Job dispatch, Scheduling, Time Tracking) and future Financials (Invoicing, Payments).
@@ -144,3 +175,168 @@ To ensure high performance at scale in a multi-tenant environment, the following
 3.  **Calendar Queries:** `schedules(org_id, start_at)` ensures fast Full-Calendar API responses.
 4.  **Notification Inbox:** `notifications(recipient_id, is_read, created_at)` ensures the unread notification badge loads instantly.
 5.  **Soft Delete Auditing:** Indexes on `deleted_at` and `deleted_by` allow fast admin queries for "Trash Bin" views and audit logs.
+
+---
+
+## 8. Installation & Dev Setup
+
+### Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **Node.js** | `>=20` (`.nvmrc`: `24.16.0`) | JavaScript runtime |
+| **pnpm** | `10.33.4` | Package manager |
+| **Docker** | latest | Redis, MailHog services |
+| **Supabase CLI** | latest | Local Supabase (DB, Auth, Storage) |
+| **Turbo** | `^2.9.16` (included via pnpm) | Monorepo task runner |
+
+### Quick Start
+
+```bash
+# 1. Clone and enter the repository
+git clone <repo-url> smart_service
+cd smart_service
+
+# 2. Run the automated setup script
+bash scripts/setup.sh
+```
+
+The setup script handles: Node version check, pnpm install, Docker service startup (Redis, MailHog), Supabase local start, DB migrations, and seed data.
+
+### Manual Setup
+
+```bash
+# 1. Set Node version
+nvm use
+
+# 2. Install dependencies
+pnpm install
+
+# 3. Configure environment
+cp .env.development.local.example .env.development.local  # if example exists
+
+# 4. Start infrastructure services (Redis, MailHog)
+pnpm docker:dev:up
+
+# 5. Start local Supabase
+pnpm supabase:start
+
+# 6. Apply database migrations
+pnpm supabase:migration:up
+
+# 7. Seed the database
+pnpm supabase:db:reset
+pnpm seed:storage
+
+# 8. Start the development server
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start all workspaces in dev mode |
+| `pnpm build` | Build all workspaces |
+| `pnpm lint` | Run ESLint across all workspaces |
+| `pnpm typecheck` | Run TypeScript type checking |
+| `pnpm test` | Run all tests |
+| `pnpm format` | Format code with Prettier |
+| **Supabase** | |
+| `pnpm supabase:start` | Start local Supabase services |
+| `pnpm supabase:stop` | Stop local Supabase |
+| `pnpm supabase:studio` | Open Supabase Studio (DB GUI) |
+| `pnpm supabase:db:push` | Push schema changes to local DB |
+| `pnpm supabase:db:pull` | Pull remote schema to local |
+| `pnpm supabase:db:reset` | Reset DB (re-applies migrations + seed) |
+| `pnpm supabase:migration:new` | Create a new migration |
+| `pnpm supabase:migration:up` | Apply pending migrations |
+| **Docker** | |
+| `pnpm docker:dev:up` | Start Redis & MailHog containers |
+| `pnpm docker:dev:down` | Stop all Docker containers |
+| **Seed** | |
+| `pnpm seed:storage` | Seed Supabase Storage buckets |
+| **Drizzle** | |
+| `npx drizzle-kit studio` | Open Drizzle Studio (DB browser) |
+| `npx drizzle-kit generate` | Generate migrations from schema changes |
+| `npx drizzle-kit migrate` | Apply pending migrations |
+
+### Environment Variables
+
+Key environment variables used by the project (configure in `.env` and `.env.development.local`):
+
+```env
+# Database
+DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres
+
+# Redis (via Upstash or local)
+REDIS_REST_URL=http://localhost:8079
+REDIS_REST_TOKEN=
+
+# Auth
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your-secret-here
+GOOGLE_AUTH_CLIENT_SECRET=xxx
+NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID=xxx
+
+# Mail
+MAIL_FROM=noreply@smartservice.local
+SUPPORT_MAIL=support@smartservice.local
+GOOGLE_MAIL_USER=
+GOOGLE_MAIL_PASS=
+MAILHOG_HOST=localhost
+MAILHOG_PORT=1025
+
+# Storage
+SUPABASE_SECRET_KEY=xxx
+SUPABASE_PUBLIC_STORAGE_BUCKET=public_file_storage
+SUPABASE_PRIVATE_STORAGE_BUCKET=private_file_storage
+
+# Web Push (Notifications)
+NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY=xxx
+WEB_PUSH_PRIVATE_KEY=xxx
+
+# QStash (Background Jobs)
+QSTASH_URL=
+QSTASH_TOKEN=
+QSTASH_CURRENT_SIGNING_KEY=
+QSTASH_NEXT_SIGNING_KEY=
+CRON_API_KEY=xxx
+```
+
+See `turbo.json` for the complete list of global environment variables.
+
+### Project Structure
+
+```
+smart_service/
+├── apps/
+│   ├── web/                    # Next.js application (frontend + API)
+│   └── storybook/              # Storybook component library
+├── packages/
+│   ├── drizzle/                # Database schema, migrations, Drizzle config
+│   ├── ui/                     # Shared UI components (shadcn/ui, Radix)
+│   ├── lib/                    # Shared utilities and helpers
+│   ├── mail/                   # Email sending (Nodemailer)
+│   ├── pdf/                    # PDF generation (@react-pdf/renderer)
+│   ├── eslint-config/          # Shared ESLint configuration
+│   ├── typescript-config/      # Shared TypeScript configuration
+│   └── vitest-config/          # Shared Vitest configuration
+├── infra/
+│   └── docker/                 # Docker Compose files for local dev
+├── scripts/
+│   ├── setup.sh                # Automated setup script
+│   ├── docker-compose-wrapper.sh
+│   └── seed/                   # Database seed scripts
+├── supabase/
+│   ├── migrations/             # SQL migrations
+│   ├── seed.sql                # Seed data (permissions, roles)
+│   ├── config.toml             # Supabase local config
+│   └── functions/              # Supabase Edge Functions
+├── .nvmrc                      # Node.js version
+├── pnpm-workspace.yaml         # pnpm workspace config
+├── turbo.json                  # Turborepo pipeline config
+└── package.json                # Root package.json
+```

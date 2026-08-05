@@ -26,8 +26,6 @@ export async function seedOrgRoles(
     .values(orgRoleData)
     .returning();
 
-  console.log(
-    `✅ ${orgRoles.length} Organization roles seeded`
-  );
-  return orgRoles
+  console.log(`✅ ${orgRoles.length} Organization roles seeded`);
+  return orgRoles;
 }

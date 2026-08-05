@@ -37,7 +37,6 @@ interface JobGeneralInfoProps {
   jobId: string;
   title: string;
   status: JobStatusEnumType;
-  serviceAt: Date | null;
   createdBy: UserProfileType;
   description: string | null;
 }
@@ -49,7 +48,6 @@ export function JobGeneralInfo({
   createdBy,
   description,
   title,
-  serviceAt,
 }: JobGeneralInfoProps) {
   const [openUpdateDialog, setOpenUpdateDialog] = useState<boolean>(false);
 
@@ -169,7 +167,6 @@ export function JobGeneralInfo({
           title,
           description: description || undefined,
           status,
-          serviceAt: serviceAt || undefined,
         }}
       />
     </>

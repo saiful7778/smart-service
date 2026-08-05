@@ -88,7 +88,10 @@ export function Feed({
   );
 
   const groupedNotes = useMemo(() => {
-    const groups = new Map<string, ListLeadNotesContractType["output"]["data"]["data"]>();
+    const groups = new Map<
+      string,
+      ListLeadNotesContractType["output"]["data"]["data"]
+    >();
 
     notes.forEach((note) => {
       const date = new Date(note.createdAt);

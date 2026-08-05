@@ -5,7 +5,10 @@ import { createContext, useCallback, useContext, useState } from "react";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import { RestoreConfirmDialog } from "@workspace/ui/components/restore-confirm-dialog";
 
-import { useMaterialBinDelete, useMaterialRestore } from "../../api/material.api.hook";
+import {
+  useMaterialBinDelete,
+  useMaterialRestore,
+} from "../../api/material.api.hook";
 import { ListMaterialBinContractType } from "../../api/materialBin.contract";
 
 interface MaterialBinTableContextProps {
@@ -13,7 +16,8 @@ interface MaterialBinTableContextProps {
   handleRestoreDialog: (materialId: string) => void;
 }
 
-const MaterialBinTableContext = createContext<MaterialBinTableContextProps | null>(null);
+const MaterialBinTableContext =
+  createContext<MaterialBinTableContextProps | null>(null);
 
 interface MaterialBinTableContextProviderProps extends React.PropsWithChildren {
   data: ListMaterialBinContractType["output"]["data"]["data"];
@@ -29,19 +33,21 @@ export function MaterialBinTableContextProvider({
     ListMaterialBinContractType["output"]["data"]["data"][number] | null
   >(null);
 
-  const { mutate: deleteMaterial, isPending: isDeleting } = useMaterialBinDelete({
-    onSuccess: () => {
-      setOpenDeleteDialog(false);
-      setMaterialToAction(null);
-    },
-  });
+  const { mutate: deleteMaterial, isPending: isDeleting } =
+    useMaterialBinDelete({
+      onSuccess: () => {
+        setOpenDeleteDialog(false);
+        setMaterialToAction(null);
+      },
+    });
 
-  const { mutate: restoreMaterial, isPending: isRestoring } = useMaterialRestore({
-    onSuccess: () => {
-      setOpenRestoreDialog(false);
-      setMaterialToAction(null);
-    },
-  });
+  const { mutate: restoreMaterial, isPending: isRestoring } =
+    useMaterialRestore({
+      onSuccess: () => {
+        setOpenRestoreDialog(false);
+        setMaterialToAction(null);
+      },
+    });
 
   const handleDelete = useCallback(() => {
     if (!materialToAction) return;

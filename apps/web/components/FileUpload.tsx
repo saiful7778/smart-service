@@ -13,6 +13,13 @@ import {
 import { FileIcon, ImageUp, UploadCloud, XIcon } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressTrack,
+  ProgressValue,
+} from "@workspace/ui/components/progress";
 import { cn } from "@workspace/ui/lib/utils";
 
 import {
@@ -23,15 +30,34 @@ import {
 } from "@/hooks/use-file-upload";
 import { formatBytes } from "@/utils/formatBytes";
 
+export type ProgressType = {
+  loaded: number;
+  total: number;
+  percent: number;
+};
+
 export function useFileUploadState() {
   "use no memo";
   const [fileValue, setFileValue] = useState<File | File[] | null | undefined>(
     () => null
   );
+  const [uploadingProgress, setUploadingProgress] = useState<ProgressType>({
+    loaded: 0,
+    total: 0,
+    percent: 0,
+  });
   const [fileError, setFileError] = useState<string | null>(null);
   const uploadRef = useRef<FileUploadRef>(null);
 
-  return { fileValue, setFileValue, fileError, setFileError, uploadRef };
+  return {
+    fileValue,
+    setFileValue,
+    fileError,
+    setFileError,
+    uploadingProgress,
+    setUploadingProgress,
+    uploadRef,
+  };
 }
 
 export type FileUploadVariant = "image" | "document" | "any";
@@ -56,6 +82,8 @@ export interface FileUploadProps {
   onChange: (file: File | File[] | null | undefined) => void;
   /** Called with a validation error message when a file is rejected. */
   onError?: (message: string) => void;
+  /** Upload progress */
+  uploadingProgress: ProgressType;
   /** Whether the control is disabled. */
   disabled?: boolean;
   /** Allow multiple file selection. Defaults to false. */
@@ -88,6 +116,7 @@ export const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(
       onError,
       className,
       dropzoneClassName,
+      uploadingProgress,
       accept,
       variant = "any",
       validation,
@@ -210,10 +239,28 @@ export const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(
     return (
       <div
         className={cn(
-          "relative flex overflow-hidden h-40 rounded-lg border border-dashed border-input overflow-y-auto transition-colors items-center justify-center",
+          "relative flex w-full h-40 rounded-lg p-4 border border-dashed border-input overflow-y-auto transition-colors items-center justify-center",
           className
         )}
       >
+        {uploadingProgress.percent > 0 && (
+          <div className="absolute z-20 inset-0 w-full h-full bg-background/80 backdrop-blur-sm flex flex-col gap-2 items-center justify-center">
+            <Progress
+              value={uploadingProgress.percent}
+              className="w-[60%] gap-1"
+            >
+              <ProgressLabel>
+                {uploadingProgress.percent < 100
+                  ? "Uploading..."
+                  : "Uploaded 🎉"}
+              </ProgressLabel>
+              <ProgressValue />
+              <ProgressTrack className="h-2">
+                <ProgressIndicator />
+              </ProgressTrack>
+            </Progress>
+          </div>
+        )}
         <div
           aria-label={"Upload file"}
           aria-busy={disabled}
@@ -236,7 +283,7 @@ export const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(
         >
           {hasFile ? (
             files.map((file) =>
-              resolvedAccept.startsWith("image/") && file.preview ? (
+              file.file.type.startsWith("image/") && file.preview ? (
                 <DefaultImagePreview
                   key={file.id}
                   handleRemove={() => handleRemove(file.id)}
@@ -352,7 +399,7 @@ function DefaultImagePreview({
   hideRemove?: boolean;
 }) {
   return (
-    <div className="relative aspect-square w-25 border rounded-md overflow-hidden">
+    <div className="relative aspect-square size-30 border rounded-md overflow-hidden">
       <Image
         className="object-contain w-full h-full object-center"
         src={url}
@@ -379,7 +426,7 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
       size="icon-xs"
       onClick={handleRemove}
       aria-label="Remove file"
-      className="absolute top-[1%] right-[1%]"
+      className="absolute top-[2%] right-[2%] z-10"
     >
       <XIcon />
     </Button>

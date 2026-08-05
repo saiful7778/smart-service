@@ -1,9 +1,11 @@
 import z from "zod";
 
+import { selectOrganizationSchema } from "@workspace/drizzle/schemas";
 import {
-  selectOrganizationSchema,
-  selectPermissionSchema,
-} from "@workspace/drizzle/schemas";
+  ActionTypeEnumSchema,
+  PermissionLevelEnumSchema,
+  ResourceTypeEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
@@ -57,19 +59,16 @@ const authMetadataContract = baseContract
           })
         ),
         permissions: z.array(
-          selectPermissionSchema
-            .pick({
-              name: true,
-              level: true,
-              resource: true,
-              action: true,
-            })
-            .extend({
-              source: z.enum(["SYSTEM", "ORG"]),
-              orgId: z.uuid().optional(),
-              orgName: z.string().optional(),
-              orgSlug: z.string().optional(),
-            })
+          z.object({
+            name: z.string(),
+            level: PermissionLevelEnumSchema,
+            action: ActionTypeEnumSchema,
+            resource: ResourceTypeEnumSchema,
+            source: z.enum(["SYSTEM", "ORG"]),
+            orgId: z.uuid().optional(),
+            orgName: z.string().optional(),
+            orgSlug: z.string().optional(),
+          })
         ),
         isAdminUser: z.boolean(),
         orgs: z.array(
@@ -111,7 +110,9 @@ const userBanContract = baseContract
   })
   .input(userBannedSchema)
   .output(apiOutputZodSchema(z.null()));
-export type UserBanContractType = InferContractRouterType<typeof userBanContract>;
+export type UserBanContractType = InferContractRouterType<
+  typeof userBanContract
+>;
 
 export const authContract = {
   metadata: authMetadataContract,

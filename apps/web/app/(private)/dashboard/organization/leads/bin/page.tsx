@@ -5,7 +5,11 @@ import { parseAsArrayOf, parseAsIsoDate } from "nuqs/server";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { LeadBinManagementTable } from "@/features/lead/components/lead-bin-table/LeadBinManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -54,8 +58,14 @@ export default async function LeadBinPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Recycle bin"
-        shortDescription="leads recycle bin management"
+        header={
+          <div>
+            <DashboardShellTitle>Lead Recycle Bin</DashboardShellTitle>
+            <DashboardShellDescription>
+              Restore or permanently delete removed leads
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadBinManagementTable
           page={filters.page}

@@ -14,7 +14,10 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
-import { useMaterialBinDeleteAll, useMaterialRestoreAll } from "../../api/material.api.hook";
+import {
+  useMaterialBinDeleteAll,
+  useMaterialRestoreAll,
+} from "../../api/material.api.hook";
 import { ListMaterialBinContractType } from "../../api/materialBin.contract";
 import { materialBinTableColumn } from "./materialBinTableColumn";
 
@@ -24,7 +27,11 @@ interface MaterialBinTableProps {
   setFilters: (filters: Omit<FiltersType, "search">) => void;
 }
 
-export function MaterialBinTable({ data, filters, setFilters }: MaterialBinTableProps) {
+export function MaterialBinTable({
+  data,
+  filters,
+  setFilters,
+}: MaterialBinTableProps) {
   "use no memo";
 
   const table = useDataTable({
@@ -40,8 +47,12 @@ export function MaterialBinTable({ data, filters, setFilters }: MaterialBinTable
     },
   });
 
-  const { mutate: restoreAll, isPending: isRestoring } = useMaterialRestoreAll({});
-  const { mutate: deleteAll, isPending: isDeleting } = useMaterialBinDeleteAll({});
+  const { mutate: restoreAll, isPending: isRestoring } = useMaterialRestoreAll(
+    {}
+  );
+  const { mutate: deleteAll, isPending: isDeleting } = useMaterialBinDeleteAll(
+    {}
+  );
 
   const handleRestoreAll = useCallback(() => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;

@@ -2,17 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 
 import { EntityTypeEnumType } from "@workspace/drizzle/zod-db-enums";
 
+import { ProgressType } from "@/components/FileUpload";
+
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
 import { useConfirmUpload, useGetUploadUrl } from "../api/upload.api.hook";
 import { ConfirmUploadContractType } from "../api/upload.contract";
-
-export type ProgressType = {
-  loaded: number;
-  total: number;
-  percent: number;
-};
 
 interface UseFileUploadProps extends Omit<IApiHookInput, "onValidationErrors"> {
   onProgress?: (progress: ProgressType) => void;

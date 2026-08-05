@@ -33,7 +33,6 @@ export async function seedJob(
         expectedRevenue: faker.commerce.price({ min: 100, max: 5000 }),
         invoicedRevenue: faker.commerce.price({ min: 0, max: 4000 }),
         receivedRevenue: faker.commerce.price({ min: 0, max: 3000 }),
-        serviceAt: faker.date.anytime(),
       } satisfies InsertJob;
     });
 

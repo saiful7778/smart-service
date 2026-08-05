@@ -167,12 +167,5 @@ secrets
 storybook-static
 .branches
 
-# Ignore the heavy lifting and machine-specific bits
-graphify-out/cache/
-graphify-out/.graphify_*
-graphify-out/cost.json
-
-# Keep the valuable documentation and graph data
-!graphify-out/GRAPH_REPORT.md
-!graphify-out/graph.html
-!graphify-out/graph.json
+# Ignore graphify
+graphify-out/

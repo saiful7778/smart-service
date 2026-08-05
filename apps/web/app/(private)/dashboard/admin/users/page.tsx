@@ -3,7 +3,11 @@ import { Metadata } from "next";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { UserManagementTable } from "@/features/user/components/user-table/UserManagementTable";
 import { UserStats } from "@/features/user/components/UserStats";
@@ -46,8 +50,14 @@ export default async function UsersPage(
   return (
     <HydrateClient client={queryclient}>
       <DashboardShell
-        title="User Management"
-        shortDescription="Manage your users"
+        header={
+          <div>
+            <DashboardShellTitle>User Management</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage your users
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <UserStats />
         <UserManagementTable

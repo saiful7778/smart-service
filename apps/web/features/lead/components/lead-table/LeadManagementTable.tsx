@@ -12,6 +12,7 @@ import {
   LeadStatusEnumSchema,
   LeadStatusEnumType,
 } from "@workspace/drizzle/zod-db-enums";
+import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
 import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
@@ -20,6 +21,7 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
 import { ExportData } from "@/components/ExportData";
+import { TimeRangeFilter } from "@/components/time-range-filter";
 
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
@@ -52,9 +54,11 @@ export function LeadManagementTable({
       categories: parseAsArrayOf(parseAsString, ",").withOptions({
         clearOnDefault: true,
       }),
-      createdAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
+      range: parseAsStringLiteral(RangeSearchEnumSchema.options).withOptions({
         clearOnDefault: true,
       }),
+      startTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
+      endTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
     },
   });
 
@@ -72,9 +76,10 @@ export function LeadManagementTable({
         filter: {
           status: filters.status ?? undefined,
           categories: filters.categories ?? undefined,
-          createdAt: filters.createdAt
-            ? { from: filters.createdAt[0], to: filters.createdAt[1] }
-            : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })
@@ -87,6 +92,16 @@ export function LeadManagementTable({
 
   return (
     <div className="space-y-3">
+      <TimeRangeFilter
+        rangeSearch={{
+          range: filters.range,
+          startTime: filters.startTime,
+          endTime: filters.endTime,
+        }}
+        setRangeSearch={({ range, startTime, endTime }) =>
+          setFilters({ range, startTime, endTime })
+        }
+      />
       <DataTableGlobalSearch
         searchValue={filters.search}
         setSearchValue={globalSearch}
@@ -102,9 +117,10 @@ export function LeadManagementTable({
               filter: {
                 status: filters.status ?? undefined,
                 categories: filters.categories ?? undefined,
-                createdAt: filters.createdAt
-                  ? { from: filters.createdAt[0], to: filters.createdAt[1] }
-                  : undefined,
+                createdAt:
+                  filters.startTime && filters.endTime
+                    ? { from: filters.startTime, to: filters.endTime }
+                    : undefined,
               },
             })
           }
@@ -132,9 +148,6 @@ export function LeadManagementTable({
                 filter: {
                   status: filters.status,
                   leadCategories: filters.categories,
-                  createdAt: filters.createdAt
-                    ? filters.createdAt.map((date) => date.toISOString())
-                    : null,
                 },
               }}
               setFilters={(filters) => {
@@ -142,7 +155,6 @@ export function LeadManagementTable({
                   LeadStatusEnumType[] | null;
                 const categories = filters?.filter?.leadCategories as
                   string[] | null;
-                const createdAt = filters?.filter?.createdAt as string[] | null;
 
                 setFilters({
                   page: filters?.page ?? DEFAULT_PAGE_INDEX,
@@ -151,9 +163,6 @@ export function LeadManagementTable({
                   orderField: filters?.orderField ?? null,
                   status: status && status?.length > 0 ? status[0] : null,
                   categories,
-                  createdAt: createdAt
-                    ? createdAt.map((date) => new Date(date))
-                    : null,
                 });
               }}
             />

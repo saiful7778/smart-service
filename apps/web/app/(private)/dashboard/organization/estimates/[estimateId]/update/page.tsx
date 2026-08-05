@@ -1,12 +1,18 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { ArrowLeft } from "lucide-react";
 import { createLoader, parseAsString } from "nuqs/server";
 
 import { env } from "@/lib/env";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { LeadEstimateUpdateForm } from "@/features/lead/components/lead-estimate/LeadEstimateUpdateForm";
@@ -66,9 +72,23 @@ export default async function EstimateUpdatePage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
-        backUrl={redirectUrl.toString()}
-        title={data.name}
-        shortDescription="Update estimate information."
+        header={
+          <div>
+            <LinkButton
+              href={{
+                pathname: redirectUrl.pathname,
+                search: redirectUrl.search,
+              }}
+            >
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.name}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Update estimate information.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <LeadEstimateUpdateForm
           estimateId={estimateId}
@@ -79,7 +99,7 @@ export default async function EstimateUpdatePage(
             name: data.name,
             description: data?.description || "",
             status: data.status,
-            discount: data?.discount || "",
+            discountRate: data?.discountRate || "",
             taxRate: data?.taxRate || "",
             validUntil: data?.validUntil || undefined,
             notes: data?.notes || "",

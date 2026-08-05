@@ -4,17 +4,18 @@ import { useRouter } from "next/navigation";
 import { Fragment, useCallback, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, DollarSign, Plus, Trash } from "lucide-react";
 import { AnimatePresence, motion, Variants } from "motion/react";
 import { Control, useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
+import {
+  JobAssignmentRoleEnumSchema,
+  JobStatusEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
-import { DateTimeDayButton } from "@workspace/ui/components/date-time-picker";
 import {
   FieldGroup,
   FieldLegend,
@@ -43,11 +44,10 @@ import {
 } from "@workspace/ui/components/stepper";
 
 import { LeadSelectorField } from "@/features/lead/components/LeadSelectorField";
-import { orpcTQClient } from "@/server/orpc.client";
+import { MemberSelectorField } from "@/features/org/components/MemberSelectorField";
 import { RoutePathType } from "@/types";
 
 import { useJobCreate } from "../../api/job.api.hook";
-import { ListServicingsContractType } from "../../api/job.contract";
 import { jobCreateSchema, JobCreateType } from "../../job.schema";
 
 const steps: Array<{
@@ -63,13 +63,18 @@ const steps: Array<{
     fields: [
       "title",
       "leadId",
-      "description",
       "status",
       "expectedRevenue",
       "invoicedRevenue",
       "receivedRevenue",
-      "serviceAt",
+      "description",
     ] as const,
+  },
+  {
+    value: "schedule",
+    title: "Schedule",
+    description: "Enter job schedule details",
+    fields: ["startAt", "endAt"],
   },
   {
     value: "address",
@@ -96,10 +101,6 @@ export function JobCreateForm({ leadId }: { leadId?: string | undefined }) {
   "use no memo";
   const [step, setStep] = useState<string>("details");
   const router = useRouter();
-
-  const { data: servicings } = useSuspenseQuery(
-    orpcTQClient.job.listServicings.queryOptions()
-  );
 
   const form = useForm<JobCreateType>({
     resolver: zodResolver(jobCreateSchema),
@@ -199,10 +200,18 @@ export function JobCreateForm({ leadId }: { leadId?: string | undefined }) {
             value="details"
             isPending={isPending}
             control={form.control}
-            servicings={servicings.data}
             leadId={leadId}
           />
           {/* details section step end */}
+
+          {/* schedule section step start */}
+          <ScheduleStep
+            key="schedule-step"
+            value="schedule"
+            isPending={isPending}
+            control={form.control}
+          />
+          {/* schedule section step end */}
 
           {/* address step start */}
           <AddressStep
@@ -247,13 +256,11 @@ function DetailsStep({
   isPending,
   control,
   value,
-  servicings,
   leadId,
 }: {
   isPending: boolean;
   control: Control<JobCreateType>;
   value: string;
-  servicings: ListServicingsContractType["output"]["data"];
   leadId?: string | undefined;
 }) {
   const statusOptions = useMemo(
@@ -283,14 +290,14 @@ function DetailsStep({
             requiredField
             disabled={isPending}
           />
-          <LeadSelectorField
-            control={control}
-            name="leadId"
-            label="Select Lead"
-            description="Select a lead for the job"
-            disabled={!!leadId || isPending}
-          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LeadSelectorField
+              control={control}
+              name="leadId"
+              label="Select Lead"
+              description="Select a lead for the job"
+              disabled={!!leadId || isPending}
+            />
             <SelectField
               control={control}
               name="status"
@@ -299,24 +306,6 @@ function DetailsStep({
               disabled={isPending}
               requiredField
               options={statusOptions}
-            />
-            <DateTimePickerField
-              control={control}
-              name="serviceAt"
-              label="Service at"
-              calendarProps={{
-                disabled: {
-                  before: new Date(),
-                },
-                className: "[--cell-size:--spacing(12)]",
-                components: {
-                  DayButton: (props) => (
-                    <DateTimeDayButton {...props} bookings={servicings} />
-                  ),
-                },
-              }}
-              showTimeSelection
-              disabled={isPending}
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -352,6 +341,124 @@ function DetailsStep({
             rows={4}
             disabled={isPending}
           />
+        </FieldGroup>
+      </motion.div>
+    </StepperContent>
+  );
+}
+
+function ScheduleStep({
+  isPending,
+  control,
+  value,
+}: {
+  isPending: boolean;
+  control: Control<JobCreateType>;
+  value: string;
+}) {
+  "use no memo";
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "assignments",
+  });
+
+  const handleAppend = () => {
+    append({
+      assignedTo: "",
+      role: "primary",
+    });
+  };
+
+  return (
+    <StepperContent value={value}>
+      <motion.div
+        variants={animationVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        key="schedule-step-content"
+      >
+        <FieldGroup>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DateTimePickerField
+              control={control}
+              name="startAt"
+              label="Start at"
+              calendarProps={{
+                disabled: {
+                  before: new Date(),
+                },
+              }}
+              showTimeSelection
+              disabled={isPending}
+            />
+            <DateTimePickerField
+              control={control}
+              name="endAt"
+              label="End at"
+              calendarProps={{
+                disabled: {
+                  before: new Date(),
+                },
+              }}
+              showTimeSelection
+              disabled={isPending}
+            />
+          </div>
+          {fields.map((field, idx) => (
+            <Fragment key={field.id}>
+              <FieldSet>
+                <div className="flex items-center justify-between">
+                  <FieldLegend className="font-semibold mb-0">{`Assignment #${idx + 1}`}</FieldLegend>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => remove(idx)}
+                    disabled={isPending}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              </FieldSet>
+              <FieldGroup>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <MemberSelectorField
+                    control={control}
+                    name={`assignments.${idx}.assignedTo`}
+                    label="Assigned to"
+                    disabled={isPending}
+                    requiredField
+                  />
+                  <SelectField
+                    control={control}
+                    name={`assignments.${idx}.role`}
+                    label="Role"
+                    placeholder="Select role"
+                    options={JobAssignmentRoleEnumSchema.options.map(
+                      (value) => ({
+                        value,
+                        label: formatEnumValue(value),
+                      })
+                    )}
+                    requiredField
+                    disabled={isPending}
+                  />
+                </div>
+              </FieldGroup>
+              {idx < fields.length - 1 && <Separator />}
+            </Fragment>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-fit"
+            onClick={handleAppend}
+            disabled={isPending}
+          >
+            <Plus />
+            <span>Add Assignment</span>
+          </Button>
         </FieldGroup>
       </motion.div>
     </StepperContent>

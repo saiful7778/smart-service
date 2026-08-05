@@ -5,6 +5,11 @@ import {
   selectPermissionSchema,
   selectRoleSchema,
 } from "@workspace/drizzle/schemas";
+import {
+  ActionTypeEnumSchema,
+  PermissionLevelEnumSchema,
+  ResourceTypeEnumSchema,
+} from "@workspace/drizzle/zod-db-enums";
 import { apiOutputZodSchema } from "@workspace/lib/utils";
 
 import { baseContract } from "@/server/orpc.contract-base";
@@ -35,14 +40,17 @@ const listRoleContract = baseContract
           .extend({
             totalUsers: z.number(),
             permissions: z.array(
-              selectPermissionSchema.pick({
-                id: true,
-                level: true,
-                action: true,
-                resource: true,
-                description: true,
-                name: true,
-              })
+              selectPermissionSchema
+                .pick({
+                  id: true,
+                  description: true,
+                  name: true,
+                })
+                .extend({
+                  level: PermissionLevelEnumSchema,
+                  action: ActionTypeEnumSchema,
+                  resource: ResourceTypeEnumSchema,
+                })
             ),
           })
       )
@@ -94,14 +102,17 @@ const listOrgRoleContract = baseContract
           type: z.enum(["system", "dynamic"]),
           createdAt: z.date(),
           permissions: z.array(
-            selectPermissionSchema.pick({
-              id: true,
-              level: true,
-              action: true,
-              resource: true,
-              description: true,
-              name: true,
-            })
+            selectPermissionSchema
+              .pick({
+                id: true,
+                description: true,
+                name: true,
+              })
+              .extend({
+                level: PermissionLevelEnumSchema,
+                action: ActionTypeEnumSchema,
+                resource: ResourceTypeEnumSchema,
+              })
           ),
         })
       )

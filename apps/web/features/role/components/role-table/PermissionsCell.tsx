@@ -20,7 +20,8 @@ import {
 
 import { ListRoleContractType } from "../../api/role.contract";
 
-type Permission = ListRoleContractType["output"]["data"][number]["permissions"][number];
+type Permission =
+  ListRoleContractType["output"]["data"][number]["permissions"][number];
 
 function PermissionBadge({
   resource,
@@ -99,7 +100,7 @@ export function PermissionsCell({
           {`+${hiddenPerm.length} more`}
         </PopoverTrigger>
         <PopoverContent
-          className="max-w-lg w-full max-h-[300px] overflow-y-auto"
+          className="max-w-lg w-full max-h-75 overflow-y-auto"
           align="end"
         >
           <div className="flex flex-wrap gap-2 items-center">

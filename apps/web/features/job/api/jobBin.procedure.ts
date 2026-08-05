@@ -20,12 +20,12 @@ import { apiResponse } from "@workspace/lib/utils";
 import { privateStorage } from "@/lib/storage";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
-import { userProfileColumns } from "@/features/user/user.api-schema";
-import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
 import {
   increaseStock,
   reduceStock,
 } from "@/features/lead/api/estimate-stock.helper";
+import { userProfileColumns } from "@/features/user/user.api-schema";
+import { orgMemberPermissionsMiddleware } from "@/server/middleware/org.middleware";
 
 import { jobImpl } from "./job.procedure";
 
@@ -192,7 +192,7 @@ export const jobRestoreProcedure = jobImpl.bin.restore
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToRestore
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );
@@ -319,7 +319,7 @@ export const jobAllRestoreProcedure = jobImpl.bin.restoreAll
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToRestore
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );
@@ -429,7 +429,7 @@ export const jobBinDeleteProcedure = jobImpl.bin.delete
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToDelete
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );
@@ -442,23 +442,19 @@ export const jobBinDeleteProcedure = jobImpl.bin.delete
           }))
         );
 
-        await tx
-          .delete(LeadEstimateMaterialTable)
-          .where(
-            inArray(
-              LeadEstimateMaterialTable.estimateId,
-              estimatesToDelete.map(({ id }) => id)
-            )
-          );
+        await tx.delete(LeadEstimateMaterialTable).where(
+          inArray(
+            LeadEstimateMaterialTable.estimateId,
+            estimatesToDelete.map(({ id }) => id)
+          )
+        );
 
-        await tx
-          .delete(LeadEstimateTable)
-          .where(
-            inArray(
-              LeadEstimateTable.id,
-              estimatesToDelete.map(({ id }) => id)
-            )
-          );
+        await tx.delete(LeadEstimateTable).where(
+          inArray(
+            LeadEstimateTable.id,
+            estimatesToDelete.map(({ id }) => id)
+          )
+        );
       }
 
       await tx.delete(JobTable).where(eq(JobTable.id, existJob.id));
@@ -552,7 +548,7 @@ export const jobBinDeleteAllProcedure = jobImpl.bin.deleteAll
             inArray(
               LeadEstimateMaterialTable.estimateId,
               estimatesToDelete
-                .filter(({ status }) => status === "approved")
+                .filter(({ status }) => status === "accepted")
                 .map(({ id }) => id)
             )
           );
@@ -565,23 +561,19 @@ export const jobBinDeleteAllProcedure = jobImpl.bin.deleteAll
           }))
         );
 
-        await tx
-          .delete(LeadEstimateMaterialTable)
-          .where(
-            inArray(
-              LeadEstimateMaterialTable.estimateId,
-              estimatesToDelete.map(({ id }) => id)
-            )
-          );
+        await tx.delete(LeadEstimateMaterialTable).where(
+          inArray(
+            LeadEstimateMaterialTable.estimateId,
+            estimatesToDelete.map(({ id }) => id)
+          )
+        );
 
-        await tx
-          .delete(LeadEstimateTable)
-          .where(
-            inArray(
-              LeadEstimateTable.id,
-              estimatesToDelete.map(({ id }) => id)
-            )
-          );
+        await tx.delete(LeadEstimateTable).where(
+          inArray(
+            LeadEstimateTable.id,
+            estimatesToDelete.map(({ id }) => id)
+          )
+        );
       }
 
       await tx.delete(JobTable).where(inArray(JobTable.id, jobIds));

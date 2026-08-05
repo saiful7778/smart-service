@@ -1,8 +1,15 @@
 import { Metadata } from "next";
 
+import { ArrowLeft } from "lucide-react";
+
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { LinkButton } from "@/components/LinkButton";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MaterialDetails } from "@/features/material/components/MaterialDetails";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -36,9 +43,18 @@ export default async function MaterialDetailsPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         className="max-w-4xl mx-auto w-full"
-        backUrl="/dashboard/organization/materials"
-        title={data.name}
-        shortDescription="Detailed overview of material."
+        header={
+          <div>
+            <LinkButton href="/dashboard/organization/materials">
+              <ArrowLeft />
+              <span>Go Back</span>
+            </LinkButton>
+            <DashboardShellTitle>{data.name}</DashboardShellTitle>
+            <DashboardShellDescription>
+              Detailed overview of material.
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <MaterialDetails materialId={data.id} />
       </DashboardShell>

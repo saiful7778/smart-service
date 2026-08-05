@@ -11,7 +11,8 @@ import { ListUserContractType } from "../../api/user.contract";
 import UserBannedCell from "./cells/UserBannedCell";
 import UserTableRowAction from "./UserTableRowAction";
 
-type UserTableRowDataType = ListUserContractType["output"]["data"]["data"][number];
+type UserTableRowDataType =
+  ListUserContractType["output"]["data"]["data"][number];
 
 export const userTableColumn: ColumnType<UserTableRowDataType> = [
   {

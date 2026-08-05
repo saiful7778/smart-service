@@ -40,7 +40,7 @@ function PhoneInputField<TFieldValues extends FieldValues>({
   label,
   description,
   requiredField = false,
-  disabled,
+  disabled = false,
   onValueChange,
   valueModifier,
   ...props
@@ -66,6 +66,7 @@ function PhoneInputField<TFieldValues extends FieldValues>({
             onValueChange={onValueChange}
             valueModifier={valueModifier}
             id={fieldId}
+            disabled={disabled}
             {...props}
           />
           {description && (

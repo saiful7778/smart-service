@@ -10,7 +10,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListLeadCategoriesContractType } from "../../api/leadCategory.contract";
 import { LeadCategoryTableRowAction } from "./LeadCategoryTableRowAction";
 
-type LeadCategoryTableRowDataType = ListLeadCategoriesContractType["output"]["data"][number];
+type LeadCategoryTableRowDataType =
+  ListLeadCategoriesContractType["output"]["data"][number];
 
 export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> =
   [

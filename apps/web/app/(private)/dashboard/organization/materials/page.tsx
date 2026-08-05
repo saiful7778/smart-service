@@ -3,7 +3,11 @@ import { Metadata } from "next";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
-import { DashboardShell } from "@/components/shared/DashboardShell";
+import { DashboardShell } from "@/components/shared/dashboard-shell";
+import {
+  DashboardShellDescription,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MaterialManagementTable } from "@/features/material/components/material-table/MaterialManagementTable";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -43,8 +47,14 @@ export default async function MaterialsPage(
   return (
     <HydrateClient client={queryClient}>
       <DashboardShell
-        title="Materials"
-        shortDescription="Manage your organization materials"
+        header={
+          <div>
+            <DashboardShellTitle>Materials</DashboardShellTitle>
+            <DashboardShellDescription>
+              Manage your organization materials
+            </DashboardShellDescription>
+          </div>
+        }
       >
         <MaterialManagementTable
           limit={filters.limit}
