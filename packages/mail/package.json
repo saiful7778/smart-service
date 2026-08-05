@@ -30,10 +30,10 @@
     "nodemailer": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-email": "^6.5.0"
+    "react-email": "^6.9.1"
   },
   "devDependencies": {
-    "@react-email/ui": "^6.5.0",
+    "@react-email/ui": "^6.9.1",
     "@types/node": "catalog:",
     "@types/nodemailer": "catalog:",
     "@types/react": "catalog:",
