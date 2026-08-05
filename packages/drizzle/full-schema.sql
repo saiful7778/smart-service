@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌁ auth for agents [www.vestauth.com]
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');
 CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');
@@ -13,6 +13,8 @@ CREATE TYPE "public"."NotificationCategoryEnum" AS ENUM('SYSTEM', 'ORG', 'AUTH',
 CREATE TYPE "public"."NotificationLevelEnum" AS ENUM('INFO', 'SUCCESS', 'WARNING', 'ERROR');
 CREATE TYPE "public"."RoleEnum" AS ENUM('MEMBER', 'STAFF', 'DISPATCHER', 'TEAM_LEAD', 'MANAGER', 'ORG_SUPPORT_AGENT', 'ORG_ADMIN', 'OWNER', 'USER', 'SYSTEM_SUPPORT_AGENT', 'SYSTEM_ADMIN', 'SUPER_ADMIN');
 CREATE TYPE "public"."RoleTypeEnum" AS ENUM('SYSTEM', 'ORG');
+CREATE TYPE "public"."TaskPriorityEnum" AS ENUM('low', 'medium', 'high');
+CREATE TYPE "public"."TaskStatusEnum" AS ENUM('todo', 'in_progress', 'in_review', 'done', 'cancelled');
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -599,6 +601,34 @@ CREATE TABLE "feedback_issue_replies" (
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
+CREATE TABLE "org_tasks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"job_id" uuid,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"status" "TaskStatusEnum" DEFAULT 'todo' NOT NULL,
+	"priority" "TaskPriorityEnum" DEFAULT 'medium' NOT NULL,
+	"due_date" timestamp (3) with time zone,
+	"assigned_by" uuid,
+	"created_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE "tasks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"status" "TaskStatusEnum" DEFAULT 'todo' NOT NULL,
+	"priority" "TaskPriorityEnum" DEFAULT 'medium' NOT NULL,
+	"due_date" timestamp (3) with time zone,
+	"assigned_by" uuid,
+	"created_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_session_fkey" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
@@ -707,6 +737,12 @@ ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_permissionI
 ALTER TABLE "feedback_issues" ADD CONSTRAINT "feedback_issues_createdBy_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "feedback_issue_replies" ADD CONSTRAINT "feedback_issue_replies_issue_fkey" FOREIGN KEY ("issue_id") REFERENCES "public"."feedback_issues"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "feedback_issue_replies" ADD CONSTRAINT "feedback_issue_replies_createdBy_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_task_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_assigned_by_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_assigned_by_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;
 CREATE UNIQUE INDEX "user_email_key" ON "users" USING btree ("email");
 CREATE INDEX "user_activity_user_id_idx" ON "user_activities" USING btree ("user_id");
 CREATE INDEX "user_activity_login_at_idx" ON "user_activities" USING btree ("login_at");
@@ -902,3 +938,15 @@ CREATE INDEX "feedback_issues_type_idx" ON "feedback_issues" USING btree ("type"
 CREATE INDEX "feedback_issues_created_at_idx" ON "feedback_issues" USING btree ("created_at");
 CREATE INDEX "feedback_issue_replies_issue_idx" ON "feedback_issue_replies" USING btree ("issue_id");
 CREATE INDEX "feedback_issue_replies_createdBy_idx" ON "feedback_issue_replies" USING btree ("created_by_id");
+CREATE INDEX "org_tasks_org_id_idx" ON "org_tasks" USING btree ("org_id");
+CREATE INDEX "org_tasks_job_schedule_id_idx" ON "org_tasks" USING btree ("job_id");
+CREATE INDEX "org_tasks_assigned_by_idx" ON "org_tasks" USING btree ("assigned_by");
+CREATE INDEX "org_tasks_status_idx" ON "org_tasks" USING btree ("status");
+CREATE INDEX "org_tasks_priority_idx" ON "org_tasks" USING btree ("priority");
+CREATE INDEX "org_tasks_due_date_idx" ON "org_tasks" USING btree ("due_date");
+CREATE INDEX "org_tasks_created_at_idx" ON "org_tasks" USING btree ("created_at");
+CREATE INDEX "tasks_assigned_by_idx" ON "tasks" USING btree ("assigned_by");
+CREATE INDEX "tasks_status_idx" ON "tasks" USING btree ("status");
+CREATE INDEX "tasks_priority_idx" ON "tasks" USING btree ("priority");
+CREATE INDEX "tasks_due_date_idx" ON "tasks" USING btree ("due_date");
+CREATE INDEX "tasks_created_at_idx" ON "tasks" USING btree ("created_at");

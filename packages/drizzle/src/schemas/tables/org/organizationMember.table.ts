@@ -24,6 +24,7 @@ import { LeadRevenueHistoryTable } from "../lead/leadRevenueHistory.table";
 import { MaterialTable } from "../material";
 import { OrgMemberRoleTable } from "../role-permission";
 import { OrgRoleMemberTable } from "../role-permission/orgRoleMember.table";
+import { OrgTaskTable } from "../task";
 import { UserTable } from "../user";
 import { OrganizationTable } from "./organization.table";
 
@@ -162,6 +163,8 @@ export const OrganizationMemberRelations = relations(
     deletedLeadEstimates: many(LeadEstimateTable, {
       relationName: "LeadEstimateToDeletedBy",
     }),
+    assignedTasks: many(OrgTaskTable, { relationName: "OrgTaskToAssignedBy" }),
+    createdTasks: many(OrgTaskTable, { relationName: "OrgTaskToCreatedBy" }),
   })
 );
 

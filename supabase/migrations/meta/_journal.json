@@ -57,6 +57,13 @@
       "when": 1785786910437,
       "tag": "0007_update_permission_type",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785936072287,
+      "tag": "0008_add_task",
+      "breakpoints": true
     }
   ]
 }

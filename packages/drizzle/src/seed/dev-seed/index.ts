@@ -15,6 +15,7 @@ import { seedLeadAttachment } from "./leadAttachment.seed";
 import { seedLeadCategory } from "./leadCategory.seed";
 import { seedOrganization } from "./organization.seed";
 import { seedOrgMember } from "./orgMember.seed";
+import { seedOrgTask } from "./orgTask.seed";
 import { seedUsers } from "./user.seed";
 
 async function main() {
@@ -46,6 +47,7 @@ async function main() {
   const leadAddresses = await seedLeadAddress(leads, addresses);
 
   const leadAttachments = await seedLeadAttachment(leads, files);
+  const orgTasks = await seedOrgTask(orgs, orgMembers, jobs);
 
   console.log("\n📊 Seed Summary:");
 
@@ -62,6 +64,7 @@ async function main() {
   console.log(`Jobs: ${jobs.length}`);
   console.log(`Lead Addresses: ${leadAddresses.length}`);
   console.log(`Lead Attachments: ${leadAttachments.length}`);
+  console.log(`Org Tasks: ${orgTasks.length}`);
 
   console.log("\n🎉 Seed completed successfully!");
 }

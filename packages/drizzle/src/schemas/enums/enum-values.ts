@@ -73,6 +73,9 @@ export const RESOURCE_TYPE = [
 
   // Support / Feedback
   "feedback",
+
+  // Task
+  "task",
 ] as const;
 
 export const ACTION_TYPE = [
@@ -186,6 +189,16 @@ export const JOB_ASSIGNMENT_ROLE = [
   "supervisor", // Supervising employee
   "trainee", // Employee in training
 ] as const;
+
+export const TASK_STATUS = [
+  "todo",
+  "in_progress",
+  "in_review",
+  "done",
+  "cancelled",
+] as const;
+
+export const TASK_PRIORITY = ["low", "medium", "high"] as const;
 
 export const PRIVATE_ENTITY_TYPES = [
   "lead_attachment",
