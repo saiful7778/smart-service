@@ -23,6 +23,10 @@ jobs:
         task: [lint, typecheck, test]
       fail-fast: false
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/turbo-setup
 
       - name: Dependency audit
@@ -38,6 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/turbo-setup
 
       - name: Build
