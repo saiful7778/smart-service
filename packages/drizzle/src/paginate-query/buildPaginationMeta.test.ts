@@ -17,7 +17,7 @@ describe("buildPaginationMeta", () => {
       currentPage: page,
       previousPage: null,
       nextPage: 2,
-      pageCount: 5,
+      pageCount: 10,
       queryCount,
       totalCount,
     });
