@@ -56,6 +56,8 @@ function createBetterAuth() {
   }
 
   return betterAuth({
+    baseURL: env.BETTER_AUTH_URL,
+    secret: env.BETTER_AUTH_SECRET,
     appName: env.NEXT_PUBLIC_SITE_NAME,
     database: drizzleAdapter(db, {
       provider: "pg",

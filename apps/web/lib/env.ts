@@ -38,6 +38,8 @@ export const env = createEnv({
     QSTASH_TOKEN: z.string().min(1),
     QSTASH_CURRENT_SIGNING_KEY: z.string().min(1),
     QSTASH_NEXT_SIGNING_KEY: z.string().min(1),
+    BETTER_AUTH_URL: z.url(),
+    BETTER_AUTH_SECRET: z.string(),
   },
   client: {
     NEXT_PUBLIC_NODE_ENV: z
@@ -82,6 +84,8 @@ export const env = createEnv({
           QSTASH_TOKEN: "token",
           QSTASH_CURRENT_SIGNING_KEY: "current_signing_key",
           QSTASH_NEXT_SIGNING_KEY: "next_signing_key",
+          BETTER_AUTH_URL: "http://localhost:3000",
+          BETTER_AUTH_SECRET: "secret",
         }
       : {
           NODE_ENV: process.env.NODE_ENV,
@@ -116,5 +120,7 @@ export const env = createEnv({
           QSTASH_TOKEN: process.env.QSTASH_TOKEN,
           QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
           QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
+          BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+          BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
         },
 });
