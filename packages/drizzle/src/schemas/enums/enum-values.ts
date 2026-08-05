@@ -193,7 +193,6 @@ export const JOB_ASSIGNMENT_ROLE = [
 export const TASK_STATUS = [
   "todo",
   "in_progress",
-  "in_review",
   "done",
   "cancelled",
 ] as const;

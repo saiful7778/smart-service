@@ -130,7 +130,6 @@ enum TaskPriorityEnum {
 enum TaskStatusEnum {
   todo
   in_progress
-  in_review
   done
   cancelled
 }

@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');
 CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');
@@ -14,7 +14,7 @@ CREATE TYPE "public"."NotificationLevelEnum" AS ENUM('INFO', 'SUCCESS', 'WARNING
 CREATE TYPE "public"."RoleEnum" AS ENUM('MEMBER', 'STAFF', 'DISPATCHER', 'TEAM_LEAD', 'MANAGER', 'ORG_SUPPORT_AGENT', 'ORG_ADMIN', 'OWNER', 'USER', 'SYSTEM_SUPPORT_AGENT', 'SYSTEM_ADMIN', 'SUPER_ADMIN');
 CREATE TYPE "public"."RoleTypeEnum" AS ENUM('SYSTEM', 'ORG');
 CREATE TYPE "public"."TaskPriorityEnum" AS ENUM('low', 'medium', 'high');
-CREATE TYPE "public"."TaskStatusEnum" AS ENUM('todo', 'in_progress', 'in_review', 'done', 'cancelled');
+CREATE TYPE "public"."TaskStatusEnum" AS ENUM('todo', 'in_progress', 'done', 'cancelled');
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
