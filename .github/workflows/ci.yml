@@ -49,6 +49,8 @@ jobs:
       - uses: ./.github/actions/turbo-setup
 
       - name: Build
+        env: 
+          SKIP_ENV_VALIDATION: true
         run: pnpm turbo run build --filter=...[origin/${{ github.event.pull_request.base.ref }}]
 
   summary:

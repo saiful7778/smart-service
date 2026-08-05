@@ -5,7 +5,7 @@ export const env = createEnv({
   // Only validate in server and test environments
   isServer: typeof window === "undefined" || process.env.NODE_ENV === "test",
   // Skip validation in test to avoid the error
-  skipValidation: process.env.NODE_ENV === "test" ? true : undefined,
+  skipValidation: process.env.NODE_ENV === "test" || process.env.SKIP_ENV_VALIDATION === "true" ? true : undefined,
   server: {
     NODE_ENV: z
       .enum(["development", "production", "test"])

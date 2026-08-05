@@ -27,7 +27,8 @@
     "QSTASH_NEXT_SIGNING_KEY",
     "CRON_API_KEY",
     "BETTER_AUTH_URL",
-    "BETTER_AUTH_SECRET"
+    "BETTER_AUTH_SECRET",
+    "SKIP_ENV_VALIDATION"
   ],
   "tasks": {
     "build": {
