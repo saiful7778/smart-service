@@ -211,4 +211,19 @@ export const API_MESSAGES = {
     NOT_ALLOWED_STATUS:
       "You don't have permission to change this issue status.",
   },
+  TASK: {
+    GET_ALL: "Tasks loaded successfully.",
+    GET_DETAILS: "Task details loaded successfully.",
+    CREATE: "Task created successfully.",
+    UPDATE: "Task updated successfully.",
+    UPDATE_STATUS: "Task status updated successfully.",
+    DELETE: "Task deleted successfully.",
+    DELETE_ALL: "All selected tasks deleted successfully.",
+    NOT_FOUND: "Task not found.",
+    NOT_CREATE: "Failed to create task. Please try again.",
+    NOT_UPDATE: "Failed to update task. Please try again.",
+    NOT_ALLOWED: "You don't have permission to manage this task.",
+    ASSIGNEE_NOT_IN_ORG:
+      "The selected assignee is not a member of this organization.",
+  },
 };

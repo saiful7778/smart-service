@@ -9,7 +9,7 @@ export function buildPaginationMeta(
   page: number,
   perPage: number
 ): PaginationMeta {
-  const pageCount = Math.ceil(queryCount / perPage);
+  const pageCount = Math.ceil(totalCount / perPage);
 
   return {
     currentPage: page,

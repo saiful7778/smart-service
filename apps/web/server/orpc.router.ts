@@ -6,6 +6,7 @@ import { materialRouter } from "@/features/material/api/material.router";
 import { notificationRouter } from "@/features/notification/api/notification.router";
 import { orgRouter } from "@/features/org/api/org.router";
 import { roleRouter } from "@/features/role/api/role.router";
+import { taskRouter } from "@/features/task/api/task.router";
 import { uploadRouter } from "@/features/upload/api/upload.router";
 import { userRouter } from "@/features/user/api/user.router";
 
@@ -20,4 +21,5 @@ export const router = {
   job: jobRouter,
   material: materialRouter,
   feedback: feedbackRouter,
+  task: taskRouter,
 };

@@ -15,11 +15,17 @@ import {
   NOTIFICATION_LEVEL,
   ROLE_TYPES,
   ROLES,
+  TASK_PRIORITY,
+  TASK_STATUS,
 } from "./enum-values";
 
 export const RoleEnum = pgEnum("RoleEnum", ROLES);
 
 export const RoleTypeEnum = pgEnum("RoleTypeEnum", ROLE_TYPES);
+
+export const TaskStatusEnum = pgEnum("TaskStatusEnum", TASK_STATUS);
+
+export const TaskPriorityEnum = pgEnum("TaskPriorityEnum", TASK_PRIORITY);
 
 export const ContactSubmissionStatusEnum = pgEnum(
   "ContactSubmissionStatusEnum",

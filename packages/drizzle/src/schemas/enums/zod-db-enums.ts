@@ -20,6 +20,8 @@ import {
   RESOURCE_TYPE,
   ROLE_TYPES,
   ROLES,
+  TASK_PRIORITY,
+  TASK_STATUS,
 } from "./enum-values";
 
 export const RoleEnumSchema = z.enum(ROLES);
@@ -27,6 +29,12 @@ export type RoleEnumType = z.infer<typeof RoleEnumSchema>;
 
 export const RoleTypeEnumSchema = z.enum(ROLE_TYPES);
 export type RoleTypeEnumType = z.infer<typeof RoleTypeEnumSchema>;
+
+export const TaskStatusEnumSchema = z.enum(TASK_STATUS);
+export type TaskStatusEnumType = z.infer<typeof TaskStatusEnumSchema>;
+
+export const TaskPriorityEnumSchema = z.enum(TASK_PRIORITY);
+export type TaskPriorityEnumType = z.infer<typeof TaskPriorityEnumSchema>;
 
 export const PermissionLevelEnumSchema = z.enum(PERMISSION_LEVEL);
 export type PermissionLevelEnumType = z.infer<typeof PermissionLevelEnumSchema>;

@@ -31,6 +31,10 @@ export const rolesAndPermissionData: Array<{
       "self.feedback.read",
       "self.feedback.list",
       "self.feedback.update",
+
+      // Task board (own tasks)
+      "system.task.list",
+      "system.task.read",
     ],
   },
   {
@@ -52,6 +56,10 @@ export const rolesAndPermissionData: Array<{
       "system.feedback.read",
       "system.feedback.list",
       "system.feedback.update",
+
+      // Task board (own tasks)
+      "system.task.list",
+      "system.task.read",
     ],
   },
   {
@@ -92,6 +100,9 @@ export const rolesAndPermissionData: Array<{
       "system.feedback.read",
       "system.feedback.list",
       "system.feedback.update",
+
+      // Task management
+      "system.task.manage",
     ],
   },
   {
@@ -119,6 +130,9 @@ export const rolesAndPermissionData: Array<{
       "system.feedback.read",
       "system.feedback.list",
       "system.feedback.update",
+
+      // Task management
+      "system.task.manage",
     ],
   },
 
@@ -132,6 +146,10 @@ export const rolesAndPermissionData: Array<{
       "org.user.list",
       "org.team.list",
       "org.team.read",
+
+      // Task board (own tasks)
+      "org.task.list",
+      "org.task.read",
     ],
   },
   {
@@ -173,6 +191,10 @@ export const rolesAndPermissionData: Array<{
       // Materials (Read only)
       "org.material.list",
       "org.material.read",
+
+      // Task board (own tasks)
+      "org.task.list",
+      "org.task.read",
     ],
   },
   {
@@ -184,6 +206,9 @@ export const rolesAndPermissionData: Array<{
       "org.user.list",
       "org.team.list",
       "org.team.read",
+
+      // Task management (all tasks)
+      "org.task.manage",
 
       // Customers (Create/Read for job booking)
       "org.customer.create",
@@ -266,6 +291,9 @@ export const rolesAndPermissionData: Array<{
       "org.material.list",
       "org.material.read",
       "org.material.update",
+
+      // Task management (all tasks)
+      "org.task.manage",
     ],
   },
   {
@@ -307,6 +335,9 @@ export const rolesAndPermissionData: Array<{
 
       "org.invitation.list",
       "org.invitation.read",
+
+      // Task management (all tasks)
+      "org.task.manage",
     ],
   },
   {
@@ -369,6 +400,9 @@ export const rolesAndPermissionData: Array<{
 
       // Invitations
       "org.invitation.manage",
+
+      // Task management (all tasks)
+      "org.task.manage",
     ],
   },
   {
@@ -416,6 +450,9 @@ export const rolesAndPermissionData: Array<{
       "org.invoice.manage",
       "org.payment.manage",
       "org.report.manage",
+
+      // Task management (all tasks)
+      "org.task.manage",
     ],
   },
   {
@@ -463,6 +500,9 @@ export const rolesAndPermissionData: Array<{
       "org.payment.manage",
       "org.billing.manage",
       "org.report.manage",
+
+      // Task management (all tasks)
+      "org.task.manage",
     ],
   },
 ];

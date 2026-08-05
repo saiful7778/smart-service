@@ -32,6 +32,7 @@ import {
   LeadTable,
 } from "../lead";
 import { OrganizationMemberTable, OrganizationTable } from "../org";
+import { OrgTaskTable } from "../task";
 import { JobCategoryJoinTable } from "./jobCategoryJoin.table";
 import { JobMaterialTable } from "./jobMaterial.table";
 import { JobScheduleTable } from "./jobSchedule.table";
@@ -177,6 +178,7 @@ export const JobRelations = relations(JobTable, ({ one, many }) => ({
     relationName: "JobTimeEntryToJob",
   }),
   leadEstimates: many(LeadEstimateTable, { relationName: "LeadEstimateToJob" }),
+  tasks: many(OrgTaskTable, { relationName: "OrgTaskToJob" }),
 }));
 
 export const insertJobSchema = createInsertSchema(JobTable).omit({
