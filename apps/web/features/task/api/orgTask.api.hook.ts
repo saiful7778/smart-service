@@ -2,21 +2,23 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { orpcTQClient } from "@/server/orpc.client";
-import { IApiHookInput } from "@/types";
+import type { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
-export function useCreateTask<TFieldNames>({
+import { ListOrgTaskContractType } from "./orgTask.contract";
+
+export function useCreateOrgTask<TFieldNames>({
   onRequestStart,
   onRequestEnd,
   onSuccess,
   onError,
   onValidationErrors,
 }: IApiHookInput<TFieldNames>) {
-  const toastId = "create_task_toast_message";
+  const toastId = "create_org_task_toast_message";
   const queryClient = useQueryClient();
 
   return useMutation(
-    orpcTQClient.task.create.mutationOptions({
+    orpcTQClient.task.org.create.mutationOptions({
       onMutate: () => {
         toast.loading("Creating...", { id: toastId });
         onRequestStart?.();
@@ -25,9 +27,7 @@ export function useCreateTask<TFieldNames>({
         toast.success(message, { id: toastId });
 
         await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.task.list.queryKey({
-            input: {},
-          }),
+          queryKey: orpcTQClient.task.org.list.queryKey({ input: {} }),
           exact: false,
         });
 
@@ -52,33 +52,70 @@ export function useCreateTask<TFieldNames>({
   );
 }
 
-export function useUpdateTask<TFieldNames>({
+export function useUpdateOrgTask<TFieldNames>({
   onRequestStart,
   onRequestEnd,
   onSuccess,
   onError,
   onValidationErrors,
 }: IApiHookInput<TFieldNames>) {
-  const toastId = "update_task_toast_message";
+  const toastId = "update_org_task_toast_message";
   const queryClient = useQueryClient();
+  const listQueryKey = orpcTQClient.task.org.list.queryKey({ input: {} });
 
   return useMutation(
-    orpcTQClient.task.update.mutationOptions({
-      onMutate: () => {
-        toast.loading("Updating...", { id: toastId });
+    orpcTQClient.task.org.update.mutationOptions({
+      onMutate: async ({ taskId, status }) => {
         onRequestStart?.();
+
+        await queryClient.cancelQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+
+        const previousData = queryClient.getQueriesData<
+          ListOrgTaskContractType["output"]
+        >({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+
+        queryClient.setQueriesData(
+          {
+            queryKey: listQueryKey,
+            exact: false,
+          },
+          (oldData: ListOrgTaskContractType["output"]) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                meta: oldData.data.meta,
+                data: oldData.data.data.map((task) => {
+                  if (task.id === taskId) {
+                    return {
+                      ...task,
+                      status: status ?? task.status,
+                    };
+                  }
+                  return task;
+                }),
+              },
+            };
+          }
+        );
+
+        return { previousData: previousData[0]![1] };
       },
       onSuccess: async ({ message }) => {
         toast.success(message, { id: toastId });
 
-        await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.task.list.queryKey({ input: {} }),
-          exact: false,
-        });
-
         onSuccess?.(message);
       },
-      onError: (error) => {
+      onError: (error, _variables, context) => {
+        queryClient.setQueryData(listQueryKey, context?.previousData);
+
         const { type, message, fieldErrors } =
           formatOrpcError<TFieldNames>(error);
 
@@ -90,24 +127,29 @@ export function useUpdateTask<TFieldNames>({
 
         onError?.(message);
       },
-      onSettled: () => {
+      onSettled: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+
         onRequestEnd?.();
       },
     })
   );
 }
 
-export function useDeleteTask({
+export function useDeleteOrgTask({
   onRequestStart,
   onRequestEnd,
   onSuccess,
   onError,
 }: IApiHookInput) {
-  const toastId = "delete_task_toast_message";
+  const toastId = "delete_org_task_toast_message";
   const queryClient = useQueryClient();
 
   return useMutation(
-    orpcTQClient.task.delete.mutationOptions({
+    orpcTQClient.task.org.delete.mutationOptions({
       onMutate: () => {
         toast.loading("Deleting...", { id: toastId });
         onRequestStart?.();
@@ -116,7 +158,7 @@ export function useDeleteTask({
         toast.success(message, { id: toastId });
 
         await queryClient.invalidateQueries({
-          queryKey: orpcTQClient.task.list.queryKey({ input: {} }),
+          queryKey: orpcTQClient.task.org.list.queryKey({ input: {} }),
           exact: false,
         });
 
