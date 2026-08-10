@@ -48,6 +48,22 @@ grant select on table "public"."customers" to "service_role";
 
 grant update on table "public"."customers" to "service_role";
 
+grant delete on table "public"."feedback_issue_replies" to "service_role";
+
+grant insert on table "public"."feedback_issue_replies" to "service_role";
+
+grant select on table "public"."feedback_issue_replies" to "service_role";
+
+grant update on table "public"."feedback_issue_replies" to "service_role";
+
+grant delete on table "public"."feedback_issues" to "service_role";
+
+grant insert on table "public"."feedback_issues" to "service_role";
+
+grant select on table "public"."feedback_issues" to "service_role";
+
+grant update on table "public"."feedback_issues" to "service_role";
+
 grant delete on table "public"."files" to "service_role";
 
 grant insert on table "public"."files" to "service_role";
@@ -160,6 +176,22 @@ grant select on table "public"."lead_category_joins" to "service_role";
 
 grant update on table "public"."lead_category_joins" to "service_role";
 
+grant delete on table "public"."lead_estimate_materials" to "service_role";
+
+grant insert on table "public"."lead_estimate_materials" to "service_role";
+
+grant select on table "public"."lead_estimate_materials" to "service_role";
+
+grant update on table "public"."lead_estimate_materials" to "service_role";
+
+grant delete on table "public"."lead_estimates" to "service_role";
+
+grant insert on table "public"."lead_estimates" to "service_role";
+
+grant select on table "public"."lead_estimates" to "service_role";
+
+grant update on table "public"."lead_estimates" to "service_role";
+
 grant delete on table "public"."lead_notes" to "service_role";
 
 grant insert on table "public"."lead_notes" to "service_role";
@@ -256,6 +288,14 @@ grant select on table "public"."org_roles" to "service_role";
 
 grant update on table "public"."org_roles" to "service_role";
 
+grant delete on table "public"."org_tasks" to "service_role";
+
+grant insert on table "public"."org_tasks" to "service_role";
+
+grant select on table "public"."org_tasks" to "service_role";
+
+grant update on table "public"."org_tasks" to "service_role";
+
 grant delete on table "public"."org_team_members" to "service_role";
 
 grant insert on table "public"."org_team_members" to "service_role";
@@ -328,6 +368,14 @@ grant select on table "public"."sessions" to "service_role";
 
 grant update on table "public"."sessions" to "service_role";
 
+grant delete on table "public"."tasks" to "service_role";
+
+grant insert on table "public"."tasks" to "service_role";
+
+grant select on table "public"."tasks" to "service_role";
+
+grant update on table "public"."tasks" to "service_role";
+
 grant delete on table "public"."user_activities" to "service_role";
 
 grant insert on table "public"."user_activities" to "service_role";
@@ -351,14 +399,6 @@ grant insert on table "public"."user_roles" to "service_role";
 grant select on table "public"."user_roles" to "service_role";
 
 grant update on table "public"."user_roles" to "service_role";
-
-grant delete on table "public"."user_settings" to "service_role";
-
-grant insert on table "public"."user_settings" to "service_role";
-
-grant select on table "public"."user_settings" to "service_role";
-
-grant update on table "public"."user_settings" to "service_role";
 
 grant delete on table "public"."users" to "service_role";
 
