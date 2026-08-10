@@ -106,7 +106,7 @@ export function useUpdateOrgTask<TFieldNames>({
           }
         );
 
-        return { previousData: previousData[0]![1] };
+        return { previousData: previousData[0]?.[1] };
       },
       onSuccess: async ({ message }) => {
         toast.success(message, { id: toastId });
