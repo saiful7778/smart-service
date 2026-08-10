@@ -3,9 +3,43 @@ import { usePathname } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+import { downloadFile } from "@workspace/ui/lib/downloadFile";
+
 import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
+
+export function useJobExportData({
+  onRequestStart,
+  onSuccess,
+  onError,
+}: IApiHookInput = {}) {
+  const toastId = "export_job_data_toast_id";
+
+  return useMutation(
+    orpcTQClient.job.export.mutationOptions({
+      onMutate: () => {
+        toast.loading("Exporting...", { id: toastId });
+        onRequestStart?.();
+      },
+      onSuccess: ({ message, data }) => {
+        const content =
+          typeof data.data === "string"
+            ? data.data
+            : JSON.stringify(data.data, null, 2);
+
+        downloadFile(content, data.filename, data.contentType);
+        toast.success(message, { id: toastId });
+        onSuccess?.(message);
+      },
+      onError: (error) => {
+        const { message } = formatOrpcError(error);
+        toast.error(message, { id: toastId });
+        onError?.(message);
+      },
+    })
+  );
+}
 
 export function useJobCreate<TFieldNames>({
   onRequestStart,

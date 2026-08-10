@@ -2,13 +2,17 @@ import z from "zod";
 
 import {
   selectAddressSchema,
+  selectCustomerSchema,
   selectJobScheduleAssignementSchema,
   selectJobScheduleSchema,
   selectJobSchema,
+  selectLeadSchema,
 } from "@workspace/drizzle/schemas";
 import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import {
   apiOutputZodSchema,
+  exportDataInputZodSchema,
+  exportDataOutputZodSchema,
   paginateInputZodSchema,
   paginateOutputZodSchema,
 } from "@workspace/lib/utils";
@@ -101,6 +105,88 @@ const listJobsContract = jobBaseContract
   );
 export type ListJobsContractType = InferContractRouterType<
   typeof listJobsContract
+>;
+
+const jobDataExportContract = jobBaseContract
+  .route({
+    path: "/jobs/export-data",
+    description: "Export job data",
+    tags,
+  })
+  .input(
+    exportDataInputZodSchema<typeof selectJobSchema>({
+      orderFields: [
+        "createdAt",
+        "receivedRevenue",
+        "expectedRevenue",
+        "invoicedRevenue",
+      ],
+      filter: z.object({
+        status: JobStatusEnumSchema.optional(),
+        createdAt: z
+          .object({
+            from: z.date().describe("Created at from date").optional(),
+            to: z.date().describe("Created at to date").optional(),
+          })
+          .optional(),
+        receivedRevenue: z
+          .object({
+            from: z.number().describe("Received revenue from").optional(),
+            to: z.number().describe("Received revenue to").optional(),
+          })
+          .optional(),
+        expectedRevenue: z
+          .object({
+            from: z.number().describe("Expected revenue from").optional(),
+            to: z.number().describe("Expected revenue to").optional(),
+          })
+          .optional(),
+        invoicedRevenue: z
+          .object({
+            from: z.number().describe("Invoiced revenue from").optional(),
+            to: z.number().describe("Invoiced revenue to").optional(),
+          })
+          .optional(),
+      }),
+    })
+  )
+  .output(
+    apiOutputZodSchema(
+      exportDataOutputZodSchema(
+        selectJobSchema
+          .pick({
+            id: true,
+            title: true,
+            status: true,
+            expectedRevenue: true,
+            invoicedRevenue: true,
+            receivedRevenue: true,
+            createdAt: true,
+            updatedAt: true,
+          })
+          .extend({
+            customer: selectCustomerSchema
+              .pick({
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              })
+              .nullable(),
+            lead: selectLeadSchema
+              .pick({
+                id: true,
+                status: true,
+                source: true,
+                serviceType: true,
+              })
+              .nullable(),
+          })
+      )
+    )
+  );
+export type JobDataExportContractType = InferContractRouterType<
+  typeof jobDataExportContract
 >;
 
 const jobCreateContract = jobBaseContract
@@ -284,6 +370,7 @@ export type ListJobScheduleContractType = InferContractRouterType<
 export const jobContract = {
   list: listJobsContract,
   listSchedule: listJobScheduleContract,
+  export: jobDataExportContract,
   create: jobCreateContract,
   update: jobUpdateContract,
   updateRevenue: jobUpdateRevenueContract,

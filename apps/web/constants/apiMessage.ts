@@ -141,6 +141,7 @@ export const API_MESSAGES = {
     GET_ALL_ASSIGNMENT: "Job assignments loaded successfully.",
     GET_DETAILS: "Job details loaded successfully.",
     GET_ALL_SERVICINGS: "Servicing history loaded successfully.",
+    EXPORT: "Jobs data exported successfully.",
     UPDATE_REVENUE: "Revenue updated successfully.",
     NOT_CREATE: "Failed to create job. Please try again.",
     CREATE: "Job created successfully.",
