@@ -9,6 +9,8 @@ import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
+import { JobDetailsContractType, ListJobsContractType } from "./job.contract";
+
 export function useJobExportData({
   onRequestStart,
   onSuccess,
@@ -203,53 +205,103 @@ export function useJobDeleteAll({
 }
 
 export function useJobUpdate<TFieldNames>({
-  leadId,
   onRequestStart,
   onRequestEnd,
   onSuccess,
   onError,
   onValidationErrors,
-}: IApiHookInput<TFieldNames> & { leadId?: string | null | undefined }) {
+}: IApiHookInput<TFieldNames>) {
   const toastId = "job_update_toast_message_id";
   const queryClient = useQueryClient();
-  const pathname = usePathname();
+  const listQueryKey = orpcTQClient.job.list.queryKey({ input: {} });
 
   return useMutation(
     orpcTQClient.job.update.mutationOptions({
-      onMutate: () => {
+      onMutate: async ({ jobId, ...inputData }) => {
         toast.loading("Updating...", { id: toastId });
         onRequestStart?.();
-      },
-      onSuccess: async ({ message }, { jobId }) => {
-        if (leadId && pathname.startsWith("/dashboard/organization/leads")) {
-          await queryClient.invalidateQueries({
-            queryKey: orpcTQClient.lead.job.list.queryKey({
-              input: { leadId },
-            }),
-            exact: false,
-          });
-        } else {
-          await queryClient.invalidateQueries({
-            queryKey: orpcTQClient.job.list.queryKey({
-              input: {},
-            }),
-            exact: false,
-          });
-          await queryClient.invalidateQueries({
-            queryKey: orpcTQClient.job.details.queryKey({
-              input: {
-                jobId,
-              },
-            }),
-            exact: false,
-          });
-        }
 
+        await queryClient.cancelQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+        await queryClient.cancelQueries({
+          queryKey: orpcTQClient.job.details.queryKey({ input: { jobId } }),
+        });
+
+        const previousListJobsData = queryClient.getQueriesData<
+          ListJobsContractType["output"]
+        >({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+
+        const previousJobDetailsData = queryClient.getQueriesData<
+          JobDetailsContractType["output"]
+        >({
+          queryKey: orpcTQClient.job.details.queryKey({ input: { jobId } }),
+        });
+
+        queryClient.setQueriesData(
+          {
+            queryKey: listQueryKey,
+            exact: false,
+          },
+          (oldData: ListJobsContractType["output"]) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                meta: oldData.data.meta,
+                data: oldData.data.data.map((job) => {
+                  if (job.id === jobId) {
+                    return {
+                      ...job,
+                      ...inputData,
+                    };
+                  }
+                  return job;
+                }),
+              },
+            };
+          }
+        );
+
+        queryClient.setQueriesData(
+          {
+            queryKey: orpcTQClient.job.details.queryKey({ input: { jobId } }),
+          },
+          (oldData: JobDetailsContractType["output"]) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                ...oldData.data,
+                ...inputData,
+              },
+            };
+          }
+        );
+
+        return {
+          previousListJobsData: previousListJobsData[0]?.[1],
+          previousJobDetailsData: previousJobDetailsData[0]?.[1],
+        };
+      },
+      onSuccess: async ({ message }) => {
         toast.success(message, { id: toastId });
 
         onSuccess?.(message);
       },
-      onError: (error) => {
+      onError: (error, { jobId }, context) => {
+        queryClient.setQueryData(listQueryKey, context?.previousListJobsData);
+        queryClient.setQueryData(
+          orpcTQClient.job.details.queryKey({ input: { jobId } }),
+          context?.previousJobDetailsData
+        );
+
         const { message, type, fieldErrors } =
           formatOrpcError<TFieldNames>(error);
 
@@ -261,7 +313,19 @@ export function useJobUpdate<TFieldNames>({
 
         onError?.(message);
       },
-      onSettled: () => {
+      onSettled: async (_data, _error, { jobId }) => {
+        await queryClient.invalidateQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.job.details.queryKey({
+            input: {
+              jobId,
+            },
+          }),
+        });
+
         onRequestEnd?.();
       },
     })
