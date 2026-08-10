@@ -28,6 +28,7 @@ import { OrganizationMemberTable } from "../org";
 import { OrgTeamMemberTable } from "../org/orgTeamMember.table";
 import { UserRoleTable } from "../role-permission";
 import { SessionTable } from "../session.table";
+import { TaskTable } from "../task/task.table";
 import { UserSettingsTable } from "./userSettings.table";
 
 export const UserTable = pgTable(
@@ -103,6 +104,8 @@ export const UserRelations = relations(UserTable, ({ one, many }) => ({
   feedbackIssueReplies: many(FeedbackIssueReplyTable, {
     relationName: "FeedbackIssueReplyToCreatedBy",
   }),
+  assignedTasks: many(TaskTable, { relationName: "OrgTaskToAssignedBy" }),
+  createdTasks: many(TaskTable, { relationName: "OrgTaskToCreatedBy" }),
 }));
 
 export const insertUserSchema = createInsertSchema(UserTable, {

@@ -5,7 +5,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import { createLoader, parseAsString } from "nuqs/server";
 
-import { JobTable, LeadTable } from "@workspace/drizzle/schemas";
+import { CustomerTable, JobTable, LeadTable } from "@workspace/drizzle/schemas";
 
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -14,12 +14,14 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { getAuthUserWithRolesAndPermissionsWithOrgCache } from "@/features/auth/data/getAuthUser";
 import { LeadEstimateCreateForm } from "@/features/lead/components/lead-estimate/LeadEstimateCreateForm";
+import { RoutePathType } from "@/types";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
 export const metadata: Metadata = {
@@ -61,8 +63,15 @@ export default async function EstimateCreatePage(
 
   if (leadId) {
     const [existlead] = await db
-      .select({ id: LeadTable.id })
+      .select({
+        id: LeadTable.id,
+        customer: {
+          id: CustomerTable.id,
+          email: CustomerTable.email,
+        },
+      })
       .from(LeadTable)
+      .leftJoin(CustomerTable, eq(CustomerTable.id, LeadTable.customerId))
       .where(
         and(
           eq(LeadTable.orgId, session.activeOrganizationId!),
@@ -94,13 +103,8 @@ export default async function EstimateCreatePage(
     <DashboardShell
       className="max-w-4xl w-full mx-auto"
       header={
-        <div>
-          <LinkButton
-            href={{
-              pathname: redirectUrl.pathname,
-              search: redirectUrl.search,
-            }}
-          >
+        <DashboardShellHeader>
+          <LinkButton href={redirectUrl.toString() as RoutePathType}>
             <ArrowLeft />
             <span>Go Back</span>
           </LinkButton>
@@ -108,7 +112,7 @@ export default async function EstimateCreatePage(
           <DashboardShellDescription>
             Create a new estimate for a lead or job
           </DashboardShellDescription>
-        </div>
+        </DashboardShellHeader>
       }
     >
       <LeadEstimateCreateForm

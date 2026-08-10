@@ -212,7 +212,7 @@ export function TimeRangeFilter({
             </TooltipContent>
           </Tooltip>
 
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent align="start" className="min-w-36">
             <DropdownMenuRadioGroup
               value={rangeSearch.range ?? undefined}
               onValueChange={handleApplyPreset}

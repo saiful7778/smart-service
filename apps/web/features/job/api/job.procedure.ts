@@ -7,6 +7,7 @@ import {
 } from "@workspace/drizzle/paginate-query";
 import {
   AddressTable,
+  CustomerTable,
   FileTable,
   InsertAddress,
   InsertJobAddress,
@@ -27,7 +28,7 @@ import {
   UserTable,
 } from "@workspace/drizzle/schemas";
 import { jsonbAgg } from "@workspace/drizzle/sql-helpers";
-import { apiResponse } from "@workspace/lib/utils";
+import { apiResponse, prepareExport } from "@workspace/lib/utils";
 
 import { API_MESSAGES } from "@/constants/apiMessage";
 import { increaseStock } from "@/features/lead/api/estimate-stock.helper";
@@ -85,7 +86,7 @@ export const listJobsProcedure = jobImpl.list
         ).as("job_schedule"),
       })
       .from(JobTable)
-      .innerJoin(JobScheduleTable, eq(JobScheduleTable.jobId, JobTable.id))
+      .leftJoin(JobScheduleTable, eq(JobScheduleTable.jobId, JobTable.id))
       .leftJoin(
         JobScheduleAssignementTable,
         eq(JobScheduleAssignementTable.jobScheduleId, JobScheduleTable.id)
@@ -125,6 +126,65 @@ export const listJobsProcedure = jobImpl.list
         })),
       })),
     });
+  });
+
+export const jobDataExportProcedure = jobImpl.export
+  .use(orgMemberPermissionsMiddleware(["org.job.manage", "org.job.list"]))
+  .handler(async ({ context, input }) => {
+    const { where, orderBy } = buildPaginateOptions(
+      {
+        id: JobTable.id,
+        title: JobTable.title,
+        status: JobTable.status,
+        createdAt: JobTable.createdAt,
+        updatedAt: JobTable.updatedAt,
+        receivedRevenue: JobTable.receivedRevenue,
+        expectedRevenue: JobTable.expectedRevenue,
+        invoicedRevenue: JobTable.invoicedRevenue,
+      },
+      input
+    );
+
+    const results = await context.db
+      .select({
+        id: JobTable.id,
+        title: JobTable.title,
+        status: JobTable.status,
+        expectedRevenue: JobTable.expectedRevenue,
+        invoicedRevenue: JobTable.invoicedRevenue,
+        receivedRevenue: JobTable.receivedRevenue,
+        createdAt: JobTable.createdAt,
+        updatedAt: JobTable.updatedAt,
+        customer: {
+          id: CustomerTable.id,
+          name: CustomerTable.name,
+          email: CustomerTable.email,
+          phone: CustomerTable.phone,
+        },
+        lead: {
+          id: LeadTable.id,
+          status: LeadTable.status,
+          source: LeadTable.source,
+          serviceType: LeadTable.serviceType,
+        },
+      })
+      .from(JobTable)
+      .leftJoin(CustomerTable, eq(CustomerTable.id, JobTable.customerId))
+      .leftJoin(LeadTable, eq(LeadTable.id, JobTable.leadId))
+      .where(
+        and(
+          eq(JobTable.orgId, context.org.id),
+          isNull(JobTable.deletedAt),
+          where
+        )
+      )
+      .orderBy(orderBy);
+
+    const exportData = prepareExport(results, input.format, {
+      prefix: "jobs",
+    });
+
+    return apiResponse(API_MESSAGES.JOB.EXPORT, exportData);
   });
 
 export const jobCreateProcedure = jobImpl.create

@@ -1,26 +1,18 @@
 import { Metadata } from "next";
 
-import { ArrowLeft, Eye, FileText, Receipt, Users } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
-import {
-  DashboardShellDescription,
-  DashboardShellTitle,
-} from "@/components/shared/dashboard-shell/DashboardShellHeader";
-import {
-  TabNavigation,
-  TabNavigationContent,
-  TabNavigationList,
-  TabNavigationTrigger,
-} from "@/components/tab-navigation";
+import { DashboardShellHeader } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
-import { AssignmentStep } from "@/features/job/components/job-details/AssignmentStep";
-import { AttachmentStep } from "@/features/job/components/job-details/AttachmentStep";
-import { DetailsStep } from "@/features/job/components/job-details/details-step";
-import { EstimateStep } from "@/features/job/components/job-details/EstimateStep";
+import {
+  DEFAULT_INFINITE_PAGE_SIZE,
+  DEFAULT_INFINITE_PAGE_START,
+} from "@/constants";
+import { JobDetails } from "@/features/job/components/job-details";
 import { orpcTQClient } from "@/server/orpc.client";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
@@ -36,11 +28,25 @@ export default async function SingleJobDetailsPage(
 
   const queryclient = getQueryClient();
 
-  const { data } = await queryclient.fetchQuery(
+  await queryclient.prefetchQuery(
     orpcTQClient.job.details.queryOptions({
       input: {
         jobId,
       },
+    })
+  );
+
+  await queryclient.prefetchInfiniteQuery(
+    orpcTQClient.lead.note.list.infiniteOptions({
+      input: (pageParam) => ({
+        jobId,
+        order: "desc",
+        orderField: "createdAt",
+        page: pageParam,
+        limit: DEFAULT_INFINITE_PAGE_SIZE,
+      }),
+      getNextPageParam: ({ data }) => data.meta.nextPage ?? undefined,
+      initialPageParam: DEFAULT_INFINITE_PAGE_START,
     })
   );
 
@@ -49,51 +55,15 @@ export default async function SingleJobDetailsPage(
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/organization/jobs">
               <ArrowLeft />
               <span>Go Back</span>
             </LinkButton>
-            <DashboardShellTitle>{data.title}</DashboardShellTitle>
-            <DashboardShellDescription>
-              Detailed overview of job information and performance.
-            </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <TabNavigation defaultValue="details">
-          <TabNavigationList variant="line">
-            <TabNavigationTrigger value="details">
-              <Eye className="size-4" />
-              <span>Overview</span>
-            </TabNavigationTrigger>
-            <TabNavigationTrigger value="estimates">
-              <Receipt className="size-4" />
-              <span>Estimates</span>
-            </TabNavigationTrigger>
-            <TabNavigationTrigger value="assignments">
-              <Users className="size-4" />
-              <span>Assignments</span>
-            </TabNavigationTrigger>
-            <TabNavigationTrigger value="attachments">
-              <FileText className="size-4" />
-              <span>Attachments</span>
-            </TabNavigationTrigger>
-          </TabNavigationList>
-
-          <TabNavigationContent value="details">
-            <DetailsStep jobId={jobId} />
-          </TabNavigationContent>
-          <TabNavigationContent value="estimates">
-            <EstimateStep leadId={data.leadId} jobId={jobId} />
-          </TabNavigationContent>
-          <TabNavigationContent value="assignments">
-            <AssignmentStep jobId={jobId} />
-          </TabNavigationContent>
-          <TabNavigationContent value="attachments">
-            <AttachmentStep leadId={data.leadId} jobId={jobId} />
-          </TabNavigationContent>
-        </TabNavigation>
+        <JobDetails jobId={jobId} />
       </DashboardShell>
     </HydrateClient>
   );

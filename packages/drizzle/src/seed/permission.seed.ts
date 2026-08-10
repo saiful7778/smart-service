@@ -304,6 +304,43 @@ const systemPermissions: CreatePermissionType[] = [
     action: "update",
     description: "Update any feedback issue in system",
   },
+  // system task permissions
+  {
+    level: "system",
+    resource: "task",
+    action: "manage",
+    description: "Full system-wide task management",
+  },
+  {
+    level: "system",
+    resource: "task",
+    action: "create",
+    description: "Create tasks across system",
+  },
+  {
+    level: "system",
+    resource: "task",
+    action: "read",
+    description: "View any task in system",
+  },
+  {
+    level: "system",
+    resource: "task",
+    action: "list",
+    description: "List all tasks in system",
+  },
+  {
+    level: "system",
+    resource: "task",
+    action: "update",
+    description: "Update any task in system",
+  },
+  {
+    level: "system",
+    resource: "task",
+    action: "delete",
+    description: "Delete any task from system",
+  },
 ];
 
 const orgPermissions: CreatePermissionType[] = [
@@ -645,6 +682,43 @@ const orgPermissions: CreatePermissionType[] = [
     resource: "customer",
     action: "delete",
     description: "Delete customers from organization",
+  },
+  // org task permissions
+  {
+    level: "org",
+    resource: "task",
+    action: "manage",
+    description: "Full task management within organization",
+  },
+  {
+    level: "org",
+    resource: "task",
+    action: "create",
+    description: "Create task from organization",
+  },
+  {
+    level: "org",
+    resource: "task",
+    action: "read",
+    description: "View tasks within organization",
+  },
+  {
+    level: "org",
+    resource: "task",
+    action: "list",
+    description: "List tasks within organization",
+  },
+  {
+    level: "org",
+    resource: "task",
+    action: "update",
+    description: "Update tasks within organization",
+  },
+  {
+    level: "org",
+    resource: "task",
+    action: "delete",
+    description: "Delete tasks from organization",
   },
 ];
 

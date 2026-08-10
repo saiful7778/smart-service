@@ -121,6 +121,19 @@ enum RoleTypeEnum {
   ORG
 }
 
+enum TaskPriorityEnum {
+  low
+  medium
+  high
+}
+
+enum TaskStatusEnum {
+  todo
+  in_progress
+  done
+  cancelled
+}
+
 table users {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   name varchar(255) [not null]
@@ -1160,6 +1173,58 @@ table feedback_issue_replies {
   }
 }
 
+table org_tasks {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  org_id uuid [not null]
+  job_id uuid
+  title varchar(255) [not null]
+  description text
+  status TaskStatusEnum [not null, default: 'todo']
+  priority TaskPriorityEnum [not null, default: 'medium']
+  due_date "timestamp (3) with time zone"
+  assigned_by uuid
+  created_by uuid [not null]
+  created_at "timestamp (3) with time zone" [not null, default: `now()`]
+  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
+
+  indexes {
+    
+    
+    
+    
+    org_id [name: 'org_tasks_org_id_idx']
+    job_id [name: 'org_tasks_job_schedule_id_idx']
+    assigned_by [name: 'org_tasks_assigned_by_idx']
+    status [name: 'org_tasks_status_idx']
+    priority [name: 'org_tasks_priority_idx']
+    due_date [name: 'org_tasks_due_date_idx']
+    created_at [name: 'org_tasks_created_at_idx']
+  }
+}
+
+table tasks {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  description text
+  status TaskStatusEnum [not null, default: 'todo']
+  priority TaskPriorityEnum [not null, default: 'medium']
+  due_date "timestamp (3) with time zone"
+  assigned_by uuid
+  created_by uuid [not null]
+  created_at "timestamp (3) with time zone" [not null, default: `now()`]
+  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
+
+  indexes {
+    
+    
+    assigned_by [name: 'tasks_assigned_by_idx']
+    status [name: 'tasks_status_idx']
+    priority [name: 'tasks_priority_idx']
+    due_date [name: 'tasks_due_date_idx']
+    created_at [name: 'tasks_created_at_idx']
+  }
+}
+
 ref: user_settings.user_id - users.id
 
 ref: user_activities.user_id - users.id
@@ -1379,3 +1444,15 @@ ref: feedback_issues.created_by_id > users.id
 ref: feedback_issue_replies.issue_id > feedback_issues.id
 
 ref: feedback_issue_replies.created_by_id > users.id
+
+ref: org_tasks.org_id > organizations.id
+
+ref: org_tasks.job_id > jobs.id
+
+ref: org_tasks.assigned_by > organization_members.id
+
+ref: org_tasks.created_by > organization_members.id
+
+ref: tasks.assigned_by > users.id
+
+ref: tasks.created_by > users.id

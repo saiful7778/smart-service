@@ -5,8 +5,6 @@ import { useMemo } from "react";
 import { Plus, Trash } from "lucide-react";
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 
-import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { formatEnumValue } from "@workspace/lib/utils";
 import { formatCurrency } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -18,7 +16,6 @@ import {
 import { DateTimePickerField } from "@workspace/ui/components/form-fields/DateTimePickerField";
 import { InputAddonField } from "@workspace/ui/components/form-fields/InputAddonField";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
-import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 import { Separator } from "@workspace/ui/components/separator";
 import {
@@ -30,6 +27,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table";
 
+import { ListMaterialForSearchContractType } from "@/features/material/api/material.contract";
 import { MaterialSelectorField } from "@/features/material/components/MaterialSelectorField";
 
 import { LeadEstimateFormType } from "../../lead.schema";
@@ -85,24 +83,13 @@ export function LeadEstimateForm({
       className="space-y-4"
     >
       <FieldGroup>
-        <InputField
-          control={form.control}
-          name="name"
-          label="Estimate Name"
-          placeholder="e.g. Kitchen Renovation"
-          requiredField
-          disabled={isLoading}
-        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SelectField
+          <InputField
             control={form.control}
-            name="status"
-            label="Status"
-            placeholder="Select status"
-            options={LeadEstimateStatusEnumSchema.options.map((value) => ({
-              value,
-              label: formatEnumValue(value),
-            }))}
+            name="name"
+            label="Estimate Name"
+            placeholder="e.g. Kitchen Renovation"
+            requiredField
             disabled={isLoading}
           />
           <DateTimePickerField
@@ -234,101 +221,118 @@ function MaterialField({ form, isLoading = false }: MaterialFieldProps) {
         </TableHeader>
         <TableBody>
           {fields.map((field, index) => (
-            <TableRow key={field.id}>
-              <TableCell>
-                <MaterialSelectorField
-                  control={form.control}
-                  name={`materials.${index}.materialId`}
-                  onSelected={(value) => {
-                    if (value) {
-                      const quantity = form.getValues(
-                        `materials.${index}.quantity`
-                      );
-                      const totalPrice =
-                        Number(value.unitPrice) * Number(quantity || 0);
-
-                      form.setValue(
-                        `materials.${index}.unitPrice`,
-                        value.unitPrice
-                      );
-                      form.setValue(
-                        `materials.${index}.totalPrice`,
-                        totalPrice.toFixed(2)
-                      );
-                    } else {
-                      form.setValue(`materials.${index}.unitPrice`, "");
-                      form.setValue(`materials.${index}.quantity`, "");
-                      form.setValue(`materials.${index}.totalPrice`, "");
-                    }
-                  }}
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  name={`materials.${index}.quantity`}
-                  control={form.control}
-                  onValueChange={(value) => {
-                    const unitPrice = form.getValues(
-                      `materials.${index}.unitPrice`
-                    );
-                    const totalPrice = Number(value) * Number(unitPrice);
-
-                    form.setValue(
-                      `materials.${index}.totalPrice`,
-                      totalPrice.toFixed(2)
-                    );
-                  }}
-                  type="number"
-                  min={0}
-                  placeholder="Quantity"
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  control={form.control}
-                  name={`materials.${index}.notes`}
-                  placeholder="Notes"
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  control={form.control}
-                  name={`materials.${index}.unitPrice`}
-                  type="text"
-                  valueModifier={(value) => formatCurrency(Number(value || 0))}
-                  placeholder="Unit Price"
-                  disabled={true}
-                />
-              </TableCell>
-              <TableCell>
-                <InputField
-                  control={form.control}
-                  name={`materials.${index}.totalPrice`}
-                  type="text"
-                  valueModifier={(value) => formatCurrency(Number(value || 0))}
-                  placeholder="Total Price"
-                  disabled={true}
-                />
-              </TableCell>
-
-              <TableCell>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className=""
-                  onClick={() => remove(index)}
-                >
-                  <Trash />
-                </Button>
-              </TableCell>
-            </TableRow>
+            <MaterialFieldRow
+              key={field.id}
+              form={form}
+              remove={remove}
+              index={index}
+              isLoading={isLoading}
+            />
           ))}
         </TableBody>
       </Table>
     </FieldSet>
+  );
+}
+
+interface MaterialFieldRowProps {
+  form: UseFormReturn<LeadEstimateFormType>;
+  remove: (index: number) => void;
+  index: number;
+  isLoading: boolean;
+}
+
+function MaterialFieldRow({
+  form,
+  remove,
+  index,
+  isLoading,
+}: MaterialFieldRowProps) {
+  const handleMaterialSelect = (
+    value:
+      ListMaterialForSearchContractType["output"]["data"][number] | undefined
+  ) => {
+    if (value) {
+      const quantity = form.getValues(`materials.${index}.quantity`);
+      const totalPrice = Number(value.unitPrice) * Number(quantity || 0);
+
+      form.setValue(`materials.${index}.unitPrice`, value.unitPrice);
+      form.setValue(`materials.${index}.totalPrice`, totalPrice.toFixed(2));
+    } else {
+      form.setValue(`materials.${index}.unitPrice`, "");
+      form.setValue(`materials.${index}.quantity`, "");
+      form.setValue(`materials.${index}.totalPrice`, "");
+    }
+  };
+
+  const handleQuantityChange = (value: string) => {
+    const unitPrice = form.getValues(`materials.${index}.unitPrice`);
+    const totalPrice = Number(value) * Number(unitPrice);
+
+    form.setValue(`materials.${index}.totalPrice`, totalPrice.toFixed(2));
+  };
+
+  return (
+    <TableRow>
+      <TableCell>
+        <MaterialSelectorField
+          control={form.control}
+          name={`materials.${index}.materialId`}
+          onSelected={handleMaterialSelect}
+          disabled={isLoading}
+        />
+      </TableCell>
+      <TableCell>
+        <InputField
+          name={`materials.${index}.quantity`}
+          control={form.control}
+          onValueChange={handleQuantityChange}
+          type="number"
+          min={0}
+          placeholder="Quantity"
+          disabled={isLoading}
+        />
+      </TableCell>
+      <TableCell>
+        <InputField
+          control={form.control}
+          name={`materials.${index}.notes`}
+          placeholder="Notes"
+          disabled={isLoading}
+        />
+      </TableCell>
+      <TableCell>
+        <InputField
+          control={form.control}
+          name={`materials.${index}.unitPrice`}
+          type="text"
+          valueModifier={(value) => formatCurrency(Number(value || 0))}
+          placeholder="Unit Price"
+          disabled={true}
+        />
+      </TableCell>
+      <TableCell>
+        <InputField
+          control={form.control}
+          name={`materials.${index}.totalPrice`}
+          type="text"
+          valueModifier={(value) => formatCurrency(Number(value || 0))}
+          placeholder="Total Price"
+          disabled={true}
+        />
+      </TableCell>
+
+      <TableCell>
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon"
+          className=""
+          onClick={() => remove(index)}
+        >
+          <Trash />
+        </Button>
+      </TableCell>
+    </TableRow>
   );
 }

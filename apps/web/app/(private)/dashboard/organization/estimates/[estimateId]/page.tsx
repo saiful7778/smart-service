@@ -11,12 +11,14 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
 import { LeadEstimateDetails } from "@/features/lead/components/lead-estimate/LeadEstimateDetails";
 import { orpcTQClient } from "@/server/orpc.client";
+import { RoutePathType } from "@/types";
 import { requireUserPermissionsWithOrgCache } from "@/utils/user-utils";
 
 export const metadata: Metadata = {
@@ -73,13 +75,8 @@ export default async function EstimateDetailsPage(
       <DashboardShell
         className="max-w-5xl mx-auto w-full"
         header={
-          <div>
-            <LinkButton
-              href={{
-                pathname: redirectUrl.pathname,
-                search: redirectUrl.search,
-              }}
-            >
+          <DashboardShellHeader>
+            <LinkButton href={redirectUrl.toString() as RoutePathType}>
               <ArrowLeft />
               <span>Go Back</span>
             </LinkButton>
@@ -87,7 +84,7 @@ export default async function EstimateDetailsPage(
             <DashboardShellDescription>
               Detailed overview of estimate information.
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <LeadEstimateDetails

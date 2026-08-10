@@ -27,6 +27,7 @@ import { NotificationTable } from "../notification/notification.table";
 import { OrgMemberRoleTable } from "../role-permission";
 import { OrgRoleTable } from "../role-permission/orgRole.table";
 import { SessionTable } from "../session.table";
+import { OrgTaskTable } from "../task";
 import { InvitationTable } from "./invitation.table";
 import { OrganizationMemberTable } from "./organizationMember.table";
 import { OrgTeamTable } from "./orgTeam.table";
@@ -104,6 +105,7 @@ export const OrganizationRelations = relations(
     leadEstimates: many(LeadEstimateTable, {
       relationName: "LeadEstimateToOrg",
     }),
+    tasks: many(OrgTaskTable, { relationName: "OrgTaskToOrg" }),
   })
 );
 

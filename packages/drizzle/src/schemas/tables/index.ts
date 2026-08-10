@@ -13,3 +13,4 @@ export * from "./notification";
 export * from "./org";
 export * from "./role-permission";
 export * from "./feedback";
+export * from "./task";

@@ -25,7 +25,7 @@ interface SendEstimateDialogProps {
   estimateId: string;
   leadId: string | null | undefined;
   jobId: string | null | undefined;
-  customer: { id: string; email: string | null } | null;
+  customerEmail: string | null | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -34,7 +34,7 @@ export function SendEstimateDialog({
   estimateId,
   leadId,
   jobId,
-  customer,
+  customerEmail,
   open,
   onOpenChange,
 }: SendEstimateDialogProps) {
@@ -42,7 +42,7 @@ export function SendEstimateDialog({
   const form = useForm<SendEstimateType>({
     resolver: zodResolver(sendEstimateSchema),
     defaultValues: {
-      email: customer?.email || "",
+      email: customerEmail || "",
     },
   });
 
