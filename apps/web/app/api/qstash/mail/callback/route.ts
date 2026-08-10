@@ -1,12 +1,13 @@
 import { NextRequest } from "next/server";
 
-import { formatApiError } from "@workspace/lib/utils";
 import { MailCallbackPayload } from "@workspace/mail";
 
 import { ApiResponseJson } from "@/lib/ApiResponseJson";
 import { mailProvider } from "@/lib/mail";
 import { getQstashPayload } from "@/lib/qstash/getQstashPayload";
 import { verifyQstashSignature } from "@/lib/qstash/verifyQstashSignature";
+
+import { formatApiError } from "@/utils/formatApiError";
 
 export async function POST(req: NextRequest) {
   try {
