@@ -34,7 +34,7 @@ catalog:
   date-fns: ^4.4.0
   dotenv: ^17.4.2
   drizzle-orm: ^0.45.2
-  eslint: 9.23.0
+  eslint: 9.7.0
   immer: ^11.1.15
   lucide-react: ^1.28.0
   motion: ^12.43.0
@@ -48,7 +48,7 @@ catalog:
   react-dom: ^19.2.8
   react-hook-form: ^7.84.0
   tsx: ^4.23.6
-  typescript: 5.8.3
+  typescript: 5.9.3
   ua-parser-js: ^2.0.10
   vite-tsconfig-paths: ^6.1.1
   vitest: ^4.1.10

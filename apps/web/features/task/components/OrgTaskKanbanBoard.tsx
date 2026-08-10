@@ -26,6 +26,7 @@ import { TimeRangeFilter } from "@/components/time-range-filter";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
+import { useUpdateOrgTask } from "../api/orgTask.api.hook";
 import { ListOrgTaskContractType } from "../api/orgTask.contract";
 import { CreateOrgTaskDialog } from "./CreateOrgTaskDialog";
 import { OrgTaskKanbanCard } from "./OrgTaskKanbanCard";
@@ -101,6 +102,8 @@ export function OrgTaskKanbanBoard({
     })
   );
 
+  const updateTask = useUpdateOrgTask<"status">({});
+
   const globalSearch = useDebouncedCallback(
     (searchValue: string | null) => setSearchFilter(searchValue),
     500
@@ -139,10 +142,16 @@ export function OrgTaskKanbanBoard({
               columns={columns}
               data={data}
               className="gap-2"
-              onDataChange={(taskData) => {
-                console.log(
-                  taskData.map(({ name, column }) => ({ name, column }))
-                );
+              onDragEnd={({ active, over }) => {
+                if (!over || active.id === over.id) return;
+
+                const task = data.find((item) => item.id === active.id);
+                if (!task) return;
+
+                updateTask.mutate({
+                  taskId: task.id,
+                  status: task.column,
+                });
               }}
             >
               {(column) => (

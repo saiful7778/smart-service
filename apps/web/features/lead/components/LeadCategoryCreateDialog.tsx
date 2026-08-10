@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 
+import { toSlug } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import {
@@ -18,8 +19,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
-
-import { toSlug } from "@/utils/toSlug";
 
 import { useLeadCategoryCreate } from "../api/lead.api.hook";
 import { leadCategorySchema, LeadCategoryType } from "../lead.schema";

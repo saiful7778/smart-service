@@ -29,7 +29,7 @@ import { TextareaField } from "@workspace/ui/components/form-fields/TextareaFiel
 
 import { MemberSelectorField } from "@/features/org/components/MemberSelectorField";
 
-import { useCreateOrgTask } from "../api/task.api.hook";
+import { useCreateOrgTask } from "../api/orgTask.api.hook";
 import { taskCreateSchema, TaskCreateType } from "../task.schema";
 
 const PRIORITY_OPTIONS = TaskPriorityEnumSchema.options.map((value) => ({
