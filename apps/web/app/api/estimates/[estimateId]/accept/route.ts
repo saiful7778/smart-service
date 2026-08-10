@@ -4,10 +4,11 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { LeadEstimateTable } from "@workspace/drizzle/schemas";
 import { LeadEstimateStatusEnumType } from "@workspace/drizzle/zod-db-enums";
-import { formatApiError } from "@workspace/lib/utils";
 
 import { ApiResponseJson } from "@/lib/ApiResponseJson";
 import { db } from "@/lib/db";
+
+import { formatApiError } from "@/utils/formatApiError";
 
 const ACCEPTABLE_STATUSES = ["sent", "viewed"] as LeadEstimateStatusEnumType[];
 

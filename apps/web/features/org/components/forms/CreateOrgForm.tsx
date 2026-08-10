@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 
-import { toSlug } from "@workspace/lib/utils";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import {
   FieldDescription,
@@ -20,6 +19,7 @@ import { useFileUploadState } from "@/components/FileUpload";
 import { FileUploadField } from "@/components/form-fields/FileUploadField";
 
 import { DEFAULT_AUTH_PATH } from "@/constants";
+import { toSlug } from "@/utils/toSlug";
 
 import { useOrgCreate } from "../../api/org.api.hook";
 import { createOrgSchema, CreateOrgType } from "../../org.schema";
