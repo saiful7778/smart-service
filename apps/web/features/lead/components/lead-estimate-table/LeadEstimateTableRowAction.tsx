@@ -87,16 +87,17 @@ export function LeadEstimateTableRowAction({
                 <Link
                   href={{
                     pathname: `/dashboard/organization/estimates/${estimateData.id}`,
-                    query: {
-                      ...(estimateData.leadId && {
-                        leadId: estimateData.leadId,
-                        redirectTo: `/dashboard/organization/leads/${estimateData.leadId}`,
-                      }),
-                      ...(estimateData.jobId && {
-                        jobId: estimateData.jobId,
-                        redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}`,
-                      }),
-                    },
+                    query: estimateData.leadId
+                      ? {
+                          leadId: estimateData.leadId,
+                          redirectTo: `/dashboard/organization/leads/${estimateData.leadId}?tab=estimates`,
+                        }
+                      : estimateData.jobId
+                        ? {
+                            jobId: estimateData.jobId,
+                            redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}?tab=estimates`,
+                          }
+                        : undefined,
                   }}
                 />
               }
@@ -112,16 +113,17 @@ export function LeadEstimateTableRowAction({
                 <Link
                   href={{
                     pathname: `/dashboard/organization/estimates/${estimateData.id}/update`,
-                    query: {
-                      ...(estimateData.leadId && {
-                        leadId: estimateData.leadId,
-                        redirectTo: `/dashboard/organization/leads/${estimateData.leadId}`,
-                      }),
-                      ...(estimateData.jobId && {
-                        jobId: estimateData.jobId,
-                        redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}`,
-                      }),
-                    },
+                    query: estimateData.leadId
+                      ? {
+                          leadId: estimateData.leadId,
+                          redirectTo: `/dashboard/organization/leads/${estimateData.leadId}?tab=estimates`,
+                        }
+                      : estimateData.jobId
+                        ? {
+                            jobId: estimateData.jobId,
+                            redirectTo: `/dashboard/organization/jobs/${estimateData.jobId}?tab=estimates`,
+                          }
+                        : undefined,
                   }}
                 />
               }
@@ -152,7 +154,7 @@ export function LeadEstimateTableRowAction({
         estimateId={estimateData.id}
         leadId={estimateData.leadId}
         jobId={estimateData.jobId}
-        customer={estimateData.customer}
+        customerEmail={estimateData.customer?.email}
         open={openSendDialog}
         onOpenChange={setOpenSendDialog}
       />

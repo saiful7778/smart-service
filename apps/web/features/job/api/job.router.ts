@@ -1,6 +1,7 @@
 import {
   jobAllDeleteProcedure,
   jobCreateProcedure,
+  jobDataExportProcedure,
   jobDeleteProcedure,
   jobDetailsProcedure,
   jobImpl,
@@ -21,6 +22,7 @@ import {
 export const jobRouter = jobImpl.router({
   list: listJobsProcedure,
   listSchedule: listJobScheduleProcedure,
+  export: jobDataExportProcedure,
   details: jobDetailsProcedure,
   create: jobCreateProcedure,
   update: jobUpdateProcedure,

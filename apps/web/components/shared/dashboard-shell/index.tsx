@@ -16,7 +16,7 @@ export function DashboardShell({
       {...props}
     >
       <div className="space-y-4 md:space-y-6 max-w-7xl w-full mx-auto">
-        {header && <div>{header}</div>}
+        {header && header}
         <div className="space-y-4 md:space-y-6">{children}</div>
       </div>
     </div>

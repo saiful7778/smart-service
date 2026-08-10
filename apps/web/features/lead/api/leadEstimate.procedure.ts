@@ -59,7 +59,9 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
 
     if (input?.leadId) {
       const [existLead] = await context.db
-        .select({ id: LeadTable.id })
+        .select({
+          id: LeadTable.id,
+        })
         .from(LeadTable)
         .where(
           and(
@@ -78,7 +80,9 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
 
     if (input?.jobId) {
       const [existJob] = await context.db
-        .select({ id: JobTable.id })
+        .select({
+          id: JobTable.id,
+        })
         .from(JobTable)
         .where(
           and(
@@ -159,7 +163,7 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
           leadId,
           jobId,
           name: input.name,
-          status: input.status || "draft",
+          status: "draft",
           notes: input.notes || null,
           terms: input.terms || null,
           description: input.description || null,
@@ -169,7 +173,7 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
           taxRate: taxRate.toFixed(2),
           taxAmount: taxAmount.toFixed(2),
           totalAmount: totalAmount.toFixed(2),
-          validUntil: input.validUntil ? new Date(input.validUntil) : null,
+          validUntil: input.validUntil,
           createdBy: context.orgMember.id,
           orgId: context.org.id,
         } satisfies InsertLeadEstimate)
@@ -209,16 +213,6 @@ export const leadEstimateCreateProcedure = leadImpl.estimate.create
       });
 
       await tx.insert(LeadEstimateMaterialTable).values(insertMaterials);
-
-      if (input.status === "accepted") {
-        await reduceStock(
-          tx,
-          input.materials.map((m) => ({
-            materialId: m.materialId,
-            quantity: m.quantity,
-          }))
-        );
-      }
 
       return estimate;
     });

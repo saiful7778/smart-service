@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -27,10 +25,14 @@ import { TextareaField } from "@workspace/ui/components/form-fields/TextareaFiel
 import { useJobUpdate } from "../../../api/job.api.hook";
 import { jobUpdateSchema, JobUpdateType } from "../../../job.schema";
 
+const statusOptions = JobStatusEnumSchema.options.map((status) => ({
+  value: status,
+  label: formatEnumValue(status),
+}));
+
 interface JobGeneralInfoUpdateDialogProps {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  leadId: string | null | undefined;
   jobId: string | null | undefined;
   initialData: Omit<JobUpdateType, "jobId"> | undefined;
 }
@@ -38,7 +40,6 @@ interface JobGeneralInfoUpdateDialogProps {
 export function JobGeneralInfoUpdateDialog({
   open,
   onOpenChange,
-  leadId,
   jobId,
   initialData,
 }: JobGeneralInfoUpdateDialogProps) {
@@ -53,10 +54,7 @@ export function JobGeneralInfoUpdateDialog({
     },
   });
 
-  console.log(form.formState.errors);
-
   const { mutate, isPending } = useJobUpdate<keyof JobUpdateType>({
-    leadId,
     onSuccess: () => {
       form.reset();
       onOpenChange(false);
@@ -69,15 +67,6 @@ export function JobGeneralInfoUpdateDialog({
       });
     },
   });
-
-  const statusOptions = useMemo(
-    () =>
-      JobStatusEnumSchema.options.map((status) => ({
-        value: status,
-        label: formatEnumValue(status),
-      })),
-    []
-  );
 
   const onSubmit = (e: JobUpdateType) => {
     if (!e.jobId) return;

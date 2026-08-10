@@ -15,9 +15,7 @@ import {
   Trash,
 } from "lucide-react";
 
-import { formatEnumValue } from "@workspace/lib/utils";
 import { formatCurrency } from "@workspace/lib/utils";
-import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -43,21 +41,7 @@ import { LeadEstimateDetailsContractType } from "@/features/lead/api/leadEstimat
 import { SendEstimateDialog } from "@/features/lead/components/lead-estimate/SendEstimateDialog";
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 
-const statusColorMap: Record<string, string> = {
-  draft:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  viewed:
-    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
-  accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  approved:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
-  declined: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-  cancelled: "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200",
-  converted:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-};
+import { EstimateStatusBadge } from "../EstimateStatusBadge";
 
 interface LeadEstimateDetailsProps {
   estimateData: LeadEstimateDetailsContractType["output"]["data"];
@@ -133,12 +117,8 @@ export function LeadEstimateDetails({
                 href={{
                   pathname: `/dashboard/organization/estimates/${estimateData.id}/update`,
                   query: {
-                    ...(estimateData.leadId && {
-                      leadId: estimateData.leadId,
-                    }),
-                    ...(estimateData.jobId && {
-                      jobId: estimateData.jobId,
-                    }),
+                    redirectTo: `/dashboard/organization/estimates/${estimateData.id}?${leadId ? `leadId=${leadId}` : jobId ? `jobId=${jobId}` : ""}`,
+                    ...(leadId ? { leadId } : jobId ? { jobId } : {}),
                   },
                 }}
               />
@@ -158,7 +138,7 @@ export function LeadEstimateDetails({
               estimateId={estimateData.id}
               leadId={leadId}
               jobId={jobId}
-              customer={estimateData.customer}
+              customerEmail={estimateData.customer?.email}
               open={openSendDialog}
               onOpenChange={setOpenSendDialog}
             />
@@ -199,9 +179,7 @@ export function LeadEstimateDetails({
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Status</span>
                 <span className="text-sm text-muted-foreground">:</span>
-                <Badge className={statusColorMap[estimateData.status]}>
-                  {formatEnumValue(estimateData.status)}
-                </Badge>
+                <EstimateStatusBadge status={estimateData.status} />
               </div>
               {estimateData.description && (
                 <div>

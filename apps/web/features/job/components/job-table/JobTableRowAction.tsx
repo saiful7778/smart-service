@@ -201,7 +201,6 @@ export function JobTableRowAction({
       <JobGeneralInfoUpdateDialog
         open={openInfoUpdateDialog}
         onOpenChange={setOpenInfoUpdateDialog}
-        leadId={jobData.leadId}
         jobId={jobData.id}
         initialData={{
           title: jobData.title,

@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Eye, FileText, Layers, Pen, User } from "lucide-react";
 
 import { JobStatusEnumType } from "@workspace/drizzle/zod-db-enums";
-import { formatEnumValue } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -15,11 +14,6 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
-import {
-  Status,
-  StatusIndicator,
-  StatusLabel,
-} from "@workspace/ui/components/status";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +24,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 
 import { UserProfileType } from "@/features/user/user.api-schema";
 
+import { JobStatusBadge } from "../../JobStatusBadge";
 import { JobGeneralInfoUpdateDialog } from "./JobGeneralInfoUpdateDialog";
 
 interface JobGeneralInfoProps {
@@ -82,20 +77,7 @@ export function JobGeneralInfo({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Status" icon={<Layers className="size-3" />}>
-              <Status
-                variant={
-                  status === "completed"
-                    ? "success"
-                    : status === "cancelled"
-                      ? "error"
-                      : status === "scheduled" || status === "in_progress"
-                        ? "info"
-                        : "default"
-                }
-              >
-                <StatusIndicator />
-                <StatusLabel>{formatEnumValue(status)}</StatusLabel>
-              </Status>
+              <JobStatusBadge status={status} />
             </InfoItem>
             <InfoItem label="Created By" icon={<User className="size-3" />}>
               <UserAvatar
@@ -161,7 +143,6 @@ export function JobGeneralInfo({
       <JobGeneralInfoUpdateDialog
         open={openUpdateDialog}
         onOpenChange={setOpenUpdateDialog}
-        leadId={leadId}
         jobId={jobId}
         initialData={{
           title,

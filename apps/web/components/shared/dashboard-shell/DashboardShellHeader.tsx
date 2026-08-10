@@ -1,5 +1,12 @@
 import { cn } from "@workspace/ui/lib/utils";
 
+export function DashboardShellHeader({
+  className,
+  ...props
+}: React.ComponentProps<"h1">) {
+  return <div className={cn("leading-normal", className)} {...props} />;
+}
+
 export function DashboardShellTitle({
   className,
   ...props

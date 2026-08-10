@@ -53,16 +53,17 @@ export function LeadEstimate({
               <Link
                 href={{
                   pathname: "/dashboard/organization/estimates/create",
-                  query: {
-                    ...(leadId && {
-                      leadId,
-                      redirectTo: `/dashboard/organization/leads/${leadId}`,
-                    }),
-                    ...(jobId && {
-                      jobId,
-                      redirectTo: `/dashboard/organization/jobs/${jobId}`,
-                    }),
-                  },
+                  query: leadId
+                    ? {
+                        leadId,
+                        redirectTo: `/dashboard/organization/leads/${leadId}?tab=estimates`,
+                      }
+                    : jobId
+                      ? {
+                          jobId,
+                          redirectTo: `/dashboard/organization/jobs/${jobId}?tab=estimates`,
+                        }
+                      : undefined,
                 }}
               />
             }

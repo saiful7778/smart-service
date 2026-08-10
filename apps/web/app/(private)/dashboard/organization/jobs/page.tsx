@@ -5,12 +5,11 @@ import {
   parseAsInteger,
   parseAsIsoDate,
   parseAsStringEnum,
-  parseAsStringLiteral,
 } from "nuqs/server";
 
 import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 
+import { createRangeFilterServer } from "@/lib/nuqs/rangeFilter.server";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
@@ -36,6 +35,7 @@ export default async function JobsPage(
   const queryClient = getQueryClient();
 
   const filters = await tableQuerySearchParams({
+    ...createRangeFilterServer(),
     status: parseAsStringEnum(JobStatusEnumSchema.options).withOptions({
       clearOnDefault: true,
     }),
@@ -48,11 +48,6 @@ export default async function JobsPage(
     revenue: parseAsArrayOf(parseAsInteger, ",").withOptions({
       clearOnDefault: true,
     }),
-    range: parseAsStringLiteral(RangeSearchEnumSchema.options).withOptions({
-      clearOnDefault: true,
-    }),
-    startTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
-    endTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
   })(props.searchParams);
 
   const searchFields = ["title"];
@@ -77,10 +72,10 @@ export default async function JobsPage(
           receivedRevenue: filters.revenue
             ? { from: filters.revenue[0], to: filters.revenue[1] }
             : undefined,
-          createdAt:
-            filters.startTime && filters.endTime
-              ? { from: filters.startTime, to: filters.endTime }
-              : undefined,
+          // createdAt:
+          //   filters.startTime && filters.endTime
+          //     ? { from: filters.startTime, to: filters.endTime }
+          //     : undefined,
         },
       },
     })
