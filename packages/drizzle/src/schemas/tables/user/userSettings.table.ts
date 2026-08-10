@@ -23,7 +23,7 @@ export const UserSettingsTable = pgTable(
     userId: uuid("user_id").notNull(),
     timezone: varchar("timezone", { length: 50 }).default("UTC").notNull(),
     locale: varchar("locale", { length: 10 }).default("en-US").notNull(),
-    currency: varchar("currency", { length: 3 }).default("USD"),
+    currency: varchar("currency", { length: 3 }).default("USD").notNull(),
     createdAt: db_created_at,
     updatedAt: db_updated_at,
   },

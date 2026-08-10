@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ◈ encrypted .env [www.dotenvx.com]
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');
 CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');
@@ -45,7 +45,7 @@ CREATE TABLE "user_settings" (
 	"user_id" uuid NOT NULL,
 	"timezone" varchar(50) DEFAULT 'UTC' NOT NULL,
 	"locale" varchar(10) DEFAULT 'en-US' NOT NULL,
-	"currency" varchar(3) DEFAULT 'USD',
+	"currency" varchar(3) DEFAULT 'USD' NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );

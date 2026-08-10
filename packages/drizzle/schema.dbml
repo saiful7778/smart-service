@@ -176,7 +176,7 @@ table user_settings {
   user_id uuid [not null]
   timezone varchar(50) [not null, default: 'UTC']
   locale varchar(10) [not null, default: 'en-US']
-  currency varchar(3) [default: 'USD']
+  currency varchar(3) [not null, default: 'USD']
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
   updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
