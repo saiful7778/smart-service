@@ -195,7 +195,7 @@ const leadEstimateUpdateContract = leadBaseContract
     tags,
   })
   .input(
-    leadEstimateFormSchema.omit({ status: true }).partial().extend({
+    leadEstimateFormSchema.partial().extend({
       leadId: z.uuid().nullable().optional(),
       jobId: z.uuid().nullable().optional(),
       estimateId: z.uuid(),

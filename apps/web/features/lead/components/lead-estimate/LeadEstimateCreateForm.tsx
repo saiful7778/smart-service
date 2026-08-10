@@ -35,7 +35,6 @@ export function LeadEstimateCreateForm({
     resolver: zodResolver(leadEstimateFormSchema),
     defaultValues: {
       name: "",
-      status: "draft",
       description: "",
       notes: "",
       terms: "",

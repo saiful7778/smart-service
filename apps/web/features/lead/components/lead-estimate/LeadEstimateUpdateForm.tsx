@@ -39,7 +39,6 @@ export function LeadEstimateUpdateForm({
     defaultValues: {
       name: initialData.name,
       description: initialData?.description || "",
-      status: initialData.status,
       discountRate: initialData?.discountRate || "",
       taxRate: initialData?.taxRate || "",
       validUntil: initialData?.validUntil,

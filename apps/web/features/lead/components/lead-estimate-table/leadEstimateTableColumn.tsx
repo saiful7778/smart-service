@@ -2,34 +2,20 @@ import Link from "next/link";
 
 import { formatDate } from "date-fns";
 
-import {
-  LeadEstimateStatusEnumSchema,
-  LeadEstimateStatusEnumType,
-} from "@workspace/drizzle/zod-db-enums";
+import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { formatCurrency } from "@workspace/lib/utils";
-import { Badge } from "@workspace/ui/components/badge";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
 
+import { EstimateStatusBadge } from "../EstimateStatusBadge";
 import { LeadEstimateTableRowAction } from "./LeadEstimateTableRowAction";
 
 type EstimateTableRowDataType =
   ListLeadEstimateContractType["output"]["data"]["data"][number];
-
-const statusColorMap: Record<LeadEstimateStatusEnumType, string> = {
-  draft:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  viewed:
-    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
-  accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  declined: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-};
 
 export const leadEstimateTableColumn: ColumnType<EstimateTableRowDataType> = [
   {
@@ -65,16 +51,17 @@ export const leadEstimateTableColumn: ColumnType<EstimateTableRowDataType> = [
         <Link
           href={{
             pathname: `/dashboard/organization/estimates/${row.original.id}`,
-            query: {
-              ...(row.original.leadId && {
-                leadId: row.original.leadId,
-                redirectTo: `/dashboard/organization/leads/${row.original.leadId}`,
-              }),
-              ...(row.original.jobId && {
-                jobId: row.original.jobId,
-                redirectTo: `/dashboard/organization/jobs/${row.original.jobId}`,
-              }),
-            },
+            query: row.original.leadId
+              ? {
+                  leadId: row.original.leadId,
+                  redirectTo: `/dashboard/organization/leads/${row.original.leadId}?tab=estimates`,
+                }
+              : row.original.jobId
+                ? {
+                    jobId: row.original.jobId,
+                    redirectTo: `/dashboard/organization/leads/${row.original.jobId}?tab=estimates`,
+                  }
+                : undefined,
           }}
           className="font-medium text-foreground leading-none hover:underline"
         >
@@ -94,11 +81,10 @@ export const leadEstimateTableColumn: ColumnType<EstimateTableRowDataType> = [
       <DataTableColumnHeader column={column} label="Status" />
     ),
     cell: ({ getValue }) => {
-      const statusValue = getValue<EstimateTableRowDataType["status"]>();
       return (
-        <Badge className={statusColorMap[statusValue]}>
-          {formatEnumValue(statusValue)}
-        </Badge>
+        <EstimateStatusBadge
+          status={getValue<EstimateTableRowDataType["status"]>()}
+        />
       );
     },
     meta: {

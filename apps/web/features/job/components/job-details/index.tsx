@@ -4,6 +4,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Eye, FileText, Receipt, Users } from "lucide-react";
 
 import {
+  DashboardShellDescription,
+  DashboardShellHeader,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
+import {
   TabNavigation,
   TabNavigationContent,
   TabNavigationList,
@@ -30,13 +35,14 @@ export function JobDetails({ jobId }: { jobId: string }) {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="leading-normal">
-        <h1 className="text-lg md:text-3xl font-bold">{data.title}</h1>
-        <p className="text-muted-foreground text-sm">
+      <DashboardShellHeader>
+        <DashboardShellTitle>{data.title}</DashboardShellTitle>
+        <DashboardShellDescription>
           Detailed overview of job information and performance.
-        </p>
-      </div>
-      <TabNavigation defaultValue="details" className="space-y-4 md:space-y-6">
+        </DashboardShellDescription>
+      </DashboardShellHeader>
+
+      <TabNavigation defaultValue="details">
         <TabNavigationList variant="line">
           <TabNavigationTrigger value="details">
             <Eye className="size-4" />
@@ -60,7 +66,7 @@ export function JobDetails({ jobId }: { jobId: string }) {
           <DetailsStep jobId={jobId} />
         </TabNavigationContent>
         <TabNavigationContent value="estimates">
-          <EstimateStep leadId={data.leadId} jobId={jobId} />
+          <EstimateStep jobId={jobId} />
         </TabNavigationContent>
         <TabNavigationContent value="assignments">
           <AssignmentStep jobId={jobId} />
