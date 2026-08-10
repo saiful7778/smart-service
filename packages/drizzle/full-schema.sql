@@ -1,4 +1,4 @@
-◇ injected env (6) from ../../.env,../../.env.development.local // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (6) from ../../.env,../../.env.development.local // tip: ⌘ enable debugging { debug: true }
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');
 CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');
 CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');
@@ -25,6 +25,9 @@ CREATE TABLE "users" (
 	"banned" boolean DEFAULT false,
 	"ban_reason" varchar(255),
 	"ban_expires" timestamp (3) with time zone,
+	"timezone" varchar(50) DEFAULT 'UTC' NOT NULL,
+	"locale" varchar(10) DEFAULT 'en-US' NOT NULL,
+	"currency" varchar(3) DEFAULT 'USD' NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
@@ -38,16 +41,6 @@ CREATE TABLE "user_activities" (
 	"login_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"logout_at" timestamp (3) with time zone,
 	"last_seen_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE "user_settings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"timezone" varchar(50) DEFAULT 'UTC' NOT NULL,
-	"locale" varchar(10) DEFAULT 'en-US' NOT NULL,
-	"currency" varchar(3) DEFAULT 'USD' NOT NULL,
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE "accounts" (
@@ -631,7 +624,6 @@ CREATE TABLE "tasks" (
 
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_session_fkey" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;
-ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;
 ALTER TABLE "files" ADD CONSTRAINT "files_user_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;
 ALTER TABLE "files" ADD CONSTRAINT "files_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;
@@ -747,7 +739,6 @@ CREATE UNIQUE INDEX "user_email_key" ON "users" USING btree ("email");
 CREATE INDEX "user_activity_user_id_idx" ON "user_activities" USING btree ("user_id");
 CREATE INDEX "user_activity_login_at_idx" ON "user_activities" USING btree ("login_at");
 CREATE INDEX "session_activity_last_seen_at_idx" ON "user_activities" USING btree ("last_seen_at");
-CREATE UNIQUE INDEX "user_settings_user_id_idx" ON "user_settings" USING btree ("user_id");
 CREATE UNIQUE INDEX "account_provider_account_id_key" ON "accounts" USING btree ("provider_id","account_id");
 CREATE INDEX "account_user_id_idx" ON "accounts" USING btree ("user_id");
 CREATE INDEX "files_user_idx" ON "files" USING btree ("uploaded_by");

@@ -78,6 +78,13 @@
       "when": 1786378959903,
       "tag": "0010_update_currency_field",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1786380561174,
+      "tag": "0011_remove_userSettings",
+      "breakpoints": true
     }
   ]
 }
