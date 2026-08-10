@@ -9,12 +9,6 @@ import { formatCurrency } from "@workspace/lib/utils";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import {
-  Status,
-  StatusIndicator,
-  StatusLabel,
-  StatusVariant,
-} from "@workspace/ui/components/status";
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -22,20 +16,11 @@ import {
 import { ColumnType } from "@workspace/ui/types/data-table";
 
 import { ListJobsContractType } from "../../api/job.contract";
+import { JobStatusBadge } from "../JobStatusBadge";
 import { JobTableRowAction } from "./JobTableRowAction";
 
 type JobTableRowDataType =
   ListJobsContractType["output"]["data"]["data"][number];
-
-const statusVariantMap: Record<JobTableRowDataType["status"], StatusVariant> = {
-  draft: "default",
-  scheduled: "info",
-  in_progress: "info",
-  on_hold: "warning",
-  needs_review: "warning",
-  completed: "success",
-  cancelled: "error",
-};
 
 export const jobTableColumn: ColumnType<JobTableRowDataType> = [
   {
@@ -85,16 +70,9 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} label="Status" />
     ),
-    cell: ({ getValue }) => {
-      const status = getValue<JobTableRowDataType["status"]>();
-      const variant = statusVariantMap[status] || "default";
-      return (
-        <Status variant={variant}>
-          {status === "scheduled" && <StatusIndicator />}
-          <StatusLabel>{formatEnumValue(status)}</StatusLabel>
-        </Status>
-      );
-    },
+    cell: ({ getValue }) => (
+      <JobStatusBadge status={getValue<JobTableRowDataType["status"]>()} />
+    ),
     meta: {
       label: "Status",
       variant: "select",
