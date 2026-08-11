@@ -46,7 +46,7 @@ export function LeadEstimateBinTable({
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

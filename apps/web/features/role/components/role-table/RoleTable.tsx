@@ -24,7 +24,7 @@ export function RoleTable({ data, filters, setFilters }: RoleTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

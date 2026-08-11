@@ -34,21 +34,14 @@ import { useNotificationMarkAsRead } from "../api/notification.api.hook";
 import { NotificationItem } from "./NotificationItem";
 
 export function NotificationManagement({
-  page,
-  limit,
   search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
+  search: string | null | undefined;
   searchFields?: string[] | null | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       category: parseAsStringEnum(
         NotificationCategoryEnumSchema.options

@@ -11,32 +11,19 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
 import { ExportData } from "@/components/ExportData";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { useUserExportData } from "../../api/users.api.hook";
 import { UsersTable } from "./UsersTable";
 
-interface UserManagementTableProps {
-  page: number;
-  limit: number;
-  search: string;
-  searchFields?: string[] | undefined;
-}
-
 export function UserManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
-}: UserManagementTableProps) {
+}: {
+  searchFields: string[];
+}) {
   "use no memo";
-  const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
-  });
+  const { filters, setFilters, setSearchFilter } = useTableQueryState({});
 
   const { mutate: exportData, isPending } = useUserExportData();
 
@@ -97,8 +84,8 @@ export function UserManagementTable({
             }}
             setFilters={(filters) => {
               setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                page: filters?.page,
+                limit: filters?.limit,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
               });

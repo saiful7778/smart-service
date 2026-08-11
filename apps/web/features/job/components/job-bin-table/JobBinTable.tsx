@@ -35,7 +35,7 @@ export function JobBinTable({ data, filters, setFilters }: JobBinTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

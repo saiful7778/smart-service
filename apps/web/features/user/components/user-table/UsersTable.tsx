@@ -24,7 +24,7 @@ export function UsersTable({ data, filters, setFilters }: UsersTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

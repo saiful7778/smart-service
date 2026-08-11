@@ -5,9 +5,7 @@ import { parseAsIsoDate, parseAsStringLiteral } from "nuqs";
 
 import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 
-export function createRangeFilterClient() {
-  const now = new Date();
-
+export function createRangeFilterClient(now: Date = new Date()) {
   return {
     range: parseAsStringLiteral(RangeSearchEnumSchema.options)
       .withDefault("THIS_MONTH")

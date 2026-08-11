@@ -43,7 +43,7 @@ export function LeadEstimateTable({
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

@@ -54,7 +54,7 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

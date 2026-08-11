@@ -38,7 +38,7 @@ export function LeadBinTable({ data, filters, setFilters }: LeadBinTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });
