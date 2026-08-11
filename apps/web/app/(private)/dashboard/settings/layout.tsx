@@ -3,6 +3,7 @@ import { Separator } from "@workspace/ui/components/separator";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import { SettingsSidebar } from "@/components/shared/sidebar/SettingsSidebar";
@@ -13,12 +14,12 @@ export default function SettingsLayout({
   return (
     <DashboardShell
       header={
-        <div>
+        <DashboardShellHeader>
           <DashboardShellTitle>Settings</DashboardShellTitle>
           <DashboardShellDescription>
             Manage your account and platform settings.
           </DashboardShellDescription>
-        </div>
+        </DashboardShellHeader>
       }
     >
       <div className="flex flex-col gap-8 lg:flex-row">

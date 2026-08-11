@@ -13,6 +13,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -66,17 +67,15 @@ export default async function AdminSupportPage(
       <DashboardShell
         className="w-full max-w-3xl mx-auto"
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Support issues</DashboardShellTitle>
             <DashboardShellDescription>
               Manage all user feedback issues and requests
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <FeedbackIssueList
-          page={filters.page}
-          limit={filters.limit}
           search={filters.search}
           searchFields={searchFields}
           basePath="/dashboard/admin/support"

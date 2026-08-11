@@ -8,6 +8,7 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -44,7 +45,7 @@ export default async function MaterialDetailsPage(
       <DashboardShell
         className="max-w-4xl mx-auto w-full"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/organization/materials">
               <ArrowLeft />
               <span>Go Back</span>
@@ -53,7 +54,7 @@ export default async function MaterialDetailsPage(
             <DashboardShellDescription>
               Detailed overview of material.
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <MaterialDetails materialId={data.id} />
