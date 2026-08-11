@@ -19,6 +19,7 @@ import {
   useLeadEstimateRestoreAll,
 } from "@/features/lead/api/leadEstimate.api.hook";
 import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { leadEstimateBinTableColumn } from "./leadEstimateBinTableColumn";
 
@@ -38,6 +39,7 @@ export function LeadEstimateBinTable({
   jobId,
 }: LeadEstimateBinTableProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
   const table = useDataTable({
     data: data.data,
     columns: leadEstimateBinTableColumn,
@@ -98,7 +100,7 @@ export function LeadEstimateBinTable({
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} timezone={user?.timezone} />
     </DataTable>
   );
 }

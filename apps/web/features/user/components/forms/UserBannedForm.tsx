@@ -17,6 +17,7 @@ import { Switch } from "@workspace/ui/components/switch";
 
 import { useBanUnbannedUser } from "@/features/auth/api/auth.api.hook";
 import { userBannedSchema, UserBannedType } from "@/features/auth/auth.schema";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 interface UserBannedFormProps {
   initialData: UserBannedType;
@@ -28,6 +29,7 @@ export function UserBannedForm({
   onSuccess,
 }: UserBannedFormProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
   const form = useForm<UserBannedType>({
     resolver: zodResolver(userBannedSchema),
     defaultValues: initialData,
@@ -105,6 +107,7 @@ export function UserBannedForm({
                 control={form.control}
                 name="banExpires"
                 placeholder="Banned Expires"
+                timezone={user?.timezone}
                 disabled={isPending}
                 showTimeSelection={false}
                 calendarProps={{

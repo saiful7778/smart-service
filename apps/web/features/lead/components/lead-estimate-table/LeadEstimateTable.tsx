@@ -16,6 +16,7 @@ import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { useLeadEstimateDeleteAll } from "@/features/lead/api/leadEstimate.api.hook";
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { leadEstimateTableColumn } from "./leadEstimateTableColumn";
 
@@ -35,6 +36,7 @@ export function LeadEstimateTable({
   jobId,
 }: LeadEstimateTableProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
   const table = useDataTable({
     data: data.data,
     columns: leadEstimateTableColumn,
@@ -78,7 +80,7 @@ export function LeadEstimateTable({
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} timezone={user?.timezone} />
     </DataTable>
   );
 }

@@ -33,12 +33,14 @@ interface DataTableDateFilterProps<TData> {
   column?: Column<TData>;
   placeholder?: string;
   isInRange?: boolean;
+  timezone?: string | null | undefined;
 }
 
 export function DataTableDateFilter<TData>({
   column,
   placeholder,
   isInRange,
+  timezone,
 }: DataTableDateFilterProps<TData>) {
   "use no memo";
 
@@ -98,6 +100,7 @@ export function DataTableDateFilter<TData>({
       onCancel={onCancel}
       placeholder={placeholder}
       isInRange={isInRange}
+      timezone={timezone}
     />
   );
 }

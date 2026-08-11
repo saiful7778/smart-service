@@ -2,9 +2,10 @@
 
 import { useCallback, useState } from "react";
 
-import { formatDate, setHours, setMinutes, setMonth, setYear } from "date-fns";
+import { setHours, setMinutes, setMonth, setYear } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { Button, ButtonProps } from "@workspace/ui/components/button";
 import {
   Calendar,
@@ -37,6 +38,7 @@ import { cn } from "@workspace/ui/lib/utils";
 
 const DEFAULT_FROM_YEAR = 1970;
 const DEFAULT_TO_YEAR = 2050;
+const DEFAULT_TIMEZONE = "America/New_York";
 
 const MONTH_NAMES = [
   "January",
@@ -62,6 +64,7 @@ interface DateTimePickerProps {
   value: Date | null | undefined;
   onSelectValue: (value: Date | null | undefined) => void;
   triggerVariant?: ButtonProps["variant"];
+  timezone?: string | null | undefined;
   calendarProps?: CalendarCompProps;
   placeholder?: string;
   triggerClassName?: string;
@@ -76,6 +79,7 @@ interface DateTimePickerProps {
 export function DateTimePicker({
   value,
   onSelectValue,
+  timezone,
   fromYear = DEFAULT_FROM_YEAR,
   toYear = DEFAULT_TO_YEAR,
   triggerVariant,
@@ -96,6 +100,7 @@ export function DateTimePicker({
       className={triggerClassName}
       showTimeSelection={showTimeSelection}
       disabled={disabled}
+      timezone={timezone}
       aria-disabled={disabled}
     />
   );
@@ -108,6 +113,7 @@ export function DateTimePicker({
       fromYear={fromYear}
       toYear={toYear}
       showTimeSelection={showTimeSelection}
+      timeZone={timezone || DEFAULT_TIMEZONE}
       {...calendarProps}
     />
   );
@@ -139,6 +145,7 @@ export function DateTimePicker({
 
 interface DateTimePickerTriggerProps extends Omit<ButtonProps, "value"> {
   value: Date | null | undefined;
+  timezone?: string | null | undefined;
   placeholder?: string;
   showTimeSelection?: boolean;
 }
@@ -146,6 +153,7 @@ interface DateTimePickerTriggerProps extends Omit<ButtonProps, "value"> {
 function DateTimePickerTrigger({
   value,
   className,
+  timezone,
   placeholder = "Pick a date and time",
   variant = "outline",
   showTimeSelection,
@@ -165,7 +173,11 @@ function DateTimePickerTrigger({
       <CalendarIcon className="size-4 opacity-70" />
       {value ? (
         <span className="truncate">
-          {formatDate(value, showTimeSelection ? "PP - p" : "PP")}
+          {formatDateWithTimezone(
+            value,
+            showTimeSelection ? "PP - p" : "PP",
+            timezone
+          )}
         </span>
       ) : (
         <span>{placeholder}</span>
@@ -463,15 +475,18 @@ function MeridiemSelect({
     </Select>
   );
 }
+
 export function DateTimeDayButton({
   bookings,
   className,
   day,
+  timezone,
   ...props
 }: React.ComponentProps<typeof CalendarDayButton> & {
   bookings?: Record<string, number>;
+  timezone?: string | null | undefined;
 }) {
-  const dateKey = formatDate(day.date, "yyyy-MM-dd");
+  const dateKey = formatDateWithTimezone(day.date, "yyyy-MM-dd", timezone);
   const bookingCount = bookings?.[dateKey];
 
   return (

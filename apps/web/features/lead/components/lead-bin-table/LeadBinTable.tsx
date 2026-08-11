@@ -14,6 +14,8 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
+
 import {
   useLeadBinDeleteAll,
   useLeadRestoreAll,
@@ -29,6 +31,7 @@ interface LeadBinTableProps {
 
 export function LeadBinTable({ data, filters, setFilters }: LeadBinTableProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
 
   const table = useDataTable({
     data: data.data,
@@ -88,7 +91,7 @@ export function LeadBinTable({ data, filters, setFilters }: LeadBinTableProps) {
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} timezone={user?.timezone} />
     </DataTable>
   );
 }

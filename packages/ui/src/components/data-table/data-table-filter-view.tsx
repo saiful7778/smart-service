@@ -24,10 +24,12 @@ import {
 
 interface DataTableFilterViewProps<TData> {
   table: Table<TData>;
+  timezone?: string | null | undefined;
 }
 
 export function DataTableFilterView<TData>({
   table,
+  timezone,
 }: DataTableFilterViewProps<TData>) {
   "use no memo";
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -45,12 +47,20 @@ export function DataTableFilterView<TData>({
     <div className="flex flex-1 flex-wrap items-center gap-2">
       {columns.length <= 3 ? (
         columns.map((column) => (
-          <DataTableFilterItems key={column.id} column={column} />
+          <DataTableFilterItems
+            key={column.id}
+            column={column}
+            timezone={timezone}
+          />
         ))
       ) : (
         <FilterFunnelView>
           {columns.map((column) => (
-            <DataTableFilterItems key={column.id} column={column} />
+            <DataTableFilterItems
+              key={column.id}
+              column={column}
+              timezone={timezone}
+            />
           ))}
         </FilterFunnelView>
       )}

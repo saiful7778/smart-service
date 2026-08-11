@@ -45,6 +45,7 @@ import {
 
 import { LeadSelectorField } from "@/features/lead/components/LeadSelectorField";
 import { MemberSelectorField } from "@/features/org/components/MemberSelectorField";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 import { RoutePathType } from "@/types";
 
 import { useJobCreate } from "../../api/job.api.hook";
@@ -357,6 +358,7 @@ function ScheduleStep({
   value: string;
 }) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
   const { fields, append, remove } = useFieldArray({
     control,
     name: "assignments",
@@ -384,6 +386,7 @@ function ScheduleStep({
               control={control}
               name="startAt"
               label="Start at"
+              timezone={user?.timezone}
               calendarProps={{
                 disabled: {
                   before: new Date(),
@@ -396,6 +399,7 @@ function ScheduleStep({
               control={control}
               name="endAt"
               label="End at"
+              timezone={user?.timezone}
               calendarProps={{
                 disabled: {
                   before: new Date(),

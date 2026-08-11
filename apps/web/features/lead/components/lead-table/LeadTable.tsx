@@ -20,6 +20,7 @@ import { FiltersType } from "@workspace/ui/types/data-table";
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
 import { orpcTQClient } from "@/server/orpc.client";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { useLeadDeleteAll } from "../../api/lead.api.hook";
 import { ListLeadContractType } from "../../api/lead.contract";
@@ -40,6 +41,7 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
     "org.lead.manage",
     "org.lead.create",
   ]);
+  const user = useAuthStore((state) => state.user!);
 
   const columns = useMemo(
     () => makeLeadTableColumn(leadCategories.data),
@@ -88,7 +90,7 @@ export function LeadTable({ data, filters, setFilters }: LeadTableProps) {
           </DataTableActionBar>
         }
       >
-        <DataTableToolbar table={table}>
+        <DataTableToolbar table={table} timezone={user?.timezone}>
           {isAllowCreate && (
             <Button
               nativeButton={false}

@@ -14,6 +14,8 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
+
 import { useJobBinDeleteAll, useJobRestoreAll } from "../../api/job.api.hook";
 import { ListJobBinContractType } from "../../api/jobBin.contract";
 import { jobBinTableColumn } from "./jobBinTableColumn";
@@ -26,6 +28,7 @@ interface JobBinTableProps {
 
 export function JobBinTable({ data, filters, setFilters }: JobBinTableProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
 
   const table = useDataTable({
     data: data.data,
@@ -85,7 +88,7 @@ export function JobBinTable({ data, filters, setFilters }: JobBinTableProps) {
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} timezone={user?.timezone} />
     </DataTable>
   );
 }
