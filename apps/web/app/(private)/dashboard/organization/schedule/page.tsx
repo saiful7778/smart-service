@@ -3,6 +3,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -24,12 +25,12 @@ export default async function SchedulePage() {
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Schedule Calendar</DashboardShellTitle>
             <DashboardShellDescription>
               Manage your organization&lsquo;s events and features.
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <ScheduleCalendarManagement />

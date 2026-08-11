@@ -144,6 +144,9 @@ table users {
   banned boolean [default: false]
   ban_reason varchar(255)
   ban_expires "timestamp (3) with time zone"
+  timezone varchar(50) [not null, default: 'UTC']
+  locale varchar(10) [not null, default: 'en-US']
+  currency varchar(3) [not null, default: 'USD']
   created_at "timestamp (3) with time zone" [not null, default: `now()`]
   updated_at "timestamp (3) with time zone" [not null, default: `now()`]
 
@@ -168,21 +171,6 @@ table user_activities {
     user_id [name: 'user_activity_user_id_idx']
     login_at [name: 'user_activity_login_at_idx']
     last_seen_at [name: 'session_activity_last_seen_at_idx']
-  }
-}
-
-table user_settings {
-  id uuid [pk, not null, default: `gen_random_uuid()`]
-  user_id uuid [not null]
-  timezone varchar(50) [not null, default: 'UTC']
-  locale varchar(10) [not null, default: 'en-US']
-  currency varchar(3) [default: 'USD']
-  created_at "timestamp (3) with time zone" [not null, default: `now()`]
-  updated_at "timestamp (3) with time zone" [not null, default: `now()`]
-
-  indexes {
-    
-    user_id [name: 'user_settings_user_id_idx', unique]
   }
 }
 
@@ -1224,8 +1212,6 @@ table tasks {
     created_at [name: 'tasks_created_at_idx']
   }
 }
-
-ref: user_settings.user_id - users.id
 
 ref: user_activities.user_id - users.id
 

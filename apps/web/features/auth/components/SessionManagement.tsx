@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { type Session } from "better-auth";
-import { formatDate } from "date-fns";
 import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { UAParser } from "ua-parser-js";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { ButtonSpinner } from "@workspace/ui/components/button-spinner";
 import {
@@ -20,6 +20,8 @@ import {
 } from "@workspace/ui/components/card";
 
 import { authClient } from "@/lib/better-auth/auth-client";
+
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 export function SessionManagement({
   sessions,
@@ -119,6 +121,8 @@ function SessionCard({
 }) {
   const router = useRouter();
 
+  const user = useAuthStore((state) => state.user!);
+
   const userAgentInfo = session.userAgent ? UAParser(session.userAgent) : null;
 
   const getBrowserInformation = () => {
@@ -182,16 +186,18 @@ function SessionCard({
             <div>
               <p className="text-sm text-muted-foreground">
                 Created:{" "}
-                {formatDate(
+                {formatDateWithTimezone(
                   new Date(session.createdAt),
-                  "dd/MM/yyyy HH:mm:ss aa"
+                  "dd/MM/yyyy HH:mm:ss aa",
+                  user.timezone
                 )}
               </p>
               <p className="text-sm text-muted-foreground">
                 Expires:{" "}
-                {formatDate(
+                {formatDateWithTimezone(
                   new Date(session.expiresAt),
-                  "dd/MM/yyyy HH:mm:ss aa"
+                  "dd/MM/yyyy HH:mm:ss aa",
+                  user.timezone
                 )}
               </p>
             </div>

@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
@@ -54,7 +55,7 @@ export default async function UserDetailsPage(
       <DashboardShell
         className="max-w-5xl w-full mx-auto"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/admin/users">
               <ArrowLeft />
               <span>Go Back</span>
@@ -63,7 +64,7 @@ export default async function UserDetailsPage(
             <DashboardShellDescription>
               View and manage user account details
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <div className="flex md:flex-row flex-col items-center gap-4">

@@ -8,6 +8,7 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -43,7 +44,7 @@ export default async function AdminSupportIssueDetailsPage(
       <DashboardShell
         className="max-w-5xl w-full mx-auto"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/admin/support">
               <ArrowLeft />
               <span>Go Back</span>
@@ -52,7 +53,7 @@ export default async function AdminSupportIssueDetailsPage(
             <DashboardShellDescription>
               Reply and manage the issue status
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <FeedbackIssueDetails issueId={issueId} isOwner={isOwner} isAgent />

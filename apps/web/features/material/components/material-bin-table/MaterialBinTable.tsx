@@ -14,6 +14,8 @@ import { DataTableToolbar } from "@workspace/ui/components/data-table/data-table
 import { useDataTable } from "@workspace/ui/hooks/use-data-table";
 import { FiltersType } from "@workspace/ui/types/data-table";
 
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
+
 import {
   useMaterialBinDeleteAll,
   useMaterialRestoreAll,
@@ -33,6 +35,7 @@ export function MaterialBinTable({
   setFilters,
 }: MaterialBinTableProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
 
   const table = useDataTable({
     data: data.data,
@@ -42,7 +45,7 @@ export function MaterialBinTable({
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });
@@ -96,7 +99,7 @@ export function MaterialBinTable({
         </DataTableActionBar>
       }
     >
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} timezone={user?.timezone} />
     </DataTable>
   );
 }

@@ -43,11 +43,14 @@ export default function RegisterForm({
   const handleSubmit = async (e: RegisterType) => {
     const toastId = "register_toast_message";
 
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     return await authClient.signUp.email({
       email: e.email,
       name: e.name,
       password: e.password,
       callbackURL: redirectURL,
+      timezone,
       fetchOptions: {
         onRequest: () => {
           toast.loading("Registering...", { id: toastId });

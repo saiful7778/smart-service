@@ -276,6 +276,23 @@ function createBetterAuth() {
       },
     },
     user: {
+      additionalFields: {
+        timezone: {
+          type: "string",
+          input: true,
+          required: false,
+        },
+        locale: {
+          type: "string",
+          input: true,
+          required: false,
+        },
+        currency: {
+          type: "string",
+          input: true,
+          required: false,
+        },
+      },
       changeEmail: {
         enabled: false,
       },

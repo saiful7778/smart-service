@@ -2,10 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import { formatDate } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { Button, type ButtonProps } from "@workspace/ui/components/button";
 import {
   Calendar,
@@ -38,8 +38,13 @@ function isDateRange(value: unknown): value is DateRange {
   );
 }
 
-function safeFormat(date: Date | undefined): string {
-  return date ? formatDate(date, "MMM dd, yy") : "";
+const DEFAULT_TIMEZONE = "America/New_York";
+
+function safeFormat(
+  date: Date | undefined,
+  timezone?: string | null | undefined
+): string {
+  return date ? formatDateWithTimezone(date, "MMM dd, yy", timezone) : "";
 }
 
 export interface DateFilterProps {
@@ -52,6 +57,7 @@ export interface DateFilterProps {
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
   className?: string;
+  timezone?: string | null | undefined;
   calendarProps?: Omit<CalendarProps, "selected" | "onSelect" | "mode">;
 }
 
@@ -65,6 +71,7 @@ export function DateFilter({
   variant = "outline",
   size = "default",
   className,
+  timezone,
   calendarProps,
 }: DateFilterProps) {
   "use no memo";
@@ -99,6 +106,7 @@ export function DateFilter({
       placeholder={placeholder}
       variant={variant}
       size={size}
+      timezone={timezone}
       className={className}
     />
   );
@@ -110,7 +118,10 @@ export function DateFilter({
       onSelect={handleSelect}
       onCancel={handleCancel}
       onApply={handleApply}
-      calendarProps={calendarProps}
+      calendarProps={{
+        ...calendarProps,
+        timeZone: timezone || DEFAULT_TIMEZONE,
+      }}
     />
   );
 
@@ -142,6 +153,7 @@ export function DateFilter({
 interface DateFilterTriggerProps extends Omit<ButtonProps, "value"> {
   isInRange?: boolean;
   value: Date | DateRange | undefined;
+  timezone?: string | null | undefined;
   placeholder?: string;
 }
 
@@ -152,6 +164,7 @@ function DateFilterTrigger({
   className,
   variant = "outline",
   size = "default",
+  timezone,
   ...props
 }: DateFilterTriggerProps) {
   const label = useMemo(() => {
@@ -159,8 +172,8 @@ function DateFilterTrigger({
       const has = value.from || value.to;
       const text = has
         ? value.from && value.to
-          ? `${safeFormat(value.from)} - ${safeFormat(value.to)}`
-          : safeFormat(value.from ?? value.to)
+          ? `${safeFormat(value.from, timezone)} - ${safeFormat(value.to, timezone)}`
+          : safeFormat(value.from ?? value.to, timezone)
         : null;
 
       return (
@@ -177,13 +190,13 @@ function DateFilterTrigger({
         <>
           <span>{placeholder}</span>
           <Separator orientation="vertical" className="mx-2" />
-          <span>{safeFormat(value)}</span>
+          <span>{safeFormat(value, timezone)}</span>
         </>
       );
     }
 
     return <span>{placeholder}</span>;
-  }, [isInRange, placeholder, value]);
+  }, [isInRange, placeholder, value, timezone]);
 
   return (
     <Button

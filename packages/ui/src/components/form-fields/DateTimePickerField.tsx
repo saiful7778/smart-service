@@ -37,6 +37,7 @@ interface DateTimePickerFieldProps<TFieldValues extends FieldValues> {
   calendarProps?: Omit<CalendarCompProps, "id">;
   showTimeSelection?: boolean;
   onValueChange?: (value: Date | undefined) => void;
+  timezone?: string | null | undefined;
 }
 
 export function DateTimePickerField<TFieldValues extends FieldValues>({
@@ -53,6 +54,7 @@ export function DateTimePickerField<TFieldValues extends FieldValues>({
   calendarProps,
   showTimeSelection = true,
   onValueChange,
+  timezone,
 }: DateTimePickerFieldProps<TFieldValues>) {
   const fieldId = useId();
 
@@ -80,6 +82,7 @@ export function DateTimePickerField<TFieldValues extends FieldValues>({
             placeholder={placeholder}
             calendarProps={calendarProps}
             showTimeSelection={showTimeSelection}
+            timezone={timezone}
           />
           {description && (
             <FieldDescription
@@ -107,6 +110,7 @@ interface DateTimePickerFieldRenderProps<TFieldValues extends FieldValues> {
   triggerClassName?: string;
   calendarProps?: Omit<CalendarCompProps, "id">;
   showTimeSelection?: boolean;
+  timezone?: string | null | undefined;
 }
 
 function DateTimePickerFieldRender<TFieldValues extends FieldValues>({
@@ -119,6 +123,7 @@ function DateTimePickerFieldRender<TFieldValues extends FieldValues>({
   placeholder,
   calendarProps,
   showTimeSelection = true,
+  timezone,
 }: DateTimePickerFieldRenderProps<TFieldValues>) {
   const handleSelectValue = useCallback(
     (value: Date | null | undefined) => {
@@ -138,6 +143,7 @@ function DateTimePickerFieldRender<TFieldValues extends FieldValues>({
       triggerClassName={triggerClassName}
       disabled={disabled}
       showTimeSelection={showTimeSelection}
+      timezone={timezone}
     />
   );
 }

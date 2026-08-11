@@ -1,17 +1,19 @@
-CREATE TYPE "public"."ActionTypeEnum" AS ENUM('create', 'read', 'list', 'update', 'delete', 'manage', 'export');--> statement-breakpoint
 CREATE TYPE "public"."ContactSubmissionStatusEnum" AS ENUM('PENDING', 'READ', 'REPLIED', 'SPAM');--> statement-breakpoint
+CREATE TYPE "public"."FeedbackIssueStatusEnum" AS ENUM('OPEN', 'IN_PROGRESS', 'NEEDS_INFO', 'RESOLVED', 'CLOSED');--> statement-breakpoint
+CREATE TYPE "public"."FeedbackIssueTypeEnum" AS ENUM('BUG', 'FEATURE_REQUEST', 'FEEDBACK', 'SUGGESTION', 'REPORT', 'OTHER');--> statement-breakpoint
 CREATE TYPE "public"."JobAssignmentRoleEnum" AS ENUM('primary', 'secondary', 'supervisor', 'trainee');--> statement-breakpoint
 CREATE TYPE "public"."JobAssignmentStatusEnum" AS ENUM('active', 'completed', 'cancelled', 'pending', 'declined');--> statement-breakpoint
 CREATE TYPE "public"."JobStatusEnum" AS ENUM('draft', 'scheduled', 'in_progress', 'on_hold', 'needs_review', 'completed', 'cancelled');--> statement-breakpoint
+CREATE TYPE "public"."LeadEstimateStatusEnum" AS ENUM('draft', 'sent', 'viewed', 'accepted', 'declined', 'expired');--> statement-breakpoint
 CREATE TYPE "public"."LeadRevenueTypeEnum" AS ENUM('expected', 'invoiced', 'received');--> statement-breakpoint
 CREATE TYPE "public"."LeadSourceEnum" AS ENUM('manual', 'webhook', 'iframe');--> statement-breakpoint
 CREATE TYPE "public"."LeadStatusEnum" AS ENUM('new', 'contacted', 'qualified', 'nurture', 'converted', 'lost', 'cancelled', 'disqualified');--> statement-breakpoint
 CREATE TYPE "public"."NotificationCategoryEnum" AS ENUM('SYSTEM', 'ORG', 'AUTH', 'SUPPORT', 'CUSTOMER', 'LEAD', 'JOB', 'INVOICE', 'PAYMENT', 'BILLING', 'REPORT', 'SCHEDULE');--> statement-breakpoint
 CREATE TYPE "public"."NotificationLevelEnum" AS ENUM('INFO', 'SUCCESS', 'WARNING', 'ERROR');--> statement-breakpoint
-CREATE TYPE "public"."PermissionLevelEnum" AS ENUM('system', 'org', 'self');--> statement-breakpoint
-CREATE TYPE "public"."ResourceTypeEnum" AS ENUM('user', 'role', 'permission', 'org', 'invitation', 'material', 'team', 'team_member', 'customer', 'lead', 'lead_category', 'lead_attachment', 'lead_note', 'lead_invoice', 'lead_payment', 'lead_billing', 'lead_report', 'lead_estimate', 'job', 'job_category', 'job_material', 'job_assignment', 'job_attachment', 'job_note', 'job_revenue', 'job_invoice', 'job_payment', 'job_estimate', 'job_billing', 'job_time_entry', 'invoice', 'payment', 'billing', 'report', 'schedule');--> statement-breakpoint
 CREATE TYPE "public"."RoleEnum" AS ENUM('MEMBER', 'STAFF', 'DISPATCHER', 'TEAM_LEAD', 'MANAGER', 'ORG_SUPPORT_AGENT', 'ORG_ADMIN', 'OWNER', 'USER', 'SYSTEM_SUPPORT_AGENT', 'SYSTEM_ADMIN', 'SUPER_ADMIN');--> statement-breakpoint
 CREATE TYPE "public"."RoleTypeEnum" AS ENUM('SYSTEM', 'ORG');--> statement-breakpoint
+CREATE TYPE "public"."TaskPriorityEnum" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
+CREATE TYPE "public"."TaskStatusEnum" AS ENUM('todo', 'in_progress', 'done', 'cancelled');--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -22,6 +24,9 @@ CREATE TABLE "users" (
 	"banned" boolean DEFAULT false,
 	"ban_reason" varchar(255),
 	"ban_expires" timestamp (3) with time zone,
+	"timezone" varchar(50) DEFAULT 'UTC' NOT NULL,
+	"locale" varchar(10) DEFAULT 'en-US' NOT NULL,
+	"currency" varchar(3) DEFAULT 'USD' NOT NULL,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
@@ -35,16 +40,6 @@ CREATE TABLE "user_activities" (
 	"login_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
 	"logout_at" timestamp (3) with time zone,
 	"last_seen_at" timestamp (3) with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "user_settings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"timezone" varchar(50) DEFAULT 'UTC' NOT NULL,
-	"locale" varchar(10) DEFAULT 'en-US' NOT NULL,
-	"currency" varchar(3) DEFAULT 'USD',
-	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "accounts" (
@@ -70,7 +65,6 @@ CREATE TABLE "files" (
 	"original_name" varchar(255) NOT NULL,
 	"mime_type" varchar(127) NOT NULL,
 	"size" bigint NOT NULL,
-	"url" text,
 	"uploaded_by" uuid,
 	"entity_type" varchar(50),
 	"entity_id" uuid,
@@ -212,7 +206,6 @@ CREATE TABLE "jobs" (
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"status" "JobStatusEnum" DEFAULT 'scheduled' NOT NULL,
-	"service_at" timestamp (3) with time zone,
 	"expected_revenue" numeric(10, 2) DEFAULT '0',
 	"invoiced_revenue" numeric(10, 2) DEFAULT '0',
 	"received_revenue" numeric(10, 2) DEFAULT '0',
@@ -360,6 +353,42 @@ CREATE TABLE "lead_category_joins" (
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "lead_estimates" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"lead_id" uuid,
+	"job_id" uuid,
+	"name" varchar(255) NOT NULL,
+	"description" text,
+	"notes" text,
+	"terms" text,
+	"status" "LeadEstimateStatusEnum" DEFAULT 'draft' NOT NULL,
+	"subtotal" numeric(12, 2) DEFAULT '0',
+	"discount_rate" numeric(12, 2) DEFAULT '0',
+	"discount_amount" numeric(12, 2) DEFAULT '0',
+	"tax_rate" numeric(5, 2) DEFAULT '0',
+	"tax_amount" numeric(12, 2) DEFAULT '0',
+	"total_amount" numeric(12, 2) DEFAULT '0' NOT NULL,
+	"valid_until" timestamp (3) with time zone,
+	"created_by" uuid,
+	"updated_by" uuid,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp (3) with time zone,
+	"deleted_by" uuid
+);
+--> statement-breakpoint
+CREATE TABLE "lead_estimate_materials" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"estimate_id" uuid NOT NULL,
+	"material_id" uuid NOT NULL,
+	"quantity" numeric(12, 2) NOT NULL,
+	"total_price" numeric(12, 2) NOT NULL,
+	"notes" text,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "materials" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"org_id" uuid NOT NULL,
@@ -487,9 +516,9 @@ CREATE TABLE "org_member_roles" (
 CREATE TABLE "permissions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"level" "PermissionLevelEnum" NOT NULL,
-	"resource" "ResourceTypeEnum" NOT NULL,
-	"action" "ActionTypeEnum" NOT NULL,
+	"level" varchar NOT NULL,
+	"resource" varchar NOT NULL,
+	"action" varchar NOT NULL,
 	"description" varchar(255),
 	"metadata" jsonb,
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
@@ -543,9 +572,57 @@ CREATE TABLE "org_role_permissions" (
 	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "feedback_issues" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text NOT NULL,
+	"type" "FeedbackIssueTypeEnum" NOT NULL,
+	"status" "FeedbackIssueStatusEnum" DEFAULT 'OPEN' NOT NULL,
+	"closed_at" timestamp (3) with time zone,
+	"created_by_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "feedback_issue_replies" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"issue_id" uuid NOT NULL,
+	"content" text NOT NULL,
+	"created_by_id" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "org_tasks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"org_id" uuid NOT NULL,
+	"job_id" uuid,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"status" "TaskStatusEnum" DEFAULT 'todo' NOT NULL,
+	"priority" "TaskPriorityEnum" DEFAULT 'medium' NOT NULL,
+	"due_date" timestamp (3) with time zone,
+	"assigned_by" uuid,
+	"created_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "tasks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"status" "TaskStatusEnum" DEFAULT 'todo' NOT NULL,
+	"priority" "TaskPriorityEnum" DEFAULT 'medium' NOT NULL,
+	"due_date" timestamp (3) with time zone,
+	"assigned_by" uuid,
+	"created_by" uuid NOT NULL,
+	"created_at" timestamp (3) with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp (3) with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "user_activities" ADD CONSTRAINT "user_activity_session_fkey" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_user_fkey" FOREIGN KEY ("uploaded_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
@@ -610,6 +687,14 @@ ALTER TABLE "lead_categories" ADD CONSTRAINT "lead_category_created_by_fkey" FOR
 ALTER TABLE "lead_categories" ADD CONSTRAINT "lead_category_org_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_category_joins" ADD CONSTRAINT "lead_category_join_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "lead_category_joins" ADD CONSTRAINT "lead_category_join_lead_category_fkey" FOREIGN KEY ("lead_category_id") REFERENCES "public"."lead_categories"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_lead_fkey" FOREIGN KEY ("lead_id") REFERENCES "public"."leads"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimates" ADD CONSTRAINT "lead_estimate_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimate_materials" ADD CONSTRAINT "lead_estimate_material_estimate_fkey" FOREIGN KEY ("estimate_id") REFERENCES "public"."lead_estimates"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "lead_estimate_materials" ADD CONSTRAINT "lead_estimate_material_material_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."materials"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "materials" ADD CONSTRAINT "material_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "materials" ADD CONSTRAINT "material_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "materials" ADD CONSTRAINT "material_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
@@ -640,11 +725,19 @@ ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_role_id_fkey"
 ALTER TABLE "org_role_members" ADD CONSTRAINT "org_role_member_org_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "public"."organization_members"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_roleId_fk" FOREIGN KEY ("role_id") REFERENCES "public"."org_roles"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "org_role_permissions" ADD CONSTRAINT "orgRolePermission_permissionId_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "feedback_issues" ADD CONSTRAINT "feedback_issues_createdBy_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "feedback_issue_replies" ADD CONSTRAINT "feedback_issue_replies_issue_fkey" FOREIGN KEY ("issue_id") REFERENCES "public"."feedback_issues"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "feedback_issue_replies" ADD CONSTRAINT "feedback_issue_replies_createdBy_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_org_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_task_job_fkey" FOREIGN KEY ("job_id") REFERENCES "public"."jobs"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_assigned_by_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "org_tasks" ADD CONSTRAINT "org_tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."organization_members"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_assigned_by_fkey" FOREIGN KEY ("assigned_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 CREATE UNIQUE INDEX "user_email_key" ON "users" USING btree ("email");--> statement-breakpoint
 CREATE INDEX "user_activity_user_id_idx" ON "user_activities" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_activity_login_at_idx" ON "user_activities" USING btree ("login_at");--> statement-breakpoint
 CREATE INDEX "session_activity_last_seen_at_idx" ON "user_activities" USING btree ("last_seen_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "user_settings_user_id_idx" ON "user_settings" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "account_provider_account_id_key" ON "accounts" USING btree ("provider_id","account_id");--> statement-breakpoint
 CREATE INDEX "account_user_id_idx" ON "accounts" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "files_user_idx" ON "files" USING btree ("uploaded_by");--> statement-breakpoint
@@ -694,7 +787,6 @@ CREATE INDEX "jobs_org_id_idx" ON "jobs" USING btree ("organization_id");--> sta
 CREATE INDEX "jobs_lead_id_idx" ON "jobs" USING btree ("lead_id");--> statement-breakpoint
 CREATE INDEX "jobs_customer_id_idx" ON "jobs" USING btree ("customer_id");--> statement-breakpoint
 CREATE INDEX "jobs_status_idx" ON "jobs" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "jobs_service_at_idx" ON "jobs" USING btree ("service_at");--> statement-breakpoint
 CREATE INDEX "jobs_created_at_idx" ON "jobs" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "jobs_created_by_idx" ON "jobs" USING btree ("created_by");--> statement-breakpoint
 CREATE INDEX "jobs_updated_by_idx" ON "jobs" USING btree ("updated_by");--> statement-breakpoint
@@ -762,6 +854,18 @@ CREATE INDEX "lead_category_created_at_idx" ON "lead_categories" USING btree ("c
 CREATE UNIQUE INDEX "lead_category_join_unique" ON "lead_category_joins" USING btree ("lead_id","lead_category_id");--> statement-breakpoint
 CREATE INDEX "lead_category_join_lead_id_idx" ON "lead_category_joins" USING btree ("lead_id");--> statement-breakpoint
 CREATE INDEX "lead_category_join_lead_category_id_idx" ON "lead_category_joins" USING btree ("lead_category_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_org_id_idx" ON "lead_estimates" USING btree ("org_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_lead_id_idx" ON "lead_estimates" USING btree ("lead_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_job_id_idx" ON "lead_estimates" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_status_idx" ON "lead_estimates" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "lead_estimate_created_at_idx" ON "lead_estimates" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "lead_estimate_created_by_idx" ON "lead_estimates" USING btree ("created_by");--> statement-breakpoint
+CREATE INDEX "lead_estimate_deleted_by_idx" ON "lead_estimates" USING btree ("deleted_by");--> statement-breakpoint
+CREATE INDEX "lead_estimate_deleted_at_idx" ON "lead_estimates" USING btree ("deleted_at");--> statement-breakpoint
+CREATE INDEX "lead_estimate_material_estimate_id_idx" ON "lead_estimate_materials" USING btree ("estimate_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_material_material_id_idx" ON "lead_estimate_materials" USING btree ("material_id");--> statement-breakpoint
+CREATE INDEX "lead_estimate_material_quantity_idx" ON "lead_estimate_materials" USING btree ("quantity");--> statement-breakpoint
+CREATE INDEX "lead_estimate_material_created_at_idx" ON "lead_estimate_materials" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "material_org_id_idx" ON "materials" USING btree ("org_id");--> statement-breakpoint
 CREATE INDEX "material_created_by_idx" ON "materials" USING btree ("created_by");--> statement-breakpoint
 CREATE INDEX "material_updated_by_idx" ON "materials" USING btree ("updated_by");--> statement-breakpoint
@@ -817,4 +921,22 @@ CREATE INDEX "org_role_member_org_member_id_idx" ON "org_role_members" USING btr
 CREATE INDEX "org_role_member_unique_idx" ON "org_role_members" USING btree ("role_id","member_id");--> statement-breakpoint
 CREATE INDEX "orgRolePermission_roleId_idx" ON "org_role_permissions" USING btree ("role_id");--> statement-breakpoint
 CREATE INDEX "orgRolePermission_permissionId_idx" ON "org_role_permissions" USING btree ("permission_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "orgRolePermission_unique" ON "org_role_permissions" USING btree ("role_id","permission_id");
+CREATE UNIQUE INDEX "orgRolePermission_unique" ON "org_role_permissions" USING btree ("role_id","permission_id");--> statement-breakpoint
+CREATE INDEX "feedback_issues_createdBy_idx" ON "feedback_issues" USING btree ("created_by_id");--> statement-breakpoint
+CREATE INDEX "feedback_issues_status_idx" ON "feedback_issues" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "feedback_issues_type_idx" ON "feedback_issues" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "feedback_issues_created_at_idx" ON "feedback_issues" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "feedback_issue_replies_issue_idx" ON "feedback_issue_replies" USING btree ("issue_id");--> statement-breakpoint
+CREATE INDEX "feedback_issue_replies_createdBy_idx" ON "feedback_issue_replies" USING btree ("created_by_id");--> statement-breakpoint
+CREATE INDEX "org_tasks_org_id_idx" ON "org_tasks" USING btree ("org_id");--> statement-breakpoint
+CREATE INDEX "org_tasks_job_schedule_id_idx" ON "org_tasks" USING btree ("job_id");--> statement-breakpoint
+CREATE INDEX "org_tasks_assigned_by_idx" ON "org_tasks" USING btree ("assigned_by");--> statement-breakpoint
+CREATE INDEX "org_tasks_status_idx" ON "org_tasks" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "org_tasks_priority_idx" ON "org_tasks" USING btree ("priority");--> statement-breakpoint
+CREATE INDEX "org_tasks_due_date_idx" ON "org_tasks" USING btree ("due_date");--> statement-breakpoint
+CREATE INDEX "org_tasks_created_at_idx" ON "org_tasks" USING btree ("created_at");--> statement-breakpoint
+CREATE INDEX "tasks_assigned_by_idx" ON "tasks" USING btree ("assigned_by");--> statement-breakpoint
+CREATE INDEX "tasks_status_idx" ON "tasks" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "tasks_priority_idx" ON "tasks" USING btree ("priority");--> statement-breakpoint
+CREATE INDEX "tasks_due_date_idx" ON "tasks" USING btree ("due_date");--> statement-breakpoint
+CREATE INDEX "tasks_created_at_idx" ON "tasks" USING btree ("created_at");

@@ -14,7 +14,6 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -23,23 +22,12 @@ import { LeadEstimateTable } from "./LeadEstimateTable";
 export function LeadEstimateManagementTable({
   leadId,
   jobId,
-  page,
-  limit,
-  search = "",
-  searchFields,
 }: {
   leadId: string | null | undefined;
   jobId: string | null | undefined;
-  page?: number;
-  limit?: number;
-  search?: string;
-  searchFields?: string[];
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page ?? DEFAULT_PAGE_INDEX,
-    defaultLimit: limit ?? DEFAULT_PAGE_SIZE,
-    defaultSearch: search,
     additionalKeys: {
       status: parseAsStringLiteral(
         LeadEstimateStatusEnumSchema.options
@@ -57,7 +45,7 @@ export function LeadEstimateManagementTable({
         page: filters.page,
         limit: filters.limit,
         search: filters.search,
-        searchFields: searchFields ?? ["name"],
+        searchFields: ["name"],
         order: filters.order ?? undefined,
         orderField: filters.orderField ?? undefined,
         filter: {
@@ -108,8 +96,8 @@ export function LeadEstimateManagementTable({
                 LeadEstimateStatusEnumType[] | null;
 
               setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                page: filters?.page,
+                limit: filters?.limit,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
                 status: status && status?.length > 0 ? status[0] : null,

@@ -29,6 +29,7 @@ import {
 
 import { ListMaterialForSearchContractType } from "@/features/material/api/material.contract";
 import { MaterialSelectorField } from "@/features/material/components/MaterialSelectorField";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { LeadEstimateFormType } from "../../lead.schema";
 
@@ -46,6 +47,7 @@ export function LeadEstimateForm({
   isLoading = false,
 }: LeadEstimateFormProps) {
   "use no memo";
+  const user = useAuthStore((state) => state.user!);
 
   const materials = useWatch({ control: form.control, name: "materials" });
   const discountRate = useWatch({
@@ -97,6 +99,7 @@ export function LeadEstimateForm({
             name="validUntil"
             label="Valid Until"
             showTimeSelection={false}
+            timezone={user?.timezone}
             disabled={isLoading}
           />
         </div>

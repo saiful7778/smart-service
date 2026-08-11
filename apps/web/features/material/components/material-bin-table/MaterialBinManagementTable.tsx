@@ -10,7 +10,6 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -18,21 +17,12 @@ import { MaterialBinTable } from "./MaterialBinTable";
 import { MaterialBinTableContextProvider } from "./MaterialBinTableContext";
 
 export function MaterialBinManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields: string[];
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
         clearOnDefault: true,
@@ -69,7 +59,7 @@ export function MaterialBinManagementTable({
         searchValue={filters.search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      ></DataTableGlobalSearch>
+      />
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
@@ -99,8 +89,8 @@ export function MaterialBinManagementTable({
                 const deletedAt = filters?.filter?.deletedAt as string[] | null;
 
                 setFilters({
-                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                  page: filters?.page,
+                  limit: filters?.limit,
                   order: filters?.order ?? null,
                   orderField: filters?.orderField ?? null,
                   deletedAt: deletedAt

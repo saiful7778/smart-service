@@ -1,9 +1,8 @@
-import { formatDate } from "date-fns";
-
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListMaterialBinContractType } from "../../api/materialBin.contract";
@@ -106,10 +105,16 @@ export const materialBinTableColumn: ColumnType<MaterialBinTableRowDataType> = [
       }
       return (
         <div className="flex flex-col text-xs">
-          <span className="font-medium">{formatDate(deletedAt, "PP")}</span>
-          <span className="text-muted-foreground">
-            {formatDate(deletedAt, "p")}
-          </span>
+          <FormatDateCell
+            value={deletedAt}
+            format="PP"
+            className="font-medium"
+          />
+          <FormatDateCell
+            value={deletedAt}
+            format="p"
+            className="text-muted-foreground"
+          />
         </div>
       );
     },

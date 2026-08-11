@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { formatDate } from "date-fns";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { Building2, Calendar, Info, Package } from "lucide-react";
 
@@ -15,10 +14,16 @@ import {
   LeadTable,
   MaterialTable,
   OrgAddressTable,
+  OrganizationMemberTable,
   OrganizationTable,
+  UserTable,
 } from "@workspace/drizzle/schemas";
 import { LeadEstimateStatusEnumType } from "@workspace/drizzle/zod-db-enums";
-import { formatCurrency, formatEnumValue } from "@workspace/lib/utils";
+import {
+  formatCurrency,
+  formatDateWithTimezone,
+  formatEnumValue,
+} from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import {
   Card,
@@ -90,6 +95,9 @@ export default async function PublicEstimatePage(
       name: LeadEstimateTable.name,
       description: LeadEstimateTable.description,
       status: LeadEstimateTable.status,
+      createdByMember: {
+        timezone: UserTable.timezone,
+      },
       subtotal: LeadEstimateTable.subtotal,
       discountRate: LeadEstimateTable.discountRate,
       discountAmount: LeadEstimateTable.discountAmount,
@@ -103,6 +111,11 @@ export default async function PublicEstimatePage(
       updatedAt: LeadEstimateTable.updatedAt,
     })
     .from(LeadEstimateTable)
+    .leftJoin(
+      OrganizationMemberTable,
+      eq(OrganizationMemberTable.id, LeadEstimateTable.createdBy)
+    )
+    .leftJoin(UserTable, eq(UserTable.id, OrganizationMemberTable.userId))
     .where(
       and(
         eq(LeadEstimateTable.id, estimateId),
@@ -114,6 +127,8 @@ export default async function PublicEstimatePage(
   if (!estimateData) {
     notFound();
   }
+
+  const timezone = estimateData?.createdByMember?.timezone;
 
   const [customerData] = await db
     .select({
@@ -217,7 +232,7 @@ export default async function PublicEstimatePage(
   const taxAmount = Number(estimateData.taxAmount || "0");
   const totalAmount = Number(estimateData.totalAmount);
   const validUntil = estimateData.validUntil
-    ? formatDate(estimateData.validUntil, "PP - pp")
+    ? formatDateWithTimezone(estimateData.validUntil, "PP - pp", timezone)
     : null;
 
   const isAcceptable = ["sent", "viewed"].includes(estimateData.status);
@@ -291,7 +306,11 @@ export default async function PublicEstimatePage(
                   Created At
                 </div>
                 <div className="text-xs font-medium">
-                  {formatDate(estimateData.createdAt, "PP - p")}
+                  {formatDateWithTimezone(
+                    estimateData.createdAt,
+                    "PP - p",
+                    timezone
+                  )}
                 </div>
               </div>
               <div>
@@ -299,7 +318,11 @@ export default async function PublicEstimatePage(
                   Last Updated
                 </div>
                 <div className="text-xs font-medium">
-                  {formatDate(estimateData.updatedAt, "PP - p")}
+                  {formatDateWithTimezone(
+                    estimateData.updatedAt,
+                    "PP - p",
+                    timezone
+                  )}
                 </div>
               </div>
             </div>
@@ -403,7 +426,11 @@ export default async function PublicEstimatePage(
               estimateId={estimateData.id}
               estimateData={{
                 estimateName: estimateData.name,
-                estimateDate: formatDate(estimateData.createdAt, "PP - pp"),
+                estimateDate: formatDateWithTimezone(
+                  estimateData.createdAt,
+                  "PP - pp",
+                  timezone
+                ),
                 description: estimateData.description,
                 from: {
                   name: orgData.name,

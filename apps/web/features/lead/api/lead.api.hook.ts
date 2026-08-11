@@ -11,6 +11,8 @@ import { orpcTQClient } from "@/server/orpc.client";
 import { IApiHookInput } from "@/types";
 import { formatOrpcError } from "@/utils/formatOrpcError";
 
+import { LeadDetailsContractType, ListLeadContractType } from "./lead.contract";
+
 export function useLeadCreate<TFieldNames>({
   onRequestStart,
   onRequestEnd,
@@ -107,33 +109,89 @@ export function useLeadUpdate<TFieldNames>({
   onValidationErrors,
 }: IApiHookInput<TFieldNames>) {
   const toastId = "update_lead_toast_message";
-  const queryclient = useQueryClient();
+  const queryClient = useQueryClient();
+  const listQueryKey = orpcTQClient.lead.list.queryKey({
+    input: {},
+  });
 
   return useMutation(
     orpcTQClient.lead.update.mutationOptions({
-      onMutate: () => {
+      onMutate: async ({ leadId, ...inputData }) => {
         toast.loading("Updating...", { id: toastId });
         onRequestStart?.();
+
+        await queryClient.cancelQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+        await queryClient.cancelQueries({
+          queryKey: orpcTQClient.lead.details.queryKey({ input: { leadId } }),
+        });
+
+        const previousListLeadsData = queryClient.getQueriesData<
+          ListLeadContractType["output"]
+        >({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+        const previousLeadDetailsData = queryClient.getQueriesData<
+          LeadDetailsContractType["output"]
+        >({
+          queryKey: orpcTQClient.lead.details.queryKey({ input: { leadId } }),
+        });
+
+        queryClient.setQueriesData(
+          {
+            queryKey: listQueryKey,
+            exact: false,
+          },
+          (oldData: ListLeadContractType["output"]) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                meta: oldData.data.meta,
+                data: oldData.data.data.map((lead) => {
+                  if (lead.id === leadId) {
+                    return {
+                      ...lead,
+                      ...inputData,
+                    };
+                  }
+                  return lead;
+                }),
+              },
+            };
+          }
+        );
+        queryClient.setQueriesData(
+          {
+            queryKey: orpcTQClient.lead.details.queryKey({ input: { leadId } }),
+          },
+          (oldData: LeadDetailsContractType["output"]) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              data: {
+                ...oldData.data,
+                ...inputData,
+              },
+            };
+          }
+        );
+
+        return {
+          previousListLeadsData: previousListLeadsData[0]?.[1],
+          previousLeadDetailsData: previousLeadDetailsData[0]?.[1],
+        };
       },
-      onSuccess: async ({ message }, { leadId, categories }) => {
+      onSuccess: async ({ message }, { categories }) => {
         toast.success(message, { id: toastId });
 
-        await queryclient.invalidateQueries({
-          queryKey: orpcTQClient.lead.list.queryKey({
-            input: {},
-          }),
-          exact: false,
-        });
-
-        await queryclient.invalidateQueries({
-          queryKey: orpcTQClient.lead.details.queryKey({
-            input: { leadId },
-          }),
-          exact: false,
-        });
-
         if (categories) {
-          await queryclient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: orpcTQClient.lead.category.list.queryKey(),
             exact: false,
           });
@@ -141,7 +199,13 @@ export function useLeadUpdate<TFieldNames>({
 
         onSuccess?.(message);
       },
-      onError: (error) => {
+      onError: (error, { leadId }, context) => {
+        queryClient.setQueryData(listQueryKey, context?.previousListLeadsData);
+        queryClient.setQueryData(
+          orpcTQClient.lead.details.queryKey({ input: { leadId } }),
+          context?.previousLeadDetailsData
+        );
+
         const { message, type, fieldErrors } =
           formatOrpcError<TFieldNames>(error);
 
@@ -155,8 +219,20 @@ export function useLeadUpdate<TFieldNames>({
 
         onError?.(message);
       },
-      onSettled: () => {
+      onSettled: async (_data, _error, { leadId }) => {
         onRequestEnd?.();
+
+        await queryClient.invalidateQueries({
+          queryKey: listQueryKey,
+          exact: false,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: orpcTQClient.lead.details.queryKey({
+            input: {
+              leadId,
+            },
+          }),
+        });
       },
     })
   );

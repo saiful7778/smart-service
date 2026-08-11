@@ -49,6 +49,7 @@
     "@workspace/ui": "workspace:*",
     "better-auth": "catalog:",
     "date-fns": "catalog:",
+    "@date-fns/tz": "catalog:",
     "drizzle-orm": "catalog:",
     "immer": "catalog:",
     "lucide-react": "catalog:",

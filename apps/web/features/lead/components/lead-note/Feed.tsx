@@ -2,12 +2,14 @@
 
 import { Fragment, useCallback, useMemo, useState } from "react";
 
-import { formatDate, isToday, isYesterday } from "date-fns";
+import { isToday, isYesterday } from "date-fns";
 import toast from "react-hot-toast";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { useLeadNoteDelete } from "../../api/lead.api.hook";
 import { ListLeadNotesContractType } from "../../api/leadNote.contract";
@@ -37,6 +39,8 @@ export function Feed({
   const [noteToAction, setNoteToAction] = useState<
     ListLeadNotesContractType["output"]["data"]["data"][number] | null
   >(null);
+
+  const user = useAuthStore((state) => state.user!);
 
   const { ref } = useIntersectionObserver<HTMLDivElement>({
     onIntersect: () => {
@@ -102,7 +106,7 @@ export function Feed({
       } else if (isYesterday(date)) {
         label = "Yesterday";
       } else {
-        label = formatDate(date, "PP");
+        label = formatDateWithTimezone(date, "PP", user.timezone);
       }
 
       if (!groups.has(label)) groups.set(label, []);
@@ -110,7 +114,7 @@ export function Feed({
     });
 
     return Array.from(groups.entries());
-  }, [notes]);
+  }, [notes, user.timezone]);
 
   return (
     <div className="space-y-4 mt-6">

@@ -28,6 +28,7 @@ import { SelectField } from "@workspace/ui/components/form-fields/SelectField";
 import { TextareaField } from "@workspace/ui/components/form-fields/TextareaField";
 
 import { MemberSelectorField } from "@/features/org/components/MemberSelectorField";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { useCreateOrgTask } from "../api/orgTask.api.hook";
 import { taskCreateSchema, TaskCreateType } from "../task.schema";
@@ -40,6 +41,7 @@ const PRIORITY_OPTIONS = TaskPriorityEnumSchema.options.map((value) => ({
 export function CreateOrgTaskDialog() {
   "use no memo";
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const user = useAuthStore((state) => state.user!);
 
   const form = useForm<TaskCreateType>({
     resolver: zodResolver(taskCreateSchema),
@@ -108,6 +110,7 @@ export function CreateOrgTaskDialog() {
                   control={form.control}
                   name="dueDate"
                   label="Due Date"
+                  timezone={user?.timezone}
                   disabled={isPending}
                 />
               </div>

@@ -12,6 +12,7 @@ import { authClient } from "@/lib/better-auth/auth-client";
 
 import { GoogleIcon } from "@/assets/icons";
 import { ERROR_PAGE_PATH } from "@/constants";
+import { formatApiError } from "@/utils/formatApiError";
 
 export default function SocialAuth({
   redirect,
@@ -29,6 +30,9 @@ export default function SocialAuth({
   useEffect(() => {
     (async () => {
       try {
+        const toastId = "google_one_login_toast_message";
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
         await authClient.oneTap({
           callbackURL: redirectURL,
           fetchOptions: {
@@ -37,9 +41,17 @@ export default function SocialAuth({
             },
             onSuccess: () => {
               setIsLoading(false);
+              authClient
+                .updateUser({
+                  timezone,
+                })
+                .catch((err) => {
+                  const { message } = formatApiError(err);
+                  toast.error(message, { id: toastId });
+                });
             },
             onError: ({ error }) => {
-              toast.error(error.message);
+              toast.error(error.message, { id: toastId });
               setIsLoading(false);
             },
           },
@@ -52,7 +64,10 @@ export default function SocialAuth({
     })();
   }, [redirectURL]);
 
-  const handleGoogleLogin = async () =>
+  const handleGoogleLogin = async () => {
+    const toastId = "google_login_toast_message";
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     authClient.signIn.social({
       provider: "google",
       callbackURL: redirectURL,
@@ -64,13 +79,22 @@ export default function SocialAuth({
         },
         onSuccess: () => {
           setIsLoading(false);
+          authClient
+            .updateUser({
+              timezone,
+            })
+            .catch((err) => {
+              const { message } = formatApiError(err);
+              toast.error(message, { id: toastId });
+            });
         },
         onError: ({ error }) => {
-          toast.error(error.message);
+          toast.error(error.message, { id: toastId });
           setIsLoading(false);
         },
       },
     });
+  };
 
   return (
     <>

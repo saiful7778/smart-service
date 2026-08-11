@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { CircleQuestionMark, MessageSquareText, RotateCcw } from "lucide-react";
 import { parseAsStringEnum } from "nuqs";
 
@@ -37,6 +36,7 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
 import { MetaPagination } from "@/components/MetaPagination";
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { useTableQueryState } from "@/hooks/use-table-query-state";
@@ -46,23 +46,16 @@ import { RoutePathType } from "@/types";
 import { FeedbackStatusBadge, FeedbackTypeBadge } from "./feedback-badges";
 
 export function FeedbackIssueList({
-  page,
-  limit,
   search,
   searchFields,
   basePath,
 }: {
-  page: number;
-  limit: number;
-  search: string;
+  search: string | null | undefined;
   searchFields?: string[] | null | undefined;
   basePath: "/dashboard/support" | "/dashboard/admin/support";
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       type: parseAsStringEnum(FeedbackIssueTypeEnumSchema.options).withOptions({
         clearOnDefault: true,
@@ -224,9 +217,11 @@ export function FeedbackIssueList({
                       <div className="flex flex-wrap items-center gap-2">
                         <FeedbackTypeBadge type={issue.type} />
                         <FeedbackStatusBadge status={issue.status} />
-                        <span className="text-muted-foreground text-sm">
-                          {formatDate(issue.createdAt, "MMM d, yyyy")}
-                        </span>
+                        <FormatDateCell
+                          className="text-muted-foreground text-sm"
+                          format="MMM d, yyyy"
+                          value={issue.createdAt}
+                        />
                       </div>
                       <h3 className="font-medium group-hover:underline line-clamp-1">
                         {issue.title}

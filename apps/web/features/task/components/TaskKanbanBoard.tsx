@@ -45,21 +45,12 @@ const columns = TaskStatusEnumSchema.options.map((value) => ({
 }));
 
 export function TaskKanbanBoard({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields?: string[] | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       ...createRangeFilterClient(),
       status: parseAsStringEnum(TaskStatusEnumSchema.options).withOptions({
@@ -112,9 +103,9 @@ export function TaskKanbanBoard({
         rangeSearch={filters}
         setRangeSearch={({ range, startTime, endTime }) =>
           setFilters({
-            range: range ?? undefined,
-            startTime: startTime ?? undefined,
-            endTime: endTime ?? undefined,
+            range,
+            startTime,
+            endTime,
           })
         }
       />

@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -22,12 +23,12 @@ export default async function MaterialCreatePage() {
   return (
     <DashboardShell
       header={
-        <div>
+        <DashboardShellHeader>
           <DashboardShellTitle>Create Material</DashboardShellTitle>
           <DashboardShellDescription>
             Create a new material
           </DashboardShellDescription>
-        </div>
+        </DashboardShellHeader>
       }
     >
       <div className="max-w-4xl w-full mx-auto">

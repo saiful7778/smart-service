@@ -193,10 +193,19 @@ const leadUpdateContract = leadBaseContract
     tags,
   })
   .input(
-    updateLeadSchema.extend({
-      leadId: z.uuid(),
-      categories: z.array(z.string()).optional(),
-    })
+    updateLeadSchema
+      .omit({
+        orgId: true,
+        customerId: true,
+        createdBy: true,
+        updatedBy: true,
+        deletedAt: true,
+        deletedBy: true,
+      })
+      .extend({
+        leadId: z.uuid(),
+        categories: z.array(z.string()).optional(),
+      })
   )
   .output(apiOutputZodSchema(selectLeadSchema));
 export type LeadUpdateContractType = InferContractRouterType<

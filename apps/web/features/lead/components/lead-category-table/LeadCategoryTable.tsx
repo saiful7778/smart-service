@@ -36,7 +36,7 @@ export function LeadCategoryTable({
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

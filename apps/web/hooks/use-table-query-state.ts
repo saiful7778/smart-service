@@ -9,46 +9,36 @@ import {
   UseQueryStatesKeysMap,
 } from "nuqs";
 
-import { DEFAULT_PAGE_INDEX } from "@/constants";
-
-type BaseKeys = {
-  page: ReturnType<typeof parseAsIndex.withDefault>;
-  limit: ReturnType<typeof parseAsInteger.withDefault>;
-  search: ReturnType<typeof parseAsString.withDefault>;
-  order: ReturnType<typeof parseAsStringEnum<"asc" | "desc">>;
-  orderField: typeof parseAsString;
-};
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 
 export function useTableQueryState<KeyMap extends UseQueryStatesKeysMap>({
-  defaultPage,
-  defaultLimit,
-  defaultSearch,
   additionalKeys,
 }: {
-  defaultPage: number;
-  defaultLimit: number;
-  defaultSearch?: string | null | undefined;
   additionalKeys?: KeyMap;
 }) {
+  const baseKeys = {
+    page: parseAsIndex.withDefault(DEFAULT_PAGE_INDEX).withOptions({
+      clearOnDefault: true,
+    }),
+    limit: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE).withOptions({
+      clearOnDefault: true,
+    }),
+    search: parseAsString.withOptions({
+      clearOnDefault: true,
+    }),
+    order: parseAsStringEnum(["asc", "desc"]).withOptions({
+      clearOnDefault: true,
+    }),
+    orderField: parseAsString.withOptions({
+      clearOnDefault: true,
+    }),
+  };
+
   const [filters, setFilters] = useQueryStates(
     {
-      page: parseAsIndex.withDefault(defaultPage).withOptions({
-        clearOnDefault: true,
-      }),
-      limit: parseAsInteger.withDefault(defaultLimit).withOptions({
-        clearOnDefault: true,
-      }),
-      search: parseAsString.withDefault(defaultSearch ?? "").withOptions({
-        clearOnDefault: true,
-      }),
-      order: parseAsStringEnum(["asc", "desc"]).withOptions({
-        clearOnDefault: true,
-      }),
-      orderField: parseAsString.withOptions({
-        clearOnDefault: true,
-      }),
+      ...baseKeys,
       ...(additionalKeys ?? {}),
-    } as unknown as BaseKeys & KeyMap,
+    } as unknown as typeof baseKeys & KeyMap,
     {
       history: "push",
     }
@@ -56,8 +46,16 @@ export function useTableQueryState<KeyMap extends UseQueryStatesKeysMap>({
 
   return {
     filters,
-    setFilters: (updates: Partial<Omit<typeof filters, "search">>) =>
-      setFilters(updates as Parameters<typeof setFilters>[0]),
+    setFilters: (
+      updates: Partial<
+        Omit<
+          {
+            [K in keyof typeof filters]: (typeof filters)[K] | null;
+          },
+          "search"
+        >
+      >
+    ) => setFilters(updates as Parameters<typeof setFilters>[0]),
     setSearchFilter: (searchValue: string | null) =>
       setFilters({
         search: searchValue,

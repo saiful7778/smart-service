@@ -1,11 +1,10 @@
-import { formatDate } from "date-fns";
-
 import { formatEnumValue, OrgRoleEnumSchema } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListInvitationContractType } from "../../api/org.contract";
@@ -134,10 +133,10 @@ export const invitationTableColumn: ColumnType<InvitationTableRowDataType> = [
     ),
     cell: ({ getValue }) => (
       <div className="text-muted-foreground">
-        {formatDate(
-          getValue<InvitationTableRowDataType["createdAt"]>(),
-          "PP - p"
-        )}
+        <FormatDateCell
+          value={getValue<InvitationTableRowDataType["createdAt"]>()}
+          format="PP - p"
+        />
       </div>
     ),
     meta: {

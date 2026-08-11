@@ -1,13 +1,13 @@
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
-
 import { LeadEstimateStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { formatCurrency } from "@workspace/lib/utils";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 
 import { ListLeadEstimateContractType } from "@/features/lead/api/leadEstimate.contract";
 
@@ -122,10 +122,10 @@ export const leadEstimateTableColumn: ColumnType<EstimateTableRowDataType> = [
     ),
     cell: ({ getValue }) => (
       <div>
-        {formatDate(
-          getValue<EstimateTableRowDataType["createdAt"]>(),
-          "PP - p"
-        )}
+        <FormatDateCell
+          value={getValue<EstimateTableRowDataType["createdAt"]>()}
+          format="PP - p"
+        />
       </div>
     ),
     meta: { label: "Created At", variant: "date" },

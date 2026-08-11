@@ -50,6 +50,8 @@
     "@workspace/drizzle": "workspace:*",
     "drizzle-orm": "catalog:",
     "pino": "catalog:",
-    "pino-pretty": "catalog:"
+    "pino-pretty": "catalog:",
+    "date-fns": "catalog:",
+    "@date-fns/tz": "catalog:"
   }
 }

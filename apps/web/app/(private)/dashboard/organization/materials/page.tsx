@@ -6,6 +6,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -48,20 +49,15 @@ export default async function MaterialsPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Materials</DashboardShellTitle>
             <DashboardShellDescription>
               Manage your organization materials
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <MaterialManagementTable
-          limit={filters.limit}
-          page={filters.page}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <MaterialManagementTable searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

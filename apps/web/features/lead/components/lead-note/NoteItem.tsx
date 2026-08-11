@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { formatDate } from "date-fns";
 import { Edit, EllipsisVertical, Trash2 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
@@ -16,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatarImage } from "@/components/UserAvatar";
 
 import { RoutePathType } from "@/types";
@@ -79,9 +79,12 @@ export function LeadNoteItem({
       </div>
       <p className="text-sm leading-relaxed">{note.content}</p>
       <div className="flex items-end-safe justify-between gap-2">
-        <div className="text-muted-foreground text-xs">
-          {formatDate(note.createdAt, "P • p")}
-        </div>
+        <FormatDateCell
+          as="div"
+          className="text-muted-foreground text-xs"
+          format="P - p"
+          value={note.createdAt}
+        />
         {pathname.startsWith("/dashboard/organization/leads") && note.job && (
           <div>
             <Button

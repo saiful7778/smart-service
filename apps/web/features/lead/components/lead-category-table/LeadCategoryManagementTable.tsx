@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -12,10 +11,7 @@ import { LeadCategoryTable } from "./LeadCategoryTable";
 
 export function LeadCategoryManagementTable() {
   "use no memo";
-  const { filters, setFilters } = useTableQueryState({
-    defaultPage: DEFAULT_PAGE_INDEX,
-    defaultLimit: DEFAULT_PAGE_SIZE,
-  });
+  const { filters, setFilters } = useTableQueryState({});
 
   const { data, isLoading, isError, error } = useQuery(
     orpcTQClient.lead.category.list.queryOptions()
@@ -41,8 +37,8 @@ export function LeadCategoryManagementTable() {
           }}
           setFilters={(filters) => {
             setFilters({
-              page: filters?.page ?? DEFAULT_PAGE_INDEX,
-              limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+              page: filters?.page,
+              limit: filters?.limit,
               order: filters?.order ?? null,
               orderField: filters?.orderField ?? null,
             });

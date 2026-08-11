@@ -11,7 +11,6 @@ import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -22,21 +21,12 @@ import {
 import { InvitationsTable } from "./InvitationsTable";
 
 export function InvitationManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields?: string[] | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       status: parseAsStringLiteral(invitationStatusEnum.options).withOptions({
         clearOnDefault: true,
@@ -105,8 +95,8 @@ export function InvitationManagementTable({
                 InvitationStatusEnumType[] | null;
 
               setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                page: filters?.page,
+                limit: filters?.limit,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
                 role: roles?.[0] ?? null,

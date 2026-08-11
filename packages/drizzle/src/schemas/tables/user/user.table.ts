@@ -29,7 +29,6 @@ import { OrgTeamMemberTable } from "../org/orgTeamMember.table";
 import { UserRoleTable } from "../role-permission";
 import { SessionTable } from "../session.table";
 import { TaskTable } from "../task/task.table";
-import { UserSettingsTable } from "./userSettings.table";
 
 export const UserTable = pgTable(
   "users",
@@ -43,23 +42,24 @@ export const UserTable = pgTable(
     banned: boolean("banned").default(false),
     banReason: varchar("ban_reason", { length: 255 }),
     banExpires: timestamp("ban_expires", { withTimezone: true, precision: 3 }),
+
+    // settings
+    timezone: varchar("timezone", { length: 50 }).default("UTC").notNull(),
+    locale: varchar("locale", { length: 10 }).default("en-US").notNull(),
+    currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+
     createdAt: db_created_at,
     updatedAt: db_updated_at,
   },
   (table) => [uniqueIndex("user_email_key").on(table.email)]
 );
 
-export const UserRelations = relations(UserTable, ({ one, many }) => ({
+export const UserRelations = relations(UserTable, ({ many }) => ({
   sessions: many(SessionTable, {
     relationName: "SessionToUser",
   }),
   accounts: many(AccountTable, {
     relationName: "AccountToUser",
-  }),
-  settings: one(UserSettingsTable, {
-    fields: [UserTable.id],
-    references: [UserSettingsTable.userId],
-    relationName: "UserSettingsToUser",
   }),
   addresses: many(UserAddressTable, {
     relationName: "UserAddressToUser",
