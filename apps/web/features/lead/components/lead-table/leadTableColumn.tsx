@@ -1,39 +1,21 @@
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
-
 import { LeadStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
-import {
-  Status,
-  StatusIndicator,
-  StatusLabel,
-  type StatusVariant,
-} from "@workspace/ui/components/status";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import TruncatedList from "@/components/TruncatedList";
 
 import { ListLeadContractType } from "../../api/lead.contract";
 import { ListLeadCategoriesForSearchContractType } from "../../api/leadCategory.contract";
+import { LeadStatusBadge } from "../LeadStatusBadge";
 import { LeadTableRowAction } from "./LeadTableRowAction";
 
 type LeadTableRowDataType =
   ListLeadContractType["output"]["data"]["data"][number];
-
-const statusVariantMap: Record<LeadTableRowDataType["status"], StatusVariant> =
-  {
-    new: "default",
-    contacted: "info",
-    qualified: "success",
-    nurture: "warning",
-    converted: "success",
-    lost: "error",
-    cancelled: "error",
-    disqualified: "error",
-  };
 
 export function makeLeadTableColumn(
   leadCategories: ListLeadCategoriesForSearchContractType["output"]["data"]
@@ -97,16 +79,9 @@ export function makeLeadTableColumn(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Status" />
       ),
-      cell: ({ getValue }) => {
-        const status = getValue<LeadTableRowDataType["status"]>();
-        const variant = statusVariantMap[status] || "default";
-        return (
-          <Status variant={variant}>
-            {status === "new" && <StatusIndicator />}
-            <StatusLabel>{formatEnumValue(status)}</StatusLabel>
-          </Status>
-        );
-      },
+      cell: ({ getValue }) => (
+        <LeadStatusBadge status={getValue<LeadTableRowDataType["status"]>()} />
+      ),
       meta: {
         label: "Status",
         variant: "select",
@@ -191,10 +166,16 @@ export function makeLeadTableColumn(
         }
         return (
           <div className="flex flex-col text-xs">
-            <span className="font-medium">{formatDate(createdAt, "PP")}</span>
-            <span className="text-muted-foreground">
-              {formatDate(createdAt, "p")}
-            </span>
+            <FormatDateCell
+              value={createdAt}
+              format="PP"
+              className="font-medium"
+            />
+            <FormatDateCell
+              value={createdAt}
+              format="p"
+              className="text-muted-foreground"
+            />
           </div>
         );
       },
