@@ -42,7 +42,7 @@ export type ColumnType<T> = Array<ColumnDef<T>>;
 export type FiltersType = Partial<{
   page: number;
   limit: number;
-  search: string;
+  search: string | null;
   order: "asc" | "desc" | null;
   orderField: string | null;
   filter: Record<string, string | string[] | null>;
