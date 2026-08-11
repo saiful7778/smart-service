@@ -39,6 +39,7 @@
     "@workspace/vitest-config": "workspace:*",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
+    "eslint": "catalog:",
     "dotenv": "catalog:",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
