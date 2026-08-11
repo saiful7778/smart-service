@@ -19,6 +19,9 @@ export type AuthUser = {
   role?: string | null | undefined;
   banReason?: string | null | undefined;
   banExpires?: Date | null | undefined;
+  timezone?: string | null | undefined;
+  locale?: string | null | undefined;
+  currency?: string | null | undefined;
 };
 
 export type AuthSession = {
