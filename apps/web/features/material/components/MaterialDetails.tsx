@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { Banknote, ClipboardCheck, Pen, Trash } from "lucide-react";
 
 import { formatCurrency } from "@workspace/lib/utils";
@@ -12,6 +11,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Separator } from "@workspace/ui/components/separator";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { usePermissionCheckWithOrg } from "@/hooks/use-permission-check";
@@ -187,17 +187,23 @@ export function MaterialDetails({ materialId }: { materialId: string }) {
                   <div className="text-xs text-muted-foreground uppercase mb-1">
                     Created At
                   </div>
-                  <div className="text-xs font-medium">
-                    {formatDate(data.createdAt, "PP - p")}
-                  </div>
+                  <FormatDateCell
+                    as="div"
+                    className="text-xs font-medium"
+                    format="PP - p"
+                    value={data.createdAt}
+                  />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase mb-1">
                     Last Updated
                   </div>
-                  <div className="text-xs font-medium">
-                    {formatDate(data.updatedAt, "PP - p")}
-                  </div>
+                  <FormatDateCell
+                    as="div"
+                    className="text-xs font-medium"
+                    format="PP - p"
+                    value={data.updatedAt}
+                  />
                 </div>
               </div>
             </div>

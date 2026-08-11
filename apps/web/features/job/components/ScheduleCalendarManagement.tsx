@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { Banknote, Calendar, Receipt, TrendingUp } from "lucide-react";
 
 import {
@@ -27,6 +26,7 @@ import { cn } from "@workspace/ui/lib/utils";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { orpcTQClient } from "@/server/orpc.client";
@@ -198,9 +198,11 @@ function JobEventContent({
           </p>
           <div className="flex items-center gap-2 text-xs">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span>
-              {event.start ? formatDate(event.start, "p - PP") : "N/A"}
-            </span>
+            {event.start ? (
+              <FormatDateCell format="p - PP" value={event.start} />
+            ) : (
+              <span>N/A</span>
+            )}
           </div>
         </div>
 

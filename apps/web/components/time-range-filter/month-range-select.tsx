@@ -1,13 +1,15 @@
 "use client";
 import { useCallback, useMemo, useState } from "react";
 
-import { endOfMonth, formatDate, startOfMonth } from "date-fns";
+import { endOfMonth, startOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 
 import { type DateRange, useRangeSelection } from "@/hooks/use-range-selection";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { RangeGrid } from "./range-grid";
 
@@ -43,6 +45,8 @@ export function MonthRangeSelect({
     defaultRange
   );
 
+  const user = useAuthStore((state) => state.user!);
+
   const year = controlledYear ?? internalYear;
   const range = controlledRange ?? internalRange;
 
@@ -71,10 +75,10 @@ export function MonthRangeSelect({
           index,
           start,
           end: endOfMonth(start),
-          label: formatDate(start, "MMMM"),
+          label: formatDateWithTimezone(start, "MMMM", user.timezone),
         };
       }),
-    [year]
+    [year, user.timezone]
   );
 
   const { select, clear, isInRange, isInHoverRange, setHoverIndex } =
@@ -123,9 +127,17 @@ export function MonthRangeSelect({
           <div className="flex-1 tracking-tight">
             <div className="text-foreground font-medium">Selected Range</div>
             <div className="text-muted-foreground inline-flex gap-1 text-sm">
-              <span>{formatDate(range.start, "MMMM yyyy")}</span>
+              <span>
+                {formatDateWithTimezone(
+                  range.start,
+                  "MMMM yyyy",
+                  user.timezone
+                )}
+              </span>
               <span>-</span>
-              <span>{formatDate(range.end, "MMMM yyyy")}</span>
+              <span>
+                {formatDateWithTimezone(range.end, "MMMM yyyy", user.timezone)}
+              </span>
             </div>
           </div>
           <Button

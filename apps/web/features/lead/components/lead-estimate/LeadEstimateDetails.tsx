@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { formatDate } from "date-fns";
 import {
   Banknote,
   Calendar,
@@ -34,6 +33,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { useLeadEstimateDelete } from "@/features/lead/api/leadEstimate.api.hook";
@@ -196,9 +196,11 @@ export function LeadEstimateDetails({
                     Valid Until
                   </span>
                   <span className="text-sm text-muted-foreground">:</span>
-                  <span className="text-sm">
-                    {formatDate(estimateData.validUntil, "PP")}
-                  </span>
+                  <FormatDateCell
+                    className="text-sm"
+                    format="PP"
+                    value={estimateData.validUntil}
+                  />
                 </div>
               )}
             </CardContent>
@@ -358,17 +360,23 @@ export function LeadEstimateDetails({
                   <div className="text-xs text-muted-foreground uppercase mb-1">
                     Created At
                   </div>
-                  <div className="text-xs font-medium">
-                    {formatDate(estimateData.createdAt, "PP - p")}
-                  </div>
+                  <FormatDateCell
+                    as="div"
+                    className="text-xs font-medium"
+                    format="PP - p"
+                    value={estimateData.createdAt}
+                  />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase mb-1">
                     Last Updated
                   </div>
-                  <div className="text-xs font-medium">
-                    {formatDate(estimateData.updatedAt, "PP - p")}
-                  </div>
+                  <FormatDateCell
+                    as="div"
+                    className="text-xs font-medium"
+                    format="PP - p"
+                    value={estimateData.updatedAt}
+                  />
                 </div>
               </div>
             </CardContent>

@@ -32,11 +32,6 @@ import {
 } from "@workspace/ui/components/dialog";
 import { Separator } from "@workspace/ui/components/separator";
 import {
-  Status,
-  StatusIndicator,
-  StatusLabel,
-} from "@workspace/ui/components/status";
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -49,6 +44,7 @@ import {
 } from "@/features/lead/lead.schema";
 
 import { GeneralInfoUpdateForm } from "../../forms/GeneralInfoForm";
+import { LeadStatusBadge } from "../../LeadStatusBadge";
 
 interface GeneralInfoProps {
   leadId: string;
@@ -104,22 +100,7 @@ export function GeneralInfo({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Status" icon={<Clock className="size-3" />}>
-              <Status
-                variant={
-                  status === "converted"
-                    ? "success"
-                    : status === "cancelled"
-                      ? "error"
-                      : status === "contacted" || status === "qualified"
-                        ? "info"
-                        : status === "lost"
-                          ? "warning"
-                          : "default"
-                }
-              >
-                <StatusIndicator />
-                <StatusLabel>{formatEnumValue(status)}</StatusLabel>
-              </Status>
+              <LeadStatusBadge status={status} />
             </InfoItem>
             <InfoItem label="Service" icon={<Wrench className="size-3" />}>
               {serviceType ?? "Not specified"}

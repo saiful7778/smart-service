@@ -1,10 +1,9 @@
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
-
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListLeadCategoriesContractType } from "../../api/leadCategory.contract";
@@ -107,18 +106,16 @@ export const leadCategoryTableColumns: ColumnType<LeadCategoryTableRowDataType> 
       ),
       cell: ({ getValue }) => (
         <div className="flex flex-col text-xs">
-          <span className="font-medium">
-            {formatDate(
-              getValue<LeadCategoryTableRowDataType["createdAt"]>(),
-              "PP"
-            )}
-          </span>
-          <span className="text-muted-foreground">
-            {formatDate(
-              getValue<LeadCategoryTableRowDataType["createdAt"]>(),
-              "p"
-            )}
-          </span>
+          <FormatDateCell
+            value={getValue<LeadCategoryTableRowDataType["createdAt"]>()}
+            format="PP"
+            className="font-medium"
+          />
+          <FormatDateCell
+            value={getValue<LeadCategoryTableRowDataType["createdAt"]>()}
+            format="p"
+            className="text-muted-foreground"
+          />
         </div>
       ),
       meta: { label: "Created At" },

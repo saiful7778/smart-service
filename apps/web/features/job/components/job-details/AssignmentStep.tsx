@@ -1,6 +1,5 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { CircleQuestionMark } from "lucide-react";
 import { parseAsIndex, useQueryState } from "nuqs";
 
@@ -26,6 +25,7 @@ import {
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
 import { MetaPagination } from "@/components/MetaPagination";
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { DEFAULT_PAGE_INDEX } from "@/constants";
@@ -129,12 +129,18 @@ function JobAssignmentItem({
                 Start at
               </span>
               <span className="font-medium text-muted-foreground">:</span>
-              <span>{formatDate(assignment.schedule.startAt, "PP - p")}</span>
+              <FormatDateCell
+                format="PP - p"
+                value={assignment.schedule.startAt}
+              />
             </div>
             <div className="flex gap-1 items-center leading-tight">
               <span className="font-medium text-muted-foreground">End at</span>
               <span className="font-medium text-muted-foreground">:</span>
-              <span>{formatDate(assignment.schedule.endAt, "PP - p")}</span>
+              <FormatDateCell
+                format="PP - p"
+                value={assignment.schedule.endAt}
+              />
             </div>
           </div>
         </div>
@@ -160,9 +166,11 @@ function JobAssignmentItem({
             <StatusLabel>{formatEnumValue(assignment.status)}</StatusLabel>
           </Status>
           {assignment.acknowledgeAt && (
-            <span className="text-xs text-muted-foreground">
-              {formatDate(assignment.acknowledgeAt, "PP - p")}
-            </span>
+            <FormatDateCell
+              className="text-xs text-muted-foreground"
+              format="PP - p"
+              value={assignment.acknowledgeAt}
+            />
           )}
         </div>
       </div>

@@ -5,16 +5,17 @@ import {
   eachWeekOfInterval,
   endOfWeek,
   endOfYear,
-  formatDate,
   startOfWeek,
   startOfYear,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 
 import { type DateRange, useRangeSelection } from "@/hooks/use-range-selection";
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { RangeGrid } from "./range-grid";
 
@@ -51,6 +52,8 @@ export function WeekRangeSelect({
   const [internalRange, setInternalRange] = useState<WeekRange | null>(
     defaultRange
   );
+
+  const user = useAuthStore((state) => state.user!);
 
   const year = controlledYear ?? internalYear;
   const range = controlledRange ?? internalRange;
@@ -89,10 +92,14 @@ export function WeekRangeSelect({
         start,
         end,
         label: `Week ${index + 1}`,
-        dateRange: `${formatDate(start, "MMM d")} - ${formatDate(end, "MMM d")}`,
+        dateRange: `${formatDateWithTimezone(
+          start,
+          "MMM d",
+          user.timezone
+        )} - ${formatDateWithTimezone(end, "MMM d", user.timezone)}`,
       };
     });
-  }, [year, weekStartsOn]);
+  }, [year, weekStartsOn, user.timezone]);
 
   const { select, clear, isInRange, isInHoverRange, setHoverIndex } =
     useRangeSelection({
@@ -141,9 +148,21 @@ export function WeekRangeSelect({
           <div className="flex-1 tracking-tight">
             <div className="text-foreground font-medium">Selected Range</div>
             <div className="text-muted-foreground inline-flex gap-1 text-sm">
-              <span>{formatDate(range.start, "MMMM d, yyyy")}</span>
+              <span>
+                {formatDateWithTimezone(
+                  range.start,
+                  "MMMM d, yyyy",
+                  user.timezone
+                )}
+              </span>
               <span>-</span>
-              <span>{formatDate(range.end, "MMMM d, yyyy")}</span>
+              <span>
+                {formatDateWithTimezone(
+                  range.end,
+                  "MMMM d, yyyy",
+                  user.timezone
+                )}
+              </span>
             </div>
           </div>
           <div className="inline-flex gap-2">

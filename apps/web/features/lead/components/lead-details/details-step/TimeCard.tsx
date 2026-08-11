@@ -1,6 +1,8 @@
-import { formatDate } from "date-fns";
+"use client";
+
 import { CalendarDays, Clock } from "lucide-react";
 
+import { formatDateWithTimezone } from "@workspace/lib/utils";
 import {
   Card,
   CardContent,
@@ -9,6 +11,10 @@ import {
 } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
 import { cn } from "@workspace/ui/lib/utils";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
+
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 interface TimeCardProps {
   createdAt: Date;
@@ -64,15 +70,17 @@ function TimeItem({
           {title}
         </span>
         {timeValue && (
-          <span className="text-sm font-semibold tracking-tight">
-            {formatDate(timeValue, "dd MMM, yyyy")}
-          </span>
+          <FormatDateCell
+            className="text-sm font-semibold tracking-tight"
+            format="dd MMM, yyyy"
+            value={timeValue}
+          />
         )}
       </div>
       {timeValue ? (
         <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-background border border-border/50 text-[11px] font-medium text-muted-foreground shadow-sm">
           <Clock className="size-3" />
-          <span>{formatDate(timeValue, "hh:mm aa")}</span>
+          <FormatDateCell format="hh:mm aa" value={timeValue} />
         </div>
       ) : (
         <span className="text-sm font-semibold tracking-tight">N/A</span>
@@ -90,6 +98,8 @@ function TimeRangeItem({
   startTime: Date;
   endTime: Date;
 }) {
+  const user = useAuthStore((state) => state.user!);
+
   return (
     <div className="flex flex-col gap-1 items-center justify-between p-2 rounded-md border">
       <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
@@ -97,7 +107,15 @@ function TimeRangeItem({
       </div>
       <div className="flex items-center gap-1">
         <span className="text-sm font-semibold tracking-tight">
-          {`${formatDate(startTime, "dd MMM, yyyy")} - ${formatDate(endTime, "dd MMM, yyyy")}`}
+          {`${formatDateWithTimezone(
+            startTime,
+            "dd MMM, yyyy",
+            user.timezone
+          )} - ${formatDateWithTimezone(
+            endTime,
+            "dd MMM, yyyy",
+            user.timezone
+          )}`}
         </span>
       </div>
     </div>

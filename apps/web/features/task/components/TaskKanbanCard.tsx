@@ -1,10 +1,10 @@
 "use client";
 
-import { formatDate } from "date-fns";
 import { Calendar } from "lucide-react";
 
 import { KanbanCard } from "@workspace/ui/components/kibo-ui/kanban";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { ListTaskContractType } from "../api/task.contract";
@@ -46,8 +46,12 @@ export function TaskKanbanCard({
         {taskData.dueDate && (
           <div className="flex items-center gap-1 text-muted-foreground text-xs">
             <Calendar className="size-3" />
-            <span>{formatDate(taskData.dueDate, "p")}</span>
-            <span className="ml-auto">{formatDate(taskData.dueDate, "P")}</span>
+            <FormatDateCell format="p" value={taskData.dueDate} />
+            <FormatDateCell
+              className="ml-auto"
+              format="P"
+              value={taskData.dueDate}
+            />
           </div>
         )}
       </div>

@@ -1,9 +1,9 @@
-import { formatDate } from "date-fns";
-
 import { formatEnumValue } from "@workspace/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import type { ColumnType } from "@workspace/ui/types/data-table";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 
 import { ListOrgRoleContractType } from "../../api/role.contract";
 import { PermissionsCell } from "../role-table/PermissionsCell";
@@ -30,7 +30,7 @@ export const orgRoleTableColumn: ColumnType<RoleTableRowDataType> = [
         </div>
         {row.original.type === "dynamic" && (
           <div className="text-muted-foreground">
-            {formatDate(row.original.createdAt, "P - p")}
+            <FormatDateCell value={row.original.createdAt} format="P - p" />
           </div>
         )}
       </div>

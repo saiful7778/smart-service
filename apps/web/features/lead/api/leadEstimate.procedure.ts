@@ -1,5 +1,4 @@
 import { ORPCError } from "@orpc/client";
-import { formatDate } from "date-fns";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 
 import {
@@ -20,7 +19,7 @@ import {
   RoleTable,
   UserTable,
 } from "@workspace/drizzle/schemas";
-import { apiResponse } from "@workspace/lib/utils";
+import { apiResponse, formatDateWithTimezone } from "@workspace/lib/utils";
 
 import { env } from "@/lib/env";
 import { mailProvider } from "@/lib/mail";
@@ -939,7 +938,11 @@ export const leadEstimateSendProcedure = leadImpl.estimate.send
     }));
 
     const validUntil = estimate.validUntil
-      ? formatDate(new Date(estimate.validUntil), "PP - pp")
+      ? formatDateWithTimezone(
+          new Date(estimate.validUntil),
+          "PP - pp",
+          context.user?.timezone
+        )
       : undefined;
 
     await context.db.transaction(async (tx) => {

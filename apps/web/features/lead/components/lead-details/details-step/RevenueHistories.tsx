@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { CircleQuestionMark, TrendingDown, TrendingUp } from "lucide-react";
 
 import { formatCurrency } from "@workspace/lib/utils";
@@ -33,6 +32,7 @@ import { cn } from "@workspace/ui/lib/utils";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { orpcTQClient } from "@/server/orpc.client";
@@ -197,8 +197,12 @@ export function RevenueHistories({
                           showRoleDetails
                         />
                       </TableCell>
-                      <TableCell className="text-x text-muted-foreground italic">
-                        {formatDate(item.changedAt, "p - PP")}
+                      <TableCell>
+                        <FormatDateCell
+                          className="text-x text-muted-foreground italic"
+                          format="p - PP"
+                          value={item.changedAt}
+                        />
                       </TableCell>
                       <TableCell className="max-w-50 truncate">
                         {item.changeReason ?? "-"}

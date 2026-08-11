@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 
 import { Badge } from "@workspace/ui/components/badge";
 import { Card, CardContent } from "@workspace/ui/components/card";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -39,15 +40,17 @@ export function DetailsStep({ userId }: { userId: string }) {
                 </Badge>
               </DetailsItem>
               <DetailsItem title="Registered at">
-                {formatDate(new Date(data.createdAt), "dd, MMM yyyy")}
+                <FormatDateCell format="dd, MMM yyyy" value={data.createdAt} />
               </DetailsItem>
               <DetailsItem title="Last login at">
-                {data.lastLogin
-                  ? formatDate(
-                      new Date(data.lastLogin),
-                      "dd/MM/yy - hh:mm:ss a"
-                    )
-                  : "N/A"}
+                {data.lastLogin ? (
+                  <FormatDateCell
+                    format="dd/MM/yy - hh:mm:ss a"
+                    value={data.lastLogin}
+                  />
+                ) : (
+                  <span>N/A</span>
+                )}
               </DetailsItem>
             </div>
           </CardContent>

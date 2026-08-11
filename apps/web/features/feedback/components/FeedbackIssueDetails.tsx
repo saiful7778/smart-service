@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
 
 import {
@@ -32,6 +31,7 @@ import {
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { orpcTQClient } from "@/server/orpc.client";
@@ -153,9 +153,11 @@ function RepliesList({
                     imageUrl={reply.createdByUser.image}
                     showDetails
                   />
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(reply.createdAt, "PPp")}
-                  </span>
+                  <FormatDateCell
+                    className="text-xs text-muted-foreground"
+                    format="PPp"
+                    value={reply.createdAt}
+                  />
                 </div>
                 <p className="text-sm whitespace-pre-wrap">{reply.content}</p>
               </div>
@@ -264,12 +266,12 @@ function IssueSidebar({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Opened</span>
-            <span>{formatDate(issue.createdAt, "PP")}</span>
+            <FormatDateCell format="PP" value={issue.createdAt} />
           </div>
           {issue.closedAt && (
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Closed</span>
-              <span>{formatDate(issue.closedAt, "PP")}</span>
+              <FormatDateCell format="PP" value={issue.closedAt} />
             </div>
           )}
         </CardContent>

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
 import {
   Eye,
   FileIcon,
@@ -29,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
 import { useGetDownloadUrl } from "@/features/upload/api/upload.api.hook";
@@ -100,7 +100,7 @@ export function LeadAttachmentItem({ attachment }: LeadAttachmentItemProps) {
               {attachment.file.filename.split(".").pop()?.toUpperCase()}
             </span>
             <span>•</span>
-            <span>{formatDate(attachment.uploadedAt, "P - p")}</span>
+            <FormatDateCell format="P - p" value={attachment.uploadedAt} />
           </ItemDescription>
         </div>
         {(attachment.uploadedBy || attachment.jobId) && (
@@ -215,7 +215,7 @@ export function LeadAttachmentBinItem({
               {attachment.file.filename.split(".").pop()?.toUpperCase()}
             </span>
             <span>•</span>
-            <span>{formatDate(attachment.uploadedAt, "P - p")}</span>
+            <FormatDateCell format="P - p" value={attachment.uploadedAt} />
           </ItemDescription>
         </div>
         {(attachment.uploadedBy || attachment.jobId) && (
