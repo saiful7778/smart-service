@@ -1,6 +1,6 @@
 export default function OfflineFallbackPage() {
   return (
-    <main style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+    <main className="px-6 py-12 text-center">
       <h1>You&apos;re offline</h1>
       <p>
         This page hasn&apos;t been cached yet, so it can&apos;t be shown without

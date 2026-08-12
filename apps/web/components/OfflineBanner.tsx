@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { onlineManager, useIsMutating } from "@tanstack/react-query";
 
+import { cn } from "@workspace/ui/lib/utils";
+
 export function OfflineBanner() {
   const [isOnline, setIsOnline] = useState(true);
   const pendingMutations = useIsMutating();
@@ -23,17 +25,14 @@ export function OfflineBanner() {
   return (
     <div
       role="status"
-      style={{
-        padding: "0.5rem 1rem",
-        textAlign: "center",
-        fontSize: "0.875rem",
-        background: isOnline ? "#1f4d2c" : "#4d1f1f",
-        color: "white",
-      }}
+      className={cn(
+        "px-4 py-2 text-center text-sm text-white",
+        isOnline ? "bg-green-900" : "bg-red-900"
+      )}
     >
       {!isOnline && "You're offline — showing cached data. "}
       {pendingMutations > 0 &&
-        `${pendingMutations} change${pendingMutations > 1 ? "s" : ""} waiting to sync…`}
+        `${pendingMutations} ${pendingMutations > 1 ? "changes" : "change"} waiting to sync…`}
     </div>
   );
 }
