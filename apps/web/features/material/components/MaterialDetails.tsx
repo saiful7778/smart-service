@@ -11,6 +11,11 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Separator } from "@workspace/ui/components/separator";
 
+import {
+  DashboardShellDescription,
+  DashboardShellHeader,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 import { UserAvatar } from "@/components/UserAvatar";
 
@@ -48,6 +53,12 @@ export function MaterialDetails({ materialId }: { materialId: string }) {
 
   return (
     <div className="space-y-4">
+      <DashboardShellHeader>
+        <DashboardShellTitle>{data.name}</DashboardShellTitle>
+        <DashboardShellDescription>
+          Detailed overview of material.
+        </DashboardShellDescription>
+      </DashboardShellHeader>
       <div className="flex gap-2 items-center">
         {isAllowUpdate && (
           <>

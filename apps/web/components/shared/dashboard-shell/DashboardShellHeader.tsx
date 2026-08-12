@@ -4,7 +4,9 @@ export function DashboardShellHeader({
   className,
   ...props
 }: React.ComponentProps<"h1">) {
-  return <div className={cn("leading-normal", className)} {...props} />;
+  return (
+    <div className={cn("leading-normal space-y-1", className)} {...props} />
+  );
 }
 
 export function DashboardShellTitle({

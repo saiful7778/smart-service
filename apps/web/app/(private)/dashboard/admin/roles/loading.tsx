@@ -1,4 +1,5 @@
-import { Spinner } from "@workspace/ui/components/spinner";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 
 import { DashboardShellHeader } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
@@ -17,9 +18,9 @@ export default function Loading() {
         </DashboardShellHeader>
       }
     >
-      <div className="flex w-full items-center justify-center p-4">
-        <Spinner className="size-14 text-primary" strokeWidth={1} />
-      </div>
+      <DataTableSkeleton>
+        <DataTableToolbarSkeleton />
+      </DataTableSkeleton>
     </DashboardShellSkeleton>
   );
 }

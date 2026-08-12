@@ -1,3 +1,4 @@
+import { ButtonSkeleton } from "@workspace/ui/components/ButtonSkeleton";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 import { DashboardShellHeader } from "@/components/shared/dashboard-shell/DashboardShellHeader";
@@ -12,6 +13,7 @@ export default function Loading() {
     <DashboardShellSkeleton
       header={
         <DashboardShellHeader>
+          <ButtonSkeleton />
           <DashboardShellTitleSkeleton />
           <DashboardShellDescriptionSkeleton />
         </DashboardShellHeader>

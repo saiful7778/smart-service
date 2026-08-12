@@ -10,6 +10,7 @@ import { DashboardShellSkeleton } from "@/components/shared/dashboard-shell/Dash
 export default function Loading() {
   return (
     <DashboardShellSkeleton
+      className="mx-auto w-full max-w-3xl"
       header={
         <DashboardShellHeader>
           <DashboardShellTitleSkeleton />
