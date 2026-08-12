@@ -157,7 +157,7 @@ overrides:
   undici: '>=7.29.0'
   brace-expansion: 2.1.4
   ip-address: '>=10.3.1'
-  esbuild: ^0.25.0
+  esbuild: ^0.25.12
   '@eslint/plugin-kit': ^0.3.4
 
 importers:
@@ -3482,7 +3482,7 @@ packages:
     resolution: {integrity: sha512-mQuk5dxYxnf7c2ZYZpyOfFj3kaTn04z9rj/en6SXvTIMyOCONKi8ITEmaplNMJbno3Tw3cPkNIAyByeD+QnR+g==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      esbuild: ^0.25.0
+      esbuild: ^0.25.12
       esbuild-wasm: '>=0.25.0 <1.0.0'
       next: '>=16.2.11'
       react: '>=18.0.0'
@@ -3573,7 +3573,7 @@ packages:
   '@storybook/csf-plugin@10.5.7':
     resolution: {integrity: sha512-IaX8FlM0H36HNFhJ2+4L9bCldqfvHGqcLg841SJNyK/DhfMlM7JsvY/GDH2ZFuWrUf8FSOx96GRRnHq6XfRKag==}
     peerDependencies:
-      esbuild: ^0.25.0
+      esbuild: ^0.25.12
       rollup: '*'
       storybook: ^10.5.7
       vite: '*'
@@ -8188,7 +8188,7 @@ packages:
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
       '@vitejs/devtools': ^0.4.0
-      esbuild: ^0.25.0
+      esbuild: ^0.25.12
       jiti: '>=1.21.0'
       less: ^4.0.0
       sass: ^1.70.0
