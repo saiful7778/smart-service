@@ -14,6 +14,7 @@ import {
   FieldSet,
 } from "@workspace/ui/components/field";
 import { InputField } from "@workspace/ui/components/form-fields/InputField";
+import { PhoneInputField } from "@workspace/ui/components/form-fields/PhoneInputField";
 
 import { useFileUploadState } from "@/components/FileUpload";
 import { FileUploadField } from "@/components/form-fields/FileUploadField";
@@ -93,7 +94,7 @@ export function CreateOrgForm() {
     >
       <FieldGroup>
         <FileUploadField
-          label="Organization logo"
+          label="Logo"
           variant="image"
           value={fileValue}
           onChange={setFileValue}
@@ -106,7 +107,7 @@ export function CreateOrgForm() {
         <InputField
           control={form.control}
           name="name"
-          label="Organization name"
+          label="Name"
           placeholder="name"
           requiredField
           disabled={isPending}
@@ -116,7 +117,7 @@ export function CreateOrgForm() {
           name="slug"
           type="text"
           placeholder="Slug"
-          label="Org slug"
+          label="Name slug"
           description="Organization slug should be unique"
           disabled
         />
@@ -129,11 +130,12 @@ export function CreateOrgForm() {
           description="Organization email address"
           disabled={isPending}
         />
-        <InputField
+        <PhoneInputField
           control={form.control}
           name="phone"
           type="text"
           placeholder="Phone number"
+          defaultCountry="US"
           label="Phone number"
           description="Organization phone number"
           disabled={isPending}

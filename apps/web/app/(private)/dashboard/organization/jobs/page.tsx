@@ -73,10 +73,10 @@ export default async function JobsPage(
           receivedRevenue: filters.revenue
             ? { from: filters.revenue[0], to: filters.revenue[1] }
             : undefined,
-          // createdAt:
-          //   filters.startTime && filters.endTime
-          //     ? { from: filters.startTime, to: filters.endTime }
-          //     : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })

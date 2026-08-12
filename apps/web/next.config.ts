@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { withSerwist } from "@serwist/turbopack";
+
 const nextConfig: NextConfig = {
   transpilePackages: [
     "@workspace/ui",
@@ -65,4 +67,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

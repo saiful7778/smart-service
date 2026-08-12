@@ -9,7 +9,8 @@ import {
 } from "@workspace/drizzle/zod-db-enums";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
-import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback";
 
 import { createRangeFilterClient } from "@/lib/nuqs/rangeFilter.client";
@@ -116,7 +117,11 @@ export function LeadManagementTable({
         error={error}
         data={data?.data}
         isEmpty={() => false}
-        loadingFallback={<DataTableSkeleton />}
+        loadingFallback={
+          <DataTableSkeleton>
+            <DataTableToolbarSkeleton />
+          </DataTableSkeleton>
+        }
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (

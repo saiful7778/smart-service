@@ -150,7 +150,7 @@ export const subscribePushNotificationProcedure =
         expirationTime: input.expirationTime,
       })
       .onConflictDoUpdate({
-        target: [PushSubscriptionTable.userId, PushSubscriptionTable.endpoint],
+        target: [PushSubscriptionTable.endpoint],
         set: {
           auth: input.auth,
           p256dh: input.p256dh,

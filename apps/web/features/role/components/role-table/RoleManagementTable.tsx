@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
-import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
@@ -27,7 +28,11 @@ export function RoleManagementTable() {
       error={error}
       data={data?.data}
       isEmpty={(d) => d.length === 0}
-      loadingFallback={<DataTableSkeleton />}
+      loadingFallback={
+        <DataTableSkeleton>
+          <DataTableToolbarSkeleton />
+        </DataTableSkeleton>
+      }
       emptyFallback={<DataTableEmpty />}
     >
       {(data) => (

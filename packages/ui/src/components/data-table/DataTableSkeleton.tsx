@@ -1,3 +1,4 @@
+import { DataTablePaginationSkeleton } from "@workspace/ui/components/data-table/DataTablePaginationSkeleton";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import {
   Table,
@@ -7,18 +8,24 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table";
+import { cn } from "@workspace/ui/lib/utils";
 
-interface DataTableSkeletonProps {
+interface DataTableSkeletonProps extends React.ComponentProps<"div"> {
   rows?: number;
+  pagination?: boolean;
 }
 
-export function DataTableSkeleton({ rows = 10 }: DataTableSkeletonProps) {
+export function DataTableSkeleton({
+  rows = 10,
+  pagination = true,
+  children,
+  className,
+  ...props
+}: DataTableSkeletonProps) {
   return (
-    <div className="flex w-full flex-col gap-2.5">
-      <div className="flex w-full items-center justify-between gap-2">
-        <Skeleton className="h-9 w-20" />
-        <Skeleton className="h-9 w-20" />
-      </div>
+    <div className={cn("flex w-full flex-col gap-2.5", className)} {...props}>
+      {children}
+
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -30,7 +37,7 @@ export function DataTableSkeleton({ rows = 10 }: DataTableSkeletonProps) {
           </TableHeader>
           <TableBody>
             {Array.from({ length: rows }).map((_, rowIndex) => (
-              <TableRow key={rowIndex}>
+              <TableRow key={`row${rowIndex}`}>
                 <TableCell>
                   <Skeleton className="h-8 w-full" />
                 </TableCell>
@@ -39,6 +46,8 @@ export function DataTableSkeleton({ rows = 10 }: DataTableSkeletonProps) {
           </TableBody>
         </Table>
       </div>
+
+      {pagination && <DataTablePaginationSkeleton />}
     </div>
   );
 }

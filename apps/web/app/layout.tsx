@@ -1,8 +1,9 @@
 import "../server/orpc.server-client";
 
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 
+import { SerwistProvider } from "@serwist/turbopack/react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -16,6 +17,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { env } from "@/lib/env";
 
 import { DevPanel } from "@/components/dev-panel";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { ProgressBarProvider } from "@/components/providers/progress-bar-provider";
 import TanstackQueryProvider from "@/components/providers/tanstack-query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -30,6 +32,7 @@ const fontMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: env.NEXT_PUBLIC_SITE_NAME,
   title: {
     default: `${env.NEXT_PUBLIC_SITE_NAME} - All in one service management platform`,
     template: `%s | ${env.NEXT_PUBLIC_SITE_NAME} - Service management software`,
@@ -48,6 +51,9 @@ export const metadata: Metadata = {
     "invoice software",
     "mobile workforce management",
   ],
+  formatDetection: {
+    telephone: false,
+  },
 
   alternates: {
     canonical: env.NEXT_PUBLIC_SITE_URL,
@@ -82,6 +88,16 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: env.NEXT_PUBLIC_SITE_NAME,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#bb4d00",
 };
 
 export default function RootLayout({
@@ -102,35 +118,41 @@ export default function RootLayout({
       )}
     >
       <body>
-        <DirectionProvider direction="ltr">
-          <ProgressBarProvider>
-            <TooltipProvider>
-              <ThemeProvider>
-                <NuqsAdapter>
-                  <TanstackQueryProvider>{children}</TanstackQueryProvider>
-                </NuqsAdapter>
-                <Toaster
-                  position="top-center"
-                  reverseOrder={true}
-                  gutter={6}
-                  toastOptions={{
-                    duration: 3000,
-                    removeDelay: 2000,
-                    className: "__react-hot-toast",
-                  }}
-                />
-                <DevPanel
-                  currentEnv={env.NODE_ENV}
-                  envVars={Object.entries(process.env)
-                    .filter(
-                      ([k]) => k.startsWith("NEXT_PUBLIC_") || k === "NODE_ENV"
-                    )
-                    .map(([key, value]) => ({ key, value: value ?? "" }))}
-                />
-              </ThemeProvider>
-            </TooltipProvider>
-          </ProgressBarProvider>
-        </DirectionProvider>
+        <SerwistProvider swUrl="/serwist/sw.js">
+          <DirectionProvider direction="ltr">
+            <ProgressBarProvider>
+              <TooltipProvider>
+                <ThemeProvider>
+                  <NuqsAdapter>
+                    <TanstackQueryProvider>
+                      <OfflineBanner />
+                      {children}
+                    </TanstackQueryProvider>
+                  </NuqsAdapter>
+                  <Toaster
+                    position="top-center"
+                    reverseOrder={true}
+                    gutter={6}
+                    toastOptions={{
+                      duration: 3000,
+                      removeDelay: 2000,
+                      className: "__react-hot-toast",
+                    }}
+                  />
+                  <DevPanel
+                    currentEnv={env.NODE_ENV}
+                    envVars={Object.entries(process.env)
+                      .filter(
+                        ([k]) =>
+                          k.startsWith("NEXT_PUBLIC_") || k === "NODE_ENV"
+                      )
+                      .map(([key, value]) => ({ key, value: value ?? "" }))}
+                  />
+                </ThemeProvider>
+              </TooltipProvider>
+            </ProgressBarProvider>
+          </DirectionProvider>
+        </SerwistProvider>
         <SpeedInsights />
         <Analytics />
       </body>
