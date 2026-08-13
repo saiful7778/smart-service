@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 
 import {
-  Clock,
   DollarSign,
   Eye,
   FileText,
   Info,
   Package,
   PenLine,
+  Receipt,
   Trash2,
 } from "lucide-react";
 
@@ -20,6 +20,7 @@ import {
 } from "@workspace/drizzle/zod-db-enums";
 import { formatEnumValue } from "@workspace/lib/utils";
 import DataTableRowMenu from "@workspace/ui/components/data-table/data-table-row-menu";
+import { DeleteConfirmDialog } from "@workspace/ui/components/delete-confirm-dialog";
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -32,10 +33,10 @@ import {
   DropdownMenuSubTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 
-import { useLeadUpdate } from "../../api/lead.api.hook";
+import { useLeadDelete, useLeadUpdate } from "../../api/lead.api.hook";
 import { ListLeadContractType } from "../../api/lead.contract";
+import { GeneralInfoUpdateDialog } from "../lead-details/details-step/GeneralInfo";
 import { RevenueHistoryDialog } from "../lead-details/details-step/RevenueHistories";
-import { useLeadTableContext } from "./LeadTableContext";
 
 export function LeadTableRowAction({
   leadData,
@@ -44,12 +45,22 @@ export function LeadTableRowAction({
 }) {
   const [openRevenueHistoryDialog, setOpenRevenueHistoryDialog] =
     useState<boolean>(false);
-  const { handleGeneralUpdateDialog, handleDeleteDialog } =
-    useLeadTableContext();
+  const [openGeneralUpdateDialog, setOpenGeneralUpdateDialog] =
+    useState<boolean>(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
   const { mutate: updateLead, isPending: isUpdateLeadPending } = useLeadUpdate(
     {}
   );
+  const { mutate: deleteLead, isPending: isDeletePending } = useLeadDelete({
+    onRequestEnd: () => {
+      setOpenDeleteDialog(false);
+    },
+  });
+
+  const handleDelete = () => {
+    deleteLead({ leadId: leadData.id });
+  };
 
   const handleUpdateLeadStatus = (status: LeadStatusEnumType) => {
     updateLead({
@@ -68,6 +79,7 @@ export function LeadTableRowAction({
               <Eye className="size-4" />
               <span>Details</span>
             </DropdownMenuSubTrigger>
+
             <DropdownMenuSubContent>
               <DropdownMenuLabel>Lead Details</DropdownMenuLabel>
               <DropdownMenuItem
@@ -75,14 +87,16 @@ export function LeadTableRowAction({
                   <Link
                     href={{
                       pathname: `/dashboard/organization/leads/${leadData.id}`,
-                      search: "tab=details",
+                      query: {
+                        tab: "details",
+                      },
                     }}
-                  >
-                    <Info className="size-4" />
-                    <span>Full Details</span>
-                  </Link>
+                  />
                 }
-              />
+              >
+                <Info className="size-4" />
+                <span>Full Details</span>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setOpenRevenueHistoryDialog((prev) => !prev)}
               >
@@ -94,41 +108,47 @@ export function LeadTableRowAction({
                   <Link
                     href={{
                       pathname: `/dashboard/organization/leads/${leadData.id}`,
-                      search: "tab=jobs",
+                      query: {
+                        tab: "jobs",
+                      },
                     }}
-                  >
-                    <Package className="size-4" />
-                    <span>Jobs</span>
-                  </Link>
+                  />
                 }
-              />
+              >
+                <Package className="size-4" />
+                <span>Jobs</span>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 render={
                   <Link
                     href={{
                       pathname: `/dashboard/organization/leads/${leadData.id}`,
-                      search: "tab=history",
+                      query: {
+                        tab: "estimates",
+                      },
                     }}
-                  >
-                    <Clock className="size-4" />
-                    <span>History</span>
-                  </Link>
+                  />
                 }
-              />
+              >
+                <Receipt className="size-4" />
+                <span>Estimates</span>
+              </DropdownMenuItem>
 
               <DropdownMenuItem
                 render={
                   <Link
                     href={{
                       pathname: `/dashboard/organization/leads/${leadData.id}`,
-                      search: "tab=attachments",
+                      query: {
+                        tab: "attachments",
+                      },
                     }}
-                  >
-                    <FileText className="size-4" />
-                    <span>Attachments</span>
-                  </Link>
+                  />
                 }
-              />
+              >
+                <FileText className="size-4" />
+                <span>Attachments</span>
+              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         </DropdownMenuGroup>
@@ -166,7 +186,7 @@ export function LeadTableRowAction({
               </DropdownMenuSub>
 
               <DropdownMenuItem
-                onClick={() => handleGeneralUpdateDialog(leadData.id)}
+                onClick={() => setOpenGeneralUpdateDialog(true)}
               >
                 <Info />
                 <span>General Info</span>
@@ -177,7 +197,7 @@ export function LeadTableRowAction({
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => handleDeleteDialog(leadData.id)}
+            onClick={() => setOpenDeleteDialog(true)}
             variant="destructive"
           >
             <Trash2 />
@@ -191,6 +211,25 @@ export function LeadTableRowAction({
         onOpenChange={setOpenRevenueHistoryDialog}
         leadId={leadData.id}
         jobId={undefined}
+      />
+
+      <DeleteConfirmDialog
+        open={openDeleteDialog}
+        onOpenChange={setOpenDeleteDialog}
+        onConfirm={handleDelete}
+        isLoading={isDeletePending}
+      />
+
+      <GeneralInfoUpdateDialog
+        open={openGeneralUpdateDialog}
+        onOpenChange={setOpenGeneralUpdateDialog}
+        initialData={{
+          leadId: leadData.id,
+          status: leadData.status,
+          serviceType: leadData.serviceType,
+          leadCategories: leadData.leadCategories,
+          description: leadData.description,
+        }}
       />
     </>
   );

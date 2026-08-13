@@ -6,6 +6,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -53,20 +54,15 @@ export default async function JobBinPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Job Recycle Bin</DashboardShellTitle>
             <DashboardShellDescription>
               Restore or permanently delete removed jobs
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <JobBinManagementTable
-          page={filters.page}
-          limit={filters.limit}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <JobBinManagementTable searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

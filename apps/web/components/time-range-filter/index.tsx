@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import {
   endOfMonth,
   endOfWeek,
-  formatDate,
   startOfMonth,
   startOfWeek,
   subMonths,
@@ -13,6 +12,7 @@ import {
 import { CalendarDays, CalendarRange, ChevronDown, X } from "lucide-react";
 
 import {
+  formatDateWithTimezone,
   formatEnumValue,
   RangeSearchEnum,
   RangeSearchEnumSchema,
@@ -39,6 +39,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
+
+import { useAuthStore } from "@/stores/zustand/auth/AuthStoreContext";
 
 import { MonthRangeSelect } from "./month-range-select";
 import { WeekRangeSelect } from "./week-range-select";
@@ -125,6 +127,8 @@ export function TimeRangeFilter({
   const [openCustomWeekDialog, setOpenCustomWeekDialog] = useState(false);
   const [openCustomMonthDialog, setOpenCustomMonthDialog] = useState(false);
 
+  const user = useAuthStore((state) => state.user!);
+
   const activeRange = useMemo(() => {
     const { startTime, endTime } = rangeSearch;
     if (!startTime || !endTime) return null;
@@ -203,10 +207,15 @@ export function TimeRangeFilter({
             <TooltipContent>
               <p>
                 {rangeSearch.startTime && rangeSearch.endTime
-                  ? `${formatDate(
+                  ? `${formatDateWithTimezone(
                       rangeSearch.startTime,
-                      "dd, MMM"
-                    )} - ${formatDate(rangeSearch.endTime, "dd, MMM")}`
+                      "dd, MMM",
+                      user.timezone
+                    )} - ${formatDateWithTimezone(
+                      rangeSearch.endTime,
+                      "dd, MMM",
+                      user.timezone
+                    )}`
                   : "Time range"}
               </p>
             </TooltipContent>

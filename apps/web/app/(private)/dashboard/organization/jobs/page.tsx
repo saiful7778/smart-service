@@ -16,6 +16,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -72,10 +73,10 @@ export default async function JobsPage(
           receivedRevenue: filters.revenue
             ? { from: filters.revenue[0], to: filters.revenue[1] }
             : undefined,
-          // createdAt:
-          //   filters.startTime && filters.endTime
-          //     ? { from: filters.startTime, to: filters.endTime }
-          //     : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })
@@ -85,20 +86,15 @@ export default async function JobsPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Jobs</DashboardShellTitle>
             <DashboardShellDescription>
               Track and manage your service jobs
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <JobManagementTable
-          limit={filters.limit}
-          page={filters.page}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <JobManagementTable searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

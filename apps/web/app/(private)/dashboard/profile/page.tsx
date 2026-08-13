@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
 import {
   Building2,
   CalendarDays,
@@ -12,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 
-import { formatEnumValue } from "@workspace/lib/utils";
+import { formatDateWithTimezone, formatEnumValue } from "@workspace/lib/utils";
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
@@ -33,6 +32,7 @@ import {
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 import {
@@ -92,12 +92,12 @@ export default async function ProfilePage() {
   return (
     <DashboardShell
       header={
-        <div>
+        <DashboardShellHeader>
           <DashboardShellTitle>Profile</DashboardShellTitle>
           <DashboardShellDescription>
             Your personal profile details
           </DashboardShellDescription>
-        </div>
+        </DashboardShellHeader>
       }
     >
       <div className="flex items-center gap-4">
@@ -176,7 +176,13 @@ export default async function ProfilePage() {
                   <h4 className="font-semibold">Joined At</h4>
                   <div className="flex items-center gap-1">
                     <CalendarDays className="size-3.5" />
-                    <span>{formatDate(user.createdAt, "PP")}</span>
+                    <span>
+                      {formatDateWithTimezone(
+                        user.createdAt,
+                        "PP",
+                        user.timezone
+                      )}
+                    </span>
                   </div>
                 </div>
                 <div>

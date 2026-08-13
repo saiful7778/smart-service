@@ -5,6 +5,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -37,12 +38,12 @@ export default async function CreateLeadPage() {
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Create Lead</DashboardShellTitle>
             <DashboardShellDescription>
               Create a new lead in your organization.
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <div className="max-w-4xl w-full mx-auto">

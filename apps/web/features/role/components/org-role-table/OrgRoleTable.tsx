@@ -29,7 +29,7 @@ export function OrgRoleTable({ data, filters, setFilters }: OrgRoleTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

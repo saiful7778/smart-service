@@ -5,6 +5,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -39,12 +40,12 @@ export default async function CreateJobPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Create Job</DashboardShellTitle>
             <DashboardShellDescription>
               Create a new job
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <div className="max-w-4xl w-full mx-auto">

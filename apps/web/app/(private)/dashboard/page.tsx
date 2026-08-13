@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -18,12 +19,12 @@ export default async function DashboardPage() {
   return (
     <DashboardShell
       header={
-        <div>
+        <DashboardShellHeader>
           <DashboardShellTitle>{`Welcome back, ${user.name}`}</DashboardShellTitle>
           <DashboardShellDescription>
             Manage your world and flex your power
           </DashboardShellDescription>
-        </div>
+        </DashboardShellHeader>
       }
     ></DashboardShell>
   );

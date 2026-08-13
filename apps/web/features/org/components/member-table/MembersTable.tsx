@@ -24,7 +24,7 @@ export function MembersTable({ data, filters, setFilters }: MembersTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

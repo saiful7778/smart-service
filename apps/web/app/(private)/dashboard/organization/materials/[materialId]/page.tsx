@@ -6,10 +6,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
-import {
-  DashboardShellDescription,
-  DashboardShellTitle,
-} from "@/components/shared/dashboard-shell/DashboardShellHeader";
+import { DashboardShellHeader } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { MaterialDetails } from "@/features/material/components/MaterialDetails";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -31,7 +28,7 @@ export default async function MaterialDetailsPage(
 
   const queryclient = getQueryClient();
 
-  const { data } = await queryclient.fetchQuery(
+  await queryclient.prefetchQuery(
     orpcTQClient.material.details.queryOptions({
       input: {
         materialId,
@@ -44,19 +41,15 @@ export default async function MaterialDetailsPage(
       <DashboardShell
         className="max-w-4xl mx-auto w-full"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/organization/materials">
               <ArrowLeft />
               <span>Go Back</span>
             </LinkButton>
-            <DashboardShellTitle>{data.name}</DashboardShellTitle>
-            <DashboardShellDescription>
-              Detailed overview of material.
-            </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <MaterialDetails materialId={data.id} />
+        <MaterialDetails materialId={materialId} />
       </DashboardShell>
     </HydrateClient>
   );

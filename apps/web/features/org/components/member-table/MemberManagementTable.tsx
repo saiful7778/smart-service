@@ -4,34 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
-import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
 import { MembersTable } from "./MembersTable";
 
 export function MemberManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields?: string[] | undefined;
 }) {
   "use no memo";
-  const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
-  });
+  const { filters, setFilters, setSearchFilter } = useTableQueryState({});
 
   const { data, isLoading, isError, error, refetch } = useQuery(
     orpcTQClient.org.listMember.queryOptions({
@@ -64,7 +54,11 @@ export function MemberManagementTable({
         error={error}
         data={data?.data}
         isEmpty={() => false}
-        loadingFallback={<DataTableSkeleton />}
+        loadingFallback={
+          <DataTableSkeleton>
+            <DataTableToolbarSkeleton />
+          </DataTableSkeleton>
+        }
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
@@ -79,8 +73,8 @@ export function MemberManagementTable({
             }}
             setFilters={(filters) => {
               setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                page: filters?.page,
+                limit: filters?.limit,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
               });

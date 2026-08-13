@@ -6,6 +6,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -51,21 +52,16 @@ export default async function UsersPage(
     <HydrateClient client={queryclient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>User Management</DashboardShellTitle>
             <DashboardShellDescription>
               Manage your users
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <UserStats />
-        <UserManagementTable
-          page={filters.page}
-          limit={filters.limit}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <UserManagementTable searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

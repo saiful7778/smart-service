@@ -12,7 +12,10 @@ import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/dashboard-shell";
-import { DashboardShellTitle } from "@/components/shared/dashboard-shell/DashboardShellHeader";
+import {
+  DashboardShellHeader,
+  DashboardShellTitle,
+} from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
 import { OrgTaskKanbanBoard } from "@/features/task/components/OrgTaskKanbanBoard";
 import { orpcTQClient } from "@/server/orpc.client";
@@ -69,17 +72,12 @@ export default async function TasksPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Tasks</DashboardShellTitle>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <OrgTaskKanbanBoard
-          limit={filters.limit}
-          page={filters.page}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <OrgTaskKanbanBoard searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

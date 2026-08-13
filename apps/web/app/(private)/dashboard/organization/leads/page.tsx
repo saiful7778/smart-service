@@ -2,20 +2,20 @@ import { Metadata } from "next";
 
 import {
   parseAsArrayOf,
-  parseAsIsoDate,
   parseAsString,
   parseAsStringLiteral,
 } from "nuqs/server";
 
 import { LeadStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
-import { RangeSearchEnumSchema } from "@workspace/lib/utils";
 
+import { createRangeFilterServer } from "@/lib/nuqs/rangeFilter.server";
 import { tableQuerySearchParams } from "@/lib/nuqs/tableQuerySearchParams";
 import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -38,17 +38,13 @@ export default async function LeadPage(
   const queryClient = getQueryClient();
 
   const filters = await tableQuerySearchParams({
+    ...createRangeFilterServer(),
     status: parseAsStringLiteral(LeadStatusEnumSchema.options).withOptions({
       clearOnDefault: true,
     }),
     categories: parseAsArrayOf(parseAsString, ",").withOptions({
       clearOnDefault: true,
     }),
-    range: parseAsStringLiteral(RangeSearchEnumSchema.options).withOptions({
-      clearOnDefault: true,
-    }),
-    startTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
-    endTime: parseAsIsoDate.withOptions({ clearOnDefault: true }),
   })(props.searchParams);
 
   const searchFields = ["name", "email", "phone"];
@@ -82,20 +78,15 @@ export default async function LeadPage(
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>All Leads</DashboardShellTitle>
             <DashboardShellDescription>
               Manage all leads in your organization.
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
-        <LeadManagementTable
-          page={filters.page}
-          limit={filters.limit}
-          search={filters.search}
-          searchFields={searchFields}
-        />
+        <LeadManagementTable searchFields={searchFields} />
       </DashboardShell>
     </HydrateClient>
   );

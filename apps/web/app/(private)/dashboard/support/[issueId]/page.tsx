@@ -9,6 +9,7 @@ import { LinkButton } from "@/components/LinkButton";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -47,7 +48,7 @@ export default async function SupportIssueDetailsPage(
       <DashboardShell
         className="max-w-5xl w-full mx-auto"
         header={
-          <div>
+          <DashboardShellHeader>
             <LinkButton href="/dashboard/support">
               <ArrowLeft />
               <span>Go Back</span>
@@ -56,7 +57,7 @@ export default async function SupportIssueDetailsPage(
             <DashboardShellDescription>
               View details and replies
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <FeedbackIssueDetails

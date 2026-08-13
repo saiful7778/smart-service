@@ -16,7 +16,6 @@ import {
 import { Portal } from "@workspace/ui/components/portal";
 
 import { env } from "@/lib/env";
-import { registerServiceWorker } from "@/lib/service-worker";
 
 import useLocalStorage from "@/hooks/use-local-storage";
 import { orpcClient } from "@/server/orpc.client";
@@ -27,8 +26,6 @@ import {
   subscribeToPushNotifications,
   unsubscribeFromPushNotifications,
 } from "../data/push-notification";
-
-const SERVICE_WORKER_URL = "/notification-sw.js";
 
 function isSupported(): boolean {
   return (
@@ -71,7 +68,6 @@ async function requestPlatformPermission(
 }
 
 async function subscribePushSubscription(): Promise<void> {
-  await registerServiceWorker(SERVICE_WORKER_URL);
   const subscription = await subscribeToPushNotifications(
     env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
   );
@@ -125,9 +121,19 @@ export function NotificationPermissionProvider({
   // On mount: sync current permission state into store.
   // Never auto-prompt — let the card handle that via user gesture.
   useEffect(() => {
-    queueMicrotask(() => {
-      setPermission(checkPermission());
-    });
+    (async () => {
+      try {
+        const currentPermission = checkPermission();
+        queueMicrotask(() => {
+          setPermission(currentPermission);
+        });
+        if (currentPermission === "denied") {
+          await unsubscribePushSubscription();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
   }, []);
 
   // Show the prompt card if:

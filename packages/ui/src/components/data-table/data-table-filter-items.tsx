@@ -12,10 +12,12 @@ import {
 
 interface DataTableFilterItemProps<TData> {
   column: Column<TData>;
+  timezone?: string | null | undefined;
 }
 
 export function DataTableFilterItems<TData>({
   column,
+  timezone,
 }: DataTableFilterItemProps<TData>) {
   "use no memo";
   const columnMeta = column.columnDef.meta;
@@ -74,6 +76,7 @@ export function DataTableFilterItems<TData>({
         column={column}
         isInRange={columnMeta.variant === "dateRange"}
         placeholder={columnMeta.placeholder ?? columnMeta.label ?? column.id}
+        timezone={timezone}
       />
     );
   }

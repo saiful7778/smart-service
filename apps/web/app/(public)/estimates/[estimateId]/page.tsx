@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { formatDate } from "date-fns";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { Building2, Calendar, Info, Package } from "lucide-react";
 
@@ -15,11 +14,11 @@ import {
   LeadTable,
   MaterialTable,
   OrgAddressTable,
+  OrganizationMemberTable,
   OrganizationTable,
+  UserTable,
 } from "@workspace/drizzle/schemas";
-import { LeadEstimateStatusEnumType } from "@workspace/drizzle/zod-db-enums";
-import { formatCurrency, formatEnumValue } from "@workspace/lib/utils";
-import { Badge } from "@workspace/ui/components/badge";
+import { formatCurrency, formatDateWithTimezone } from "@workspace/lib/utils";
 import {
   Card,
   CardContent,
@@ -39,6 +38,7 @@ import {
 
 import { db } from "@/lib/db";
 
+import { EstimateStatusBadge } from "@/features/lead/components/EstimateStatusBadge";
 import { AcceptEstimateButton } from "@/features/lead/components/lead-estimate/AcceptEstimateButton";
 import { EstimatePdfDownloadButton } from "@/features/lead/components/lead-estimate/EstimatePdfDownloadButton";
 
@@ -65,17 +65,6 @@ export async function generateMetadata(
   return { title: `${estimateData.name} Estimate` };
 }
 
-const statusColorMap: Record<LeadEstimateStatusEnumType, string> = {
-  draft:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  viewed:
-    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
-  accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  declined: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-};
-
 export default async function PublicEstimatePage(
   props: PageProps<"/estimates/[estimateId]">
 ) {
@@ -90,6 +79,9 @@ export default async function PublicEstimatePage(
       name: LeadEstimateTable.name,
       description: LeadEstimateTable.description,
       status: LeadEstimateTable.status,
+      createdByMember: {
+        timezone: UserTable.timezone,
+      },
       subtotal: LeadEstimateTable.subtotal,
       discountRate: LeadEstimateTable.discountRate,
       discountAmount: LeadEstimateTable.discountAmount,
@@ -103,6 +95,11 @@ export default async function PublicEstimatePage(
       updatedAt: LeadEstimateTable.updatedAt,
     })
     .from(LeadEstimateTable)
+    .leftJoin(
+      OrganizationMemberTable,
+      eq(OrganizationMemberTable.id, LeadEstimateTable.createdBy)
+    )
+    .leftJoin(UserTable, eq(UserTable.id, OrganizationMemberTable.userId))
     .where(
       and(
         eq(LeadEstimateTable.id, estimateId),
@@ -114,6 +111,8 @@ export default async function PublicEstimatePage(
   if (!estimateData) {
     notFound();
   }
+
+  const timezone = estimateData?.createdByMember?.timezone;
 
   const [customerData] = await db
     .select({
@@ -183,7 +182,8 @@ export default async function PublicEstimatePage(
       )
     )
     .innerJoin(AddressTable, eq(AddressTable.id, OrgAddressTable.addressId))
-    .where(eq(OrganizationTable.id, estimateData.orgId));
+    .where(eq(OrganizationTable.id, estimateData.orgId))
+    .limit(1);
 
   if (!orgData) {
     notFound();
@@ -217,7 +217,7 @@ export default async function PublicEstimatePage(
   const taxAmount = Number(estimateData.taxAmount || "0");
   const totalAmount = Number(estimateData.totalAmount);
   const validUntil = estimateData.validUntil
-    ? formatDate(estimateData.validUntil, "PP - pp")
+    ? formatDateWithTimezone(estimateData.validUntil, "PP - pp", timezone)
     : null;
 
   const isAcceptable = ["sent", "viewed"].includes(estimateData.status);
@@ -235,9 +235,7 @@ export default async function PublicEstimatePage(
           <CardContent>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{estimateData.name}</h1>
-              <Badge className={statusColorMap[estimateData.status] ?? ""}>
-                {formatEnumValue(estimateData.status)}
-              </Badge>
+              <EstimateStatusBadge status={estimateData.status} />
             </div>
             {customerData && (
               <>
@@ -291,7 +289,11 @@ export default async function PublicEstimatePage(
                   Created At
                 </div>
                 <div className="text-xs font-medium">
-                  {formatDate(estimateData.createdAt, "PP - p")}
+                  {formatDateWithTimezone(
+                    estimateData.createdAt,
+                    "PP - p",
+                    timezone
+                  )}
                 </div>
               </div>
               <div>
@@ -299,7 +301,11 @@ export default async function PublicEstimatePage(
                   Last Updated
                 </div>
                 <div className="text-xs font-medium">
-                  {formatDate(estimateData.updatedAt, "PP - p")}
+                  {formatDateWithTimezone(
+                    estimateData.updatedAt,
+                    "PP - p",
+                    timezone
+                  )}
                 </div>
               </div>
             </div>
@@ -403,7 +409,11 @@ export default async function PublicEstimatePage(
               estimateId={estimateData.id}
               estimateData={{
                 estimateName: estimateData.name,
-                estimateDate: formatDate(estimateData.createdAt, "PP - pp"),
+                estimateDate: formatDateWithTimezone(
+                  estimateData.createdAt,
+                  "PP - pp",
+                  timezone
+                ),
                 description: estimateData.description,
                 from: {
                   name: orgData.name,

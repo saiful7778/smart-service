@@ -5,6 +5,7 @@ import { getQueryClient, HydrateClient } from "@/lib/tanstack/query/hydration";
 import { DashboardShell } from "@/components/shared/dashboard-shell";
 import {
   DashboardShellDescription,
+  DashboardShellHeader,
   DashboardShellTitle,
 } from "@/components/shared/dashboard-shell/DashboardShellHeader";
 
@@ -32,12 +33,12 @@ export default async function CategoriesPage() {
     <HydrateClient client={queryClient}>
       <DashboardShell
         header={
-          <div>
+          <DashboardShellHeader>
             <DashboardShellTitle>Categories</DashboardShellTitle>
             <DashboardShellDescription>
               Manage your lead categories
             </DashboardShellDescription>
-          </div>
+          </DashboardShellHeader>
         }
       >
         <LeadCategoryManagementTable />

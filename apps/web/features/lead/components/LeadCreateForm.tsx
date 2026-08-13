@@ -56,6 +56,7 @@ import {
 
 import { orpcTQClient } from "@/server/orpc.client";
 
+import { ListCustomerForSearchContractType } from "../api/customer.contract";
 import { useLeadCreate } from "../api/lead.api.hook";
 import { createLeadSchema, CreateLeadType } from "../lead.schema";
 import { CustomerSelectorField } from "./CustomerSelectorField";
@@ -260,11 +261,21 @@ export function LeadCreateForm() {
           </StepperPrev>
 
           <div className="flex flex-wrap justify-center items-center gap-2">
-            <Button type="reset" variant="outline" onClick={handleReset}>
+            <Button
+              type="reset"
+              variant="outline"
+              onClick={handleReset}
+              disabled={isPending}
+            >
               <Undo />
               <span>Reset</span>
             </Button>
-            <Button type="reset" variant="outline" onClick={handleResetAll}>
+            <Button
+              type="reset"
+              variant="outline"
+              onClick={handleResetAll}
+              disabled={isPending}
+            >
               <RotateCcw />
               <span>Reset All</span>
             </Button>
@@ -300,6 +311,26 @@ function DetailsStep({
     control,
     name: "customerId",
   });
+
+  const handleSelectCustomer = (
+    value:
+      ListCustomerForSearchContractType["output"]["data"][number] | undefined
+  ) => {
+    if (value) {
+      setValue("customerName", value.name);
+      if (value.email) {
+        setValue("customerEmail", value.email);
+      }
+      if (value.phone) {
+        setValue("customerPhone", value.phone);
+      }
+    } else {
+      setValue("customerName", "");
+      setValue("customerEmail", "");
+      setValue("customerPhone", "");
+    }
+  };
+
   return (
     <StepperContent value={value}>
       <motion.div
@@ -314,21 +345,7 @@ function DetailsStep({
             control={control}
             name="customerId"
             label="Customer"
-            onValueChange={(value) => {
-              if (value) {
-                setValue("customerName", value.name);
-                if (value.email) {
-                  setValue("customerEmail", value.email);
-                }
-                if (value.phone) {
-                  setValue("customerPhone", value.phone);
-                }
-              } else {
-                setValue("customerName", "");
-                setValue("customerEmail", "");
-                setValue("customerPhone", "");
-              }
-            }}
+            onValueChange={handleSelectCustomer}
             disabled={isPending}
           />
           <div className="flex items-center gap-2">
@@ -336,17 +353,15 @@ function DetailsStep({
             <span className="text-muted-foreground text-xs">OR</span>
             <Separator className="shrink" />
           </div>
+          <InputField
+            control={control}
+            name="customerName"
+            label="Customer name"
+            type="text"
+            placeholder="Name"
+            disabled={!!customerId || isPending}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="col-span-1 md:col-span-2">
-              <InputField
-                control={control}
-                name="customerName"
-                label="Customer name"
-                type="text"
-                placeholder="Name"
-                disabled={!!customerId || isPending}
-              />
-            </div>
             <InputAddonField
               control={control}
               name="customerEmail"

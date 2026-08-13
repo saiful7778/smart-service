@@ -36,7 +36,7 @@ export function JobTable({ data, filters, setFilters }: JobTableProps) {
     setFilters,
     meta: {
       queryKeys: {
-        searchText: filters?.search,
+        searchText: filters?.search ?? undefined,
       },
     },
   });

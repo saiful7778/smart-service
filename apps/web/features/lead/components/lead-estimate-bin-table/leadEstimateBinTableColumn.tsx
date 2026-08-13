@@ -1,5 +1,3 @@
-import { formatDate } from "date-fns";
-
 import {
   LeadEstimateStatusEnumSchema,
   LeadEstimateStatusEnumType,
@@ -10,6 +8,8 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DataTableColumnHeader } from "@workspace/ui/components/data-table/data-table-column-header";
 import { ColumnType } from "@workspace/ui/types/data-table";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 
 import { ListLeadEstimateBinContractType } from "@/features/lead/api/leadEstimateBin.contract";
 
@@ -116,7 +116,15 @@ export const leadEstimateBinTableColumn: ColumnType<EstimateBinTableRowDataType>
       ),
       cell: ({ getValue }) => {
         const deletedAt = getValue<EstimateBinTableRowDataType["deletedAt"]>();
-        return <div>{deletedAt ? formatDate(deletedAt, "PP - p") : "N/A"}</div>;
+        return (
+          <div>
+            {deletedAt ? (
+              <FormatDateCell value={deletedAt} format="PP - p" />
+            ) : (
+              "N/A"
+            )}
+          </div>
+        );
       },
       meta: { label: "Deleted At", variant: "date" },
     },

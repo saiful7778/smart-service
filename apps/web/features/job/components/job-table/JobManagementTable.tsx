@@ -9,7 +9,8 @@ import {
 } from "@workspace/drizzle/zod-db-enums";
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
-import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback";
 
 import { createRangeFilterClient } from "@/lib/nuqs/rangeFilter.client";
@@ -18,7 +19,6 @@ import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 import { ExportData } from "@/components/ExportData";
 import { TimeRangeFilter } from "@/components/time-range-filter";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -26,21 +26,12 @@ import { useJobExportData } from "../../api/job.api.hook";
 import { JobTable } from "./JobTable";
 
 export function JobManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields?: string[] | undefined;
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       ...createRangeFilterClient(),
       status: parseAsStringEnum(JobStatusEnumSchema.options).withOptions({
@@ -68,10 +59,10 @@ export function JobManagementTable({
           receivedRevenue: filters.revenue
             ? { from: filters.revenue[0], to: filters.revenue[1] }
             : undefined,
-          // createdAt:
-          //   filters.startTime && filters.endTime
-          //     ? { from: filters.startTime, to: filters.endTime }
-          //     : undefined,
+          createdAt:
+            filters.startTime && filters.endTime
+              ? { from: filters.startTime, to: filters.endTime }
+              : undefined,
         },
       },
     })
@@ -92,9 +83,9 @@ export function JobManagementTable({
         }}
         setRangeSearch={({ range, startTime, endTime }) =>
           setFilters({
-            range: range ?? undefined,
-            startTime: startTime ?? undefined,
-            endTime: endTime ?? undefined,
+            range,
+            startTime,
+            endTime,
           })
         }
       />
@@ -128,7 +119,11 @@ export function JobManagementTable({
         error={error}
         data={data?.data}
         isEmpty={() => false}
-        loadingFallback={<DataTableSkeleton />}
+        loadingFallback={
+          <DataTableSkeleton>
+            <DataTableToolbarSkeleton />
+          </DataTableSkeleton>
+        }
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
@@ -154,8 +149,8 @@ export function JobManagementTable({
                 JobStatusEnumType[] | null;
 
               setFilters({
-                page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                page: filters?.page,
+                limit: filters?.limit,
                 order: filters?.order ?? null,
                 orderField: filters?.orderField ?? null,
                 status: status && status?.length > 0 ? status[0] : null,

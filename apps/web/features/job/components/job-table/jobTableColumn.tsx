@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { formatDate } from "date-fns";
 import { User } from "lucide-react";
 
 import { JobStatusEnumSchema } from "@workspace/drizzle/zod-db-enums";
@@ -14,6 +13,8 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 import { ColumnType } from "@workspace/ui/types/data-table";
+
+import { FormatDateCell } from "@/components/shared/format-date/FormatDateCell";
 
 import { ListJobsContractType } from "../../api/job.contract";
 import { JobStatusBadge } from "../JobStatusBadge";
@@ -172,14 +173,14 @@ export const jobTableColumn: ColumnType<JobTableRowDataType> = [
                   Start at
                 </span>
                 <span className="font-medium text-muted-foreground">:</span>
-                <span>{formatDate(schedule.startAt, "PP - p")}</span>
+                <FormatDateCell value={schedule.startAt} format="PP - p" />
               </div>
               <div className="flex gap-1 items-center">
                 <span className="font-medium text-muted-foreground">
                   End at
                 </span>
                 <span className="font-medium text-muted-foreground">:</span>
-                <span>{formatDate(schedule.endAt, "PP - p")}</span>
+                <FormatDateCell value={schedule.endAt} format="PP - p" />
               </div>
             </div>
           ))}

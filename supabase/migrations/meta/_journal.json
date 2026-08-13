@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1783764842646,
+      "when": 1786380987399,
       "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1784314647454,
-      "tag": "0001_remove_url",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1784383768874,
-      "tag": "0002_add_lead_estimate",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1785010101530,
-      "tag": "0003_update_estimate_status",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1785145562982,
-      "tag": "0004_update_lead_estimate",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1785444445059,
-      "tag": "0005_remove_serviceAt",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1785782937239,
-      "tag": "0006_add_feedback",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1785786910437,
-      "tag": "0007_update_permission_type",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1785936072287,
-      "tag": "0008_add_task",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1785954010254,
-      "tag": "0009_update_task_status",
       "breakpoints": true
     }
   ]

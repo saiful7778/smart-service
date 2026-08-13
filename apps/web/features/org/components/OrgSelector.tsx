@@ -25,6 +25,7 @@ import {
 
 import { authClient } from "@/lib/better-auth/auth-client";
 
+import { DEFAULT_AUTH_PATH } from "@/constants";
 import orgPlaceholderImg from "@/public/org_placeholder.png";
 import { StateOrganizationType } from "@/stores/zustand/org/orgStore";
 import { useOrgStore } from "@/stores/zustand/org/OrgStoreContext";
@@ -116,7 +117,16 @@ export function OrgSelector() {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link href="/organization/create" />}>
+          <DropdownMenuItem
+            render={
+              <Link
+                href={{
+                  pathname: "/organization/create",
+                  query: { redirectTo: DEFAULT_AUTH_PATH },
+                }}
+              />
+            }
+          >
             <Plus /> <span>Create Organization</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>

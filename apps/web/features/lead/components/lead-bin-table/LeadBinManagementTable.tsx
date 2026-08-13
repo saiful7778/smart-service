@@ -5,12 +5,12 @@ import { parseAsArrayOf, parseAsIsoDate } from "nuqs";
 
 import { DataTableEmpty } from "@workspace/ui/components/data-table/data-table-empty";
 import { DataTableGlobalSearch } from "@workspace/ui/components/data-table/data-table-global-search";
-import { DataTableSkeleton } from "@workspace/ui/components/data-table/data-table-skeleton";
+import { DataTableSkeleton } from "@workspace/ui/components/data-table/DataTableSkeleton";
+import { DataTableToolbarSkeleton } from "@workspace/ui/components/data-table/DataTableToolbarSkeleton";
 import { useDebouncedCallback } from "@workspace/ui/hooks/use-debounced-callback";
 
 import { QueryStateBoundary } from "@/lib/tanstack/query/QueryStateBoundary";
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@/constants";
 import { useTableQueryState } from "@/hooks/use-table-query-state";
 import { orpcTQClient } from "@/server/orpc.client";
 
@@ -18,21 +18,12 @@ import { LeadBinTable } from "./LeadBinTable";
 import { LeadBinTableContextProvider } from "./LeadBinTableContext";
 
 export function LeadBinManagementTable({
-  page,
-  limit,
-  search,
   searchFields,
 }: {
-  page: number;
-  limit: number;
-  search: string;
   searchFields: string[];
 }) {
   "use no memo";
   const { filters, setFilters, setSearchFilter } = useTableQueryState({
-    defaultPage: page,
-    defaultLimit: limit,
-    defaultSearch: search,
     additionalKeys: {
       deletedAt: parseAsArrayOf(parseAsIsoDate, ",").withOptions({
         clearOnDefault: true,
@@ -69,14 +60,18 @@ export function LeadBinManagementTable({
         searchValue={filters.search}
         setSearchValue={globalSearch}
         refresh={refetch}
-      ></DataTableGlobalSearch>
+      />
       <QueryStateBoundary
         isLoading={isLoading}
         isError={isError}
         error={error}
         data={data?.data}
         isEmpty={() => false}
-        loadingFallback={<DataTableSkeleton />}
+        loadingFallback={
+          <DataTableSkeleton>
+            <DataTableToolbarSkeleton />
+          </DataTableSkeleton>
+        }
         emptyFallback={<DataTableEmpty />}
       >
         {(data) => (
@@ -99,8 +94,8 @@ export function LeadBinManagementTable({
                 const deletedAt = filters?.filter?.deletedAt as string[] | null;
 
                 setFilters({
-                  page: filters?.page ?? DEFAULT_PAGE_INDEX,
-                  limit: filters?.limit ?? DEFAULT_PAGE_SIZE,
+                  page: filters?.page,
+                  limit: filters?.limit,
                   order: filters?.order ?? null,
                   orderField: filters?.orderField ?? null,
                   deletedAt: deletedAt
