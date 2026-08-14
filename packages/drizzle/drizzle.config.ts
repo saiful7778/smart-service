@@ -3,13 +3,8 @@ import { join } from "node:path";
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-const NODE_ENV = process.env.NODE_ENV || "development";
-
 config({
-  path: [
-    join(process.cwd(), "../../.env"),
-    join(process.cwd(), `../../.env.${NODE_ENV}.local`),
-  ],
+  path: [join(process.cwd(), "../../.env")],
 });
 
 export default defineConfig({
