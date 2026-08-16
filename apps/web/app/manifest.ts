@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { env } from "@/lib/env";
 
-import { DEFAULT_AUTH_PATH } from "@/constants";
+import { BACKGROUND_COLOR, DEFAULT_AUTH_PATH, THEME_COLOR } from "@/constants";
 import { toSlug } from "@/utils/toSlug";
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -17,8 +17,8 @@ export default function manifest(): MetadataRoute.Manifest {
     dir: "ltr",
     display_override: ["window-controls-overlay", "standalone", "minimal-ui"],
     orientation: "any",
-    background_color: "#ffffff",
-    theme_color: "#bb4d00",
+    background_color: BACKGROUND_COLOR,
+    theme_color: THEME_COLOR,
     categories: ["business", "productivity", "utilities"],
     prefer_related_applications: false,
     icons: [
