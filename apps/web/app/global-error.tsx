@@ -1,7 +1,9 @@
 "use client";
-
+import NextError from "next/error";
 import Link from "next/link";
+import { useEffect } from "react";
 
+import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
@@ -18,6 +20,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    Sentry.captureException(error, { tags: { digest: error.digest } });
+  }, [error]);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
@@ -42,6 +48,8 @@ export default function GlobalError({
                       working on a fix.
                     </p>
                   </div>
+
+                  <NextError statusCode={0} />
 
                   {/* Error details */}
                   <div className="my-12 rounded-lg border border-destructive/20 bg-card/50 p-4 text-left backdrop-blur">

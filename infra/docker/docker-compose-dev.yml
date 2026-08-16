@@ -9,15 +9,14 @@ services:
       - "6379:6379"
     env_file:
       - ../../.env
-      - ../../.env.development.local
     volumes:
       - redis_volume:/data:rw
       - ../redis/redis.conf:/etc/redis/redis.conf:ro
-    command: ["redis-server", "/etc/redis/redis.conf", "--protected-mode", "no"]
+    command: [ "redis-server", "/etc/redis/redis.conf", "--protected-mode", "no" ]
     user: "999:999"
     read_only: true
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli --raw incr ping || exit 1"]
+      test: [ "CMD-SHELL", "redis-cli --raw incr ping || exit 1" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -33,7 +32,6 @@ services:
       - "8079:80"
     env_file:
       - ../../.env
-      - ../../.env.development.local
     depends_on:
       - redis
     networks:

@@ -28,7 +28,10 @@
     "CRON_API_KEY",
     "BETTER_AUTH_URL",
     "BETTER_AUTH_SECRET",
-    "SKIP_ENV_VALIDATION"
+    "SKIP_ENV_VALIDATION",
+    "SENTRY_DSN",
+    "NEXT_PUBLIC_SENTRY_DSN",
+    "CI"
   ],
   "tasks": {
     "build": {

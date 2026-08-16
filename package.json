@@ -39,8 +39,8 @@
     "@workspace/vitest-config": "workspace:*",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "catalog:",
     "dotenv": "catalog:",
+    "eslint": "catalog:",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
@@ -71,6 +71,11 @@
       "ip-address": ">=10.3.1",
       "esbuild": "^0.25.12",
       "@eslint/plugin-kit": "^0.3.4"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@sentry/cli",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
