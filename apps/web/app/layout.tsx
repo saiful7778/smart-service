@@ -22,6 +22,8 @@ import { ProgressBarProvider } from "@/components/providers/progress-bar-provide
 import TanstackQueryProvider from "@/components/providers/tanstack-query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
+import { THEME_COLOR } from "@/constants";
+
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" });
@@ -97,7 +99,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#bb4d00",
+  themeColor: THEME_COLOR,
 };
 
 export default function RootLayout({
