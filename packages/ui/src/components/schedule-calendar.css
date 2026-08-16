@@ -15,6 +15,18 @@
   --fc-page-bg-color: var(--muted);
 }
 
+.fc .fc-toolbar {
+  gap: 1rem;
+  flex-direction: column;
+}
+
+@media (width >= 48rem /* 768px */) {
+  .fc .fc-toolbar {
+    gap: 0rem;
+    flex-direction: row;
+  }
+}
+
 .fc .fc-toolbar-title {
   font-size: 1.25rem;
   font-weight: 500;
