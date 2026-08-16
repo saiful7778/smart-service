@@ -129,7 +129,7 @@ export function TaskKanbanBoard({
             <KanbanProvider
               columns={columns}
               data={data}
-              className="gap-2"
+              className="gap-2 p-1 auto-cols-[minmax(200px,1fr)] overflow-x-auto"
               onDataChange={(taskData) => {
                 console.log(
                   taskData.map(({ name, column }) => ({ name, column }))
@@ -137,7 +137,11 @@ export function TaskKanbanBoard({
               }}
             >
               {(column) => (
-                <KanbanBoard id={column.id} key={column.id}>
+                <KanbanBoard
+                  className="min-w-50"
+                  id={column.id}
+                  key={column.id}
+                >
                   <KanbanHeader>
                     <div className="flex items-center gap-2">
                       <h4 className="text-xs">{column.name}</h4>
