@@ -7,4 +7,5 @@ Sentry.init({
   enableLogs: true,
   environment: process.env.NODE_ENV,
   openTelemetryInstrumentations: [new ORPCInstrumentation()],
+  spotlight: process.env.NODE_ENV === "development",
 });

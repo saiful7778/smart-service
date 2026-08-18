@@ -11,6 +11,9 @@ Sentry.init({
       maskAllText: false,
       blockAllMedia: true,
     }),
+    ...(process.env.NODE_ENV === "development"
+      ? [Sentry.spotlightBrowserIntegration()]
+      : []),
   ],
 
   environment: process.env.NEXT_PUBLIC_NODE_ENV ?? process.env.NODE_ENV,
